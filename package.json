@@ -1,0 +1,38 @@
+{
+  "name": "@nuxtjs/module-test-utils",
+  "version": "0.0.1",
+  "description": "Test utilities for modules",
+  "license": "MIT",
+  "contributors": [
+    "Ricardo Gobbo de Souza <ricardogobbosouza@yahoo.com.br>"
+  ],
+  "main": "lib/index.js",
+  "repository": "nuxt-community/module-test-utils",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "lint": "eslint --ext .js,.vue lib test",
+    "test": "yarn lint && jest",
+    "release": "yarn test && standard-version && git push --follow-tags && npm publish"
+  },
+  "files": [
+    "lib"
+  ],
+  "dependencies": {
+    "get-port": "latest",
+    "request": "latest",
+    "request-promise-native": "latest"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "latest",
+    "@commitlint/config-conventional": "latest",
+    "@nuxtjs/eslint-config": "latest",
+    "codecov": "latest",
+    "eslint": "latest",
+    "husky": "latest",
+    "jest": "latest",
+    "nuxt-edge": "latest",
+    "standard-version": "latest"
+  }
+}
