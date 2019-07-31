@@ -4,7 +4,7 @@ describe('basic', () => {
   let nuxt
 
   beforeAll(async () => {
-    nuxt = await setupNuxt(loadFixture(__dirname, 'basic'))
+    nuxt = await setupNuxt(loadFixture(__dirname))
   }, 60000)
 
   afterAll(async () => {
