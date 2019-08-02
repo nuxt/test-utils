@@ -1,10 +1,10 @@
-const { buildNuxt, loadFixture } = require('..')
+const { build, loadConfig } = require('..')
 
 describe('build', () => {
-  let nuxt
+  let nuxt, builder
 
   beforeAll(async () => {
-    nuxt = await buildNuxt(loadFixture(__dirname))
+    ({ nuxt, builder } = await build(loadConfig(__dirname)))
   }, 60000)
 
   afterAll(async () => {
@@ -12,6 +12,6 @@ describe('build', () => {
   })
 
   test('render', () => {
-    expect(nuxt.builder._buildStatus).toBe(2)
+    expect(builder._buildStatus).toBe(2)
   })
 })

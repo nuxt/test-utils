@@ -1,11 +1,10 @@
-const { setupNuxt, loadFixture, url } = require('..')
+const { setup, loadConfig, url } = require('..')
 
 describe('custom port', () => {
-  let nuxt, port
+  let nuxt
 
   beforeAll(async () => {
-    port = 4444
-    nuxt = await setupNuxt(loadFixture(__dirname), port)
+    ({ nuxt } = await setup(loadConfig(__dirname), 4444))
   }, 60000)
 
   afterAll(async () => {
@@ -13,6 +12,6 @@ describe('custom port', () => {
   })
 
   test('render', () => {
-    expect(url('/')).toBe(`http://localhost:${port}/`)
+    expect(url('/')).toBe('http://localhost:4444/')
   })
 })

@@ -1,12 +1,12 @@
 const { readFileSync } = require('fs')
 const { resolve } = require('path')
-const { generateNuxt, loadFixture } = require('..')
+const { generate, loadConfig } = require('..')
 
 describe('generate', () => {
   let nuxt
 
   beforeAll(async () => {
-    nuxt = await generateNuxt(loadFixture(__dirname))
+    ({ nuxt } = await generate(loadConfig(__dirname)))
   }, 60000)
 
   afterAll(async () => {

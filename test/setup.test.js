@@ -1,10 +1,10 @@
-const { setupNuxt, loadFixture, get } = require('..')
+const { setup, loadConfig, get } = require('..')
 
-describe('basic', () => {
+describe('setup', () => {
   let nuxt
 
   beforeAll(async () => {
-    nuxt = await setupNuxt(loadFixture(__dirname))
+    ({ nuxt } = await setup(loadConfig(__dirname)))
   }, 60000)
 
   afterAll(async () => {

@@ -21,14 +21,13 @@ yarn add --dev @nuxtjs/module-test-utils # or npm install --save-dev @nuxtjs/mod
 ## Usage
 
 ```js
-// basic.test.js
-const { setupNuxt, loadFixture, get } = require('@nuxtjs/module-test-utils')
+const { setup, loadConfig, get } = require('@nuxtjs/module-test-utils')
 
 describe('basic', () => {
   let nuxt
 
   beforeAll(async () => {
-    nuxt = await setupNuxt(loadFixture(__dirname))
+    ({ nuxt } = await setup(loadConfig(__dirname)))
   }, 60000)
 
   afterAll(async () => {
