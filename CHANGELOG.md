@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/nuxt-community/module-test-utils/compare/v1.1.0...v1.2.0) (2019-08-20)
+
+
+### Bug Fixes
+
+* pass options as second paramter ([b3386ed](https://github.com/nuxt-community/module-test-utils/commit/b3386ed))
+
+
+### Features
+
+* add `init` helper ([0472396](https://github.com/nuxt-community/module-test-utils/commit/0472396))
+* add option `override` to `loadConfig` ([778cb07](https://github.com/nuxt-community/module-test-utils/commit/778cb07))
+
 ## [1.1.0](https://github.com/nuxt-community/module-test-utils/compare/v1.0.0...v1.1.0) (2019-08-20)
 
 
