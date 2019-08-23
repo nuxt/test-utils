@@ -1,8 +1,5 @@
 module.exports = {
-  testEnvironment: 'node',
   collectCoverage: true,
-  collectCoverageFrom: [
-    'lib/**/*.js',
-    '!lib/nuxt.js'
-  ]
+  collectCoverageFrom: ['lib/**/*.js', '!lib/nuxt.js'],
+  testEnvironment: 'node'
 }
