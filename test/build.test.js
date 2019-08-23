@@ -4,7 +4,7 @@ describe('build', () => {
   let nuxt, builder
 
   beforeAll(async () => {
-    ({ nuxt, builder } = await build(loadConfig(__dirname)))
+    ({ nuxt, builder } = await build(loadConfig(__dirname, 'build')))
   }, 60000)
 
   afterAll(async () => {

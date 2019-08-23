@@ -1,10 +1,10 @@
 const { setup, loadConfig, get } = require('..')
 
-describe('setup', () => {
+describe('default fixture', () => {
   let nuxt
 
   beforeAll(async () => {
-    ({ nuxt } = await setup(loadConfig(__dirname, 'custom')))
+    ({ nuxt } = await setup(loadConfig(__dirname)))
   }, 60000)
 
   afterAll(async () => {

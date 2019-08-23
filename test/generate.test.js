@@ -6,7 +6,7 @@ describe('generate', () => {
   let nuxt
 
   beforeAll(async () => {
-    ({ nuxt } = await generate(loadConfig(__dirname)))
+    ({ nuxt } = await generate(loadConfig(__dirname, 'generate')))
   }, 60000)
 
   afterAll(async () => {
@@ -14,7 +14,7 @@ describe('generate', () => {
   })
 
   test('render', () => {
-    const html = readFileSync(resolve(__dirname, 'fixture/dist/index.html'), 'utf8')
+    const html = readFileSync(resolve(nuxt.options.rootDir, 'dist/index.html'), 'utf8')
     expect(html).toContain('Works!')
   })
 })

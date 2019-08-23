@@ -4,7 +4,7 @@ describe('custom port', () => {
   let nuxt
 
   beforeAll(async () => {
-    ({ nuxt } = await setup(loadConfig(__dirname), { port: 4444 }))
+    ({ nuxt } = await setup(loadConfig(__dirname, 'custom-port'), { port: 4444 }))
   }, 60000)
 
   afterAll(async () => {
