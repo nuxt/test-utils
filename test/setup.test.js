@@ -16,3 +16,25 @@ describe('setup', () => {
     expect(html).toContain('Works!')
   })
 })
+
+describe('loadConfig', () => {
+  test('override (replace)', () => {
+    const override = {
+      env: {
+        ENV2: 'true'
+      }
+    }
+    const config = loadConfig(__dirname, 'setup', override)
+    expect(config.env).toEqual({ ENV2: 'true' })
+  })
+
+  test('override (merge)', () => {
+    const override = {
+      env: {
+        ENV2: 'true'
+      }
+    }
+    const config = loadConfig(__dirname, 'setup', override, { merge: true })
+    expect(config.env).toEqual({ ENV1: 'true', ENV2: 'true' })
+  })
+})
