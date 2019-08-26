@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/nuxt-community/module-test-utils/compare/v1.2.0...v1.3.0) (2019-08-26)
+
+
+### Features
+
+* allow merging config overrides in loadConfig ([#2](https://github.com/nuxt-community/module-test-utils/issues/2)) ([ad61aef](https://github.com/nuxt-community/module-test-utils/commit/ad61aef)), closes [#1](https://github.com/nuxt-community/module-test-utils/issues/1)
+
 ## [1.2.0](https://github.com/nuxt-community/module-test-utils/compare/v1.1.0...v1.2.0) (2019-08-20)
 
 
