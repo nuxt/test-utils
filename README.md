@@ -6,7 +6,7 @@
 [![Codecov][codecov-src]][codecov-href]
 [![License][license-src]][license-href]
 
-> Test utilities for modules
+> Test utilities for modules Nuxt.js
 
 [📖 **Release Notes**](./CHANGELOG.md)
 
