@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.3.1](https://github.com/nuxt-community/module-test-utils/compare/v1.3.0...v1.3.1) (2019-10-15)
+
+
+### Bug Fixes
+
+* don't allow mutating original config object by the caller ([#5](https://github.com/nuxt-community/module-test-utils/issues/5)) ([642cd1b](https://github.com/nuxt-community/module-test-utils/commit/642cd1b))
+
 ## [1.3.0](https://github.com/nuxt-community/module-test-utils/compare/v1.2.0...v1.3.0) (2019-08-26)
 
 
