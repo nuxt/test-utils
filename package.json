@@ -11,28 +11,29 @@
     "lib"
   ],
   "main": "lib/index.js",
+  "types": "types/index.d.ts",
   "scripts": {
     "lint": "eslint --ext .js,.vue .",
     "release": "yarn test && standard-version && git push --follow-tags && npm publish",
     "test": "yarn lint && jest"
   },
   "dependencies": {
+    "@nuxt/types": "^0.6.4",
     "clone-deep": "^4.0.1",
     "deepmerge": "^4.2.2",
     "get-port": "^5.1.1",
-    "request": "^2.88.2",
-    "request-promise-native": "^1.0.8"
+    "request-promise": "^4.2.5"
   },
   "devDependencies": {
-    "@commitlint/cli": "latest",
-    "@commitlint/config-conventional": "latest",
-    "@nuxtjs/eslint-config": "latest",
-    "codecov": "latest",
-    "eslint": "latest",
-    "husky": "latest",
-    "jest": "latest",
-    "nuxt-edge": "latest",
-    "standard-version": "latest"
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
+    "@nuxtjs/eslint-config": "^2.0.2",
+    "codecov": "^3.6.5",
+    "eslint": "^6.8.0",
+    "husky": "^4.2.3",
+    "jest": "^25.1.0",
+    "nuxt-edge": "^2.12.0-26386224.2c4327b",
+    "standard-version": "^7.1.0"
   },
   "publishConfig": {
     "access": "public"
