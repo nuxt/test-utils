@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://github.com/nuxt-community/module-test-utils/compare/v1.5.0...v1.6.0) (2020-03-16)
+
+
+### Features
+
+* add types for typescript support ([2f42426](https://github.com/nuxt-community/module-test-utils/commit/2f42426))
+
 ## [1.5.0](https://github.com/nuxt-community/module-test-utils/compare/v1.4.0...v1.5.0) (2019-10-29)
 
 
