@@ -1,5 +1,5 @@
 import { Configuration } from '@nuxt/types'
-import { Options } from 'request-promise'
+import { Options } from 'request-promise-native'
 
 export type BeforeNuxtReadyFn = (nuxt: any /*TBD*/) => Promise<void>
 
