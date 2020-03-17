@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.1](https://github.com/nuxt-community/module-test-utils/compare/v1.6.0...v1.6.1) (2020-03-17)
+
+
+### Bug Fixes
+
+* use `request-promise-native` ([982e562](https://github.com/nuxt-community/module-test-utils/commit/982e562529341f777aae7383ab5f90c31d8eec17))
+
 ## [1.6.0](https://github.com/nuxt-community/module-test-utils/compare/v1.5.0...v1.6.0) (2020-03-16)
 
 
