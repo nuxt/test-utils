@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.2](https://github.com/nuxt-community/module-test-utils/compare/v1.6.1...v1.6.2) (2020-06-30)
+
+
+### Bug Fixes
+
+* **types:** include types in published package ([#20](https://github.com/nuxt-community/module-test-utils/issues/20)) ([511a9fe](https://github.com/nuxt-community/module-test-utils/commit/511a9fe7fcfee06c69f1cef60e4b1e5eb4d8fd16))
+
 ### [1.6.1](https://github.com/nuxt-community/module-test-utils/compare/v1.6.0...v1.6.1) (2020-03-17)
 
 
