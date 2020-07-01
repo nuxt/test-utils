@@ -1,5 +1,5 @@
 import { Configuration } from '@nuxt/types'
-import { Options } from 'request-promise-native'
+import { RequestPromiseOptions } from 'request-promise-native'
 
 export type BeforeNuxtReadyFn = (nuxt: any /*TBD*/) => Promise<void>
 
@@ -44,6 +44,7 @@ export const setup: (
 
 export const generatePort: (port?: number) => Promise<number>
 
-export const get: (path: string, options?: Options) => Promise<any>
+export type GetRequest<T = any> = (path: string, options?: RequestPromiseOptions) => Promise<T>
+export const get: GetRequest
 
 export const url: (path?: string) => string
