@@ -1,7 +1,7 @@
 {
   "name": "@nuxtjs/module-test-utils",
   "version": "1.6.3",
-  "description": "Test utilities for modules Nuxt.js",
+  "description": "Test utilities for Nuxt.js module",
   "repository": "nuxt-community/module-test-utils",
   "license": "MIT",
   "contributors": [
@@ -14,30 +14,28 @@
   "main": "lib/index.js",
   "types": "types/index.d.ts",
   "scripts": {
+    "build": "tsc",
     "lint": "eslint --ext .js,.vue .",
     "release": "yarn test && standard-version && git push --follow-tags && npm publish",
     "test": "yarn lint && jest"
   },
   "dependencies": {
-    "clone-deep": "^4.0.1",
-    "deepmerge": "^4.2.2",
+    "defu": "^2.0.4",
     "get-port": "^5.1.1",
-    "request": "^2.88.2",
-    "request-promise-native": "^1.0.8"
+    "tib": "^0.7.4"
   },
   "devDependencies": {
     "@commitlint/cli": "latest",
     "@commitlint/config-conventional": "latest",
     "@nuxt/types": "latest",
     "@nuxtjs/eslint-config": "latest",
+    "@types/jest": "^26.0.4",
     "codecov": "latest",
     "eslint": "latest",
     "husky": "latest",
     "jest": "latest",
     "nuxt-edge": "latest",
-    "standard-version": "latest"
-  },
-  "publishConfig": {
-    "access": "public"
+    "standard-version": "latest",
+    "typescript": "^3.9.6"
   }
 }
