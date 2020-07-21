@@ -13,9 +13,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "bili src/index.ts",
     "lint": "eslint --ext .ts,.js,.vue .",
-    "release": "yarn test && yarn build && standard-version && git push --follow-tags && npm publish",
+    "release": "yarn test && standard-version && yarn build && git push --follow-tags && npm publish",
     "test": "yarn lint && jest"
   },
   "dependencies": {
@@ -30,11 +30,13 @@
     "@nuxtjs/eslint-config-typescript": "latest",
     "@types/jest": "latest",
     "@types/node": "latest",
+    "bili": "latest",
     "codecov": "latest",
     "eslint": "latest",
     "husky": "latest",
     "jest": "latest",
     "nuxt-edge": "latest",
+    "rollup-plugin-typescript2": "latest",
     "standard-version": "latest",
     "ts-jest": "latest",
     "typescript": "latest"
