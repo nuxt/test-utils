@@ -1,6 +1,5 @@
 import { resolve } from 'path'
 import defu from 'defu'
-import { spyOnClass } from './jest'
 import { getContext } from './context'
 
 export async function loadNuxt () {
@@ -8,11 +7,6 @@ export async function loadNuxt () {
   const { Nuxt } = await loadNuxtPackage()
 
   ctx.nuxt = new Nuxt(ctx.config || {})
-
-  const { moduleContainer } = ctx.nuxt
-  spyOnClass(moduleContainer)
-
-  await ctx.nuxt.ready()
 }
 
 export async function loadFixture () {
@@ -30,9 +24,7 @@ export async function loadFixture () {
   }
 }
 
-export async function loadNuxtPackage () {
-  const name = 'nuxt'
-
+export async function loadNuxtPackage (name: string = 'nuxt') {
   return await import(name + '-edge')
     .catch(() => import(name))
 }

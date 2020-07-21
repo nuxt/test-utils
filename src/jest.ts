@@ -16,6 +16,10 @@ export function setupTest (options: Partial<NuxtTestContext>) {
 
     if (!ctx.nuxt) {
       await loadNuxt()
+
+      spyOnClass(ctx.nuxt.moduleContainer)
+
+      await ctx.nuxt.ready()
     }
 
     if (ctx.build && !ctx.builder) {
