@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "lint": "eslint --ext .ts .",
+    "lint": "eslint --ext .ts,.js,.vue .",
     "release": "yarn test && yarn build && standard-version && git push --follow-tags && npm publish",
     "test": "yarn lint && jest"
   },
