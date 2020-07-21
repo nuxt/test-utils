@@ -38,7 +38,7 @@ export function setupTest (options: Partial<NuxtTestContext>) {
       await listen()
     }
 
-    if (ctx.browser && !ctx.puppeteer) {
+    if (ctx.browser === true) {
       await createBrowser()
     }
   }, ctx.buildTimeout)
@@ -57,8 +57,8 @@ export async function cleanup () {
     await ctx.nuxt.close()
   }
 
-  if (ctx.puppeteer) {
-    await ctx.puppeteer.close()
+  if (ctx.browser) {
+    await ctx.browser.close()
   }
 }
 
