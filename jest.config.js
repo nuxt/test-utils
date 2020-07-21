@@ -1,5 +1,5 @@
 module.exports = {
+  preset: 'ts-jest',
   collectCoverage: true,
-  collectCoverageFrom: ['lib/**/*.js', '!lib/nuxt.js'],
   testEnvironment: 'node'
 }
