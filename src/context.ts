@@ -7,6 +7,7 @@ export function createContext (options: Partial<NuxtTestContext>): NuxtTestConte
   return setContext(defu(options, {
     __dirname,
     configFile: 'nuxt.config.js',
+    browserString: 'puppeteer',
     buildTimeout: 60000,
     server: options.browser,
     build: options.browser || options.server,

@@ -15,8 +15,9 @@ export interface NuxtTestContext {
     moduleContainer: any
   }
 
-  browser: boolean
-  puppeteer: any // TIB
+  browser: any // TIB
+  browserString: string
+  browserOptions: any
 
   build: boolean
   builder: {
@@ -30,8 +31,8 @@ export interface NuxtTestContext {
     init: boolean
   }
 
+  waitFor: number
+
   server: boolean
   url: string
-
-  waitFor: number
 }
