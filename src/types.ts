@@ -3,12 +3,13 @@ import { NuxtConfig } from '@nuxt/types'
 export interface NuxtTestContext {
   __dirname: string
   fixture: string
+  configFile: string
 
   rootDir: string
   config: NuxtConfig
   nuxt: {
     config: NuxtConfig
-    listen: (port?) => any
+    listen: (port?: number) => any
     ready: () => any
     close: () => any
     moduleContainer: any
@@ -23,6 +24,14 @@ export interface NuxtTestContext {
   }
   buildTimeout: number
 
+  generate: boolean
+  generateOptions: {
+    build: boolean
+    init: boolean
+  }
+
   server: boolean
   url: string
+
+  waitFor: number
 }

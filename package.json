@@ -7,16 +7,15 @@
   "contributors": [
     "Ricardo Gobbo de Souza <ricardogobbosouza@yahoo.com.br>"
   ],
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "files": [
-    "lib",
-    "types"
+    "dist"
   ],
-  "main": "lib/index.js",
-  "types": "types/index.d.ts",
   "scripts": {
-    "build": "tsc",
-    "lint": "eslint --ext .js,.vue .",
-    "release": "yarn test && standard-version && git push --follow-tags && npm publish",
+    "build": "bili src/index.ts",
+    "lint": "eslint --ext .ts,.js,.vue .",
+    "release": "yarn test && standard-version && yarn build && git push --follow-tags && npm publish",
     "test": "yarn lint && jest"
   },
   "dependencies": {
@@ -28,14 +27,18 @@
     "@commitlint/cli": "latest",
     "@commitlint/config-conventional": "latest",
     "@nuxt/types": "latest",
-    "@nuxtjs/eslint-config": "latest",
-    "@types/jest": "^26.0.4",
+    "@nuxtjs/eslint-config-typescript": "latest",
+    "@types/jest": "latest",
+    "@types/node": "latest",
+    "bili": "latest",
     "codecov": "latest",
     "eslint": "latest",
     "husky": "latest",
     "jest": "latest",
     "nuxt-edge": "latest",
+    "rollup-plugin-typescript2": "latest",
     "standard-version": "latest",
-    "typescript": "^3.9.6"
+    "ts-jest": "latest",
+    "typescript": "latest"
   }
 }
