@@ -4,11 +4,13 @@ import { url } from './server'
 export async function createBrowser () {
   const ctx = getContext()
   const tib = await import('tib')
-  ctx.puppeteer = await tib.createBrowser('puppeteer')
+
+  ctx.browser = await tib.createBrowser(ctx.browserString, ctx.browserOptions)
 }
 
 export async function createPage (path: string) {
   const ctx = getContext()
-  const page = await ctx.puppeteer.page(url(path))
+  const page = await ctx.browser.page(url(path))
+
   return page
 }
