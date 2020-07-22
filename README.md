@@ -20,22 +20,47 @@ yarn add --dev @nuxtjs/module-test-utils # or npm install --save-dev @nuxtjs/mod
 
 ## Usage
 
+You can test the settings by following the example below:
+
 ```js
-const { setup, loadConfig, get } = require('@nuxtjs/module-test-utils')
+const { setupTest } = require('@nuxtjs/module-test-utils')
 
-describe('basic', () => {
-  let nuxt
-
-  beforeAll(async () => {
-    ({ nuxt } = await setup(loadConfig(__dirname)))
-  }, 60000)
-
-  afterAll(async () => {
-    await nuxt.close()
+describe('module', () => {
+  const ctx = setupTest({
+    __dirname,
+    fixture: 'example',
+    config: {
+      myModule: {
+        test: 123
+      }
+    }
   })
 
-  test('render', async () => {
-    const html = await get('/')
+  test('should inject plugin', () => {
+    expect(ctx).toNuxtPluginAdded({
+      src: expect.stringContaining('templates/plugin.js'),
+      fileName: 'myPlugin.js',
+      options: ctx.config.myModule
+    })
+  })
+})
+```
+
+### Test in browser
+
+```js
+import { setupTest, createPage } from '@nuxtjs/module-test-utils'
+
+describe('browser', () => {
+  const ctx = setupTest({
+    __dirname,
+    browser: true,
+    fixture: 'example'
+  })
+
+  test('should render page', async () => {
+    const page = await createPage('/')
+    const html = await page.getHtml()
     expect(html).toContain('Works!')
   })
 })
