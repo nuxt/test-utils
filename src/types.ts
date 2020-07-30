@@ -8,7 +8,7 @@ export interface NuxtTestContext {
   rootDir: string
   config: NuxtConfig
   nuxt: {
-    config: NuxtConfig
+    options: NuxtConfig
     listen: (port?: number) => any
     ready: () => any
     close: () => any

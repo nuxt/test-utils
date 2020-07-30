@@ -17,7 +17,7 @@ export function createContext (options: Partial<NuxtTestContext>): NuxtTestConte
 
 export function getContext (): NuxtTestContext {
   if (!currentContext) {
-    throw new Error('No context is avilable. (Forgot calling setup or createContext?)')
+    throw new Error('No context is available. (Forgot calling setup or createContext?)')
   }
 
   return currentContext
