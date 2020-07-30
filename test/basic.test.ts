@@ -1,6 +1,6 @@
 import { setupTest, createPage, NuxtTestContext } from '../src'
 
-describe('module', () => {
+describe('basic', () => {
   const ctx: NuxtTestContext = setupTest({
     __dirname,
     fixture: 'fixtures/basic',
