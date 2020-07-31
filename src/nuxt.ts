@@ -6,7 +6,7 @@ export async function loadNuxt () {
   const ctx = getContext()
   const { Nuxt } = await loadNuxtPackage()
 
-  ctx.nuxt = new Nuxt(ctx.config || {})
+  ctx.nuxt = new Nuxt(ctx.config)
 }
 
 export async function loadFixture () {
@@ -14,8 +14,8 @@ export async function loadFixture () {
 
   ctx.rootDir = resolve(ctx.__dirname, ctx.fixture)
 
-  const configPath = resolve(ctx.rootDir, ctx.configFile)
-  const loadedConfig = await import(configPath).then(m => m.default || m)
+  const loadedConfig = await import(resolve(ctx.rootDir, ctx.configFile))
+    .then(m => /* istanbul ignore next */ m.default || m)
 
   ctx.config = defu(ctx.config, loadedConfig)
 
@@ -26,5 +26,5 @@ export async function loadFixture () {
 
 export async function loadNuxtPackage (name: string = 'nuxt') {
   return await import(name + '-edge')
-    .catch(() => import(name))
+    .catch(/* istanbul ignore next */ () => import(name))
 }

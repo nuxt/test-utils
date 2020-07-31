@@ -1,4 +1,4 @@
-import { NuxtConfig } from '@nuxt/types'
+import { NuxtConfig, NuxtOptions } from '@nuxt/types'
 
 export interface NuxtTestContext {
   __dirname: string
@@ -8,7 +8,7 @@ export interface NuxtTestContext {
   rootDir: string
   config: NuxtConfig
   nuxt: {
-    config: NuxtConfig
+    options: NuxtOptions
     listen: (port?: number) => any
     ready: () => any
     close: () => any

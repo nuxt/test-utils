@@ -1,6 +1,10 @@
+import './jest.matchers'
+
 export * from './browser'
 export * from './build'
 export * from './context'
+export * from './generate'
 export * from './jest'
 export * from './nuxt'
 export * from './server'
+export * from './types'

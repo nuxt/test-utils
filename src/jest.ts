@@ -68,35 +68,3 @@ export function spyOnClass (instance: any) {
     jest.spyOn(instance, key)
   }
 }
-
-expect.extend({
-  toNuxtPluginAdded (ctx, plugin) {
-    expect(ctx.nuxt.moduleContainer.addPlugin).toBeCalledWith(plugin)
-
-    return { pass: true, message: () => '' }
-  },
-
-  toNuxtLayoutAdded (ctx, layout, name = undefined) {
-    expect(ctx.nuxt.moduleContainer.addLayout).toBeCalledWith(layout, name)
-
-    return { pass: true, message: () => '' }
-  },
-
-  toNuxtErrorLayoutAdded (ctx, errorLayout) {
-    expect(ctx.nuxt.moduleContainer.addErrorLayout).toBeCalledWith(errorLayout)
-
-    return { pass: true, message: () => '' }
-  },
-
-  toNuxtServerMiddlewareAdded (ctx, middleware) {
-    expect(ctx.nuxt.moduleContainer.addServerMiddleware).toBeCalledWith(middleware)
-
-    return { pass: true, message: () => '' }
-  },
-
-  toNuxtRequireModule (ctx, moduleOpts) {
-    expect(ctx.nuxt.moduleContainer.requireModule).toBeCalledWith(moduleOpts)
-
-    return { pass: true, message: () => '' }
-  }
-})
