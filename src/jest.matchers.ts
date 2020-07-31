@@ -1,5 +1,17 @@
 import { NuxtTestContext } from './types'
 
+declare global {
+  namespace jest {
+    interface Matchers<R> {
+      toNuxtPluginAdded(plugin: any): CustomMatcherResult
+      toNuxtLayoutAdded(layout: any, name?: string): CustomMatcherResult
+      toNuxtErrorLayoutAdded(errorLayout: any): CustomMatcherResult
+      toNuxtServerMiddlewareAdded(middleware: any): CustomMatcherResult
+      toNuxtRequireModule(moduleOpts: any): CustomMatcherResult
+    }
+  }
+}
+
 expect.extend({
   toNuxtPluginAdded (ctx: NuxtTestContext, plugin: any) {
     expect(ctx.nuxt.moduleContainer.addPlugin).toBeCalledWith(plugin)
