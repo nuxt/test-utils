@@ -6,65 +6,11 @@
 [![Codecov][codecov-src]][codecov-href]
 [![License][license-src]][license-href]
 
-> Test utilities for modules Nuxt.js
+> Test utilities for Nuxt.js Modules
 
-[📖 **Release Notes**](./CHANGELOG.md)
+**Notes:** This is development branch for 2.x. ([docs](https://test-utils.nuxtjs.org))
 
-## Setup
-
-Add `@nuxtjs/module-test-utils` dependency to your project
-
-```bash
-yarn add --dev @nuxtjs/module-test-utils # or npm install --save-dev @nuxtjs/module-test-utils
-```
-
-## Usage
-
-You can test the settings by following the example below:
-
-```js
-const { setupTest } = require('@nuxtjs/module-test-utils')
-
-describe('module', () => {
-  const ctx = setupTest({
-    __dirname,
-    fixture: 'example',
-    config: {
-      myModule: {
-        test: 123
-      }
-    }
-  })
-
-  test('should inject plugin', () => {
-    expect(ctx).toNuxtPluginAdded({
-      src: expect.stringContaining('templates/plugin.js'),
-      fileName: 'myPlugin.js',
-      options: ctx.config.myModule
-    })
-  })
-})
-```
-
-### Test in browser
-
-```js
-import { setupTest, createPage } from '@nuxtjs/module-test-utils'
-
-describe('browser', () => {
-  const ctx = setupTest({
-    __dirname,
-    browser: true,
-    fixture: 'example'
-  })
-
-  test('should render page', async () => {
-    const page = await createPage('/')
-    const html = await page.getHtml()
-    expect(html).toContain('Works!')
-  })
-})
-```
+For 1.x please see [this branch](https://github.com/nuxt-community/module-test-utils/tree/1.x)
 
 ## License
 
