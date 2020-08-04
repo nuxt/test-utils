@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0-0](https://github.com/nuxt-community/module-test-utils/compare/v1.6.3...v2.0.0-0) (2020-08-04)
+
+
+### Features
+
+* custom browser ([#25](https://github.com/nuxt-community/module-test-utils/issues/25)) ([3e18e35](https://github.com/nuxt-community/module-test-utils/commit/3e18e35907023b57904d4c40b0491517c3532a4f))
+
 ### [1.6.3](https://github.com/nuxt-community/module-test-utils/compare/v1.6.2...v1.6.3) (2020-07-01)
 
 
