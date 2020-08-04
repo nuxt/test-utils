@@ -12,6 +12,7 @@
   "scripts": {
     "build": "bili src/index.ts",
     "lint": "eslint --ext .ts,.js,.vue .",
+    "prerelease": "yarn test && standard-version -p && yarn build && git push --follow-tags && npm publish --tag prerelease",
     "release": "yarn test && standard-version && yarn build && git push --follow-tags && npm publish",
     "test": "yarn lint && jest"
   },
