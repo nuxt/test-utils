@@ -1,4 +1,4 @@
-import { setupTest, createPage, NuxtTestContext } from '../src'
+import { setupTest, createPage, get, NuxtTestContext } from '../src'
 
 describe('basic', () => {
   const ctx: NuxtTestContext = setupTest({
@@ -6,6 +6,11 @@ describe('basic', () => {
     fixture: 'fixtures/basic',
     browser: true,
     waitFor: 100
+  })
+
+  test('request page', async () => {
+    const { body } = await get('/')
+    expect(body).toContain('Works!')
   })
 
   test('should render page', async () => {
