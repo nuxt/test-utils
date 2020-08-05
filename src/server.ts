@@ -1,4 +1,5 @@
 import getPort from 'get-port'
+import got, { OptionsOfUnknownResponseBody } from 'got'
 import { getContext } from './context'
 
 export async function listen () {
@@ -8,6 +9,10 @@ export async function listen () {
   ctx.url = 'http://localhost:' + port
 
   await ctx.nuxt.listen(port)
+}
+
+export function get (path: string, options?: OptionsOfUnknownResponseBody) {
+  return got(url(path), options)
 }
 
 export function url (path: string) {
