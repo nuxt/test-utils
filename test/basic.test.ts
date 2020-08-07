@@ -20,7 +20,7 @@ describe('basic', () => {
   })
 
   test('should be added plugin', () => {
-    expect(ctx).toNuxtPluginAdded({
+    expect(ctx).toHaveCalledNuxtAddPlugin({
       src: expect.stringContaining('plugin.js'),
       fileName: 'plugin-a.js',
       options: {}
@@ -28,19 +28,19 @@ describe('basic', () => {
   })
 
   test('should be added layout', () => {
-    expect(ctx).toNuxtLayoutAdded(expect.stringContaining('layout.vue'))
-    expect(ctx).toNuxtLayoutAdded(expect.stringContaining('layout.vue'), 'name-layout')
+    expect(ctx).toHaveCalledNuxtAddLayout(expect.stringContaining('layout.vue'))
+    expect(ctx).toHaveCalledNuxtAddLayout(expect.stringContaining('layout.vue'), 'name-layout')
   })
 
   test('should be added error layout', () => {
-    expect(ctx).toNuxtErrorLayoutAdded(expect.stringContaining('error'))
+    expect(ctx).toHaveCalledNuxtAddErrorLayout(expect.stringContaining('error'))
   })
 
   test('should be added middleware', () => {
-    expect(ctx).toNuxtServerMiddlewareAdded(expect.stringContaining('middleware.js'))
+    expect(ctx).toHaveCalledNuxtAddServerMiddleware(expect.stringContaining('middleware.js'))
   })
 
   test('should be require module', () => {
-    expect(ctx).toNuxtRequireModule('~/modules/module-b')
+    expect(ctx).toHaveCalledNuxtRequireModule('~/modules/module-b')
   })
 })
