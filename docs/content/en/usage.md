@@ -23,7 +23,7 @@ describe('module', () => {
   })
 
   test('should inject plugin', () => {
-    expect(ctx).toNuxtPluginAdded({
+    expect(ctx).toHaveCalledNuxtAddPlugin({
       src: expect.stringContaining('templates/plugin.js'),
       fileName: 'myPlugin.js',
       options: ctx.config.myModule
