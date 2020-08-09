@@ -13,7 +13,7 @@ import { setupTest, getNuxt } from '@nuxtjs/module-test-utils'
 
 describe('module', () => {
   setupTest({
-    __dirname,
+    testDir: __dirname,
     fixture: 'example',
     config: {
       myModule: {
@@ -39,7 +39,7 @@ import { setupTest, createPage } from '@nuxtjs/module-test-utils'
 
 describe('browser', () => {
   setupTest({
-    __dirname,
+    testDir: __dirname,
     fixture: 'example',
     browser: true
   })
