@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0-2](https://github.com/nuxt-community/module-test-utils/compare/v2.0.0-1...v2.0.0-2) (2020-08-09)
+
+
+### Features
+
+* ensure puppeteer is installed ([#42](https://github.com/nuxt-community/module-test-utils/issues/42)) ([bc6d1e6](https://github.com/nuxt-community/module-test-utils/commit/bc6d1e6fa5b3b14da76489190647746f9f6b56a6))
+* keep internal context ([#51](https://github.com/nuxt-community/module-test-utils/issues/51)) ([7f09991](https://github.com/nuxt-community/module-test-utils/commit/7f0999168c1d1dd3f734a7ff5a7dbd95c59d48e9))
+* request helper ([#39](https://github.com/nuxt-community/module-test-utils/issues/39)) ([7949aad](https://github.com/nuxt-community/module-test-utils/commit/7949aad900f47506c903abd5da7429b956b42a61))
+
 ## [2.0.0-1](https://github.com/nuxt-community/module-test-utils/compare/v2.0.0-0...v2.0.0-1) (2020-08-04)
 
 ## [2.0.0-0](https://github.com/nuxt-community/module-test-utils/compare/v1.6.3...v2.0.0-0) (2020-08-04)
