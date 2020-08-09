@@ -1,11 +1,11 @@
-import { setupTest, createPage, get, NuxtTestContext } from '../src'
+import { setupTest, get, expectModuleToBeCalledWith } from '../src'
 
 describe('basic', () => {
-  const ctx: NuxtTestContext = setupTest({
-    __dirname,
-    fixture: 'fixtures/basic',
-    browser: true,
-    waitFor: 100
+  setupTest({
+    testDir: __dirname,
+    build: true,
+    server: true,
+    fixture: 'fixtures/basic'
   })
 
   test('request page', async () => {
@@ -13,34 +13,23 @@ describe('basic', () => {
     expect(body).toContain('Works!')
   })
 
-  test('should render page', async () => {
-    const page = await createPage('/')
-    const html = await page.getHtml()
-    expect(html).toContain('Works!')
-  })
-
-  test('should be added plugin', () => {
-    expect(ctx).toHaveCalledNuxtAddPlugin({
+  test('module container call assertions', () => {
+    expectModuleToBeCalledWith('addLayout', expect.stringContaining('layout.vue'))
+    expectModuleToBeCalledWith('addLayout', expect.stringContaining('layout.vue'), 'name-layout')
+    expectModuleToBeCalledWith('addErrorLayout', expect.stringContaining('error'))
+    expectModuleToBeCalledWith('addServerMiddleware', expect.stringContaining('middleware.js'))
+    expectModuleToBeCalledWith('requireModule', '~/modules/module-b')
+    expectModuleToBeCalledWith('addPlugin', {
       src: expect.stringContaining('plugin.js'),
       fileName: 'plugin-a.js',
       options: {}
     })
   })
+})
 
-  test('should be added layout', () => {
-    expect(ctx).toHaveCalledNuxtAddLayout(expect.stringContaining('layout.vue'))
-    expect(ctx).toHaveCalledNuxtAddLayout(expect.stringContaining('layout.vue'), 'name-layout')
-  })
-
-  test('should be added error layout', () => {
-    expect(ctx).toHaveCalledNuxtAddErrorLayout(expect.stringContaining('error'))
-  })
-
-  test('should be added middleware', () => {
-    expect(ctx).toHaveCalledNuxtAddServerMiddleware(expect.stringContaining('middleware.js'))
-  })
-
-  test('should be require module', () => {
-    expect(ctx).toHaveCalledNuxtRequireModule('~/modules/module-b')
+describe('second describe', () => {
+  setupTest({
+    testDir: __dirname,
+    fixture: 'fixtures/basic'
   })
 })

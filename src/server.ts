@@ -18,5 +18,9 @@ export function get (path: string, options?: OptionsOfUnknownResponseBody) {
 export function url (path: string) {
   const ctx = getContext()
 
+  if (!ctx.url) {
+    throw new Error('server is not enabled')
+  }
+
   return ctx.url + path
 }
