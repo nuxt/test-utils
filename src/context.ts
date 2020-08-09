@@ -1,11 +1,15 @@
+import { resolve } from 'path'
 import defu from 'defu'
-import { NuxtTestContext } from './types'
+import { NuxtConfig, NuxtOptions } from '@nuxt/types'
 
 let currentContext: NuxtTestContext
+let _ctxCtr = 0
 
 export function createContext (options: Partial<NuxtTestContext>): NuxtTestContext {
   return setContext(defu(options, {
-    __dirname,
+    _id: _ctxCtr++,
+    testDir: resolve(process.cwd(), 'test'),
+    fixture: 'fixture',
     configFile: 'nuxt.config.js',
     browserString: 'puppeteer',
     buildTimeout: 60000,
@@ -27,4 +31,42 @@ export function setContext (context: NuxtTestContext): NuxtTestContext {
   currentContext = context
 
   return currentContext
+}
+
+export interface NuxtTestContext {
+  id: number,
+  testDir: string
+  fixture: string
+  configFile: string
+
+  rootDir: string
+  config: NuxtConfig
+  nuxt: {
+    options: NuxtOptions
+    listen: (port?: number) => any
+    ready: () => any
+    close: () => any
+    moduleContainer: any
+  }
+
+  browser: any // TIB
+  browserString: string
+  browserOptions: any
+
+  build: boolean
+  builder: {
+    build: () => any
+  }
+  buildTimeout: number
+
+  generate: boolean
+  generateOptions: {
+    build: boolean
+    init: boolean
+  }
+
+  waitFor: number
+
+  server: boolean
+  url: string
 }

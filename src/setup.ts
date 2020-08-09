@@ -1,15 +1,32 @@
-import { createContext, getContext } from './context'
+import { createContext, setContext, NuxtTestContext } from './context'
 import { loadNuxt, loadFixture } from './nuxt'
 import { build } from './build'
 import { generate } from './generate'
 import { listen } from './server'
 import { createBrowser } from './browser'
-import { NuxtTestContext } from './types'
 
 export function setupTest (options: Partial<NuxtTestContext>) {
-  const ctx: NuxtTestContext = createContext(options)
+  const ctx = createContext(options)
 
-  beforeAll(async () => {
+  beforeEach(() => {
+    setContext(ctx)
+  })
+
+  afterEach(() => {
+    setContext(undefined)
+  })
+
+  afterAll(async () => {
+    if (ctx.nuxt) {
+      await ctx.nuxt.close()
+    }
+
+    if (ctx.browser) {
+      await ctx.browser.close()
+    }
+  })
+
+  test('setup nuxt', async () => {
     if (ctx.fixture) {
       await loadFixture()
     }
@@ -42,24 +59,6 @@ export function setupTest (options: Partial<NuxtTestContext>) {
       await createBrowser()
     }
   }, ctx.buildTimeout)
-
-  afterAll(async () => {
-    await cleanup()
-  })
-
-  return ctx
-}
-
-export async function cleanup () {
-  const ctx = getContext()
-
-  if (ctx.nuxt) {
-    await ctx.nuxt.close()
-  }
-
-  if (ctx.browser) {
-    await ctx.browser.close()
-  }
 }
 
 export function spyOnClass (instance: any) {

@@ -6,13 +6,13 @@ category: 'Getting started'
 
 You can test the settings by following the example below:
 
-## Test module
+## Test Module
 
 ```js
-import { setupTest } from '@nuxtjs/module-test-utils'
+import { setupTest, getNuxt } from '@nuxtjs/module-test-utils'
 
 describe('module', () => {
-  const ctx = setupTest({
+  setupTest({
     __dirname,
     fixture: 'example',
     config: {
@@ -23,10 +23,10 @@ describe('module', () => {
   })
 
   test('should inject plugin', () => {
-    expect(ctx).toHaveCalledNuxtAddPlugin({
+    expectModuleToBeCalledWith('addPlugin', {
       src: expect.stringContaining('templates/plugin.js'),
       fileName: 'myPlugin.js',
-      options: ctx.config.myModule
+      options: getNuxt().options.myModule
     })
   })
 })
@@ -38,7 +38,7 @@ describe('module', () => {
 import { setupTest, createPage } from '@nuxtjs/module-test-utils'
 
 describe('browser', () => {
-  const ctx = setupTest({
+  setupTest({
     __dirname,
     fixture: 'example',
     browser: true
