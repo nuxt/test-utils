@@ -30,6 +30,7 @@ describe('basic', () => {
 describe('second describe', () => {
   setupTest({
     testDir: __dirname,
+    build: true,
     fixture: 'fixtures/basic'
   })
 })

@@ -22,6 +22,10 @@ export async function loadFixture () {
   if (!ctx.config.rootDir) {
     ctx.config.rootDir = ctx.rootDir
   }
+
+  if (!ctx.config.buildDir) {
+    ctx.config.buildDir = resolve(ctx.rootDir, '.nuxt', ctx.id.toString())
+  }
 }
 
 export async function loadNuxtPackage (name: string = 'nuxt') {
