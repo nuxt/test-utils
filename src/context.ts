@@ -7,7 +7,7 @@ let _ctxCtr = 0
 
 export function createContext (options: Partial<NuxtTestContext>): NuxtTestContext {
   return setContext(defu(options, {
-    id: _ctxCtr++,
+    _id: _ctxCtr++,
     testDir: resolve(process.cwd(), 'test'),
     fixture: 'fixture',
     configFile: 'nuxt.config.js',
@@ -34,7 +34,7 @@ export function setContext (context: NuxtTestContext): NuxtTestContext {
 }
 
 export interface NuxtTestContext {
-  id: number,
+  _id: number,
   testDir: string
   fixture: string
   configFile: string

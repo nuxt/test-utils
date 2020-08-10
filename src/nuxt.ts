@@ -24,7 +24,7 @@ export async function loadFixture () {
   }
 
   if (!ctx.config.buildDir) {
-    ctx.config.buildDir = resolve(ctx.rootDir, '.nuxt', ctx.id.toString())
+    ctx.config.buildDir = resolve(ctx.rootDir, '.nuxt', ctx._id.toString())
   }
 }
 
