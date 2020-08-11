@@ -1,4 +1,4 @@
-import type { Browser } from 'playwright'
+import type { Browser, BrowserContextOptions } from 'playwright'
 import { getContext } from './context'
 import { url } from './server'
 
@@ -10,17 +10,17 @@ export async function createBrowser () {
     playwright = require('playwright')
   } catch {
     throw new Error(`
-        The dependency 'playwright' not found.
-        Please run 'yarn add --dev playwright' or 'npm install --save-dev playwright'
-      `)
+      The dependency 'playwright' not found.
+      Please run 'yarn add --dev playwright' or 'npm install --save-dev playwright'
+    `)
   }
 
-  const { type } = ctx.options.browserOptions
+  const { type, launch } = ctx.options.browserOptions
   if (!playwright[type]) {
     throw new Error(`Invalid browser '${type}'`)
   }
 
-  ctx.browser = await playwright[type].launch()
+  ctx.browser = await playwright[type].launch(launch)
 }
 
 export async function getBrowser (): Promise<Browser> {
@@ -31,12 +31,12 @@ export async function getBrowser (): Promise<Browser> {
   return ctx.browser
 }
 
-export async function createPage (path?: string) {
+export async function createPage (path?: string, options?: BrowserContextOptions) {
   const browser = await getBrowser()
-  const page = await browser.newPage()
+  const page = await browser.newPage(options)
 
   if (path) {
-    page.goto(url(path))
+    await page.goto(url(path))
   }
 
   return page
