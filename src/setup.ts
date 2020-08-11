@@ -1,11 +1,11 @@
-import { createContext, setContext, NuxtTestContext } from './context'
+import { createContext, setContext, NuxtTestOptions } from './context'
 import { loadNuxt, loadFixture } from './nuxt'
 import { build } from './build'
 import { generate } from './generate'
 import { listen } from './server'
 import { createBrowser } from './browser'
 
-export function setupTest (options: Partial<NuxtTestContext>) {
+export function setupTest (options: Partial<NuxtTestOptions>) {
   const ctx = createContext(options)
 
   beforeEach(() => {
@@ -27,7 +27,7 @@ export function setupTest (options: Partial<NuxtTestContext>) {
   })
 
   test('setup nuxt', async () => {
-    if (ctx.fixture) {
+    if (ctx.options.fixture) {
       await loadFixture()
     }
 
@@ -39,26 +39,26 @@ export function setupTest (options: Partial<NuxtTestContext>) {
       await ctx.nuxt.ready()
     }
 
-    if (ctx.build && !ctx.builder) {
+    if (ctx.options.build) {
       await build()
     }
 
-    if (ctx.generate) {
+    if (ctx.options.generate) {
       await generate()
     }
 
-    if (ctx.waitFor) {
-      await (new Promise(resolve => setTimeout(resolve, ctx.waitFor)))
+    if (ctx.options.waitFor) {
+      await (new Promise(resolve => setTimeout(resolve, ctx.options.waitFor)))
     }
 
-    if (ctx.server && !ctx.url) {
+    if (ctx.options.server) {
       await listen()
     }
 
-    if (ctx.browser === true) {
+    if (ctx.options.browser) {
       await createBrowser()
     }
-  }, ctx.buildTimeout)
+  }, ctx.options.setupTimeout)
 }
 
 export function spyOnClass (instance: any) {

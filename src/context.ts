@@ -1,22 +1,27 @@
 import { resolve } from 'path'
 import defu from 'defu'
 import { NuxtConfig, NuxtOptions } from '@nuxt/types'
+import type { Browser, LaunchOptions } from 'playwright'
 
 let currentContext: NuxtTestContext
 let _ctxCtr = 0
 
-export function createContext (options: Partial<NuxtTestContext>): NuxtTestContext {
-  return setContext(defu(options, {
+export function createContext (options: Partial<NuxtTestOptions>): NuxtTestContext {
+  const _options: NuxtTestOptions = defu(options, {
     _id: _ctxCtr++,
     testDir: resolve(process.cwd(), 'test'),
     fixture: 'fixture',
     configFile: 'nuxt.config.js',
-    browserString: 'puppeteer',
-    buildTimeout: 60000,
+    setupTimeout: 60000,
     server: options.browser,
     build: options.browser || options.server,
-    config: {}
-  }))
+    config: {},
+    browserOptions: {
+      type: 'chromium'
+    }
+  })
+
+  return setContext({ options: _options })
 }
 
 export function getContext (): NuxtTestContext {
@@ -33,31 +38,16 @@ export function setContext (context: NuxtTestContext): NuxtTestContext {
   return currentContext
 }
 
-export interface NuxtTestContext {
-  id: number,
+export interface NuxtTestOptions {
+  id: number
+
   testDir: string
   fixture: string
   configFile: string
-
   rootDir: string
   config: NuxtConfig
-  nuxt: {
-    options: NuxtOptions
-    listen: (port?: number) => any
-    ready: () => any
-    close: () => any
-    moduleContainer: any
-  }
-
-  browser: any // TIB
-  browserString: string
-  browserOptions: any
 
   build: boolean
-  builder: {
-    build: () => any
-  }
-  buildTimeout: number
 
   generate: boolean
   generateOptions: {
@@ -65,8 +55,34 @@ export interface NuxtTestContext {
     init: boolean
   }
 
+  setupTimeout: number
   waitFor: number
 
+  browser: boolean
+  browserOptions: {
+    type: 'chromium' | 'firefox' | 'webkit'
+    lunch: LaunchOptions
+  }
+
   server: boolean
-  url: string
+}
+
+export interface NuxtTestContext {
+  options: NuxtTestOptions
+
+  nuxt?: {
+    options: NuxtOptions
+    listen: (port?: number) => any
+    ready: () => any
+    close: () => any
+    moduleContainer: any
+  }
+
+  browser?: Browser
+
+  url?: string
+
+  builder?: {
+    build: () => any
+  }
 }

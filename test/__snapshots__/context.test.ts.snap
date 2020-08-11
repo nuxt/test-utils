@@ -2,14 +2,18 @@
 
 exports[`context default values from context 1`] = `
 Object {
-  "_id": 0,
-  "browserString": "puppeteer",
-  "build": undefined,
-  "buildTimeout": 60000,
-  "config": Object {},
-  "configFile": "nuxt.config.js",
-  "fixture": "fixture",
-  "server": undefined,
-  "testDir": "foo",
+  "options": Object {
+    "_id": 0,
+    "browserOptions": Object {
+      "type": "chromium",
+    },
+    "build": undefined,
+    "buildTimeout": 60000,
+    "config": Object {},
+    "configFile": "nuxt.config.js",
+    "fixture": "fixture",
+    "server": undefined,
+    "testDir": "foo",
+  },
 }
 `;

@@ -6,21 +6,21 @@ export async function loadNuxt () {
   const ctx = getContext()
   const { Nuxt } = await loadNuxtPackage()
 
-  ctx.nuxt = new Nuxt(ctx.config)
+  ctx.nuxt = new Nuxt(ctx.options.config)
 }
 
 export async function loadFixture () {
-  const ctx = getContext()
+  const { options } = getContext()
 
-  ctx.rootDir = resolve(ctx.testDir, ctx.fixture)
+  options.rootDir = resolve(options.testDir, options.fixture)
 
-  const loadedConfig = await import(resolve(ctx.rootDir, ctx.configFile))
+  const loadedConfig = await import(resolve(options.rootDir, options.configFile))
     .then(m => /* istanbul ignore next */ m.default || m)
 
-  ctx.config = defu(ctx.config, loadedConfig)
+  options.config = defu(options.config, loadedConfig)
 
-  if (!ctx.config.rootDir) {
-    ctx.config.rootDir = ctx.rootDir
+  if (!options.config.rootDir) {
+    options.config.rootDir = options.rootDir
   }
 }
 
