@@ -9,8 +9,8 @@ describe('basic', () => {
 
   test('should render page', async () => {
     const page = await createPage('/')
-    const html = await page.textContent('body')
-    expect(html).toContain('Works!')
+    const body = await page.innerHTML('body')
+    expect(body).toContain('Works!')
   })
 })
 
