@@ -3,11 +3,9 @@ import defu from 'defu'
 import { NuxtConfig, NuxtOptions } from '@nuxt/types'
 
 let currentContext: NuxtTestContext
-let _ctxCtr = 0
 
 export function createContext (options: Partial<NuxtTestContext>): NuxtTestContext {
   return setContext(defu(options, {
-    _id: _ctxCtr++,
     testDir: resolve(process.cwd(), 'test'),
     fixture: 'fixture',
     configFile: 'nuxt.config.js',
@@ -34,7 +32,6 @@ export function setContext (context: NuxtTestContext): NuxtTestContext {
 }
 
 export interface NuxtTestContext {
-  id: number,
   testDir: string
   fixture: string
   configFile: string
