@@ -23,10 +23,9 @@ export async function loadFixture () {
     options.config.rootDir = options.rootDir
   }
 
-  if (!options.buildDir) {
+  if (!options.config.buildDir) {
     const randomId = Math.random().toString(36).substr(2, 8)
-
-    options.buildDir = resolve(options.rootDir, '.nuxt', randomId)
+    options.config.buildDir = resolve(options.rootDir, '.nuxt', randomId)
   }
 }
 
