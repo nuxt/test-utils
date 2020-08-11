@@ -4,11 +4,9 @@ import { NuxtConfig, NuxtOptions } from '@nuxt/types'
 import type { Browser, LaunchOptions } from 'playwright'
 
 let currentContext: NuxtTestContext
-let _ctxCtr = 0
 
 export function createContext (options: Partial<NuxtTestOptions>): NuxtTestContext {
   const _options: NuxtTestOptions = defu(options, {
-    _id: _ctxCtr++,
     testDir: resolve(process.cwd(), 'test'),
     fixture: 'fixture',
     configFile: 'nuxt.config.js',
@@ -39,12 +37,11 @@ export function setContext (context: NuxtTestContext): NuxtTestContext {
 }
 
 export interface NuxtTestOptions {
-  id: number
-
   testDir: string
   fixture: string
   configFile: string
   rootDir: string
+  buildDir: string
   config: NuxtConfig
 
   build: boolean
