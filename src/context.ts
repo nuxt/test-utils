@@ -58,7 +58,7 @@ export interface NuxtTestOptions {
   browser: boolean
   browserOptions: {
     type: 'chromium' | 'firefox' | 'webkit'
-    launch: LaunchOptions
+    launch?: LaunchOptions
   }
 
   server: boolean
