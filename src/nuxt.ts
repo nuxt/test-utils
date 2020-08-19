@@ -6,27 +6,26 @@ export async function loadNuxt () {
   const ctx = getContext()
   const { Nuxt } = await loadNuxtPackage()
 
-  ctx.nuxt = new Nuxt(ctx.config)
+  ctx.nuxt = new Nuxt(ctx.options.config)
 }
 
 export async function loadFixture () {
-  const ctx = getContext()
+  const { options } = getContext()
 
-  ctx.rootDir = resolve(ctx.testDir, ctx.fixture)
+  options.rootDir = resolve(options.testDir, options.fixture)
 
-  const loadedConfig = await import(resolve(ctx.rootDir, ctx.configFile))
+  const loadedConfig = await import(resolve(options.rootDir, options.configFile))
     .then(m => /* istanbul ignore next */ m.default || m)
 
-  ctx.config = defu(ctx.config, loadedConfig)
+  options.config = defu(options.config, loadedConfig)
 
-  if (!ctx.config.rootDir) {
-    ctx.config.rootDir = ctx.rootDir
+  if (!options.config.rootDir) {
+    options.config.rootDir = options.rootDir
   }
 
-  if (!ctx.config.buildDir) {
+  if (!options.config.buildDir) {
     const randomId = Math.random().toString(36).substr(2, 8)
-
-    ctx.config.buildDir = resolve(ctx.rootDir, '.nuxt', randomId)
+    options.config.buildDir = resolve(options.rootDir, '.nuxt', randomId)
   }
 }
 

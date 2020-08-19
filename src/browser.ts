@@ -1,27 +1,43 @@
+import type { Browser, BrowserContextOptions } from 'playwright'
 import { getContext } from './context'
 import { url } from './server'
 
 export async function createBrowser () {
   const ctx = getContext()
-  const tib = await import('tib')
 
-  if (ctx.browserString === 'puppeteer') {
-    try {
-      require.resolve(ctx.browserString)
-    } catch {
-      throw new Error(`
-        The dependency '${ctx.browserString}' not found.
-        Please run 'yarn add ${ctx.browserString} --dev' or 'npm install ${ctx.browserString} --save-dev'
-      `)
-    }
+  let playwright: typeof import('playwright')
+  try {
+    playwright = require('playwright')
+  } catch {
+    throw new Error(`
+      The dependency 'playwright' not found.
+      Please run 'yarn add --dev playwright' or 'npm install --save-dev playwright'
+    `)
   }
 
-  ctx.browser = await tib.createBrowser(ctx.browserString, ctx.browserOptions)
+  const { type, launch } = ctx.options.browserOptions
+  if (!playwright[type]) {
+    throw new Error(`Invalid browser '${type}'`)
+  }
+
+  ctx.browser = await playwright[type].launch(launch)
 }
 
-export async function createPage (path: string) {
+export async function getBrowser (): Promise<Browser> {
   const ctx = getContext()
-  const page = await ctx.browser.page(url(path))
+  if (!ctx.browser) {
+    await createBrowser()
+  }
+  return ctx.browser
+}
+
+export async function createPage (path?: string, options?: BrowserContextOptions) {
+  const browser = await getBrowser()
+  const page = await browser.newPage(options)
+
+  if (path) {
+    await page.goto(url(path))
+  }
 
   return page
 }

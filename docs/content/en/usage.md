@@ -46,8 +46,8 @@ describe('browser', () => {
 
   test('should render page', async () => {
     const page = await createPage('/')
-    const html = await page.getHtml()
-    expect(html).toContain('Works!')
+    const body = await page.innerHTML('body')
+    expect(body).toContain('Works!')
   })
 })
 ```

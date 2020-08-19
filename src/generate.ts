@@ -1,12 +1,13 @@
 import { getContext } from './context'
-import { loadNuxtPackage } from './nuxt'
+import { loadNuxtPackage, getNuxt } from './nuxt'
 
 export async function generate () {
-  const ctx = getContext()
+  const { options } = getContext()
+  const nuxt = getNuxt()
   const { Builder, Generator } = await loadNuxtPackage()
 
-  const builder = new Builder(ctx.nuxt)
-  const generator = new Generator(ctx.nuxt, builder)
+  const builder = new Builder(nuxt)
+  const generator = new Generator(nuxt, builder)
 
-  await generator.generate(ctx.generateOptions)
+  await generator.generate(options.generate)
 }
