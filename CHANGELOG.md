@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0-3](https://github.com/nuxt-community/module-test-utils/compare/v2.0.0-2...v2.0.0-3) (2020-08-19)
+
+
+### Features
+
+* add negative assertions ([#57](https://github.com/nuxt-community/module-test-utils/issues/57)) ([0a5e206](https://github.com/nuxt-community/module-test-utils/commit/0a5e206fb2054c8794e20481567cd119bc3bf6c8))
+* migrate to playwright ([#54](https://github.com/nuxt-community/module-test-utils/issues/54)) ([d82102d](https://github.com/nuxt-community/module-test-utils/commit/d82102dfaebc876098551963a424f8250b94ca64))
+
+
+### Bug Fixes
+
+* use random `buildDir` to avoid conflicts ([#53](https://github.com/nuxt-community/module-test-utils/issues/53)) ([b627493](https://github.com/nuxt-community/module-test-utils/commit/b62749305d78d6c023f0c760fc8a8533df379fb7))
+
 ## [2.0.0-2](https://github.com/nuxt-community/module-test-utils/compare/v2.0.0-1...v2.0.0-2) (2020-08-09)
 
 
