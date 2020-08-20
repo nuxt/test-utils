@@ -1,4 +1,4 @@
-name: ci
+name: unit
 
 on:
   push:
@@ -121,39 +121,6 @@ jobs:
 
       - name: test unit
         run: yarn test:unit
-
-      - name: coverage
-        uses: codecov/codecov-action@v1
-
-  test-e2e:
-    needs: setup
-
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node: [12]
-
-    steps:
-      - uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: setup playwright
-        uses: microsoft/playwright-github-action@v1
-
-      - name: checkout
-        uses: actions/checkout@v2
-
-      - name: restore workspace cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}
-          key: ${{ matrix.os }}-node-v${{ matrix.node }}-nuxt-${{ github.sha }}
-
-      - name: test e2e
-        run: yarn test:e2e
 
       - name: coverage
         uses: codecov/codecov-action@v1
