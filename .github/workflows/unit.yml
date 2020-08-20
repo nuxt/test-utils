@@ -9,7 +9,7 @@ on:
       - master
 
 jobs:
-  setup:
+  test-unit:
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -35,89 +35,8 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: yarn --check-files --frozen-lockfile --non-interactive
 
-      - name: cache workspace
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}
-          key: ${{ matrix.os }}-node-v${{ matrix.node }}-nuxt-${{ github.sha }}
-
-  lint:
-    needs: setup
-
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node: [12]
-
-    steps:
-      - uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: checkout
-        uses: actions/checkout@v2
-
-      - name: restore workspace cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}
-          key: ${{ matrix.os }}-node-v${{ matrix.node }}-nuxt-${{ github.sha }}
-
       - name: lint
         run: yarn lint
-
-  audit:
-    needs: setup
-
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node: [12]
-
-    steps:
-      - uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: checkout
-        uses: actions/checkout@v2
-
-      - name: restore workspace cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}
-          key: ${{ matrix.os }}-node-v${{ matrix.node }}-nuxt-${{ github.sha }}
-
-      - name: audit
-        run: yarn run audit
-
-  test-unit:
-    needs: setup
-
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        node: [10, 12]
-
-    steps:
-      - uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: checkout
-        uses: actions/checkout@v2
-
-      - name: restore workspace cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}
-          key: ${{ matrix.os }}-node-v${{ matrix.node }}-nuxt-${{ github.sha }}
 
       - name: test unit
         run: yarn test:unit
