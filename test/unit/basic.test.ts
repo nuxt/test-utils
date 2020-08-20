@@ -1,8 +1,9 @@
-import { setupTest, get, expectModuleToBeCalledWith } from '../src'
+import { resolve } from 'path'
+import { setupTest, get, expectModuleToBeCalledWith } from '../../src'
 
 describe('basic', () => {
   setupTest({
-    testDir: __dirname,
+    testDir: resolve(__dirname, '..'),
     build: true,
     server: true,
     fixture: 'fixtures/basic'
@@ -29,7 +30,7 @@ describe('basic', () => {
 
 describe('second describe', () => {
   setupTest({
-    testDir: __dirname,
+    testDir: resolve(__dirname, '..'),
     build: true,
     fixture: 'fixtures/basic'
   })

@@ -1,8 +1,9 @@
-import { setupTest, createPage } from '../src'
+import { resolve } from 'path'
+import { setupTest, createPage } from '../../src'
 
-describe('basic', () => {
+describe('browser', () => {
   setupTest({
-    testDir: __dirname,
+    testDir: resolve(__dirname, '..'),
     fixture: 'fixtures/basic',
     browser: true
   })
@@ -16,7 +17,7 @@ describe('basic', () => {
 
 describe('second describe', () => {
   setupTest({
-    testDir: __dirname,
+    testDir: resolve(__dirname, '..'),
     fixture: 'fixtures/basic'
   })
 })
