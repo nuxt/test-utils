@@ -15,8 +15,8 @@
     "prerelease": "yarn test && standard-version -p && yarn build && git push --follow-tags && npm publish --tag prerelease",
     "release": "yarn test && standard-version && yarn build && git push --follow-tags && npm publish",
     "test": "yarn lint && yarn test:unit && yarn test:e2e",
-    "test:unit": "jest -i test/unit --forceExit",
-    "test:e2e": "jest -i test/e2e --forceExit"
+    "test:unit": "jest test/unit --forceExit",
+    "test:e2e": "jest test/e2e --forceExit"
   },
   "dependencies": {
     "defu": "^3.1.0",
