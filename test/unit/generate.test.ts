@@ -1,14 +1,14 @@
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { setupTest, getNuxt } from '../src'
+import { setupTest, getNuxt } from '../../src'
 
 describe('generate', () => {
   setupTest({
-    testDir: __dirname,
+    testDir: resolve(__dirname, '..'),
     fixture: 'fixtures/generate',
     generate: true,
     config: {
-      rootDir: resolve(__dirname, 'fixtures/generate')
+      rootDir: resolve(__dirname, '../fixtures/generate')
     }
   })
 

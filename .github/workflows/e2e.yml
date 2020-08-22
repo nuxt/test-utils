@@ -1,4 +1,4 @@
-name: ci
+name: e2e
 
 on:
   push:
@@ -9,13 +9,13 @@ on:
       - master
 
 jobs:
-  ci:
+  test-e2e:
     runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node: [10, 12]
+        node: [12]
 
     steps:
       - uses: actions/setup-node@v1
@@ -34,15 +34,12 @@ jobs:
           path: node_modules
           key: ${{ matrix.os }}-node-v${{ matrix.node }}-deps-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
 
-      - name: Install dependencies
+      - name: install
         if: steps.cache.outputs.cache-hit != 'true'
-        run: yarn
+        run: yarn --check-files --frozen-lockfile --non-interactive
 
-      - name: Lint
-        run: yarn lint
+      - name: test e2e
+        run: yarn test:e2e
 
-      - name: Test
-        run: yarn test
-
-      - name: Coverage
+      - name: coverage
         uses: codecov/codecov-action@v1

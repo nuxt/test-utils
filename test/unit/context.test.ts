@@ -1,4 +1,4 @@
-import { createContext, getContext, NuxtTestContext } from '../src'
+import { createContext, getContext, NuxtTestContext } from '../../src'
 
 describe('context', () => {
   test('should be error if no context available', () => {
