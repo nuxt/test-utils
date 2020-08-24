@@ -1,6 +1,4 @@
 module.exports = {
-  preset: 'ts-jest',
-  collectCoverage: true,
-  collectCoverageFrom: ['src/**/*.ts'],
-  testEnvironment: 'node'
+  preset: './jest-preset.js',
+  collectCoverageFrom: ['src/**/*.ts']
 }
