@@ -1,7 +1,7 @@
 import { resolve } from 'path'
 import { setupTest, get, expectModuleToBeCalledWith } from '../../src'
 
-describe('basic', () => {
+describe('module', () => {
   setupTest({
     testDir: resolve(__dirname, '..'),
     build: true,
@@ -28,10 +28,22 @@ describe('basic', () => {
   })
 })
 
-describe('second describe', () => {
+describe('setup with waitFor', () => {
   setupTest({
     testDir: resolve(__dirname, '..'),
     build: true,
+    fixture: 'fixtures/basic',
+    waitFor: 100
+  })
+})
+
+describe('server', () => {
+  setupTest({
+    testDir: resolve(__dirname, '..'),
     fixture: 'fixtures/basic'
+  })
+
+  test('should be error if server not enabled', () => {
+    expect(() => get('/')).toThrowError('server is not enabled')
   })
 })

@@ -15,9 +15,17 @@ describe('browser', () => {
   })
 })
 
-describe('second describe', () => {
+describe('browser type', () => {
   setupTest({
     testDir: resolve(__dirname, '..'),
-    fixture: 'fixtures/basic'
+    fixture: 'fixtures/basic',
+    browserOptions: {
+      // @ts-ignore
+      type: 'foo'
+    }
+  })
+
+  test('should be error if invalid browser type', () => {
+    expect(createPage()).rejects.toEqual(new Error('Invalid browser \'foo\''))
   })
 })

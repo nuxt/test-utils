@@ -9,6 +9,7 @@ export async function createBrowser () {
   try {
     playwright = require('playwright')
   } catch {
+    /* istanbul ignore next */
     throw new Error(`
       The dependency 'playwright' not found.
       Please run 'yarn add --dev playwright' or 'npm install --save-dev playwright'
