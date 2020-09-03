@@ -2,7 +2,7 @@
 title: 'Introduction'
 position: 1
 category: 'Getting started'
-description: Easily create tests for your Nuxt.js projects/modules
+description: Easily create tests for your NuxtJS projects/modules
 items:
  - Easy to setup tests
  - Test in brownser
@@ -13,7 +13,7 @@ items:
 <img src="/preview.svg" class="light-img" :alt="description" />
 <img src="/preview-dark.svg" class="dark-img" :alt="description" />
 
-Now it's easy to create tests for projects/modules nuxt.
+Now it's easy to create tests for projects/modules NuxtJS
 
 ## Key features
 
