@@ -8,7 +8,7 @@
 [![Codecov][codecov-src]][codecov-href]
 [![License][license-src]][license-href]
 
-> Easily create tests for your [NuxtJS](https://nuxtjs.org) projects/modules
+> Test utilities for [NuxtJS](https://nuxtjs.org)
 
 - [✨ **Release Notes**](./CHANGELOG.md)
 - [📖 **Documentation**](https://test-utils.nuxtjs.org)
@@ -24,7 +24,7 @@
 
 ## Setup
 
-1. Add `@nuxtjs/module-test-utils` dependency to your project
+1. Add `@nuxtjs/module-test-utils` devDependency to your project
 
 ```bash
 yarn add --dev @nuxtjs/module-test-utils # or npm install --save-dev @nuxtjs/module-test-utils
@@ -33,7 +33,6 @@ yarn add --dev @nuxtjs/module-test-utils # or npm install --save-dev @nuxtjs/mod
 2. Add `@nuxtjs/module-test-utils` to the `preset` section of `jest.config.js`
 
 ```js
-// jest.config.js
 module.exports = {
   preset: '@nuxtjs/module-test-utils'
 }

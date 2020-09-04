@@ -1,8 +1,9 @@
 ---
-title: 'Introduction'
-position: 1
-category: 'Getting started'
+title: Introduction
 description: Easily create tests for your NuxtJS projects/modules
+position: 1
+category: ''
+categoryPosition: 1
 items:
  - Easy to setup tests
  - Test in brownser
