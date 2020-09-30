@@ -9,5 +9,7 @@ export async function generate () {
   const builder = new Builder(nuxt)
   const generator = new Generator(nuxt, builder)
 
-  await generator.generate(options.generate)
+  await nuxt.server.listen(0)
+  await generator.generate(options.generate);
+  await nuxt.close()
 }
