@@ -1,3 +1,5 @@
+[![@nuxtjs/module-test-utils](https://test-utils.nuxtjs.org/preview.svg)](https://test-utils.nuxtjs.org)
+
 # @nuxtjs/module-test-utils
 
 [![npm version][npm-version-src]][npm-version-href]
@@ -6,11 +8,35 @@
 [![Codecov][codecov-src]][codecov-href]
 [![License][license-src]][license-href]
 
-> Test utilities for Nuxt.js Modules
+> Test utilities for [NuxtJS](https://nuxtjs.org)
 
-**Notes:** This is development branch for 2.x. ([docs](https://test-utils.nuxtjs.org))
+- [✨ **Release Notes**](./CHANGELOG.md)
+- [📖 **Documentation**](https://test-utils.nuxtjs.org)
 
-For 1.x please see [this branch](https://github.com/nuxt-community/module-test-utils/tree/1.x)
+## Features
+
+ - Easy to setup tests
+ - Test in brownser
+ - Extend jest matchers
+ - Written in TypeScript
+
+[📖 **Read more**](https://test-utils.nuxtjs.org)
+
+## Setup
+
+1. Add `@nuxtjs/module-test-utils` devDependency to your project
+
+```bash
+yarn add --dev @nuxtjs/module-test-utils # or npm install --save-dev @nuxtjs/module-test-utils
+```
+
+2. Add `@nuxtjs/module-test-utils` to the `preset` section of `jest.config.js`
+
+```js
+module.exports = {
+  preset: '@nuxtjs/module-test-utils'
+}
+```
 
 ## License
 
