@@ -1,7 +1,7 @@
 {
   "name": "@nuxt/test-utils",
-  "version": "2.0.0-3",
-  "description": "Test utilities for NuxtJS",
+  "version": "0.0.0",
+  "description": "Test utilities for Nuxt.js",
   "repository": "nuxt-community/module-test-utils",
   "license": "MIT",
   "main": "dist/index.js",
@@ -13,7 +13,6 @@
   "scripts": {
     "build": "siroc build",
     "lint": "eslint --ext .ts,.js,.vue .",
-    "prerelease": "yarn test && standard-version -p && yarn build && git push --follow-tags && npm publish --tag prerelease",
     "release": "yarn test && standard-version && yarn build && git push --follow-tags && npm publish",
     "test": "yarn lint && yarn test:unit && yarn test:e2e",
     "test:e2e": "jest test/e2e --forceExit",

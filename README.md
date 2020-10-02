@@ -47,11 +47,11 @@ module.exports = {
 Copyright (c) Nuxt.js Team
 
 <!-- Badges -->
-[npm-version-src]: https://flat.badgen.net/npm/v/@nuxt/image
-[npm-version-href]: https://npmjs.com/package/@nuxt/image
-[npm-downloads-src]: https://flat.badgen.net/npm/dm/@nuxt/image
-[npm-downloads-href]: https://npmjs.com/package/@nuxt/image
-[checks-src]: https://flat.badgen.net/github/checks/nuxt/image/master
-[checks-href]: https://github.com/nuxt/image/actions
-[codecov-src]: https://flat.badgen.net/codecov/c/github/nuxt/image
-[codecov-href]: https://codecov.io/gh/nuxt/image
+[npm-version-src]: https://flat.badgen.net/npm/v/@nuxt/test-utils
+[npm-version-href]: https://npmjs.com/package/@nuxt/test-utils
+[npm-downloads-src]: https://flat.badgen.net/npm/dm/@nuxt/test-utils
+[npm-downloads-href]: https://npmjs.com/package/@nuxt/test-utils
+[checks-src]: https://flat.badgen.net/github/checks/nuxt/test-utils/master
+[checks-href]: https://github.com/nuxt/test-utils/actions
+[codecov-src]: https://flat.badgen.net/codecov/c/github/nuxt/test-utils
+[codecov-href]: https://codecov.io/gh/nuxt/test-utils
