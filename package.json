@@ -1,5 +1,5 @@
 {
-  "name": "@nuxtjs/module-test-utils",
+  "name": "@nuxt/test-utils",
   "version": "2.0.0-3",
   "description": "Test utilities for NuxtJS",
   "repository": "nuxt-community/module-test-utils",
@@ -7,7 +7,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "jest-preset.js"
   ],
   "scripts": {
     "build": "siroc build",
@@ -15,20 +16,18 @@
     "prerelease": "yarn test && standard-version -p && yarn build && git push --follow-tags && npm publish --tag prerelease",
     "release": "yarn test && standard-version && yarn build && git push --follow-tags && npm publish",
     "test": "yarn lint && yarn test:unit && yarn test:e2e",
-    "test:unit": "jest test/unit --forceExit",
-    "test:e2e": "jest test/e2e --forceExit"
+    "test:e2e": "jest test/e2e --forceExit",
+    "test:unit": "jest test/unit --forceExit"
   },
   "dependencies": {
     "defu": "^3.1.0",
     "get-port": "^5.1.1",
-    "got": "^11.6.0"
+    "got": "^11.7.0"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "latest",
     "@babel/preset-env": "latest",
     "@babel/preset-typescript": "latest",
-    "@commitlint/cli": "latest",
-    "@commitlint/config-conventional": "latest",
     "@nuxt/types": "latest",
     "@nuxtjs/eslint-config-typescript": "latest",
     "@types/jest": "latest",
@@ -37,7 +36,6 @@
     "codecov": "latest",
     "core-js": "latest",
     "eslint": "latest",
-    "husky": "latest",
     "jest": "latest",
     "nuxt-edge": "latest",
     "playwright": "latest",

@@ -7,7 +7,7 @@ categoryPosition: 3
 ---
 
 ```js
-import { setupTest, getNuxt } from '@nuxtjs/module-test-utils'
+import { setupTest, getNuxt } from '@nuxt/test-utils'
 
 describe('module', () => {
   setupTest({

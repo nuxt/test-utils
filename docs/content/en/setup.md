@@ -14,20 +14,20 @@ Remember to have [Jest](https://jestjs.io/docs/en/getting-started) installed as 
 
 ## Installation
 
-Add `@nuxtjs/module-test-utils` devDependency to your project:
+Add `@nuxt/module-utils` devDependency to your project:
 
 <code-group>
   <code-block label="Yarn" active>
 
   ```bash
-  yarn add --dev @nuxtjs/module-test-utils
+  yarn add --dev @nuxt/test-utils
   ```
 
   </code-block>
   <code-block label="NPM">
 
   ```bash
-  npm install --save-dev @nuxtjs/module-test-utils
+  npm install --save-dev @nuxt/test-utils
   ```
 
   </code-block>
