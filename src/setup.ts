@@ -43,16 +43,16 @@ export function setupTest (options: Partial<NuxtTestOptions>) {
       await build()
     }
 
+    if (ctx.options.server) {
+      await listen()
+    }
+
     if (ctx.options.generate) {
       await generate()
     }
 
     if (ctx.options.waitFor) {
       await (new Promise(resolve => setTimeout(resolve, ctx.options.waitFor)))
-    }
-
-    if (ctx.options.server) {
-      await listen()
     }
 
     if (ctx.options.browser) {
