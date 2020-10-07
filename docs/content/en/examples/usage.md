@@ -1,7 +1,7 @@
 ---
 title: Test module
 description: ''
-position: 4
+position: 7
 category: Examples
 categoryPosition: 3
 ---

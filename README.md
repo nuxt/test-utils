@@ -1,3 +1,5 @@
+[![@nuxt/test-utils](https://test-utils.nuxtjs.org/preview.png)](https://test-utils.nuxtjs.org)
+
 # @nuxt/test-utils
 
 [![npm version][npm-version-src]][npm-version-href]
@@ -13,9 +15,11 @@
 ## Features
 
 - Easy to setup tests
-- Test in brownser
-- Extend jest matchers
+- Test in browser
+- Extend Jest matchers
 - Written in TypeScript
+
+📖 [Read more](https://test-utils.nuxtjs.org)
 
 ## Usage
 
@@ -33,7 +37,7 @@ module.exports = {
 }
 ```
 
-[📖 **Read more**](https://test-utils.nuxtjs.org)
+[📖 **See module options**](https://test-utils.nuxtjs.org/options)
 
 ## Development
 
