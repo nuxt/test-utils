@@ -1,7 +1,7 @@
 ---
 title: Test in browser
 description: ''
-position: 5
+position: 8
 category: Examples
 categoryPosition: 3
 ---

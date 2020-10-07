@@ -6,8 +6,8 @@ category: ''
 categoryPosition: 1
 items:
  - Easy to setup tests
- - Test in brownser
- - Extend jest matchers
+ - Test in browser
+ - Extend Jest matchers
  - Written in TypeScript
 ---
 
