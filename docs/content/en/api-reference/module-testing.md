@@ -1,13 +1,13 @@
 ---
-title: Assertion
+title: Testing modules
 description: How to expect test results
-position: 4
+position: 13
 version: 1
-category: API Reference
+category: Writing tests
 categoryPosition: 2
 ---
 
-When you write tests for a Nuxt module, you normally expect the module to be installed with certain conditions. Below are some wrapper methods for easy validating module's testing result.
+When you write tests for a Nuxt module, you normally expect the module to be installed with certain conditions. Below are some wrapper methods for easily validating module's testing result.
 
 ## Methods
 
@@ -19,7 +19,7 @@ When you write tests for a Nuxt module, you normally expect the module to be ins
   * Available values are `addPlugin`, `addLayout`, `addErrorLayout`, `addServerMiddleware` and `requireModule`
 * `args`
   * `optional`
-  * Additional parameters that is expected to be passed to the tested `method`
+  * Additional parameters that are expected to be passed to the tested `method`
 
 Expect a specific method to be triggered while installing a module.
 
@@ -41,9 +41,9 @@ test('should inject plugin', () => {
   * Available values are `addPlugin`, `addLayout`, `addErrorLayout`, `addServerMiddleware` and `requireModule`
 * `args`
   * `optional`
-  * Additional parameters that is expected to be passed to the tested `method`
+  * Additional parameters that are expected to be passed to the tested `method`
 
-Expect a specific method to **not** be triggered while installing a module.
+Expect a specific method **not** to be triggered while installing a module.
 
 ```js
 test('should inject plugin', () => {

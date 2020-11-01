@@ -21,4 +21,4 @@ $ yarn generate # npm run generate
 $ serve dist/ # npm install -g serve
 ```
 
-For detailed explanation on how things work, check out [NuxtJS docs](https://nuxtjs.org).
+For detailed explanation on how things work, check out the [Nuxt docs](https://nuxtjs.org).
