@@ -1,7 +1,7 @@
 ---
-title: Test module
+title: Nuxt module
 description: ''
-position: 7
+position: 21
 category: Examples
 categoryPosition: 3
 ---

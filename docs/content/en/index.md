@@ -1,6 +1,6 @@
 ---
 title: Introduction
-description: Easily create tests for your NuxtJS projects/modules
+description: Easily create tests for your Nuxt projects and modules
 position: 1
 category: ''
 categoryPosition: 1
@@ -14,7 +14,7 @@ items:
 <img src="/preview.svg" class="light-img" :alt="description" />
 <img src="/preview-dark.svg" class="dark-img" :alt="description" />
 
-Now it's easy to create tests for projects/modules NuxtJS
+Now it's easy to create tests for projects and modules using Nuxt.
 
 ## Key features
 

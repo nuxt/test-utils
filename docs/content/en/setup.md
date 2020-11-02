@@ -1,44 +1,44 @@
 ---
-title: Setup
-description: 'How to install Test utilities for NuxtJS'
+title: Installation
+description: 'How to install the Nuxt test utilities'
 position: 2
 category: Guide
 categoryPosition: 2
 ---
 
-<alert type="info">
-
-Remember to have [Jest](https://jestjs.io/docs/en/getting-started) installed as a devDependency.
-
-</alert>
-
 ## Installation
 
-Add `@nuxt/module-utils` devDependency to your project:
+Add `@nuxt/test-utils` to your project (as a development dependency):
 
 <code-group>
   <code-block label="Yarn" active>
 
   ```bash
-  yarn add --dev @nuxt/test-utils
+  yarn add --dev jest @nuxt/test-utils
   ```
 
   </code-block>
   <code-block label="NPM">
 
   ```bash
-  npm install --save-dev @nuxt/test-utils
+  npm install --save-dev jest @nuxt/test-utils
   ```
 
   </code-block>
 </code-group>
 
-## Configure
+<alert type="info">
 
-Add `@nuxtjs/module-test-utils` to the `preset` section of `jest.config.js`
+`@nuxt/test-utils` depends on [Jest](https://jestjs.io/docs/en/getting-started).
 
-```js
+</alert>
+
+## Configure Jest
+
+Add `@nuxt/test-utils` to the `preset` section of `jest.config.js`
+
+```js{}[jest.config.js]
 module.exports = {
-  preset: '@nuxtjs/module-test-utils'
+  preset: '@nuxt/test-utils'
 }
 ```

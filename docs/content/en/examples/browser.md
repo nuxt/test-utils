@@ -1,13 +1,13 @@
 ---
-title: Test in browser
+title: Browser testing
 description: ''
-position: 8
+position: 22
 category: Examples
 categoryPosition: 3
 ---
 
 ```js
-import { setupTest, createPage } from '@nuxtjs/module-test-utils'
+import { setupTest, createPage } from '@nuxt/test-utils'
 
 describe('browser', () => {
   setupTest({
