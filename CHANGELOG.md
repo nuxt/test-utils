@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.2](https://github.com/nuxt-community/module-test-utils/compare/v0.1.1...v0.1.2) (2020-12-15)
+
+
+### Bug Fixes
+
+* fix exported jest preset with node target ([66b9a88](https://github.com/nuxt-community/module-test-utils/commit/66b9a88a390b609ffc04c3aefa451e07c3c5e079))
+
 ### 0.1.1 (2020-12-15)
 
 
