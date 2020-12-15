@@ -3,39 +3,6 @@ import defu from 'defu'
 import { NuxtConfig, NuxtOptions } from '@nuxt/types'
 import type { Browser, LaunchOptions } from 'playwright'
 
-let currentContext: NuxtTestContext
-
-export function createContext (options: Partial<NuxtTestOptions>): NuxtTestContext {
-  const _options: NuxtTestOptions = defu(options, {
-    testDir: resolve(process.cwd(), 'test'),
-    fixture: 'fixture',
-    configFile: 'nuxt.config.js',
-    setupTimeout: 60000,
-    server: options.browser,
-    build: options.browser || options.server,
-    config: {},
-    browserOptions: {
-      type: 'chromium'
-    }
-  })
-
-  return setContext({ options: _options })
-}
-
-export function getContext (): NuxtTestContext {
-  if (!currentContext) {
-    throw new Error('No context is available. (Forgot calling setup or createContext?)')
-  }
-
-  return currentContext
-}
-
-export function setContext (context: NuxtTestContext): NuxtTestContext {
-  currentContext = context
-
-  return currentContext
-}
-
 export interface NuxtTestOptions {
   testDir: string
   fixture: string
@@ -82,4 +49,37 @@ export interface NuxtTestContext {
   builder?: {
     build: () => any
   }
+}
+
+let currentContext: NuxtTestContext
+
+export function createContext (options: Partial<NuxtTestOptions>): NuxtTestContext {
+  const _options: Partial<NuxtTestOptions> = defu(options, {
+    testDir: resolve(process.cwd(), 'test'),
+    fixture: 'fixture',
+    configFile: 'nuxt.config.js',
+    setupTimeout: 60000,
+    server: options.browser,
+    build: options.browser || options.server,
+    config: {},
+    browserOptions: {
+      type: 'chromium'
+    }
+  })
+
+  return setContext({ options: _options as NuxtTestOptions })
+}
+
+export function getContext (): NuxtTestContext {
+  if (!currentContext) {
+    throw new Error('No context is available. (Forgot calling setup or createContext?)')
+  }
+
+  return currentContext
+}
+
+export function setContext (context: NuxtTestContext): NuxtTestContext {
+  currentContext = context
+
+  return currentContext
 }
