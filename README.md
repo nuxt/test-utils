@@ -1,4 +1,4 @@
-[![@nuxt/test-utils](https://test-utils.nuxtjs.org/preview.png)](https://test-utils.nuxtjs.org)
+[![@nuxt/test-utils](https://test-utils.nuxtjs.org/preview.svg)](https://test-utils.nuxtjs.org)
 
 # @nuxt/test-utils
 
