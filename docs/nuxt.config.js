@@ -1,6 +1,6 @@
-import theme from '@nuxt/content-theme-docs'
+import { withDocus } from 'docus'
 
-export default theme({
+export default withDocus({
   generate: {
     fallback: '404.html',
     routes: ['/']
