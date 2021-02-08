@@ -4,7 +4,10 @@ import { getContext } from './context'
 
 export async function listen () {
   const ctx = getContext()
-  const port = await getPort()
+  const { server } = ctx.options.config
+  const port = await getPort({
+    ...(server?.port && { port: Number(server?.port) })
+  })
 
   ctx.url = 'http://localhost:' + port
 
