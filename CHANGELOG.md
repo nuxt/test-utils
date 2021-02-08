@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.3](https://github.com/nuxt-community/module-test-utils/compare/v0.1.2...v0.1.3) (2021-02-08)
+
+
+### Bug Fixes
+
+* **server:** try to use `config.server.port` ([#84](https://github.com/nuxt-community/module-test-utils/issues/84)) ([b017f8a](https://github.com/nuxt-community/module-test-utils/commit/b017f8adcc3eda41997b4582b25f2d5bb6d63fdd))
+
 ### [0.1.2](https://github.com/nuxt-community/module-test-utils/compare/v0.1.1...v0.1.2) (2020-12-15)
 
 
