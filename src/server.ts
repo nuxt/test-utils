@@ -4,11 +4,10 @@ import { getContext } from './context'
 
 export async function listen () {
   const ctx = getContext()
-  const port = ctx.options.config.server?.port
-    ? Number(ctx.options.config.server.port)
-    : await getPort()
+  const { server } = ctx.options.config
+  const port = server?.port ? Number(server.port) : await getPort()
 
-  ctx.url = 'http://localhost:' + port
+  ctx.url = `http://localhost:${port}`
 
   await ctx.nuxt.listen(port)
 }
