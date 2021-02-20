@@ -3,7 +3,7 @@ import { createContext } from '../../src/context'
 import basicFixtureConfig from '../fixtures/basic/nuxt.config'
 import functionFixtureConfig from '../fixtures/function/nuxt.config'
 
-describe('context', () => {
+describe('nuxt', () => {
   test('loads object fixture config', async () => {
     const context = createContext({ fixture: './fixtures/basic' })
     await loadFixture()
