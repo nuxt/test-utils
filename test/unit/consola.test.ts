@@ -5,23 +5,14 @@ describe('consola', () => {
 
   setupTest({
     build: true,
-    fixture: 'fixtures/consola'
+    fixture: 'fixtures/basic'
   })
 
-  test('should warn', () => {
+  test('should warn with global consola', () => {
     expect(consola.warn).toHaveBeenCalledWith('foo')
   })
-})
 
-describe('consola with tag', () => {
-  const consolaWithTag = mockConsola()
-
-  setupTest({
-    build: true,
-    fixture: 'fixtures/consola-with-tag'
-  })
-
-  test('should warn', () => {
-    expect(consolaWithTag.error).toHaveBeenCalledWith('bar')
+  test('should error with tagged consola', () => {
+    expect(consola.error).toHaveBeenCalledWith('bar')
   })
 })
