@@ -1,8 +1,6 @@
-import consola from 'consola'
+import mock from 'consola'
 
 export function mockConsola () {
-  const mock = consola
-
   beforeAll(() => {
     mock.wrapAll()
   })
