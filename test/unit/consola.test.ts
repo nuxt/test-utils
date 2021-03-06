@@ -4,8 +4,7 @@ describe('consola', () => {
   const consola = mockConsola()
 
   setupTest({
-    build: true,
-    fixture: 'fixtures/basic'
+    fixture: 'fixtures/consola'
   })
 
   test('should warn with global consola', () => {
