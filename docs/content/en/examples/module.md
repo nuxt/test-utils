@@ -7,7 +7,7 @@ categoryPosition: 3
 ---
 
 ```js
-import { setupTest, expectModuleToBeCalledWith, getNuxt } from '@nuxt/test-utils'
+import { setupTest, expectModuleToBeCalledWith, expectFileToBeGenerated, getNuxt } from '@nuxt/test-utils'
 
 describe('module', () => {
   setupTest({
@@ -26,6 +26,10 @@ describe('module', () => {
       fileName: 'myPlugin.js',
       options: getNuxt().options.myModule
     })
+  })
+
+  test('should file generated', () => {
+    expectFileToBeGenerated('index.html')
   })
 })
 ```

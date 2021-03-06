@@ -50,3 +50,31 @@ test('should inject plugin', () => {
   expectModuleNotToBeCalledWith('addLayout')
 })
 ```
+
+### `expectFileToBeGenerated(path)`
+
+* `path`
+  * Type: `String`
+  * `required`
+
+Expect a specific file be generated.
+
+```js
+test('should file generated', () => {
+  expectFileToBeGenerated('index.html')
+})
+```
+
+### `expectFileNotToBeGenerated(path)`
+
+* `path`
+  * Type: `String`
+  * `required`
+
+Expect a specific file **not** be generated.
+
+```js
+test('should file not generated', () => {
+  expectFileNotToBeGenerated('foo.html')
+})
+```
