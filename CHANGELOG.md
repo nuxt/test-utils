@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/nuxt-community/module-test-utils/compare/v0.1.3...v0.2.0) (2021-03-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* use loadNuxtConfig
+
+### Features
+
+* add generated assertions ([#94](https://github.com/nuxt-community/module-test-utils/issues/94)) ([cc90f6b](https://github.com/nuxt-community/module-test-utils/commit/cc90f6b6935ec75921983214423cb0d4056c6007))
+* mockConsola ([#91](https://github.com/nuxt-community/module-test-utils/issues/91)) ([c8e7940](https://github.com/nuxt-community/module-test-utils/commit/c8e7940f997038abcc767533674e8c27007046a2))
+* use loadNuxtConfig ([111ec67](https://github.com/nuxt-community/module-test-utils/commit/111ec67d729edc404f14a54231479f567ba3f9a2)), closes [#87](https://github.com/nuxt-community/module-test-utils/issues/87)
+
+
+### Bug Fixes
+
+* add missing @babel/preset-typescript dependency ([#93](https://github.com/nuxt-community/module-test-utils/issues/93)) ([8edf5c9](https://github.com/nuxt-community/module-test-utils/commit/8edf5c9b965dad96b44a0116169ab760db32273b))
+
 ### [0.1.3](https://github.com/nuxt-community/module-test-utils/compare/v0.1.2...v0.1.3) (2021-02-08)
 
 
