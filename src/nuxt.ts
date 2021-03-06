@@ -14,10 +14,12 @@ export async function loadFixture () {
 
   options.rootDir = resolve(options.testDir, options.fixture)
 
-  const loadedConfig = await import(resolve(options.rootDir, options.configFile))
-    .then(m => /* istanbul ignore next */ m.default || m)
-
-  options.config = defu(options.config, loadedConfig)
+  const { loadNuxtConfig } = await loadNuxtPackage()
+  options.config = await loadNuxtConfig({
+    rootDir: options.rootDir,
+    configFile: options.configFile,
+    configOverrides: options.config
+  })
 
   if (!options.config.rootDir) {
     options.config.rootDir = options.rootDir
