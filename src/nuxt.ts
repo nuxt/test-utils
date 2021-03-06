@@ -1,5 +1,4 @@
 import { resolve } from 'path'
-import defu from 'defu'
 import { getContext } from './context'
 
 export async function loadNuxt () {
