@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { setupTest, getNuxt, expectModuleNotToBeCalledWith } from '../../src'
+import { setupTest, getNuxt, expectModuleNotToBeCalledWith, expectFileToBeGenerated, expectFileNotToBeGenerated } from '../../src'
 
 describe('generate', () => {
   setupTest({
@@ -10,6 +10,14 @@ describe('generate', () => {
     config: {
       rootDir: resolve(__dirname, '../fixtures/generate')
     }
+  })
+
+  test('should not file generated', () => {
+    expectFileNotToBeGenerated('foo.html')
+  })
+
+  test('should file generated', () => {
+    expectFileToBeGenerated('index.html')
   })
 
   test('should generated page', () => {
