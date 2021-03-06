@@ -1,17 +1,13 @@
-import mock from 'consola'
+import consola from 'consola'
 
-export function mockConsola () {
-  beforeAll(() => {
-    mock.wrapAll()
+export function mockConsola (): typeof consola {
+  const mock = {}
+
+  consola.mockTypes((type) => {
+    mock[type] = mock[type] || jest.fn()
+    return mock[type]
   })
 
-  mock.mockTypes(() => jest.fn())
-
-  jest.mock('consola', () => ({
-    ...mock,
-    withTag: jest.fn().mockImplementation(() => mock),
-    withScope: jest.fn().mockImplementation(() => mock)
-  }))
-
+  // @ts-ignore
   return mock
 }
