@@ -37,7 +37,7 @@ module.exports = {
 }
 ```
 
-[📖 **See module options**](https://test-utils.nuxtjs.org/options)
+[📖 **Read more about setup and configuration**](https://test-utils.nuxtjs.org/api-reference/setup)
 
 ## Development
 
