@@ -37,7 +37,7 @@ module.exports = {
 }
 ```
 
-[📖 **See module options**](https://test-utils.nuxtjs.org/options)
+[📖 **Read more about setup and configuration**](https://test-utils.nuxtjs.org/api-reference/setup)
 
 ## Development
 
@@ -55,7 +55,7 @@ Copyright (c) Nuxt.js Team
 [npm-version-href]: https://npmjs.com/package/@nuxt/test-utils
 [npm-downloads-src]: https://flat.badgen.net/npm/dm/@nuxt/test-utils
 [npm-downloads-href]: https://npmjs.com/package/@nuxt/test-utils
-[checks-src]: https://flat.badgen.net/github/checks/nuxt/test-utils/master
+[checks-src]: https://flat.badgen.net/github/checks/nuxt/test-utils/main
 [checks-href]: https://github.com/nuxt/test-utils/actions
 [codecov-src]: https://flat.badgen.net/codecov/c/github/nuxt/test-utils
 [codecov-href]: https://codecov.io/gh/nuxt/test-utils
