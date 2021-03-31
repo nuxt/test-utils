@@ -36,10 +36,15 @@ export interface NuxtTestContext {
 
   nuxt?: {
     options: NuxtOptions
-    listen: (port?: number) => any
+    listen: (port?: number, host?: string, socket?: string) => any
     ready: () => any
-    close: () => any
+    close: (callback?: Function) => any
+    resolver: any
     moduleContainer: any
+    resolveAlias(path: string): string
+    resolvePath(path: string, opts?: any): string
+    renderRoute(...args: any[]): any
+    renderAndGetWindow(url: string, opts?: any, config?: any): any
   }
 
   browser?: Browser
