@@ -1,3 +1,4 @@
+import { existsSync } from 'fs'
 import { resolve } from 'path'
 import { getContext } from './context'
 
@@ -12,6 +13,11 @@ export async function loadFixture () {
   const { options } = getContext()
 
   options.rootDir = resolve(options.testDir, options.fixture)
+
+  if (!existsSync(options.rootDir)) {
+    // define root app if not exists test/fixture
+    options.rootDir = resolve(process.cwd())
+  }
 
   const { loadNuxtConfig } = await loadNuxtPackage()
   options.config = await loadNuxtConfig({
