@@ -62,7 +62,7 @@ export function createContext (options: Partial<NuxtTestOptions>): NuxtTestConte
   const _options: Partial<NuxtTestOptions> = defu(options, {
     testDir: resolve(process.cwd(), 'test'),
     fixture: 'fixture',
-    configFile: 'nuxt.config.js',
+    configFile: 'nuxt.config',
     setupTimeout: 60000,
     server: options.browser,
     build: options.browser || options.server,
