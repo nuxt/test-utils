@@ -11,7 +11,12 @@ export async function loadNuxt () {
 
 const resolveRootDir = () => {
   const { options } = getContext()
-  const dirs = [options.rootDir, resolve(options.testDir, options.fixture), process.cwd()]
+
+  const dirs = [
+    options.rootDir,
+    resolve(options.testDir, options.fixture),
+    process.cwd()
+  ]
 
   const isNuxtApp = (dir: string) => {
     return existsSync(dir) && (
@@ -21,7 +26,7 @@ const resolveRootDir = () => {
     )
   }
 
-  for (const dir in dirs) {
+  for (const dir of dirs) {
     if (dir && isNuxtApp(dir)) {
       return dir
     }
