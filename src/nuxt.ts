@@ -9,15 +9,31 @@ export async function loadNuxt () {
   ctx.nuxt = new Nuxt(ctx.options.config)
 }
 
+const resolveRootDir = () => {
+  const { options } = getContext()
+  const dirs = [options.rootDir, resolve(options.testDir, options.fixture), process.cwd()]
+
+  const isNuxtApp = (dir: string) => {
+    return existsSync(dir) && (
+      existsSync(resolve(dir, 'pages')) ||
+      existsSync(resolve(dir, 'nuxt.config.js')) ||
+      existsSync(resolve(dir, 'nuxt.config.ts'))
+    )
+  }
+
+  for (const dir in dirs) {
+    if (dir && isNuxtApp(dir)) {
+      return dir
+    }
+  }
+
+  throw new Error('Invalid nuxt app. (Please explicitly set `options.rootDir` pointing to a valid nuxt app)')
+}
+
 export async function loadFixture () {
   const { options } = getContext()
 
-  options.rootDir = resolve(options.testDir, options.fixture)
-
-  if (!existsSync(options.rootDir)) {
-    // define root app if not exists test/fixture
-    options.rootDir = resolve(process.cwd())
-  }
+  options.rootDir = resolveRootDir()
 
   const { loadNuxtConfig } = await loadNuxtPackage()
   options.config = await loadNuxtConfig({
