@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.1](https://github.com/nuxt-community/module-test-utils/compare/v0.2.0...v0.2.1) (2021-04-01)
+
+
+### Bug Fixes
+
+* detect `nuxt.config` with different extensions ([#105](https://github.com/nuxt-community/module-test-utils/issues/105)) ([006bebf](https://github.com/nuxt-community/module-test-utils/commit/006bebf4391487aa8186dd6e7e4b3813a7d93f8f))
+* **types:** add more type definitions to nuxt interface ([#106](https://github.com/nuxt-community/module-test-utils/issues/106)) ([1a7d223](https://github.com/nuxt-community/module-test-utils/commit/1a7d223905729baf0eb15555c24fadfb5c072ee4))
+
 ## [0.2.0](https://github.com/nuxt-community/module-test-utils/compare/v0.1.3...v0.2.0) (2021-03-06)
 
 
