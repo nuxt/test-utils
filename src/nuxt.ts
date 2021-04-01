@@ -9,6 +9,14 @@ export async function loadNuxt () {
   ctx.nuxt = new Nuxt(ctx.options.config)
 }
 
+const isNuxtApp = (dir: string) => {
+  return existsSync(dir) && (
+    existsSync(resolve(dir, 'pages')) ||
+    existsSync(resolve(dir, 'nuxt.config.js')) ||
+    existsSync(resolve(dir, 'nuxt.config.ts'))
+  )
+}
+
 const resolveRootDir = () => {
   const { options } = getContext()
 
@@ -17,14 +25,6 @@ const resolveRootDir = () => {
     resolve(options.testDir, options.fixture),
     process.cwd()
   ]
-
-  const isNuxtApp = (dir: string) => {
-    return existsSync(dir) && (
-      existsSync(resolve(dir, 'pages')) ||
-      existsSync(resolve(dir, 'nuxt.config.js')) ||
-      existsSync(resolve(dir, 'nuxt.config.ts'))
-    )
-  }
 
   for (const dir of dirs) {
     if (dir && isNuxtApp(dir)) {
