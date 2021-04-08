@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.2](https://github.com/nuxt-community/module-test-utils/compare/v0.2.1...v0.2.2) (2021-04-08)
+
+
+### Features
+
+* resolve rootDir ([#107](https://github.com/nuxt-community/module-test-utils/issues/107)) ([f604dff](https://github.com/nuxt-community/module-test-utils/commit/f604dff709bc523c93f1f17db7a972d5a5252c03))
+
 ### [0.2.1](https://github.com/nuxt-community/module-test-utils/compare/v0.2.0...v0.2.1) (2021-04-01)
 
 
