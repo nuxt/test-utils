@@ -36,14 +36,3 @@ describe('setup with waitFor', () => {
     waitFor: 100
   })
 })
-
-describe('server', () => {
-  setupTest({
-    testDir: resolve(__dirname, '..'),
-    fixture: 'fixtures/basic'
-  })
-
-  test('should be error if server not enabled', () => {
-    expect(() => get('/')).toThrowError('server is not enabled')
-  })
-})

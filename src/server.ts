@@ -1,17 +1,14 @@
-import getPort from 'get-port'
 import got, { OptionsOfUnknownResponseBody } from 'got'
 import { getContext } from './context'
 
 export async function listen () {
   const ctx = getContext()
   const { server } = ctx.options.config
-  const port = await getPort({
-    ...(server?.port && { port: Number(server?.port) })
-  })
 
-  ctx.url = 'http://localhost:' + port
+  const port = server?.port || 0
+  const { url } = await ctx.nuxt.listen(port)
 
-  await ctx.nuxt.listen(port)
+  ctx.url = url
 }
 
 export function get (path: string, options?: OptionsOfUnknownResponseBody) {
@@ -25,5 +22,7 @@ export function url (path: string) {
     throw new Error('server is not enabled')
   }
 
-  return ctx.url + path
+  const { href } = new URL(path, ctx.url)
+
+  return href
 }

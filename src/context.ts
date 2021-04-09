@@ -36,7 +36,7 @@ export interface NuxtTestContext {
 
   nuxt?: {
     options: NuxtOptions
-    listen: (port?: number, host?: string, socket?: string) => any
+    listen: (port?: number | string, host?: string, socket?: string) => any
     ready: () => any
     close: (callback?: Function) => any
     resolver: any
