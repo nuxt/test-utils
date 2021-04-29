@@ -26,7 +26,7 @@ Expect a specific method to be triggered while installing a module.
 ```js
 test('should inject plugin', () => {
   expectModuleToBeCalledWith('addPlugin', {
-    src: expect.stringContaining('templates/plugin.js'),
+    src: expect.stringMatching(/templates[\\/]plugin.js/),
     fileName: 'myPlugin.js',
     options: getNuxt().options.myModule
   })
