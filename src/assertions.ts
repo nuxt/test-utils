@@ -2,7 +2,7 @@ import { existsSync } from 'fs'
 import { resolve } from 'path'
 import { getNuxt } from './nuxt'
 
-type ModuleContainerMethod = 'addPlugin' | 'addLayout' | 'addErrorLayout' | 'addServerMiddleware' | 'requireModule'
+type ModuleContainerMethod = 'addModule' | 'addPlugin' | 'addLayout' | 'addErrorLayout' | 'addServerMiddleware' | 'requireModule'
 
 export function expectModuleToBeCalledWith (method: ModuleContainerMethod, ...args: any[]) {
   expect(getNuxt().moduleContainer[method]).toBeCalledWith(...args)
