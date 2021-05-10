@@ -16,7 +16,7 @@ When you write tests for a Nuxt module, you normally expect the module to be ins
 * `method`
   * Type: `String`
   * `required`
-  * Available values are `addModule`, `addPlugin`, `addLayout`, `addErrorLayout`, `addServerMiddleware` and `requireModule`
+  * Available values are `addTemplate`, `extendBuild`, `extendRoutes`, `addModule`, `addPlugin`, `addLayout`, `addErrorLayout`, `addServerMiddleware` and `requireModule`
 * `args`
   * `optional`
   * Additional parameters that are expected to be passed to the tested `method`
@@ -38,7 +38,7 @@ test('should inject plugin', () => {
 * `method`
   * Type: `String`
   * `required`
-  * Available values are `addModule`, `addPlugin`, `addLayout`, `addErrorLayout`, `addServerMiddleware` and `requireModule`
+  * Available values are `addTemplate`, `extendBuild`, `extendRoutes`, `addModule`, `addPlugin`, `addLayout`, `addErrorLayout`, `addServerMiddleware` and `requireModule`
 * `args`
   * `optional`
   * Additional parameters that are expected to be passed to the tested `method`
