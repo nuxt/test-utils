@@ -1,5 +1,5 @@
 ---
-title: Testing on the Server
+title: Testing on the server
 description: Set up server-side testing for a Nuxt application
 position: 11
 version: 1
