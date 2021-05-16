@@ -8,7 +8,6 @@ export interface NuxtTestOptions {
   fixture: string
   configFile: string
   rootDir: string
-  buildDir: string
   config: NuxtConfig
 
   build: boolean
