@@ -21,7 +21,6 @@ const resolveRootDir = () => {
   const { options } = getContext()
 
   const dirs = [
-    options.rootDir,
     resolve(options.testDir, options.fixture),
     process.cwd()
   ]
@@ -38,22 +37,18 @@ const resolveRootDir = () => {
 export async function loadFixture () {
   const { options } = getContext()
 
-  options.rootDir = resolveRootDir()
+  const rootDir = options.rootDir || resolveRootDir()
 
   const { loadNuxtConfig } = await loadNuxtPackage()
   options.config = await loadNuxtConfig({
-    rootDir: options.rootDir,
+    rootDir,
     configFile: options.configFile,
     configOverrides: options.config
   })
 
-  if (!options.config.rootDir) {
-    options.config.rootDir = options.rootDir
-  }
-
   if (!options.config.buildDir) {
     const randomId = Math.random().toString(36).substr(2, 8)
-    options.config.buildDir = resolve(options.rootDir, '.nuxt', randomId)
+    options.config.buildDir = resolve(rootDir, '.nuxt', randomId)
   }
 }
 
