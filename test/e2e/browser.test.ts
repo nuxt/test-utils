@@ -1,9 +1,7 @@
-import { resolve } from 'path'
 import { setupTest, createPage } from '../../src'
 
 describe('browser', () => {
   setupTest({
-    testDir: resolve(__dirname, '..'),
     fixture: 'fixtures/basic',
     browser: true
   })
@@ -17,10 +15,9 @@ describe('browser', () => {
 
 describe('browser type', () => {
   setupTest({
-    testDir: resolve(__dirname, '..'),
     fixture: 'fixtures/basic',
     browserOptions: {
-      // @ts-ignore
+      // @ts-expect-error
       type: 'foo'
     }
   })
