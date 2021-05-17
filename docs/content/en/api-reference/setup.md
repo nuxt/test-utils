@@ -24,7 +24,6 @@ describe('My test', () => {
 })
 ```
 
-
 Behind the scenes, `setupTest` performs a number of tasks in `beforeEach`, `afterEach` and `afterAll` to setup the Nuxt test environment correctly. It also adds a single Nuxt setup task as an additional test. This means it must be run within the describe block of a test, before any other calls to `test` or `it`. 
 
 <alert type="warning">
@@ -71,13 +70,22 @@ The path to the Nuxt application that will be used in the tests.
 
 * Type: `string`
 * Default: `<testDir>/<fixture>`
-  
-#### buildDir
 
-By default, build directories are randomised to allow jest to run tests in parallel without conflict.
+### Build directory
 
-* Type: `string`
-* Default: `<rootDir>/.nuxt/<randomID>`
+`setupTest` will create a random build directory to avoid race conditions and conflicts between tests which run in parallel. The default template is: `<rootDir>/.nuxt/<randomID>`.
+
+If `buildDir` is set in `nuxt.config`, the value will be used instead of random one.
+
+Build directory can be also set in `config` options:
+
+```js
+setupTest({
+  config: {
+    buildDir: 'nuxt-build',
+  }
+})
+```
 
 ### Setup timings
 
@@ -137,3 +145,4 @@ Under the hood, Nuxt test utils uses [`playwright`](https://playwright.dev/) to 
 * Type: `object` with the following properties
   - **type**: The type of browser to launch - either `chromium`, `firefox` or `webkit`
   - **launch**: `object` of options that will be passed to playwright when launching the browser. See [full API reference](https://playwright.dev/#version=master&path=docs%2Fapi.md&q=browsertypelaunchoptions).
+  
