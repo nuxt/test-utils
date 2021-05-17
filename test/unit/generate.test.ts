@@ -4,12 +4,8 @@ import { setupTest, getNuxt, expectModuleNotToBeCalledWith, expectFileToBeGenera
 
 describe('generate', () => {
   setupTest({
-    testDir: resolve(__dirname, '..'),
     fixture: 'fixtures/generate',
-    generate: true,
-    config: {
-      rootDir: resolve(__dirname, '../fixtures/generate')
-    }
+    generate: true
   })
 
   test('should not file generated', () => {

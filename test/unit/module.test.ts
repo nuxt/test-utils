@@ -1,12 +1,9 @@
-import { resolve } from 'path'
 import { setupTest, get, expectModuleToBeCalledWith } from '../../src'
 
 describe('module', () => {
   setupTest({
-    testDir: resolve(__dirname, '..'),
-    build: true,
-    server: true,
-    fixture: 'fixtures/basic'
+    fixture: 'fixtures/basic',
+    server: true
   })
 
   test('request page', async () => {
@@ -30,16 +27,14 @@ describe('module', () => {
 
 describe('setup with waitFor', () => {
   setupTest({
-    testDir: resolve(__dirname, '..'),
-    build: true,
     fixture: 'fixtures/basic',
+    build: true,
     waitFor: 100
   })
 })
 
 describe('server', () => {
   setupTest({
-    testDir: resolve(__dirname, '..'),
     fixture: 'fixtures/basic'
   })
 
