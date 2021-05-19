@@ -1,5 +1,5 @@
 import { existsSync } from 'fs'
-import { resolve } from 'path'
+import { join } from 'path'
 import { getNuxt } from './nuxt'
 
 type ModuleContainerMethod = 'addTemplate' | 'extendBuild' | 'extendRoutes' | 'addModule' | 'addPlugin' | 'addLayout' | 'addErrorLayout' | 'addServerMiddleware' | 'requireModule'
@@ -13,9 +13,9 @@ export function expectModuleNotToBeCalledWith (method: ModuleContainerMethod, ..
 }
 
 export function expectFileToBeGenerated (path: string) {
-  expect(existsSync(resolve(getNuxt().options.generate.dir, path))).toBe(true)
+  expect(existsSync(join(getNuxt().options.generate.dir, path))).toBe(true)
 }
 
 export function expectFileNotToBeGenerated (path: string) {
-  expect(existsSync(resolve(getNuxt().options.generate.dir, path))).toBe(false)
+  expect(existsSync(join(getNuxt().options.generate.dir, path))).toBe(false)
 }
