@@ -1,6 +1,6 @@
 import { listen as listhen } from 'listhen'
 import { joinURL } from 'ufo'
-import got, { OptionsOfUnknownResponseBody } from 'got'
+import { $fetch, FetchOptions } from 'ohmyfetch/node'
 import { getContext } from './context'
 
 export async function listen () {
@@ -13,8 +13,8 @@ export async function listen () {
   ctx.url = url
 }
 
-export function get (path: string, options?: OptionsOfUnknownResponseBody) {
-  return got(url(path), options)
+export function get (path: string, options?: FetchOptions) {
+  return $fetch(url(path), options)
 }
 
 export function url (path: string) {
