@@ -1,6 +1,6 @@
 ---
-title: Testing an app
-description: Set up testing for a Nuxt application
+title: Testing on the server
+description: Set up server-side testing for a Nuxt application
 position: 11
 version: 1
 category: Writing tests
