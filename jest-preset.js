@@ -12,5 +12,8 @@ module.exports = {
         plugins: ['@babel/plugin-transform-runtime']
       }
     ]
-  }
+  },
+  transformIgnorePatterns: [
+    'node_modules/(?!(nuxt-i18n)/)'
+  ]
 }
