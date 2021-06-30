@@ -41,7 +41,7 @@ Using `test.only` or `it.only` later in the describe block of your test will cau
 The name of the Nuxt configuration file that will be read to get the configuration for the tests.
 
 * Type: `string`
-* Default: `'nuxt.config.js'`
+* Default: `'nuxt.config.js' | 'nuxt.config.ts'`
 
 #### config
 
