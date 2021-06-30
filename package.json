@@ -15,7 +15,7 @@
     "build": "siroc build",
     "lint": "eslint --ext .ts,.js,.vue .",
     "release": "yarn test && standard-version && yarn build && git push --follow-tags && npm publish",
-    "test": "yarn lint && yarn test:unit && yarn test:e2e",
+    "test": "yarn lint && yarn build && yarn test:unit && yarn test:e2e",
     "test:e2e": "jest test/e2e --forceExit",
     "test:unit": "jest test/unit --forceExit"
   },

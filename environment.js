@@ -1,1 +1,1 @@
-module.exports = require('./dist/index').NuxtEnvironment
+module.exports = require('./dist').NuxtEnvironment
