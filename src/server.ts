@@ -13,8 +13,8 @@ export async function listen () {
   ctx.url = url
 }
 
-export function get (path: string, options?: FetchOptions) {
-  return $fetch(url(path), options)
+export function get<T> (path: string, options?: FetchOptions) {
+  return $fetch<T>(url(path), options)
 }
 
 export function url (path: string) {
