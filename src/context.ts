@@ -1,4 +1,4 @@
-import { resolve } from 'path'
+import { join } from 'path'
 import defu from 'defu'
 import { NuxtConfig, NuxtOptions } from '@nuxt/types'
 import type { Browser, LaunchOptions } from 'playwright'
@@ -59,7 +59,7 @@ let currentContext: NuxtTestContext
 
 export function createContext (options: Partial<NuxtTestOptions>): NuxtTestContext {
   const _options: Partial<NuxtTestOptions> = defu(options, {
-    testDir: resolve(process.cwd(), 'test'),
+    testDir: join(process.cwd(), 'test'),
     fixture: 'fixture',
     configFile: 'nuxt.config',
     setupTimeout: 60000,

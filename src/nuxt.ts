@@ -1,5 +1,5 @@
 import { existsSync } from 'fs'
-import { resolve } from 'path'
+import { join } from 'path'
 import { getContext } from './context'
 
 export async function loadNuxt () {
@@ -11,9 +11,9 @@ export async function loadNuxt () {
 
 const isNuxtApp = (dir: string) => {
   return existsSync(dir) && (
-    existsSync(resolve(dir, 'pages')) ||
-    existsSync(resolve(dir, 'nuxt.config.js')) ||
-    existsSync(resolve(dir, 'nuxt.config.ts'))
+    existsSync(join(dir, 'pages')) ||
+    existsSync(join(dir, 'nuxt.config.js')) ||
+    existsSync(join(dir, 'nuxt.config.ts'))
   )
 }
 
@@ -22,7 +22,7 @@ const resolveRootDir = () => {
 
   const dirs = [
     options.rootDir,
-    resolve(options.testDir, options.fixture),
+    join(options.testDir, options.fixture),
     process.cwd()
   ]
 
@@ -53,7 +53,7 @@ export async function loadFixture () {
 
   if (!options.config.buildDir) {
     const randomId = Math.random().toString(36).substr(2, 8)
-    options.config.buildDir = resolve(options.rootDir, '.nuxt', randomId)
+    options.config.buildDir = join(options.rootDir, '.nuxt', randomId)
   }
 }
 
