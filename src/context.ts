@@ -78,14 +78,22 @@ export function createContext (options: Partial<NuxtTestOptions>): NuxtTestConte
 }
 
 export function getContext (): NuxtTestContext {
-  if (!currentContext) {
-    throw new Error('No context is available. (Forgot calling setup or createContext?)')
+  if (global.$nuxtTestContext) {
+    return global.$nuxtTestContext
   }
 
-  return currentContext
+  if (currentContext) {
+    return currentContext
+  }
+
+  throw new Error('No context is available. (Forgot calling setup or createContext?)')
 }
 
 export function setContext (context: NuxtTestContext): NuxtTestContext {
+  if (global) {
+    global.$nuxtTestContext = context
+  }
+
   currentContext = context
 
   return currentContext
