@@ -1,3 +1,4 @@
+import type { RequestListener } from 'http'
 import { join } from 'path'
 import defu from 'defu'
 import { NuxtConfig, NuxtOptions } from '@nuxt/types'
@@ -34,8 +35,10 @@ export interface NuxtTestContext {
   options: NuxtTestOptions
 
   nuxt?: {
+    server: {
+      app: RequestListener,
+    },
     options: NuxtOptions
-    listen: (port?: number, host?: string, socket?: string) => any
     ready: () => any
     close: (callback?: Function) => any
     resolver: any
