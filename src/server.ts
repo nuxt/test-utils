@@ -1,17 +1,16 @@
-import getPort from 'get-port'
+import { listen as listhen } from 'listhen'
+import { joinURL } from 'ufo'
 import { $fetch, FetchOptions } from 'ohmyfetch/node'
 import { getContext } from './context'
 
 export async function listen () {
   const ctx = getContext()
   const { server } = ctx.options.config
-  const port = await getPort({
+  const { url } = await listhen(ctx.nuxt.server.app, {
     ...(server?.port && { port: Number(server?.port) })
   })
 
-  ctx.url = 'http://localhost:' + port
-
-  await ctx.nuxt.listen(port)
+  ctx.url = url
 }
 
 export function get (path: string, options?: FetchOptions) {
@@ -25,5 +24,5 @@ export function url (path: string) {
     throw new Error('server is not enabled')
   }
 
-  return ctx.url + path
+  return joinURL(ctx.url, path)
 }
