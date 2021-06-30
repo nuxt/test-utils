@@ -8,7 +8,7 @@ import { get } from '../../src'
 
 describe('environment', () => {
   test('request page', async () => {
-    const { body } = await get('/')
-    expect(body).toContain('Works!')
+    const html = await get('/')
+    expect(html).toContain('Works!')
   })
 })
