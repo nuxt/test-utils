@@ -11,8 +11,6 @@ import { setupTest, createPage } from '@nuxt/test-utils'
 
 describe('browser', () => {
   setupTest({
-    testDir: __dirname,
-    fixture: 'example',
     browser: true
   })
 

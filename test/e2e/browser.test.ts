@@ -2,7 +2,7 @@ import { setupTest, createPage } from '../../src'
 
 describe('browser', () => {
   setupTest({
-    fixture: 'fixtures/basic',
+    rootDir: 'test/fixtures/basic',
     browser: true
   })
 
@@ -15,7 +15,7 @@ describe('browser', () => {
 
 describe('browser type', () => {
   setupTest({
-    fixture: 'fixtures/basic',
+    rootDir: 'test/fixtures/basic',
     browserOptions: {
       // @ts-expect-error
       type: 'foo'

@@ -1,5 +1,5 @@
 import { existsSync } from 'fs'
-import { join } from 'path'
+import { join, resolve } from 'path'
 import { getContext } from './context'
 
 export async function loadNuxt () {
@@ -10,35 +10,17 @@ export async function loadNuxt () {
 }
 
 const isNuxtApp = (dir: string) => {
-  return existsSync(dir) && (
-    existsSync(join(dir, 'pages')) ||
-    existsSync(join(dir, 'nuxt.config.js')) ||
-    existsSync(join(dir, 'nuxt.config.ts'))
-  )
-}
-
-const resolveRootDir = () => {
-  const { options } = getContext()
-
-  const dirs = [
-    options.rootDir,
-    join(options.testDir, options.fixture),
-    process.cwd()
-  ]
-
-  for (const dir of dirs) {
-    if (dir && isNuxtApp(dir)) {
-      return dir
-    }
-  }
-
-  throw new Error('Invalid nuxt app. (Please explicitly set `options.rootDir` pointing to a valid nuxt app)')
+  return existsSync(resolve(dir, 'pages')) ||
+    existsSync(resolve(dir, 'nuxt.config.js')) ||
+    existsSync(resolve(dir, 'nuxt.config.ts'))
 }
 
 export async function loadFixture () {
   const { options } = getContext()
 
-  options.rootDir = resolveRootDir()
+  if (!isNuxtApp(options.rootDir)) {
+    throw new Error('Invalid nuxt app. (Please explicitly set `options.rootDir` pointing to a valid nuxt app)')
+  }
 
   const { loadNuxtConfig } = await loadNuxtPackage()
   options.config = await loadNuxtConfig({
@@ -53,7 +35,7 @@ export async function loadFixture () {
 
   if (!options.config.buildDir) {
     const randomId = Math.random().toString(36).substr(2, 8)
-    options.config.buildDir = join(options.rootDir, '.nuxt', randomId)
+    options.config.buildDir = join(options.config.rootDir, '.nuxt', randomId)
   }
 }
 

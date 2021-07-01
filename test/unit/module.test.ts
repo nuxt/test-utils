@@ -2,7 +2,7 @@ import { setupTest, get, expectModuleToBeCalledWith } from '../../src'
 
 describe('module', () => {
   setupTest({
-    fixture: 'fixtures/basic',
+    rootDir: 'test/fixtures/basic',
     server: true
   })
 
@@ -27,7 +27,7 @@ describe('module', () => {
 
 describe('setup with waitFor', () => {
   setupTest({
-    fixture: 'fixtures/basic',
+    rootDir: 'test/fixtures/basic',
     build: true,
     waitFor: 100
   })
@@ -35,7 +35,7 @@ describe('setup with waitFor', () => {
 
 describe('server', () => {
   setupTest({
-    fixture: 'fixtures/basic'
+    rootDir: 'test/fixtures/basic'
   })
 
   test('should be error if server not enabled', () => {

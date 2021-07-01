@@ -1,4 +1,4 @@
-import { createContext, getContext, NuxtTestContext } from '../../src'
+import { createContext, getContext } from '../../src'
 
 describe('context', () => {
   test('should be error if no context available', () => {
@@ -6,7 +6,7 @@ describe('context', () => {
   })
 
   test('default values from context', () => {
-    const ctx: NuxtTestContext = createContext({ testDir: 'foo' })
+    const ctx = createContext()
     expect(ctx).toMatchSnapshot()
   })
 })

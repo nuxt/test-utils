@@ -11,8 +11,7 @@ import { setupTest, expectModuleToBeCalledWith, expectFileToBeGenerated, getNuxt
 
 describe('module', () => {
   setupTest({
-    testDir: __dirname,
-    fixture: 'example',
+    rootDir: 'path/to/fixture',
     config: {
       myModule: {
         test: 123

@@ -27,9 +27,7 @@ export function setupTest (options: Partial<NuxtTestOptions>) {
   })
 
   test('setup nuxt', async () => {
-    if (ctx.options.fixture) {
-      await loadFixture()
-    }
+    await loadFixture()
 
     if (!ctx.nuxt) {
       await loadNuxt()
