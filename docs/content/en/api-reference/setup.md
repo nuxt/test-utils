@@ -71,21 +71,12 @@ The path to the Nuxt application that will be used in the tests.
 * Type: `string`
 * Default: `<testDir>/<fixture>`
 
-### Build directory
+##### randomBuildDir
 
-`setupTest` will create a random build directory to avoid race conditions and conflicts between tests which run in parallel. The default template is: `<rootDir>/.nuxt/<randomID>`.
+To avoid conflicts between concurrent tests, a new random [build directory](https://nuxtjs.org/docs/2.x/configuration-glossary/configuration-builddir) will be created each time `setupTest` is called.
 
-If `buildDir` is set in `nuxt.config`, the value will be used instead of random one.
-
-Build directory can be also set in `config` options:
-
-```js
-setupTest({
-  config: {
-    buildDir: 'nuxt-build',
-  }
-})
-```
+* Type: `boolean`
+* Default: `true` (ignored if [`build`](#build) step is not enabled)
 
 ##### randomPort
 
