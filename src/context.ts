@@ -2,6 +2,7 @@ import type { RequestListener } from 'http'
 import { join } from 'path'
 import defu from 'defu'
 import { NuxtConfig, NuxtOptions } from '@nuxt/types'
+import type { Listener } from 'listhen'
 import type { Browser, LaunchOptions } from 'playwright'
 
 export interface NuxtTestOptions {
@@ -31,31 +32,33 @@ export interface NuxtTestOptions {
   server: boolean
 }
 
+export interface Nuxt {
+  server: {
+    app: RequestListener,
+  },
+  options: NuxtOptions
+  ready: () => any
+  close: (callback?: Function) => any
+  resolver: any
+  moduleContainer: any
+  resolveAlias(path: string): string
+  resolvePath(path: string, opts?: any): string
+  renderRoute(...args: any[]): any
+  renderAndGetWindow(url: string, opts?: any, config?: any): any
+}
+
 export interface NuxtTestContext {
-  options: NuxtTestOptions
+  options: Partial<NuxtTestOptions>
 
-  nuxt?: {
-    server: {
-      app: RequestListener,
-    },
-    options: NuxtOptions
-    ready: () => any
-    close: (callback?: Function) => any
-    resolver: any
-    moduleContainer: any
-    resolveAlias(path: string): string
-    resolvePath(path: string, opts?: any): string
-    renderRoute(...args: any[]): any
-    renderAndGetWindow(url: string, opts?: any, config?: any): any
-  }
-
-  browser?: Browser
-
-  url?: string
+  nuxt?: Nuxt
 
   builder?: {
     build: () => any
   }
+
+  listener?: Listener
+
+  browser?: Browser
 }
 
 let currentContext: NuxtTestContext

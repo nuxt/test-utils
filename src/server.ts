@@ -6,11 +6,9 @@ import { getContext } from './context'
 export async function listen () {
   const ctx = getContext()
   const { server } = ctx.options.config
-  const { url } = await listhen(ctx.nuxt.server.app, {
+  ctx.listener = await listhen(ctx.nuxt.server.app, {
     ...(server?.port && { port: Number(server?.port) })
   })
-
-  ctx.url = url
 }
 
 export function get<T> (path: string, options?: FetchOptions) {
@@ -20,9 +18,9 @@ export function get<T> (path: string, options?: FetchOptions) {
 export function url (path: string) {
   const ctx = getContext()
 
-  if (!ctx.url) {
+  if (!ctx.listener) {
     throw new Error('server is not enabled')
   }
 
-  return joinURL(ctx.url, path)
+  return joinURL(ctx.listener.url, path)
 }
