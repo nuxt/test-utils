@@ -12,12 +12,7 @@ export interface NuxtTestOptions {
   config: NuxtConfig
 
   build: boolean
-
   generate: boolean
-  generateOptions: {
-    build: boolean
-    init: boolean
-  }
 
   setupTimeout: number
   waitFor: number
