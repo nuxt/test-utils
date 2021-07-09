@@ -126,14 +126,6 @@ Whether to run generate pre-rendered HTML files for the application.
 * Type: `boolean`
 * Default: `false`
   
-<!-- #### generateOptions
-
-* Type: `object` with the following properties
-  - **build**: boolean
-  - **init**: boolean
-  
-* Default: `{}` -->
-
 #### browser
 
 Under the hood, Nuxt test utils uses [`playwright`](https://playwright.dev/) to carry out browser testing. If this option is set, a browser will be launched and can be controlled in the subsequent test suite. (More info can be found [here](/api-reference/browser-testing).)
