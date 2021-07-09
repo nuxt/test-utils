@@ -21,6 +21,10 @@ export function setupTest (options: Partial<NuxtTestOptions>) {
       await ctx.nuxt.close()
     }
 
+    if (ctx.listener) {
+      await ctx.listener.close()
+    }
+
     if (ctx.browser) {
       await ctx.browser.close()
     }
