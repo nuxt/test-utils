@@ -87,6 +87,14 @@ setupTest({
 })
 ```
 
+##### randomPort
+
+The test server will listen on a new random port each time `setupTest` is called. If disabled, the server will try to use [`server.port`](https://nuxtjs.org/docs/2.x/configuration-glossary/configuration-server) value.
+
+* Type: `boolean`
+* Default: `true` (ignored if [`server`](#server) is not enabled)
+
+
 ### Setup timings
 
 #### setupTimeout

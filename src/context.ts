@@ -12,6 +12,8 @@ export interface NuxtTestOptions {
   rootDir: string
   config: NuxtConfig
 
+  randomPort: boolean
+
   build: boolean
   generate: boolean
 
@@ -63,6 +65,7 @@ export function createContext (options: Partial<NuxtTestOptions>): NuxtTestConte
     testDir: join(process.cwd(), 'test'),
     fixture: 'fixture',
     configFile: 'nuxt.config',
+    randomPort: true,
     setupTimeout: 60000,
     server: options.browser,
     build: options.browser || options.server,
