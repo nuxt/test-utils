@@ -55,6 +55,13 @@ export async function loadFixture () {
     const randomId = Math.random().toString(36).substr(2, 8)
     options.config.buildDir = join(options.rootDir, '.nuxt', randomId)
   }
+
+  if (options.randomPort && options.server) {
+    options.config.server = {
+      ...options.config.server,
+      port: 0
+    }
+  }
 }
 
 export async function loadNuxtPackage (name: string = 'nuxt') {

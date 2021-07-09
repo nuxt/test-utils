@@ -5,10 +5,8 @@ import { getContext } from './context'
 
 export async function listen () {
   const ctx = getContext()
-  const { server } = ctx.options.config
-  ctx.listener = await listhen(ctx.nuxt.server.app, {
-    ...(server?.port && { port: Number(server?.port) })
-  })
+  const port = Number(ctx.options.config.server?.port)
+  ctx.listener = await listhen(ctx.nuxt.server.app, { port: { port, random: !port } })
 }
 
 export function get<T> (path: string, options?: FetchOptions) {
