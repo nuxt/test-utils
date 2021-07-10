@@ -1,15 +1,12 @@
 import type { RequestListener } from 'http'
-import { join } from 'path'
 import defu from 'defu'
 import { NuxtConfig, NuxtOptions } from '@nuxt/types'
 import type { Listener } from 'listhen'
 import type { Browser, LaunchOptions } from 'playwright'
 
 export interface NuxtTestOptions {
-  testDir: string
-  fixture: string
-  configFile: string
   rootDir: string
+  configFile: string
   config: NuxtConfig
 
   randomBuildDir: boolean
@@ -61,17 +58,15 @@ export interface NuxtTestContext {
 
 let currentContext: NuxtTestContext
 
-export function createContext (options: Partial<NuxtTestOptions>): NuxtTestContext {
+export function createContext (options: Partial<NuxtTestOptions> = {}): NuxtTestContext {
   const _options: Partial<NuxtTestOptions> = defu(options, {
-    testDir: join(process.cwd(), 'test'),
-    fixture: 'fixture',
+    rootDir: '.',
     configFile: 'nuxt.config',
     randomBuildDir: true,
     randomPort: true,
     setupTimeout: 60000,
     server: options.browser,
     build: options.browser || options.server,
-    config: {},
     browserOptions: {
       type: 'chromium'
     }

@@ -34,57 +34,44 @@ Using `test.only` or `it.only` later in the describe block of your test will cau
 
 ## Options for `setupTest`
 
-### Paths and Nuxt configuration
+### Nuxt configuration
+
+#### rootDir
+
+Path to a directory with a Nuxt app to be put under test.
+
+* Type: `string`
+* Default: `'.'`
 
 #### configFile
 
-The name of the Nuxt configuration file that will be read to get the configuration for the tests.
+Name of the configuration file.
 
 * Type: `string`
 * Default: `'nuxt.config.js' | 'nuxt.config.ts'`
 
 #### config
 
-You can override Nuxt options when running tests using this option.
+Object with configuration overrides.
 
 * Type: `NuxtConfig`
 * Default: `{}`
 
-#### testDir
+### Build directory
 
-The parent directory for the test fixture.
-
-* Type: `string`
-* Default: `'~~/test'`
-  
-#### fixture
-
-(For module or library testing) specifies the name of a fixture directory (under `testDir`) containing a Nuxt app.
-
-* Type: `string`
-* Default: `'fixture'`
-  
-#### rootDir
-
-The path to the Nuxt application that will be used in the tests.
-
-* Type: `string`
-* Default: `<testDir>/<fixture>`
-
-##### randomBuildDir
+#### randomBuildDir
 
 To avoid conflicts between concurrent tests, a new random [build directory](https://nuxtjs.org/docs/2.x/configuration-glossary/configuration-builddir) will be created each time `setupTest` is called.
 
 * Type: `boolean`
 * Default: `true` (ignored if [`build`](#build) step is not enabled)
 
-##### randomPort
+#### randomPort
 
 The test server will listen on a new random port each time `setupTest` is called. If disabled, the server will try to use [`server.port`](https://nuxtjs.org/docs/2.x/configuration-glossary/configuration-server) value.
 
 * Type: `boolean`
 * Default: `true` (ignored if [`server`](#server) is not enabled)
-
 
 ### Setup timings
 
