@@ -3,8 +3,7 @@ import { loadFixture } from '../../src/nuxt'
 import { getContext, NuxtTestContext } from '../../src/context'
 
 const defaults = {
-  testDir: 'test',
-  fixture: 'fixtures/basic',
+  rootDir: 'test/fixtures/generate',
   randomPort: true,
   randomBuildDir: true,
   build: true,
