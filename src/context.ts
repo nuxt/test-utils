@@ -1,6 +1,7 @@
 import type { RequestListener } from 'http'
 import defu from 'defu'
 import { NuxtConfig, NuxtOptions } from '@nuxt/types'
+import type { Listener } from 'listhen'
 import type { Browser, LaunchOptions } from 'playwright'
 
 export interface NuxtTestOptions {
@@ -8,13 +9,11 @@ export interface NuxtTestOptions {
   configFile: string
   config: NuxtConfig
 
-  build: boolean
+  randomBuildDir: boolean
+  randomPort: boolean
 
+  build: boolean
   generate: boolean
-  generateOptions: {
-    build: boolean
-    init: boolean
-  }
 
   setupTimeout: number
   waitFor: number
@@ -28,31 +27,33 @@ export interface NuxtTestOptions {
   server: boolean
 }
 
+export interface Nuxt {
+  server: {
+    app: RequestListener,
+  },
+  options: NuxtOptions
+  ready: () => any
+  close: (callback?: Function) => any
+  resolver: any
+  moduleContainer: any
+  resolveAlias(path: string): string
+  resolvePath(path: string, opts?: any): string
+  renderRoute(...args: any[]): any
+  renderAndGetWindow(url: string, opts?: any, config?: any): any
+}
+
 export interface NuxtTestContext {
-  options: NuxtTestOptions
+  options: Partial<NuxtTestOptions>
 
-  nuxt?: {
-    server: {
-      app: RequestListener,
-    },
-    options: NuxtOptions
-    ready: () => any
-    close: (callback?: Function) => any
-    resolver: any
-    moduleContainer: any
-    resolveAlias(path: string): string
-    resolvePath(path: string, opts?: any): string
-    renderRoute(...args: any[]): any
-    renderAndGetWindow(url: string, opts?: any, config?: any): any
-  }
-
-  browser?: Browser
-
-  url?: string
+  nuxt?: Nuxt
 
   builder?: {
     build: () => any
   }
+
+  listener?: Listener
+
+  browser?: Browser
 }
 
 let currentContext: NuxtTestContext
@@ -60,6 +61,9 @@ let currentContext: NuxtTestContext
 export function createContext (options: Partial<NuxtTestOptions> = {}): NuxtTestContext {
   const _options: Partial<NuxtTestOptions> = defu(options, {
     rootDir: '.',
+    configFile: 'nuxt.config',
+    randomBuildDir: true,
+    randomPort: true,
     setupTimeout: 60000,
     server: options.browser,
     build: options.browser || options.server,

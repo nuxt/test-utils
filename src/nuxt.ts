@@ -1,6 +1,7 @@
 import { existsSync } from 'fs'
 import { join, resolve } from 'path'
 import { getContext } from './context'
+import { randomId } from './utils'
 
 export async function loadNuxt () {
   const ctx = getContext()
@@ -33,9 +34,15 @@ export async function loadFixture () {
     options.config.rootDir = options.rootDir
   }
 
-  if (!options.config.buildDir) {
-    const randomId = Math.random().toString(36).substr(2, 8)
-    options.config.buildDir = join(options.config.rootDir, '.nuxt', randomId)
+  if (options.randomBuildDir && options.build) {
+    options.config.buildDir = join(options.config.buildDir || '.nuxt', randomId())
+  }
+
+  if (options.randomPort && options.server) {
+    options.config.server = {
+      ...options.config.server,
+      port: 0
+    }
   }
 }
 

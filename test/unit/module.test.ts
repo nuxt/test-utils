@@ -7,8 +7,8 @@ describe('module', () => {
   })
 
   test('request page', async () => {
-    const { body } = await get('/')
-    expect(body).toContain('Works!')
+    const html = await get('/')
+    expect(html).toContain('Works!')
   })
 
   test('module container call assertions', () => {

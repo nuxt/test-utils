@@ -56,22 +56,22 @@ Object with configuration overrides.
 
 * Type: `NuxtConfig`
 * Default: `{}`
-  
+
 ### Build directory
 
-`setupTest` will create a random build directory to avoid race conditions and conflicts between tests which run in parallel. The default template is: `<rootDir>/.nuxt/<randomID>`.
+#### randomBuildDir
 
-If `buildDir` is set in `nuxt.config`, the value will be used instead of random one.
+To avoid conflicts between concurrent tests, a new random [build directory](https://nuxtjs.org/docs/2.x/configuration-glossary/configuration-builddir) will be created each time `setupTest` is called.
 
-Build directory can be also set in `config` options:
+* Type: `boolean`
+* Default: `true` (ignored if [`build`](#build) step is not enabled)
 
-```js
-setupTest({
-  config: {
-    buildDir: 'nuxt-build',
-  }
-})
-```
+#### randomPort
+
+The test server will listen on a new random port each time `setupTest` is called. If disabled, the server will try to use [`server.port`](https://nuxtjs.org/docs/2.x/configuration-glossary/configuration-server) value.
+
+* Type: `boolean`
+* Default: `true` (ignored if [`server`](#server) is not enabled)
 
 ### Setup timings
 
@@ -112,14 +112,6 @@ Whether to run generate pre-rendered HTML files for the application.
 * Type: `boolean`
 * Default: `false`
   
-<!-- #### generateOptions
-
-* Type: `object` with the following properties
-  - **build**: boolean
-  - **init**: boolean
-  
-* Default: `{}` -->
-
 #### browser
 
 Under the hood, Nuxt test utils uses [`playwright`](https://playwright.dev/) to carry out browser testing. If this option is set, a browser will be launched and can be controlled in the subsequent test suite. (More info can be found [here](/api-reference/browser-testing).)
