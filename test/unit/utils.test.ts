@@ -6,9 +6,8 @@ const mockReaddir = readdir as jest.MockedFunction<typeof readdir>
 jest.mock('fs/promises')
 
 describe('isNuxtAppDir', () => {
-  // @ts-ignore
-  mockReaddir.mockReset().mockResolvedValue(['pages'])
   test('stays silent if nuxt app is discovered', async () => {
+    mockReaddir.mockReset().mockResolvedValue('pages' as jest.ResolvedValue<String>)
     await expect(ensureNuxtApp('.')).resolves.not.toThrow()
   })
 
