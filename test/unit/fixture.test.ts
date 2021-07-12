@@ -3,7 +3,7 @@ import { loadFixture } from '../../src/nuxt'
 import { getContext, NuxtTestContext } from '../../src/context'
 
 const defaults = {
-  rootDir: 'test/fixtures/generate',
+  rootDir: '.',
   randomPort: true,
   randomBuildDir: true,
   build: true,
@@ -17,7 +17,8 @@ jest.mock('../../src/context', () => ({
 }))
 
 jest.mock('../../src/utils', () => ({
-  randomId: () => 'test1234'
+  randomId: () => 'mock-random-string',
+  ensureNuxtApp: () => Promise.resolve()
 }))
 
 beforeEach(() => {
@@ -34,7 +35,7 @@ describe('fixture', () => {
 
       await loadFixture()
 
-      expect(context.options.config.buildDir).toBe(join('.nuxt', 'test1234'))
+      expect(context.options.config.buildDir).toBe(join('.nuxt', 'mock-random-string'))
     })
 
     test('if `buildDir` option is set', async () => {
@@ -46,7 +47,7 @@ describe('fixture', () => {
 
       await loadFixture()
 
-      expect(context.options.config.buildDir).toBe(join('nuxt-build', 'test1234'))
+      expect(context.options.config.buildDir).toBe(join('nuxt-build', 'mock-random-string'))
     })
 
     test('if `randomBuildDir: false` is set', async () => {
