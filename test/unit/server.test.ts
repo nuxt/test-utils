@@ -1,7 +1,8 @@
 import { RequestListener } from 'http'
 import { listen as listhen, Listener } from 'listhen'
 import { listen } from '../../src/server'
-import { getContext, NuxtTestContext, Nuxt } from '../../src/context'
+import { getContext } from '../../src/context'
+import { NuxtTestContext, Nuxt } from '../../src/types'
 
 const defaults = {
   config: { server: { port: 0 } }

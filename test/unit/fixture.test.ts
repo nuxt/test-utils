@@ -1,6 +1,7 @@
 import { join } from 'path'
 import { loadFixture } from '../../src/nuxt'
-import { getContext, NuxtTestContext } from '../../src/context'
+import { getContext } from '../../src/context'
+import { NuxtTestContext } from '../../src/types'
 
 const defaults = {
   rootDir: '.',

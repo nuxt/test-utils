@@ -1,9 +1,10 @@
-import { createContext, setContext, NuxtTestOptions } from './context'
+import { createContext, setContext } from './context'
 import { loadNuxt, loadFixture } from './nuxt'
 import { build } from './build'
 import { generate } from './generate'
 import { listen } from './server'
 import { createBrowser } from './browser'
+import { NuxtTestOptions } from './types'
 
 export function setupTest (options: Partial<NuxtTestOptions>) {
   const ctx = createContext(options)
