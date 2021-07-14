@@ -65,8 +65,8 @@ export function createContext (options: Partial<NuxtTestOptions> = {}): NuxtTest
     randomBuildDir: true,
     randomPort: true,
     setupTimeout: 60000,
+    build: true,
     server: options.browser,
-    build: options.browser || options.server,
     browserOptions: {
       type: 'chromium'
     }

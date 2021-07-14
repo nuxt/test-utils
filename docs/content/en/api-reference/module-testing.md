@@ -24,11 +24,20 @@ When you write tests for a Nuxt module, you normally expect the module to be ins
 Expect a specific method to be triggered while installing a module.
 
 ```js
-test('should inject plugin', () => {
-  expectModuleToBeCalledWith('addPlugin', {
-    src: expect.stringMatching(/templates[\\/]plugin.js/),
-    fileName: 'myPlugin.js',
-    options: getNuxt().options.myModule
+import { setupTest, expectModuleToBeCalledWith } from '@nuxt/test-utils'
+
+describe('browser', () => {
+  setupTest(
+    rootDir: 'path/to/fixture',
+    build: false
+  )
+
+  test('should inject plugin', () => {
+    expectModuleToBeCalledWith('addPlugin', {
+      src: expect.stringMatching(/templates[\\/]plugin.js/),
+      fileName: 'myPlugin.js',
+      options: getNuxt().options.myModule
+    })
   })
 })
 ```

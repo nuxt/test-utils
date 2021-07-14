@@ -91,19 +91,19 @@ An additional aount of time (in milliseconds) to wait after setting up the test 
 
 ### Features to enable
 
+#### build
+
+Whether to run a separate build step.
+
+* Type: `boolean`
+* Default: `true`
+
 #### server
 
 Whether to launch a server to respond to requests in the test suite.
 
 * Type: `boolean`
 * Default: `false`
-
-#### build
-
-Whether to run a separate build step.
-
-* Type: `boolean`
-* Default: `false` (`true` if `browser` or `server` is enabled)
   
 #### generate
 
