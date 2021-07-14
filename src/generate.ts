@@ -1,12 +1,16 @@
 import { getContext } from './context'
 import { loadNuxtPackage } from './nuxt'
+import { build } from './build'
 
 export async function generate () {
-  const { nuxt } = getContext()
-  const { Builder, Generator } = await loadNuxtPackage()
+  const ctx = getContext()
+  const { Generator } = await loadNuxtPackage()
 
-  const builder = new Builder(nuxt)
-  const generator = new Generator(nuxt, builder)
+  if (!ctx.builder) {
+    await build()
+  }
 
-  await generator.generate()
+  const generator = new Generator(ctx.nuxt, ctx.builder)
+
+  await generator.generate({ build: false })
 }
