@@ -41,7 +41,7 @@ export function setupTest (options: Partial<NuxtTestOptions>) {
       await ctx.nuxt.ready()
     }
 
-    if (ctx.options.build) {
+    if (ctx.options.build && !ctx.options.generate) {
       await build()
     }
 
