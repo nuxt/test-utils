@@ -2,8 +2,7 @@ import { setupTest, get, expectModuleToBeCalledWith } from '../../src'
 
 describe('module', () => {
   setupTest({
-    rootDir: 'test/fixtures/basic',
-    server: true
+    rootDir: 'test/fixtures/basic'
   })
 
   test('request page', async () => {
@@ -30,15 +29,5 @@ describe('setup with waitFor', () => {
     rootDir: 'test/fixtures/basic',
     build: true,
     waitFor: 100
-  })
-})
-
-describe('server', () => {
-  setupTest({
-    rootDir: 'test/fixtures/basic'
-  })
-
-  test('should be error if server not enabled', () => {
-    expect(() => get('/')).toThrowError('server is not enabled')
   })
 })

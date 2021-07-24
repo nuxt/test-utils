@@ -1,6 +1,6 @@
 import type { Browser, BrowserContextOptions } from 'playwright'
 import { getContext } from './context'
-import { url } from './server'
+import { url as getUrl } from './server'
 
 export async function createBrowser () {
   const ctx = getContext()
@@ -37,7 +37,8 @@ export async function createPage (path?: string, options?: BrowserContextOptions
   const page = await browser.newPage(options)
 
   if (path) {
-    await page.goto(url(path))
+    const url = await getUrl(path)
+    await page.goto(url)
   }
 
   return page

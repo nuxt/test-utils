@@ -9,15 +9,15 @@ export async function listen () {
   ctx.listener = await listhen(ctx.nuxt.server.app, { port: { port, random: !port } })
 }
 
-export function get<T> (path: string, options?: FetchOptions) {
-  return $fetch<T>(url(path), options)
+export async function get<T> (path: string, options?: FetchOptions) {
+  return $fetch<T>(await url(path), options)
 }
 
-export function url (path: string) {
+export async function url (path: string) {
   const ctx = getContext()
 
-  if (!ctx.listener) {
-    throw new Error('server is not enabled')
+  if (!ctx.listener?.url) {
+    await listen()
   }
 
   return joinURL(ctx.listener.url, path)

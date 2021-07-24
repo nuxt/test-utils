@@ -2,8 +2,7 @@ import { setupTest, createPage } from '../../src'
 
 describe('browser', () => {
   setupTest({
-    rootDir: 'test/fixtures/basic',
-    browser: true
+    rootDir: 'test/fixtures/basic'
   })
 
   test('should render page', async () => {
