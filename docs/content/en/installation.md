@@ -14,14 +14,14 @@ Add `@nuxt/test-utils` to your project (as a development dependency):
   <code-block label="Yarn" active>
 
   ```bash
-  yarn add --dev jest @nuxt/test-utils
+  yarn add --dev jest @nuxt/test-utils playwright
   ```
 
   </code-block>
   <code-block label="NPM">
 
   ```bash
-  npm install --save-dev jest @nuxt/test-utils
+  npm install --save-dev jest @nuxt/test-utils playwright
   ```
 
   </code-block>
