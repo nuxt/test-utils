@@ -25,12 +25,14 @@ describe('client-side nuxt features', () => {
     expect(app.$router).toBeDefined()
   })
 
-  it('works with route composables', async () => {
-    expect(useRoute().matched[0].meta).toMatchInlineSnapshot('{}')
+  it('defaults to index page', async () => {
+    expect(useRoute().matched[0].meta).toMatchInlineSnapshot(`
+    {
+      "value": "set in index",
+    }
+  `)
     expect(useRoute().fullPath).toMatchInlineSnapshot('"/"')
-    // TODO:
-    // await useRouter().push('/test')
-    // expect(useRoute().fullPath).toMatchInlineSnapshot('"/test"')
+    // TODO: should it be possible to push to other routes?
   })
 })
 
@@ -40,7 +42,7 @@ describe('test utils', () => {
     expect(component.html()).toMatchInlineSnapshot(`
       "<div>This is an auto-imported component</div>
       <!-- TODO: <NuxtPage /> -->
-      <!-- TODO: <NuxtLink to=\\"/test\\">Test link</NuxtLink> -->"
+      <a href=\\"/test\\">Test link</a>"
     `)
   })
 

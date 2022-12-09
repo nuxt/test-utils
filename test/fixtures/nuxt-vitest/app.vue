@@ -1,7 +1,7 @@
 <template>
   <LazySomeComponent />
   <!-- TODO: <NuxtPage /> -->
-  <!-- TODO: <NuxtLink to="/test">Test link</NuxtLink> -->
+  <NuxtLink to="/test">Test link</NuxtLink>
 </template>
 
 <script setup>
