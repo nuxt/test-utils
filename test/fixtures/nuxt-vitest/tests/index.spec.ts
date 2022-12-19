@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 
-import { mountSuspended } from '../../src/runtime/mount'
-import { registerEndpoint } from '../../src/runtime/mock'
+import { mountSuspended, registerEndpoint } from 'vitest-environment-nuxt/utils'
 
 import App from '~/app.vue'
 import FetchComponent from '~/components/FetchComponent.vue'
