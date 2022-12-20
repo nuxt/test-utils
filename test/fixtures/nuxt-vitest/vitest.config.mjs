@@ -1,15 +1,9 @@
-import { defineConfig } from 'vite'
-import { getVitestConfig } from 'vitest-environment-nuxt/config'
+import { defineConfigWithNuxtEnv } from 'vitest-environment-nuxt/config'
 
-const viteConfig = await getVitestConfig()
-
-export default defineConfig({
-  ...viteConfig,
+export default defineConfigWithNuxtEnv({
+  // TODO: fix bug with stubbing root package
   resolve: {
-    ...viteConfig.resolve,
     alias: {
-      ...viteConfig.resolve?.alias,
-      // TODO: fix bug with stubbing root package
       'vitest-environment-nuxt/utils': '../src/utils',
       'vitest-environment-nuxt': '../src/index',
     },
