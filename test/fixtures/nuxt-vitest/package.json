@@ -1,15 +1,19 @@
 {
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "test:nuxt": "vitest -c vitest.config.nuxt.ts",
+    "test:unit": "vitest -c vitest.config.unit.ts",
+    "test": "pnpm test:unit --run && pnpm test:nuxt --run"
   },
   "devDependencies": {
     "nuxt": "^3.0.0",
-    "vitest": "^0.24.5",
+    "vitest": "^0.26.2",
     "vitest-environment-nuxt": "latest"
   }
 }
