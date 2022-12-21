@@ -5,6 +5,7 @@ export default defineConfigWithNuxtEnv({
   resolve: {
     alias: {
       'vitest-environment-nuxt/utils': '../src/utils',
+      'vitest-environment-nuxt/config': '../src/config',
       'vitest-environment-nuxt': '../src/index',
     },
   },
