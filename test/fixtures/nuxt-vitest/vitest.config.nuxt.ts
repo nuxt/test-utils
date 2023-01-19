@@ -5,15 +5,15 @@ export default defineConfigWithNuxtEnv({
     name: 'nuxt',
     dir: 'tests/nuxt',
     coverage: {
-      reportsDirectory: 'coverage/nuxt'
-    }
+      reportsDirectory: 'coverage/nuxt',
+    },
   },
   // TODO: fix bug with stubbing root package
   resolve: {
     alias: {
-      'vitest-environment-nuxt/utils': '../src/utils',
-      'vitest-environment-nuxt/config': '../src/config',
-      'vitest-environment-nuxt': '../src/index',
+      'vitest-environment-nuxt/utils': '../packages/vitest-environment-nuxt/src/utils',
+      'vitest-environment-nuxt/config': '../packages/vitest-environment-nuxt/src/config',
+      'vitest-environment-nuxt': '../packages/vitest-environment-nuxt/src/index',
     },
   },
 })

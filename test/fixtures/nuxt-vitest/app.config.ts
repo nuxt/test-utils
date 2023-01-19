@@ -1,3 +1,3 @@
 export default defineAppConfig({
-  hey: false
+  hey: false,
 })

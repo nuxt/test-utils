@@ -48,7 +48,9 @@ describe('test utils', () => {
       title: 'title from mocked api',
     }))
     const component = await mountSuspended(FetchComponent)
-    expect(component.html()).toMatchInlineSnapshot('"<div>title from mocked api</div>"')
+    expect(component.html()).toMatchInlineSnapshot(
+      '"<div>title from mocked api</div>"'
+    )
   })
 
   // TODO: make working with router - currently router components are not
