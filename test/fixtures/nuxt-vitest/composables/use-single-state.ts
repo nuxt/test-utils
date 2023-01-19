@@ -1,1 +1,2 @@
-export const useSingleState = () => useState<{ field?: string }>('single', () => ({}))
+export const useSingleState = () =>
+  useState<{ field?: string }>('single', () => ({}))
