@@ -1,4 +1,4 @@
-import { defineComponent, useRouter } from '#imports'
+import { defineComponent, useRouter, h } from '#imports'
 
 export const RouterLink = defineComponent({
   functional: true,
