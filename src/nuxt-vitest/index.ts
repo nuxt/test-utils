@@ -1,2 +1,2 @@
-export { defineConfigWithNuxt as defineConfigWithNuxtEnv } from './config'
+export { defineVitestConfig } from './config'
 export { default } from './module'

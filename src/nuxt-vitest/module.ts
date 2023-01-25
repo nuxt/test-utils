@@ -1,7 +1,7 @@
 import { defineNuxtModule, installModule, logger, resolvePath } from '@nuxt/kit'
 import type { UserConfig as VitestConfig } from 'vitest'
 import { mergeConfig, InlineConfig as ViteConfig } from 'vite'
-import { getVitestConfig } from './config'
+import { getVitestConfigFromNuxt } from './config'
 import { getPort } from 'get-port-please'
 
 export interface NuxtVitestOptions {
@@ -49,7 +49,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
       const rawViteConfig = mergeConfig({}, await rawViteConfigPromise)
 
       const viteConfig = mergeConfig(
-        await getVitestConfig({ nuxt, viteConfig: rawViteConfig }),
+        await getVitestConfigFromNuxt({ nuxt, viteConfig: rawViteConfig }),
         <ViteConfig>{
           server: {
             middlewareMode: false,

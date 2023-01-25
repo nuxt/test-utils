@@ -8,7 +8,7 @@ interface GetVitestConfigOptions {
 }
 
 // https://github.com/nuxt/framework/issues/6496
-async function getNuxtAndViteConfig(rootDir = process.cwd()) {
+async function startNuxtAndGetViteConfig(rootDir = process.cwd()) {
   const { loadNuxt, buildNuxt } = await import('@nuxt/kit')
   const nuxt = await loadNuxt({
     cwd: rootDir,
@@ -46,10 +46,10 @@ async function getNuxtAndViteConfig(rootDir = process.cwd()) {
   return promise
 }
 
-export async function getVitestConfig(
+export async function getVitestConfigFromNuxt(
   options?: GetVitestConfigOptions
 ): Promise<InlineConfig & { test: VitestConfig }> {
-  if (!options) options = await getNuxtAndViteConfig()
+  if (!options) options = await startNuxtAndGetViteConfig()
 
   return {
     ...options.viteConfig,
@@ -88,10 +88,10 @@ export async function getVitestConfig(
   }
 }
 
-export function defineConfigWithNuxt(config: InlineConfig = {}) {
+export function defineVitestConfig(config: InlineConfig = {}) {
   return defineConfig(async () => {
-    // When Nuxt module calls `startVitest`, we don't need to call `getVitestConfig` again
+    // When Nuxt module calls `startVitest`, we don't need to call `getVitestConfigFromNuxt` again
     if (process.env.__NUXT_VITEST_RESOLVED__) return config
-    return mergeConfig(await getVitestConfig(), config)
+    return mergeConfig(await getVitestConfigFromNuxt(), config)
   })
 }
