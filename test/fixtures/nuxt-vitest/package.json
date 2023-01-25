@@ -6,10 +6,9 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "test:nuxt": "vitest -c vitest.config.nuxt.ts",
-    "test:unit": "vitest -c vitest.config.unit.ts",
+    "test:unit": "vitest",
     "test:dev": "NUXT_VITEST_DEV_TEST=true nuxt dev",
-    "test": "pnpm test:unit --run && pnpm test:nuxt --run && pnpm test:dev"
+    "test": "pnpm test:unit --run && pnpm test:dev"
   },
   "devDependencies": {
     "@nuxt/devtools-edge": "0.0.0-27909847.46d1bc3",
