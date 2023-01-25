@@ -1,7 +1,6 @@
 import type { Nuxt } from '@nuxt/schema'
 import type { InlineConfig as VitestConfig } from 'vitest'
 import { InlineConfig, mergeConfig, defineConfig } from 'vite'
-import modules from './module'
 
 interface GetVitestConfigOptions {
   nuxt: Nuxt
@@ -14,7 +13,6 @@ async function getNuxtAndViteConfig(rootDir = process.cwd()) {
   const nuxt = await loadNuxt({
     cwd: rootDir,
     dev: false,
-    ready: false,
     overrides: {
       ssr: false,
       app: {
@@ -22,13 +20,21 @@ async function getNuxtAndViteConfig(rootDir = process.cwd()) {
       },
     },
   })
-  nuxt.options.modules.push(modules)
-  await nuxt.ready()
 
-  return new Promise<GetVitestConfigOptions>((resolve, reject) => {
-    nuxt.hook('vite:extendConfig', viteConfig => {
-      resolve({ nuxt, viteConfig })
-      throw new Error('_stop_')
+  if (
+    !nuxt.options._installedModules.find(i => i.meta.name === 'nuxt-vitest')
+  ) {
+    throw new Error(
+      'Failed to load nuxt-vitest module. You may need to add it to your nuxt.config.'
+    )
+  }
+
+  const promise = new Promise<GetVitestConfigOptions>((resolve, reject) => {
+    nuxt.hook('vite:extendConfig', (viteConfig, { isClient }) => {
+      if (isClient) {
+        resolve({ nuxt, viteConfig })
+        throw new Error('_stop_')
+      }
     })
     buildNuxt(nuxt).catch(err => {
       if (!err.toString().includes('_stop_')) {
@@ -36,6 +42,8 @@ async function getNuxtAndViteConfig(rootDir = process.cwd()) {
       }
     })
   }).finally(() => nuxt.close())
+
+  return promise
 }
 
 export async function getVitestConfig(
@@ -58,6 +66,7 @@ export async function getVitestConfig(
                 // vite-node defaults
                 /\/(nuxt|nuxt3)\//,
                 /^#/,
+                'vite',
                 // additional deps
                 'vue',
                 'vitest-environment-nuxt',
@@ -71,8 +80,10 @@ export async function getVitestConfig(
   }
 }
 
-export function defineConfigWithNuxtEnv(config: InlineConfig = {}) {
+export function defineConfigWithNuxt(config: InlineConfig = {}) {
   return defineConfig(async () => {
+    // When Nuxt module calls `startVitest`, we don't need to call `getVitestConfig` again
+    if (process.env.__NUXT_VITEST_RESOLVED__) return config
     return mergeConfig(await getVitestConfig(), config)
   })
 }

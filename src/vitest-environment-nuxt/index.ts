@@ -66,6 +66,7 @@ export default <Environment>{
       bindFunctions: true,
     })
 
+    // @ts-ignore
     await import('#app/entry')
 
     return {

@@ -21,7 +21,7 @@ export interface MockInfo {
  */
 export default defineNuxtModule({
   meta: {
-    name: 'vitest-env:auto-import-mock',
+    name: 'nuxt:vitest:auto-import-mock',
   },
   setup(_, nuxt) {
     let imports: Import[] = []
@@ -31,7 +31,7 @@ export default defineNuxtModule({
     })
 
     addVitePlugin({
-      name: 'nuxt:auto-import-mock',
+      name: 'nuxt:vitest:auto-import-mock',
       transform(code, id) {
         if (!code.includes(HELPER_NAME)) return
         if (id.includes('/node_modules/')) return
