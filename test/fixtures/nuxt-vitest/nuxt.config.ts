@@ -4,15 +4,13 @@ export default defineNuxtConfig({
   vitest: {
     startOnBoot: true,
     logToConsole: true,
-    vitestConfig: {
-      dir: 'tests/nuxt',
-    }
   },
   vite: {
     // TODO: fix bug with stubbing root package
     resolve: {
       alias: {
         'nuxt-vitest/config': '../packages/vitest-environment-nuxt/src/config',
+        'nuxt-vitest/utils': '../packages/vitest-environment-nuxt/src/utils',
         'vitest-environment-nuxt/utils':
           '../packages/vitest-environment-nuxt/src/utils',
         'vitest-environment-nuxt':
