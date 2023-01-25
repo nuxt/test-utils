@@ -22,7 +22,7 @@ async function getNuxtAndViteConfig(rootDir = process.cwd()) {
   })
 
   if (
-    !nuxt.options._installedModules.find(i => i.meta.name === 'nuxt-vitest')
+    !nuxt.options._installedModules.find(i => i?.meta?.name === 'nuxt-vitest')
   ) {
     throw new Error(
       'Failed to load nuxt-vitest module. You may need to add it to your nuxt.config.'
