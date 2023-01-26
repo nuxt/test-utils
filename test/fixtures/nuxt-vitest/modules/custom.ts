@@ -4,7 +4,7 @@ export default defineNuxtModule({
   meta: {
     name: 'custom',
   },
-  setup(_, nuxt) {
+  setup(_, _nuxt) {
     console.log('From custom module!')
   },
 })

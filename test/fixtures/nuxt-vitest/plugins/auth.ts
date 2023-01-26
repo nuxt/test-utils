@@ -1,4 +1,4 @@
-export default defineNuxtPlugin(nuxtApp => {
+export default defineNuxtPlugin(_nuxtApp => {
   return {
     provide: {
       auth: {
