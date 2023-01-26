@@ -75,6 +75,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
             watch: false,
           }
         : {
+            passWithNoTests: true,
             ...options.vitestConfig,
             reporters: options.logToConsole ? undefined : [{}], // do not report to console
             ui: true,
