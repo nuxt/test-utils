@@ -44,6 +44,8 @@ export default defineNuxtModule<NuxtVitestOptions>({
 
     const PORT = await getPort({ port: 15555 })
     const URL = `http://localhost:${PORT}/__vitest__/`
+    let loaded = false
+    let promise: Promise<any> | undefined
 
     async function start() {
       const rawViteConfig = mergeConfig({}, await rawViteConfigPromise)
@@ -95,33 +97,44 @@ export default defineNuxtModule<NuxtVitestOptions>({
 
       logger.info(`Vitest UI starting on ${URL}`)
 
-      return await promise
+      loaded = true
+      promise
     }
 
-    let promise: Promise<any> | undefined
-
     // @ts-ignore
-    nuxt.hook('devtools:customTabs', iframeTabs => {
-      iframeTabs.push({
+    nuxt.hook('devtools:customTabs', tabs => {
+      tabs.push({
         title: 'Vitest',
         name: 'vitest',
         icon: 'logos-vitest',
-        view: {
-          type: 'iframe',
-          src: URL,
-        },
-        lazy: {
-          onLoad: async () => {
-            promise = promise || start()
-            await promise
-          },
-          description: 'Start tests along with Nuxt',
-        },
+        view: loaded
+          ? {
+              type: 'iframe',
+              src: URL,
+            }
+          : {
+              type: 'launch',
+              description: 'Start tests along with Nuxt',
+              actions: [
+                {
+                  label: promise ? 'Starting...' : 'Start Vitest',
+                  pending: !!promise,
+                  handle: () => {
+                    promise = promise || start()
+                    return promise
+                  },
+                },
+              ],
+            },
       })
     })
 
     if (options.startOnBoot) {
       promise = promise || start()
+      promise.then(() => {
+        // @ts-expect-error
+        nuxt.callHook('devtools:customTabs:refresh')
+      })
     }
   },
 })
