@@ -1,8 +1,10 @@
 import { defineNuxtModule, installModule, logger, resolvePath } from '@nuxt/kit'
-import type { UserConfig as VitestConfig } from 'vitest'
+import type { UserConfig as VitestConfig, Reporter, Vitest, File } from 'vitest'
 import { mergeConfig, InlineConfig as ViteConfig } from 'vite'
 import { getVitestConfigFromNuxt } from './config'
 import { getPort } from 'get-port-please'
+import { h } from 'vue'
+import { debounce } from 'perfect-debounce'
 
 export interface NuxtVitestOptions {
   startOnBoot?: boolean
@@ -46,6 +48,13 @@ export default defineNuxtModule<NuxtVitestOptions>({
     const URL = `http://localhost:${PORT}/__vitest__/`
     let loaded = false
     let promise: Promise<any> | undefined
+    let ctx: Vitest = undefined!
+    let testFiles: File[] | null = null
+
+    const updateTabs = debounce(() => {
+      // @ts-expect-error
+      nuxt.callHook('devtools:customTabs:refresh')
+    }, 100)
 
     async function start() {
       const rawViteConfig = mergeConfig({}, await rawViteConfigPromise)
@@ -68,6 +77,20 @@ export default defineNuxtModule<NuxtVitestOptions>({
         await resolvePath('vitest/node')
       )) as typeof import('vitest/node')
 
+      const customReporter: Reporter = {
+        onInit(_ctx) {
+          ctx = _ctx
+        },
+        onTaskUpdate() {
+          testFiles = ctx.state.getFiles()
+          updateTabs()
+        },
+        onFinished() {
+          testFiles = ctx.state.getFiles()
+          updateTabs()
+        },
+      }
+
       // For testing dev mode in CI, maybe expose an option to user later
       const vitestConfig: VitestConfig = process.env.NUXT_VITEST_DEV_TEST
         ? {
@@ -77,7 +100,13 @@ export default defineNuxtModule<NuxtVitestOptions>({
         : {
             passWithNoTests: true,
             ...options.vitestConfig,
-            reporters: options.logToConsole ? undefined : [{}], // do not report to console
+            reporters: options.logToConsole
+              ? [
+                  ...toArray(options.vitestConfig?.reporters ?? ['default']),
+                  customReporter,
+                ]
+              : [customReporter], // do not report to console
+            watch: true,
             ui: true,
             open: false,
             api: {
@@ -99,11 +128,17 @@ export default defineNuxtModule<NuxtVitestOptions>({
       logger.info(`Vitest UI starting on ${URL}`)
 
       loaded = true
-      promise
+      promise.catch(() => process.exit(1))
     }
 
     // @ts-ignore
     nuxt.hook('devtools:customTabs', tabs => {
+      const failedCount =
+        testFiles?.filter(f => f.result?.state === 'fail').length ?? 0
+      const passedCount =
+        testFiles?.filter(f => f.result?.state === 'pass').length ?? 0
+      const totalCount = testFiles?.length ?? 0
+
       tabs.push({
         title: 'Vitest',
         name: 'vitest',
@@ -127,15 +162,27 @@ export default defineNuxtModule<NuxtVitestOptions>({
                 },
               ],
             },
+        extraTabVNode: totalCount
+          ? h('div', { style: { color: failedCount ? 'orange' : 'green' } }, [
+              h('span', {}, passedCount),
+              h('span', { style: { opacity: '0.5', fontSize: '0.9em' } }, '/'),
+              h(
+                'span',
+                { style: { opacity: '0.8', fontSize: '0.9em' } },
+                totalCount
+              ),
+            ])
+          : undefined,
       })
     })
 
     if (options.startOnBoot) {
       promise = promise || start()
-      promise.then(() => {
-        // @ts-expect-error
-        nuxt.callHook('devtools:customTabs:refresh')
-      })
+      promise.then(updateTabs)
     }
   },
 })
+
+function toArray<T>(value: T | T[]): T[] {
+  return Array.isArray(value) ? value : [value]
+}
