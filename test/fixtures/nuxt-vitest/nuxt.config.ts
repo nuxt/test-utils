@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   modules: ['nuxt-vitest', '@nuxt/devtools-edge', '~/modules/custom'],
   ssr: false,
   vitest: {
-    startOnBoot: true,
+    // startOnBoot: true,
     logToConsole: true,
   },
   vite: {
