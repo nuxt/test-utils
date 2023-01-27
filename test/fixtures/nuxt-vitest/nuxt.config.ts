@@ -1,9 +1,12 @@
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
-  modules: ['nuxt-vitest', '@nuxt/devtools-edge', '~/modules/custom'],
-  ssr: false,
+  modules: [
+    '../packages/nuxt-vitest/src/module',
+    '@nuxt/devtools-edge',
+    '~/modules/custom',
+  ],
   vitest: {
-    // startOnBoot: true,
+    startOnBoot: true,
     logToConsole: true,
   },
   vite: {
