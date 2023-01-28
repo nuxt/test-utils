@@ -5,6 +5,7 @@ import { getVitestConfigFromNuxt } from './config'
 import { getPort } from 'get-port-please'
 import { h } from 'vue'
 import { debounce } from 'perfect-debounce'
+import { isCI } from 'std-env'
 
 export interface NuxtVitestOptions {
   startOnBoot?: boolean
@@ -91,13 +92,11 @@ export default defineNuxtModule<NuxtVitestOptions>({
         },
       }
 
+      const watchMode = !process.env.NUXT_VITEST_DEV_TEST && !isCI
+
       // For testing dev mode in CI, maybe expose an option to user later
-      const vitestConfig: VitestConfig = process.env.NUXT_VITEST_DEV_TEST
+      const vitestConfig: VitestConfig = watchMode
         ? {
-            ...options.vitestConfig,
-            watch: false,
-          }
-        : {
             passWithNoTests: true,
             ...options.vitestConfig,
             reporters: options.logToConsole
@@ -113,22 +112,27 @@ export default defineNuxtModule<NuxtVitestOptions>({
               port: PORT,
             },
           }
+        : {
+            ...options.vitestConfig,
+            watch: false,
+          }
 
       // TODO: Investigate segfault when loading config file in Nuxt
       viteConfig.configFile = false
 
       // Start Vitest
       const promise = startVitest('test', [], vitestConfig, viteConfig)
+      promise.catch(() => process.exit(1))
 
-      if (process.env.NUXT_VITEST_DEV_TEST) {
+      if (watchMode) {
+        logger.info(`Vitest UI starting on ${URL}`)
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      } else {
         promise.then(v => v?.close()).then(() => process.exit())
         promise.catch(() => process.exit(1))
       }
 
-      logger.info(`Vitest UI starting on ${URL}`)
-
       loaded = true
-      promise.catch(() => process.exit(1))
     }
 
     // @ts-ignore
