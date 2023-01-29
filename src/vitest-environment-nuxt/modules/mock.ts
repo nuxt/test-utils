@@ -63,12 +63,33 @@ export default defineNuxtModule({
             return
           }
 
+          let insertionPoint = 0
+          let hasViImport = false
+
           const s = new MagicString(code)
           const mocksImport: MockImportInfo[] = []
           const mocksComponent: MockComponentInfo[] = []
 
           walk(ast as any, {
             enter: node => {
+              // find existing vi import
+              if (
+                node.type === 'ImportDeclaration' &&
+                node.source.value === 'vitest' &&
+                !hasViImport
+              ) {
+                if (
+                  node.specifiers.find(
+                    i =>
+                      i.type === 'ImportSpecifier' && i.imported.name === 'vi'
+                  )
+                ) {
+                  insertionPoint = node.range![1]
+                  hasViImport = true
+                }
+                return
+              }
+
               if (node.type !== 'CallExpression') return
               const call = node as CallExpression
               // mockNuxtImport
@@ -199,9 +220,9 @@ export default defineNuxtModule({
 
           if (!mockLines.length) return
 
-          s.prepend(
-            '\nimport {vi} from "vitest";\n' + mockLines.join('\n') + '\n\n'
-          )
+          if (!hasViImport) mockLines.unshift(`import {vi} from "vitest";`)
+
+          s.appendLeft(insertionPoint, '\n' + mockLines.join('\n') + ';\n')
 
           return {
             code: s.toString(),

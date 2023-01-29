@@ -1,4 +1,4 @@
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import { mockNuxtImport } from 'vitest-environment-nuxt/utils'
 
 mockNuxtImport<typeof useAutoImportedTarget>('useAutoImportedTarget', () => {
@@ -6,6 +6,7 @@ mockNuxtImport<typeof useAutoImportedTarget>('useAutoImportedTarget', () => {
 })
 
 it('should mock', () => {
+  vi.fn()
   expect(useAutoImportedTarget()).toMatchInlineSnapshot('"mocked!"')
   expect(useAutoImportedNonTarget()).toMatchInlineSnapshot('"the original"')
 })
