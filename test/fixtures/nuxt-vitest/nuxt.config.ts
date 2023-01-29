@@ -9,6 +9,9 @@ export default defineNuxtConfig({
     startOnBoot: true,
     logToConsole: true,
   },
+  imports: {
+    injectAtEnd: true
+  },
   vite: {
     // TODO: fix bug with stubbing root package
     resolve: {
