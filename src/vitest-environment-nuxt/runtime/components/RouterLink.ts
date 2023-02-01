@@ -3,7 +3,7 @@ import { defineComponent, useRouter, h } from '#imports'
 export const RouterLink = defineComponent({
   functional: true,
   props: {
-    to: String,
+    to: [String, Object],
     custom: Boolean,
     replace: Boolean,
     // Not implemented
