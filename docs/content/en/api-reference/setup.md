@@ -84,7 +84,7 @@ The amount of time (in milliseconds) to allow for `setupTest` to complete its wo
 
 #### waitFor
 
-An additional aount of time (in milliseconds) to wait after setting up the test context before commencing the rest of the test suite.
+An additional amount of time (in milliseconds) to wait after setting up the test context before commencing the rest of the test suite.
 
 * Type: `number`
 * Default: `0`
