@@ -50,6 +50,7 @@ export async function getVitestConfigFromNuxt(
   options?: GetVitestConfigOptions
 ): Promise<InlineConfig & { test: VitestConfig }> {
   if (!options) options = await startNuxtAndGetViteConfig()
+  options.viteConfig.plugins = options.viteConfig.plugins?.filter(p => (p as any)?.name !== 'nuxt:import-protection')
 
   return {
     ...options.viteConfig,
