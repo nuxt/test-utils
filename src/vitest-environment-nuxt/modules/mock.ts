@@ -37,7 +37,24 @@ export default defineNuxtModule({
     let components: Component[] = []
 
     nuxt.hook('imports:extend', _ => {
-      imports = _
+      imports = imports.concat(_)
+    })
+    nuxt.hook('imports:sources', _ => {
+      // add core nuxt composables to imports
+      imports = imports.concat(
+        // cast presets to imports
+        _.filter(item => item.from === '#app').flatMap(item =>
+          item.imports.flatMap(name => {
+            return name.toString().startsWith('use')
+              ? {
+                  name: name,
+                  as: name,
+                  from: item.from,
+                }
+              : []
+          })
+        ) as Import[]
+      )
     })
     nuxt.hook('components:extend', _ => {
       components = _
