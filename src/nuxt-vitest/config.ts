@@ -89,7 +89,7 @@ export async function getVitestConfigFromNuxt(
   }
 }
 
-export function defineVitestConfig(config: InlineConfig = {}) {
+export function defineVitestConfig(config: VitestConfig = {}) {
   return defineConfig(async () => {
     // When Nuxt module calls `startVitest`, we don't need to call `getVitestConfigFromNuxt` again
     if (process.env.__NUXT_VITEST_RESOLVED__) return config
