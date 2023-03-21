@@ -11,7 +11,7 @@ import {
 
 export default <Environment>{
   name: 'nuxt',
-  async setup() {
+  async setup(_, environmentOptions) {
     const win = new (GlobalWindow || Window)() as any as Window & {
       __app: App
       __registry: Set<string>
@@ -26,6 +26,7 @@ export default <Environment>{
       config: {
         public: {},
         app: { baseURL: '/' },
+        ...environmentOptions?.nuxtRuntimeConfig
       },
       data: {},
       state: {},
