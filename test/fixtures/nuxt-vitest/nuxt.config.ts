@@ -25,4 +25,9 @@ export default defineNuxtConfig({
       },
     },
   },
+  runtimeConfig: {
+    public: {
+      hello: 'world',
+    },
+  }
 })
