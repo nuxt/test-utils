@@ -53,7 +53,6 @@ export default defineNuxtModule<NuxtVitestOptions>({
     let testFiles: File[] | null = null
 
     const updateTabs = debounce(() => {
-      // @ts-expect-error
       nuxt.callHook('devtools:customTabs:refresh')
     }, 100)
 
