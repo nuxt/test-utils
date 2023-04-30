@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   modules: [
     '../packages/nuxt-vitest/src/module',
-    '@nuxt/devtools-edge',
+    '@nuxt/devtools',
     '~/modules/custom',
   ],
   vitest: {
