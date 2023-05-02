@@ -59,12 +59,12 @@ export async function getVitestConfigFromNuxt(
   if (!options) options = await startNuxtAndGetViteConfig()
   options.viteConfig.plugins = options.viteConfig.plugins || []
   options.viteConfig.plugins = options.viteConfig.plugins.filter(p => (p as any)?.name !== 'nuxt:import-protection')
-  
+
   for (const name in vuePlugins) {
     if (!options.viteConfig.plugins?.some(p => (p as any)?.name === name)) {
       const [plugin, key] = vuePlugins[name as keyof typeof vuePlugins]
       // @ts-expect-error mismatching component options
-      options.viteConfig.plugins.push(plugin((options.viteConfig as ViteConfig)[key]))
+      options.viteConfig.plugins.unshift(plugin((options.viteConfig as ViteConfig)[key]))
     }
   }
 

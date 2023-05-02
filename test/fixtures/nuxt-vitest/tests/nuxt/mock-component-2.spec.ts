@@ -8,6 +8,7 @@ it('should mock', async () => {
   const component = await mountSuspended(App)
   expect(component.html()).toMatchInlineSnapshot(`
     "<div> Mocked 1 * 2 = 2</div>
+    <div> I am a global component </div>
     <!-- TODO: <NuxtPage /> -->
     <a href=\\"/test\\">Test link</a>"
   `)
