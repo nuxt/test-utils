@@ -26,7 +26,7 @@ export default <Environment>{
       config: {
         public: {},
         app: { baseURL: '/' },
-        ...environmentOptions?.nuxtRuntimeConfig
+        ...environmentOptions?.nuxtRuntimeConfig,
       },
       data: {},
       state: {},

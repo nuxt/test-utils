@@ -10,7 +10,7 @@ export default defineNuxtConfig({
     logToConsole: true,
   },
   imports: {
-    injectAtEnd: true
+    injectAtEnd: true,
   },
   vite: {
     // TODO: fix bug with stubbing root package
@@ -29,5 +29,5 @@ export default defineNuxtConfig({
     public: {
       hello: 'world',
     },
-  }
+  },
 })
