@@ -65,8 +65,8 @@ export async function getVitestConfigFromNuxt(
   for (const name in vuePlugins) {
     if (!options.viteConfig.plugins?.some(p => (p as any)?.name === name)) {
       const [plugin, key] = vuePlugins[name as keyof typeof vuePlugins]
-      // @ts-expect-error mismatching component options
       options.viteConfig.plugins.unshift(
+        // @ts-expect-error mismatching component options
         plugin((options.viteConfig as ViteConfig)[key])
       )
     }
@@ -78,6 +78,22 @@ export async function getVitestConfigFromNuxt(
       ...options.viteConfig.server,
       middlewareMode: false,
     },
+    plugins: [
+      ...options.viteConfig.plugins,
+      // TODO: https://github.com/nuxt/nuxt/pull/20639
+      {
+        name: 'disable-auto-execute',
+        enforce: 'pre',
+        transform(code, id) {
+          if (id.match(/nuxt3?\/.*\/entry\./)) {
+            return code.replace(
+              /(?<!app = )entry\(\)\.catch/,
+              'Promise.resolve().catch'
+            )
+          }
+        },
+      },
+    ],
     test: {
       ...options.viteConfig.test,
       dir: options.nuxt.options.rootDir,

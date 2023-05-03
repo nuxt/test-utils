@@ -68,7 +68,7 @@ export default <Environment>{
     })
 
     // @ts-ignore
-    await import('#app/entry')
+    await import('#app/entry').then(r => r.default())
 
     return {
       // called after all tests with this env have been run
