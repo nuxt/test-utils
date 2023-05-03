@@ -41,6 +41,7 @@ export default <Environment>{
       win.IntersectionObserver ||
       class IntersectionObserver {
         observe() {}
+        unobserve() {}
       }
 
     const h3App = createApp()
