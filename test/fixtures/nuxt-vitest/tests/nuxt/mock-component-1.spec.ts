@@ -16,7 +16,7 @@ it('should mock', async () => {
   expect(component.html()).toMatchInlineSnapshot(`
     "<div>Mocked</div>
     <div> I am a global component </div>
-    <!-- TODO: <NuxtPage /> -->
-    <a href=\\"/test\\">Test link</a>"
+    <div>Index page</div>
+    <a href=\\"/test\\"> Test link </a>"
   `)
 })
