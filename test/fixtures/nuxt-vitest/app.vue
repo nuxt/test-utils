@@ -1,8 +1,10 @@
 <template>
   <LazySomeComponent />
   <GlobalComponent />
-  <!-- TODO: <NuxtPage /> -->
-  <NuxtLink to="/test">Test link</NuxtLink>
+  <NuxtPage />
+  <NuxtLink to="/test">
+    Test link
+  </NuxtLink>
 </template>
 
 <script setup>

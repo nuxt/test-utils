@@ -24,12 +24,18 @@ describe('client-side nuxt features', () => {
     expect(app.$router).toBeDefined()
   })
 
-  it.todo('defaults to index page', async () => {
+  it('defaults to index page', async () => {
     expect(useRoute().matched[0].meta).toMatchInlineSnapshot(`
-    {}
-  `)
-    expect(useRoute().fullPath).toMatchInlineSnapshot('"/blank"')
+      {
+        "slug": "foo",
+      }
+    `)
     // TODO: should it be possible to push to other routes?
+  })
+
+  it('allows pushing to other pages', async () => {
+    await useRouter().push('/something')
+    expect(useRoute().fullPath).toMatchInlineSnapshot('"/something"')
   })
 })
 
@@ -39,8 +45,8 @@ describe('test utils', () => {
     expect(component.html()).toMatchInlineSnapshot(`
       "<div>This is an auto-imported component</div>
       <div> I am a global component </div>
-      <!-- TODO: <NuxtPage /> -->
-      <a href=\\"/test\\">Test link</a>"
+      <div>Index page</div>
+      <a href=\\"/test\\"> Test link </a>"
     `)
   })
 
@@ -54,7 +60,13 @@ describe('test utils', () => {
     )
   })
 
-  // TODO: make working with router - currently router components are not
-  // registered and route symbol is not injected
-  it.todo('handles nuxt routing')
+  it('handles nuxt routing', async () => {
+    const component = await mountSuspended(App, { route: '/test' })
+    expect(component.html()).toMatchInlineSnapshot(`
+      "<div>This is an auto-imported component</div>
+      <div> I am a global component </div>
+      <div>/</div>
+      <a href=\\"/test\\"> Test link </a>"
+    `)
+  })
 })

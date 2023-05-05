@@ -87,7 +87,7 @@ export async function getVitestConfigFromNuxt(
         transform(code, id) {
           if (id.match(/nuxt3?\/.*\/entry\./)) {
             return code.replace(
-              /(?<!app = )entry\(\)\.catch/,
+              /(?<!vueAppPromise = )entry\(\)\.catch/,
               'Promise.resolve().catch'
             )
           }

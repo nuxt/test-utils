@@ -42,6 +42,7 @@ export default <Environment>{
       class IntersectionObserver {
         observe() {}
         unobserve() {}
+        disconnect() {}
       }
 
     const h3App = createApp()
