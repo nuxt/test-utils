@@ -80,7 +80,6 @@ export async function getVitestConfigFromNuxt(
     },
     plugins: [
       ...options.viteConfig.plugins,
-      // TODO: https://github.com/nuxt/nuxt/pull/20639
       {
         name: 'disable-auto-execute',
         enforce: 'pre',
