@@ -24,6 +24,8 @@ export interface MockComponentInfo {
   factory: string
 }
 
+const nuxtImportSources = ['#app', '#vue-router', 'vue-demi', '@unhead/vue']
+
 /**
  * This module is a macro that transforms `mockNuxtImport()` to `vi.mock()`,
  * which make it possible to mock Nuxt imports.
@@ -43,16 +45,12 @@ export default defineNuxtModule({
       // add core nuxt composables to imports
       imports = imports.concat(
         // cast presets to imports
-        _.filter(item => item.from === '#app').flatMap(item =>
-          item.imports.flatMap(name => {
-            return name.toString().startsWith('use')
-              ? {
-                  name: name,
-                  as: name,
-                  from: item.from,
-                }
-              : []
-          })
+        _.filter(item => nuxtImportSources.includes(item.from)).flatMap(item =>
+          item.imports.map(name => ({
+            name: name,
+            as: name,
+            from: item.from,
+          }))
         ) as Import[]
       )
     })
