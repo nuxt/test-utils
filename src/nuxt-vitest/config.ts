@@ -112,7 +112,7 @@ export async function getVitestConfigFromNuxt(
             ? true
             : [
                 // vite-node defaults
-                /\/(nuxt|nuxt3)\//,
+                /\/node_modules\/(.*\/)?(nuxt|nuxt3)\//,
                 /^#/,
                 'vite',
                 // additional deps
