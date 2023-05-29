@@ -1,8 +1,9 @@
-import type { Nuxt, ViteConfig } from '@nuxt/schema'
+import type { Nuxt, NuxtConfig, ViteConfig } from '@nuxt/schema'
 import type { InlineConfig as VitestConfig } from 'vitest'
 import { InlineConfig, mergeConfig, defineConfig } from 'vite'
 import vuePlugin from '@vitejs/plugin-vue'
 import viteJsxPlugin from '@vitejs/plugin-vue-jsx'
+import { defu } from 'defu'
 
 interface GetVitestConfigOptions {
   nuxt: Nuxt
@@ -10,17 +11,17 @@ interface GetVitestConfigOptions {
 }
 
 // https://github.com/nuxt/framework/issues/6496
-async function startNuxtAndGetViteConfig(rootDir = process.cwd()) {
+async function startNuxtAndGetViteConfig (rootDir = process.cwd(), overrides?: Partial<NuxtConfig>) {
   const { loadNuxt, buildNuxt } = await import('@nuxt/kit')
   const nuxt = await loadNuxt({
     cwd: rootDir,
     dev: false,
-    overrides: {
+    overrides: defu({
       ssr: false,
       app: {
         rootId: 'nuxt-test',
       },
-    },
+    }, overrides),
   })
 
   if (
@@ -53,10 +54,12 @@ const vuePlugins = {
   'vite:vue-jsx': [viteJsxPlugin, 'vueJsx'],
 } as const
 
-export async function getVitestConfigFromNuxt(
-  options?: GetVitestConfigOptions
+export async function getVitestConfigFromNuxt (
+  options?: GetVitestConfigOptions,
+  overrides?: NuxtConfig
 ): Promise<InlineConfig & { test: VitestConfig }> {
-  if (!options) options = await startNuxtAndGetViteConfig()
+  const { rootDir = process.cwd(), ..._overrides } = overrides || {}
+  if (!options) options = await startNuxtAndGetViteConfig(rootDir, _overrides)
   options.viteConfig.plugins = options.viteConfig.plugins || []
   options.viteConfig.plugins = options.viteConfig.plugins.filter(
     p => (p as any)?.name !== 'nuxt:import-protection'
@@ -83,7 +86,7 @@ export async function getVitestConfigFromNuxt(
       {
         name: 'disable-auto-execute',
         enforce: 'pre',
-        transform(code, id) {
+        transform (code, id) {
           if (id.match(/nuxt3?\/.*\/entry\./)) {
             return code.replace(
               /(?<!vueAppPromise = )entry\(\)\.catch/,
@@ -128,10 +131,10 @@ export async function getVitestConfigFromNuxt(
   }
 }
 
-export function defineVitestConfig(config: InlineConfig = {}) {
+export function defineVitestConfig (config: InlineConfig & { nuxt?: Partial<NuxtConfig> } = {}) {
   return defineConfig(async () => {
     // When Nuxt module calls `startVitest`, we don't need to call `getVitestConfigFromNuxt` again
     if (process.env.__NUXT_VITEST_RESOLVED__) return config
-    return mergeConfig(await getVitestConfigFromNuxt(), config)
+    return mergeConfig(await getVitestConfigFromNuxt(undefined, config.nuxt), config)
   })
 }
