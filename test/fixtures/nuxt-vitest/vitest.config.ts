@@ -7,8 +7,10 @@ export default defineVitestConfig({
     coverage: {
       reportsDirectory: 'coverage',
     },
+    environmentOptions: {
+      nuxt: {
+        rootDir: fileURLToPath(new URL('./', import.meta.url)),
+      },
+    },
   },
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./', import.meta.url)),
-  }
 })
