@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import { defineVitestConfig } from 'nuxt-vitest/config'
 
 export default defineVitestConfig({
@@ -7,4 +8,7 @@ export default defineVitestConfig({
       reportsDirectory: 'coverage',
     },
   },
+  nuxt: {
+    rootDir: fileURLToPath(new URL('./', import.meta.url)),
+  }
 })
