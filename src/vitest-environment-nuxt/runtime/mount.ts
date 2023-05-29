@@ -15,7 +15,7 @@ interface MountSuspendedOptions extends MountingOptions<any, any> {
 
 export async function mountSuspended<
   T extends DefineComponent<any, any, any, any>
-> (component: T, options?: MountSuspendedOptions) {
+>(component: T, options?: MountSuspendedOptions) {
   const {
     props = {},
     attrs = {},

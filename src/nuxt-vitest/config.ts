@@ -11,17 +11,23 @@ interface GetVitestConfigOptions {
 }
 
 // https://github.com/nuxt/framework/issues/6496
-async function startNuxtAndGetViteConfig (rootDir = process.cwd(), overrides?: Partial<NuxtConfig>) {
+async function startNuxtAndGetViteConfig(
+  rootDir = process.cwd(),
+  overrides?: Partial<NuxtConfig>
+) {
   const { loadNuxt, buildNuxt } = await import('@nuxt/kit')
   const nuxt = await loadNuxt({
     cwd: rootDir,
     dev: false,
-    overrides: defu({
-      ssr: false,
-      app: {
-        rootId: 'nuxt-test',
+    overrides: defu(
+      {
+        ssr: false,
+        app: {
+          rootId: 'nuxt-test',
+        },
       },
-    }, overrides),
+      overrides
+    ),
   })
 
   if (
@@ -54,7 +60,7 @@ const vuePlugins = {
   'vite:vue-jsx': [viteJsxPlugin, 'vueJsx'],
 } as const
 
-export async function getVitestConfigFromNuxt (
+export async function getVitestConfigFromNuxt(
   options?: GetVitestConfigOptions,
   overrides?: NuxtConfig
 ): Promise<InlineConfig & { test: VitestConfig }> {
@@ -86,7 +92,7 @@ export async function getVitestConfigFromNuxt (
       {
         name: 'disable-auto-execute',
         enforce: 'pre',
-        transform (code, id) {
+        transform(code, id) {
           if (id.match(/nuxt3?\/.*\/entry\./)) {
             return code.replace(
               /(?<!vueAppPromise = )entry\(\)\.catch/,
@@ -131,10 +137,26 @@ export async function getVitestConfigFromNuxt (
   }
 }
 
-export function defineVitestConfig (config: InlineConfig & { nuxt?: Partial<NuxtConfig> } = {}) {
+export function defineVitestConfig(config: InlineConfig = {}) {
   return defineConfig(async () => {
     // When Nuxt module calls `startVitest`, we don't need to call `getVitestConfigFromNuxt` again
     if (process.env.__NUXT_VITEST_RESOLVED__) return config
-    return mergeConfig(await getVitestConfigFromNuxt(undefined, config.nuxt), config)
+
+    const overrides = config.test?.environmentOptions?.nuxt?.overrides || {}
+    overrides.rootDir = config.test?.environmentOptions?.nuxt?.rootDir
+
+    return mergeConfig(
+      await getVitestConfigFromNuxt(undefined, overrides),
+      config
+    )
   })
+}
+
+declare module 'vitest' {
+  interface EnvironmentOptions {
+    nuxt?: {
+      rootDir?: string
+      overrides?: NuxtConfig
+    }
+  }
 }
