@@ -1,5 +1,5 @@
 import { mount, VueWrapper, MountingOptions } from '@vue/test-utils'
-import { h, DefineComponent, Suspense, nextTick } from 'vue'
+import { h, DefineComponent, Suspense, nextTick, SetupContext } from 'vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
 
@@ -26,11 +26,20 @@ export async function mountSuspended<
 
   // @ts-expect-error untyped global __unctx__
   const vueApp = globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
+  const { render, setup } = component
+
+  let setupContext: SetupContext
   return new Promise<VueWrapper<InstanceType<T>>>(resolve => {
     const vm = mount(
       {
-        setup: NuxtRoot.setup,
-        render: () =>
+        setup: (props, ctx) => {
+          setupContext = ctx
+          return NuxtRoot.setup(props, {
+            ...ctx,
+            expose: () => {},
+          })
+        },
+        render: (renderContext: any) =>
           h(
             Suspense,
             { onResolve: () => nextTick().then(() => resolve(vm as any)) },
@@ -40,13 +49,22 @@ export async function mountSuspended<
                   async setup() {
                     const router = useRouter()
                     await router.replace(route)
-                    return () => h(component, { ...props, ...attrs }, slots)
+
+                    // Proxy top-level setup/render context so test wrapper resolves child component
+                    const clonedComponent = {
+                      ...component,
+                      render: render ? (_ctx: any, ...args: any[]) => render(renderContext, ...args) : undefined,
+                      setup: setup ? (props: Record<string, any>, ctx: Record<string, any>) => setup(props, setupContext) : undefined
+                    }
+
+                    return () => h(clonedComponent, { ...props, ...attrs }, slots)
                   },
                 }),
             }
           ),
       },
       defu(_options, {
+        slots,
         global: {
           config: {
             globalProperties: vueApp.config.globalProperties,
