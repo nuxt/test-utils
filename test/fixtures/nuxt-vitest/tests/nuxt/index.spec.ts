@@ -5,7 +5,7 @@ import { mountSuspended, registerEndpoint } from 'vitest-environment-nuxt/utils'
 import App from '~/app.vue'
 import FetchComponent from '~/components/FetchComponent.vue'
 import OptionsComponent from '~/components/OptionsComponent.vue'
-import { WrapperTests } from '#components'
+import WrapperTests from '~/components/WrapperTests.vue'
 
 describe('client-side nuxt features', () => {
   it('can use core nuxt composables within test file', () => {
