@@ -5,6 +5,7 @@ import { mountSuspended, registerEndpoint } from 'vitest-environment-nuxt/utils'
 import App from '~/app.vue'
 import FetchComponent from '~/components/FetchComponent.vue'
 import OptionsComponent from '~/components/OptionsComponent.vue'
+import { WrapperTests } from '#components'
 
 describe('client-side nuxt features', () => {
   it('can use core nuxt composables within test file', () => {
@@ -78,6 +79,23 @@ describe('test utils', () => {
     expect(component.find('div').html()).toMatchInlineSnapshot(
       '"<div>slot from mount suspense</div>"'
     )
+  })
+
+  it('can receive emitted events from components mounted within nuxt suspense', async () => {
+    const component = await mountSuspended(WrapperTests)
+    component.find('button').trigger('click')
+    expect(component.emitted()).toMatchInlineSnapshot(`
+      {
+        "customEvent": [
+          [
+            "foo",
+          ],
+        ],
+        "otherEvent": [
+          [],
+        ],
+      }
+    `)
   })
 
   it('can mock fetch requests', async () => {
