@@ -53,11 +53,18 @@ export async function mountSuspended<
                     // Proxy top-level setup/render context so test wrapper resolves child component
                     const clonedComponent = {
                       ...component,
-                      render: render ? (_ctx: any, ...args: any[]) => render(renderContext, ...args) : undefined,
-                      setup: setup ? (props: Record<string, any>, ctx: Record<string, any>) => setup(props, setupContext) : undefined
+                      render: render
+                        ? (_ctx: any, ...args: any[]) =>
+                            render(renderContext, ...args)
+                        : undefined,
+                      setup: setup
+                        ? (props: Record<string, any>) =>
+                            setup(props, setupContext)
+                        : undefined,
                     }
 
-                    return () => h(clonedComponent, { ...props, ...attrs }, slots)
+                    return () =>
+                      h(clonedComponent, { ...props, ...attrs }, slots)
                   },
                 }),
             }
