@@ -1,5 +1,5 @@
-import { mount, VueWrapper, MountingOptions } from '@vue/test-utils'
-import { h, DefineComponent, Suspense, nextTick, SetupContext } from 'vue'
+import { mount, ComponentMountingOptions } from '@vue/test-utils'
+import { h, Suspense, nextTick, SetupContext, DefineComponent } from 'vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
 
@@ -9,13 +9,14 @@ import { RouterLink } from './components/RouterLink'
 import NuxtRoot from '#build/root-component.mjs'
 import { useRouter } from '#imports'
 
-interface MountSuspendedOptions extends MountingOptions<any, any> {
+export type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
   route?: RouteLocationRaw
 }
 
-export async function mountSuspended<
-  T extends DefineComponent<any, any, any, any>
->(component: T, options?: MountSuspendedOptions) {
+export async function mountSuspended<T>(
+  component: T,
+  options?: MountSuspendedOptions<T>
+) {
   const {
     props = {},
     attrs = {},
@@ -26,10 +27,15 @@ export async function mountSuspended<
 
   // @ts-expect-error untyped global __unctx__
   const vueApp = globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
-  const { render, setup } = component
+  const { render, setup } = component as DefineComponent<any, any>
 
   let setupContext: SetupContext
-  return new Promise<VueWrapper<InstanceType<T>>>(resolve => {
+  return new Promise<
+    ReturnType<
+      // @ts-expect-error letting uncertainty flow like water
+      typeof mount<T>
+    >
+  >(resolve => {
     const vm = mount(
       {
         setup: (props, ctx) => {
