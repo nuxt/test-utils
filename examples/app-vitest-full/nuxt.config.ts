@@ -2,6 +2,13 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxt/test-utils/module', '~/modules/custom'],
+  vite: {
+    vue: {
+      script: {
+        defineModel: true,
+      },
+    },
+  },
   vitest: {
     startOnBoot: true,
     logToConsole: true,
