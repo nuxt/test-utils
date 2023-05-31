@@ -4,19 +4,25 @@ const emit = defineEmits<{
   otherEvent: []
 }>()
 
-function testExpose () {
+function testExpose() {
   return 'expose was successful'
 }
 
+const modelValue = defineModel({ default: false })
+
 defineExpose({
-  testExpose
+  testExpose,
 })
 </script>
 
 <template>
   <div>
-    <button @click="emit('customEvent', 'foo'); $emit('otherEvent')">
+    <button
+      id="emitCustomEvent"
+      @click="emit('customEvent', 'foo'); $emit('otherEvent')"
+    >
       Click me!
     </button>
+    <button id="changeModelValue" @click="modelValue = true" />
   </div>
 </template>
