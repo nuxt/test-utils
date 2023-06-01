@@ -41,17 +41,11 @@ export default defineNuxtModule({
     nuxt.hook('imports:extend', _ => {
       imports = imports.concat(_)
     })
-    nuxt.hook('imports:sources', _ => {
+    nuxt.hook('imports:context', async ctx => {
       // add core nuxt composables to imports
+      const registeredImports = await ctx.getImports()
       imports = imports.concat(
-        // cast presets to imports
-        _.filter(item => nuxtImportSources.includes(item.from)).flatMap(item =>
-          item.imports.map(name => ({
-            name: name,
-            as: name,
-            from: item.from,
-          }))
-        ) as Import[]
+        registeredImports.filter(item => nuxtImportSources.includes(item.from))
       )
     })
     nuxt.hook('components:extend', _ => {
@@ -131,6 +125,7 @@ export default defineNuxtModule({
                 const name = call.arguments[0].value as string
                 const importItem = imports.find(_ => name === (_.as || _.name))
                 if (!importItem) {
+                  console.log({ imports })
                   return this.error(`Cannot find import "${name}" to mock`)
                 }
 
