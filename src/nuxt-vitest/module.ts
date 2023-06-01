@@ -1,3 +1,4 @@
+import { pathToFileURL } from 'node:url'
 import { defineNuxtModule, installModule, logger, resolvePath } from '@nuxt/kit'
 import type { UserConfig as VitestConfig, Reporter, Vitest, File } from 'vitest'
 import { mergeConfig, InlineConfig as ViteConfig } from 'vite'
@@ -74,7 +75,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
 
       process.env.__NUXT_VITEST_RESOLVED__ = 'true'
       const { startVitest } = (await import(
-        await resolvePath('vitest/node')
+        pathToFileURL(await resolvePath('vitest/node')).href
       )) as typeof import('vitest/node')
 
       const customReporter: Reporter = {
