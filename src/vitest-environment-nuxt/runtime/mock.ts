@@ -17,6 +17,21 @@ import type {
 export type Awaitable<T> = T | Promise<T>
 export type OptionalFunction<T> = T | (() => Awaitable<T>)
 
+/**
+ * `registerEndpoint` allows you create Nitro endpoint that returns mocked data. It can come in handy if you want to test a component that makes requests to API to display some data.
+ *
+ * @param url - endpoint name (e.g. `/test/`).
+ * @param handler - factory function that returns the mocked data.
+ * @example
+ * ```ts
+ * import { registerEndpoint } from 'nuxt-vitest/utils'
+ *
+ * registerEndpoint("/test/", () => {
+ *  test: "test-field"
+ * })
+ * ```
+ * @see https://github.com/danielroe/nuxt-vitest#registerendpoint
+ */
 export function registerEndpoint(url: string, handler: EventHandler) {
   // @ts-expect-error private property
   if (!window.__app) return
@@ -26,6 +41,23 @@ export function registerEndpoint(url: string, handler: EventHandler) {
   window.__registry.add(url)
 }
 
+/**
+ * `mockNuxtImport` allows you to mock Nuxt's auto import functionality.
+ *
+ * @param _name - name of an import to mock.
+ * @param _factory - factory function that returns mocked import.
+ * @example
+ * ```ts
+ * import { mockNuxtImport } from 'nuxt-vitest/utils'
+ *
+ * mockNuxtImport('useStorage', () => {
+ *  return () => {
+ *    return { value: 'mocked storage' }
+ *  }
+ * })
+ * ```
+ * @see https://github.com/danielroe/nuxt-vitest#mocknuxtimport
+ */
 export function mockNuxtImport<T = any>(
   _name: string,
   _factory: () => T | Promise<T>
@@ -36,7 +68,37 @@ export function mockNuxtImport<T = any>(
 }
 
 /**
- * Mock a component, the first argument can be the relative path to the component, or the component name in PascalCase.
+ * `mockComponent` allows you to mock Nuxt's component.
+ *
+ * @param path - component name in PascalCase, or the relative path of the component.
+ * @param setup - factory function that returns the mocked component.
+ * @example
+ * ```ts
+ * import { mockComponent } from 'nuxt-vitest/utils'
+ *
+ * mockComponent('MyComponent', {
+ *  props: {
+ *    value: String
+ *  },
+ *  setup(props) {
+ *    // ...
+ *  }
+ * })
+ *
+ * // relative path or alias also works
+ * mockComponent('~/components/my-component.vue', async () => {
+ *  // or a factory function
+ *  return {
+ *    setup(props) {
+ *      // ...
+ *    }
+ *  }
+ * })
+ *
+ * // or you can use SFC for redirecting to a mock component
+ * mockComponent('MyComponent', () => import('./MockComponent.vue'))
+ * ```
+ * @see https://github.com/danielroe/nuxt-vitest#mockcomponent
  */
 export function mockComponent<Props, RawBindings = object>(
   path: string,
