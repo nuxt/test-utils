@@ -83,6 +83,10 @@ export async function getVitestConfigFromNuxt(
 
   return {
     ...options.viteConfig,
+    define: {
+      ...options.viteConfig.define,
+      ['process.env.NODE_ENV']: 'process.env.NODE_ENV'
+    },
     server: {
       ...options.viteConfig.server,
       middlewareMode: false,
