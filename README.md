@@ -1,16 +1,17 @@
-[![@nuxt/test-utils](https://test-utils.nuxtjs.org/preview.svg)](https://test-utils.nuxtjs.org)
-
 # @nuxt/test-utils
+
+> **Warning**
+> This repository is only for the Nuxt 2 version of `@nuxt/test-utils`. For Nuxt 3, see [this repository](https://github.com/nuxt/nuxt/tree/main/packages/test-utils) and [these docs](https://nuxt.com/docs/getting-started/testing#testing).
 
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![Checks][checks-src]][checks-href]
 [![Codecov][codecov-src]][codecov-href]
 
-> Test utilities for [Nuxt.js](https://nuxtjs.org)
+> Test utilities for [Nuxt 2](https://nuxtjs.org)
 
 - [✨ **Release Notes**](./CHANGELOG.md)
-- [📖 **Documentation**](https://test-utils.nuxtjs.org)
+- [📖 **Nuxt 2 documentation**](https://test-utils.nuxtjs.org)
 
 ## Features
 
@@ -51,7 +52,7 @@ module.exports = {
 Copyright (c) Nuxt.js Team
 
 <!-- Badges -->
-[npm-version-src]: https://flat.badgen.net/npm/v/@nuxt/test-utils
+[npm-version-src]: https://flat.badgen.net/npm/v/@nuxt/test-utils/0.x
 [npm-version-href]: https://npmjs.com/package/@nuxt/test-utils
 [npm-downloads-src]: https://flat.badgen.net/npm/dm/@nuxt/test-utils
 [npm-downloads-href]: https://npmjs.com/package/@nuxt/test-utils
