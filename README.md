@@ -1,13 +1,13 @@
 # @nuxt/test-utils
 
-> **Warning**
-> This repository is only for the Nuxt 2 version of `@nuxt/test-utils`. For Nuxt 3, see [this repository](https://github.com/nuxt/nuxt/tree/main/packages/test-utils) and [these docs](https://nuxt.com/docs/getting-started/testing#testing).
-
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![Checks][checks-src]][checks-href]
 [![Codecov][codecov-src]][codecov-href]
 
+> **Warning**
+> This repository is only for the Nuxt 2 version of `@nuxt/test-utils`. For Nuxt 3, see [this repository](https://github.com/nuxt/nuxt/tree/main/packages/test-utils) and [these docs](https://nuxt.com/docs/getting-started/testing#testing).
+>
 > Test utilities for [Nuxt 2](https://v2.nuxt.com)
 
 - [✨ **Release Notes**](./CHANGELOG.md)
