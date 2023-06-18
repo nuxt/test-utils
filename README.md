@@ -8,10 +8,10 @@
 [![Checks][checks-src]][checks-href]
 [![Codecov][codecov-src]][codecov-href]
 
-> Test utilities for [Nuxt 2](https://nuxtjs.org)
+> Test utilities for [Nuxt 2](https://v2.nuxt.com)
 
 - [✨ **Release Notes**](./CHANGELOG.md)
-- [📖 **Nuxt 2 documentation**](https://test-utils.nuxtjs.org)
+- [📖 **Nuxt 2 documentation**](https://v0.test-utils.nuxtjs.org)
 
 ## Features
 
@@ -20,7 +20,7 @@
 - Extend Jest matchers
 - Written in TypeScript
 
-📖 [Read more](https://test-utils.nuxtjs.org)
+📖 [Read more](https://v0.test-utils.nuxtjs.org)
 
 ## Usage
 
@@ -38,7 +38,7 @@ module.exports = {
 }
 ```
 
-[📖 **Read more about setup and configuration**](https://test-utils.nuxtjs.org/api-reference/setup)
+[📖 **Read more about setup and configuration**](https://v0.test-utils.nuxtjs.org/api-reference/setup)
 
 ## Development
 
