@@ -23,6 +23,7 @@ async function startNuxtAndGetViteConfig(
       {
         ssr: false,
         test: true,
+        modules: ['nuxt-vitest']
       },
       overrides
     ),
