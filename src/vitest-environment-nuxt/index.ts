@@ -30,7 +30,7 @@ export default <Environment>{
 
     const app = win.document.createElement('div')
     // this is a workaround for a happy-dom bug with ids beginning with _
-    app.id = 'nuxt-test'
+    app.id = environmentOptions.nuxt.rootId
     win.document.body.appendChild(app)
 
     win.IntersectionObserver =

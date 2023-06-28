@@ -34,6 +34,10 @@ export default defineNuxtModule<NuxtVitestOptions>({
 
     if (!nuxt.options.dev) return
 
+    if (nuxt.options.test && nuxt.options.app.rootId === '__nuxt') {
+      nuxt.options.app.rootId = 'nuxt-test'
+    }
+
     // the nuxt instance is used by a standalone Vitest env, we skip this module
     if (process.env.TEST || process.env.VITE_TEST) return
 

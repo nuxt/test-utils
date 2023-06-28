@@ -1,8 +1,5 @@
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
-  app: {
-    rootId: 'nuxt-test',
-  },
   modules: [
     '../packages/nuxt-vitest/src/module',
     '@nuxt/devtools',

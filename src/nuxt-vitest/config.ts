@@ -22,9 +22,7 @@ async function startNuxtAndGetViteConfig(
     overrides: defu(
       {
         ssr: false,
-        app: {
-          rootId: 'nuxt-test',
-        },
+        test: true,
       },
       overrides
     ),
@@ -111,6 +109,10 @@ export async function getVitestConfigFromNuxt(
       dir: process.cwd(),
       environmentOptions: {
         ...options.viteConfig.test?.environmentOptions,
+        nuxt: {
+          rootId: options.nuxt.options.app.rootId,
+          ...options.viteConfig.test?.environmentOptions?.nuxt,
+        },
         nuxtRuntimeConfig: options.nuxt.options.runtimeConfig,
       },
       environmentMatchGlobs: [
@@ -166,6 +168,11 @@ declare module 'vitest' {
        */
       url?: string
       overrides?: NuxtConfig
+      /**
+       * The id of the root div to which the app should be mounted. You should also set `app.rootId` to the same value.
+       * @default {nuxt-test}
+       */
+      rootId?: string
     }
   }
 }
