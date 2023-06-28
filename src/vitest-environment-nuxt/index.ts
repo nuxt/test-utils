@@ -1,6 +1,7 @@
 import type { Environment } from 'vitest'
 import { Window, GlobalWindow } from 'happy-dom'
 import { createFetch } from 'ofetch'
+import { joinURL } from 'ufo'
 import { createApp, toNodeListener } from 'h3'
 import type { App } from 'h3'
 import { populateGlobal } from 'vitest/environments'
@@ -12,17 +13,9 @@ import {
 export default <Environment>{
   name: 'nuxt',
   async setup(_, environmentOptions) {
-    const win = new (GlobalWindow || Window)({
-      // Happy-dom defaults to `about:blank`
-      url: 'http://localhost:3000',
-    }) as any as Window & {
-      __app: App
-      __registry: Set<string>
-      __NUXT__: any
-      $fetch: any
-      fetch: any
-      IntersectionObserver: any
-    }
+    const startingURL = environmentOptions.url || joinURL('http://localhost:3000', environmentOptions?.nuxtRuntimeConfig.app?.baseURL || '/')
+    
+    const win: NuxtWindow = new (GlobalWindow || Window)({ url: startingURL }) as any
 
     win.__NUXT__ = {
       serverRendered: false,
@@ -86,4 +79,13 @@ export default <Environment>{
       },
     }
   },
+}
+
+interface NuxtWindow extends Window {
+  __app: App
+  __registry: Set<string>
+  __NUXT__: any
+  $fetch: any
+  fetch: any
+  IntersectionObserver: any
 }

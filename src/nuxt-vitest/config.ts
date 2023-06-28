@@ -160,6 +160,11 @@ declare module 'vitest' {
   interface EnvironmentOptions {
     nuxt?: {
       rootDir?: string
+      /**
+       * The starting URL for your Nuxt window environment
+       * @default {http://localhost:3000}
+       */
+      url?: string
       overrides?: NuxtConfig
     }
   }
