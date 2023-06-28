@@ -1,7 +1,7 @@
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
   modules: [
-    '../packages/nuxt-vitest/src/module',
+    'nuxt-vitest',
     '@nuxt/devtools',
     '~/modules/custom',
   ],
