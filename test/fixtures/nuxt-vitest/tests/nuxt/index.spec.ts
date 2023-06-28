@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 
 import { mountSuspended, registerEndpoint } from 'vitest-environment-nuxt/utils'
 
+import { watch } from 'vue'
 import App from '~/app.vue'
 import FetchComponent from '~/components/FetchComponent.vue'
 import OptionsComponent from '~/components/OptionsComponent.vue'
@@ -29,16 +30,24 @@ describe('client-side nuxt features', () => {
   it('defaults to index page', async () => {
     expect(useRoute().matched[0].meta).toMatchInlineSnapshot(`
       {
-        "slug": "foo",
+        "value": "set in index",
       }
     `)
     // TODO: should it be possible to push to other routes?
   })
 
-  it('allows pushing to other pages', async () => {
-    await useRouter().push('/something')
-    expect(useRoute().fullPath).toMatchInlineSnapshot('"/something"')
-  })
+  it('allows pushing to other pages', async () =>
+    new Promise<void>(done => {
+      useRouter()
+        .push('/something')
+        .then(() => {
+          const stop = watch(useRoute(), () => {
+            expect(useRoute().fullPath).toMatchInlineSnapshot('"/something"')
+            stop()
+            done()
+          })
+        })
+    }))
 })
 
 describe('test utils', () => {
