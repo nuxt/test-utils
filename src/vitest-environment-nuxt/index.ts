@@ -12,7 +12,10 @@ import {
 export default <Environment>{
   name: 'nuxt',
   async setup(_, environmentOptions) {
-    const win = new (GlobalWindow || Window)() as any as Window & {
+    const win = new (GlobalWindow || Window)({
+      // Happy-dom defaults to `about:blank`
+      url: 'http://localhost:3000',
+    }) as any as Window & {
       __app: App
       __registry: Set<string>
       __NUXT__: any
