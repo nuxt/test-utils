@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest'
 
 import { mountSuspended, registerEndpoint } from 'vitest-environment-nuxt/utils'
 
-import { useRoute as useVueRouterRoute } from 'vue-router'
 import App from '~/app.vue'
 import FetchComponent from '~/components/FetchComponent.vue'
 import OptionsComponent from '~/components/OptionsComponent.vue'
