@@ -1,21 +1,34 @@
 import type { Environment } from 'vitest'
-import { Window, GlobalWindow } from 'happy-dom'
 import { createFetch } from 'ofetch'
 import { joinURL } from 'ufo'
 import { createApp, toNodeListener } from 'h3'
-import type { App } from 'h3'
 import { populateGlobal } from 'vitest/environments'
 import {
   createCall,
   createFetch as createLocalFetch,
 } from 'unenv/runtime/fetch/index'
+import type { NuxtBuiltinEnvironment } from './types'
+import happyDom from './env/happy-dom'
+import jsdom from './env/jsdom'
 
 export default <Environment>{
   name: 'nuxt',
-  async setup(_, environmentOptions) {
-    const startingURL = environmentOptions.url || joinURL('http://localhost:3000', environmentOptions?.nuxtRuntimeConfig.app?.baseURL || '/')
-    
-    const win: NuxtWindow = new (GlobalWindow || Window)({ url: startingURL }) as any
+  async setup(global, environmentOptions) {
+    const url = joinURL('http://localhost:3000', environmentOptions?.nuxtRuntimeConfig.app?.baseURL || '/')
+    const { window: win, teardown } = await {
+      'happy-dom': happyDom,
+      jsdom
+    }[environmentOptions.nuxt.domEnvironment as NuxtBuiltinEnvironment || 'happy-dom'](global, {
+      ...environmentOptions,
+      happyDom: {
+        url,
+        ...environmentOptions?.happyDom,
+      },
+      jsdom: {
+        url,
+        ...environmentOptions?.jsdom,
+      }
+    })
 
     win.__NUXT__ = {
       serverRendered: false,
@@ -56,7 +69,7 @@ export default <Environment>{
       return localFetch(init, options)
     }
 
-    win.$fetch = createFetch({ fetch: win.fetch, Headers: win.Headers as any })
+    win.$fetch = createFetch({ fetch: win.fetch, Headers: win.Headers })
 
     win.__registry = registry
     win.__app = h3App
@@ -71,21 +84,10 @@ export default <Environment>{
     return {
       // called after all tests with this env have been run
       teardown() {
-        win.happyDOM.cancelAsync()
-        // @ts-expect-error
+        teardown()
         keys.forEach(key => delete global[key])
-        // @ts-expect-error
         originals.forEach((v, k) => (global[k] = v))
       },
     }
   },
-}
-
-interface NuxtWindow extends Window {
-  __app: App
-  __registry: Set<string>
-  __NUXT__: any
-  $fetch: any
-  fetch: any
-  IntersectionObserver: any
 }

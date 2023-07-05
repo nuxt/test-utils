@@ -174,6 +174,14 @@ declare module 'vitest' {
        * @default {nuxt-test}
        */
       rootId?: string
+      /**
+       * The name of the DOM environment to use.
+       * 
+       * It also needs to be installed as a dev dependency in your project.
+       * 
+       * @default {happy-dom}
+       */
+      domEnvironment?: 'happy-dom' | 'jsdom'
     }
   }
 }
