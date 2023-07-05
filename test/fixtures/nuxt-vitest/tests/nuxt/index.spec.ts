@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 
 import { mountSuspended, registerEndpoint } from 'vitest-environment-nuxt/utils'
 
-import { watch } from 'vue'
+import { useRoute as useVueRouterRoute } from 'vue-router'
 import App from '~/app.vue'
 import FetchComponent from '~/components/FetchComponent.vue'
 import OptionsComponent from '~/components/OptionsComponent.vue'
@@ -33,21 +33,17 @@ describe('client-side nuxt features', () => {
         "value": "set in index",
       }
     `)
-    // TODO: should it be possible to push to other routes?
   })
 
-  it('allows pushing to other pages', async () =>
-    new Promise<void>(done => {
-      useRouter()
-        .push('/something')
-        .then(() => {
-          const stop = watch(useRoute(), () => {
-            expect(useRoute().fullPath).toMatchInlineSnapshot('"/something"')
-            stop()
-            done()
-          })
-        })
-    }))
+  it('allows pushing to other pages', async () => {
+    await navigateTo('/something')
+    expect(useNuxtApp().$router.currentRoute.value.path).toMatchInlineSnapshot('"/something"')
+    // It takes two more ticks for the Nuxt useRoute to be updated (as, after suspense resolves,
+    // we wait for a final hook and then update the injected route object )
+    await nextTick()
+    await nextTick()
+    expect(useRoute().path).toMatchInlineSnapshot('"/something"')
+  })
 })
 
 describe('test utils', () => {
