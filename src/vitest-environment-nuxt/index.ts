@@ -56,6 +56,16 @@ export default <Environment>{
 
     const h3App = createApp()
 
+    // If native fetch is not supported, polyfill it.
+    // Native fetch is considered unsupported in the following cases
+    //  - versions earlier than Node 16, 
+    //  - not enabling experimental-fetch in Node 17 
+    //  - enabling no-experimental-fetch in Node 18 and later.
+    if (!globalThis.fetch) {
+      // @ts-expect-error TODO: provide backwards compatible types
+      await import('node-fetch-native/polyfill')
+    }
+
     // @ts-expect-error TODO: fix in h3
     const localCall = createCall(toNodeListener(h3App))
     const localFetch = createLocalFetch(localCall, globalThis.fetch)
