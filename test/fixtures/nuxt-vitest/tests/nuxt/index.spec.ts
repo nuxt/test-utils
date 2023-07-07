@@ -102,6 +102,12 @@ describe('test utils', () => {
     `)
   })
 
+  it('can use $fetch', () => {
+    expect(
+      $fetch('https://jsonplaceholder.typicode.com/todos/1')
+    ).resolves.toMatchObject({ id: 1 })
+  })
+
   it('can mock fetch requests', async () => {
     registerEndpoint('https://jsonplaceholder.typicode.com/todos/1', () => ({
       title: 'title from mocked api',
