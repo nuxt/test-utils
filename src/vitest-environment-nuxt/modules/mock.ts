@@ -1,4 +1,4 @@
-import type { Import } from 'unimport'
+import type { Import, Unimport } from 'unimport'
 import { addVitePlugin, defineNuxtModule } from '@nuxt/kit'
 import { walk } from 'estree-walker'
 import type { CallExpression } from 'estree'
@@ -25,8 +25,6 @@ export interface MockComponentInfo {
   factory: string
 }
 
-const nuxtImportSources = ['#app', '#vue-router', 'vue-demi', '@unhead/vue']
-
 /**
  * This module is a macro that transforms `mockNuxtImport()` to `vi.mock()`,
  * which make it possible to mock Nuxt imports.
@@ -36,21 +34,18 @@ export default defineNuxtModule({
     name: PLUGIN_NAME,
   },
   setup(_, nuxt) {
+    let importsCtx: Unimport
     let imports: Import[] = []
     let components: Component[] = []
 
-    nuxt.hook('imports:extend', _ => {
-      imports = imports.concat(_)
-    })
     nuxt.hook('imports:context', async ctx => {
-      // add core nuxt composables to imports
-      const registeredImports = await ctx.getImports()
-      imports = imports.concat(
-        registeredImports.filter(item => nuxtImportSources.includes(item.from))
-      )
+      importsCtx = ctx
     })
     nuxt.hook('components:extend', _ => {
       components = _
+    })
+    nuxt.hook('ready', async () => {
+      imports = await importsCtx.getImports()
     })
 
     // Polyfill Array.prototype.findLastIndex for legacy Node.js
