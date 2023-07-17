@@ -5,6 +5,7 @@ import type { CallExpression } from 'estree'
 import { AcornNode } from 'rollup'
 import MagicString from 'magic-string'
 import { Component } from '@nuxt/schema'
+import type { Plugin } from 'vite'
 
 const PLUGIN_NAME = 'nuxt:vitest:mock-transform'
 
@@ -52,11 +53,31 @@ export default defineNuxtModule({
       components = _
     })
 
+    // Polyfill Array.prototype.findLastIndex for legacy Node.js
+    function findLastIndex<T>(arr: T[], predicate: (item: T) => boolean) {
+      for (let i = arr.length - 1; i >= 0; i--) {
+        if (predicate(arr[i])) return i
+      }
+      return -1
+    }
+
     addVitePlugin({
       name: PLUGIN_NAME,
       enforce: 'post',
+      // Place Vitest's mock plugin after all Nuxt plugins
+      configResolved(config) {
+        const plugins = (config.plugins || []) as Plugin[]
+        // `vite:mocks` was a typo in Vitest before v0.34.0
+        const mockPluginIndex = plugins.findIndex(i => i.name === 'vite:mocks' || i.name === 'vitest:mocks')
+        const lastNuxt = findLastIndex(plugins, i => i.name?.startsWith('nuxt:'))
+        if (mockPluginIndex !== -1 && lastNuxt !== -1) {
+          if (mockPluginIndex < lastNuxt) {
+            const [mockPlugin] = plugins.splice(mockPluginIndex, 1)
+            plugins.splice(lastNuxt, 0, mockPlugin)
+          }
+        }
+      },
       transform: {
-        order: 'post',
         handler(code, id) {
           if (!HELPERS_NAME.some(n => code.includes(n))) return
           if (id.includes('/node_modules/')) return
