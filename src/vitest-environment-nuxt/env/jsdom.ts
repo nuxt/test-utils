@@ -37,6 +37,10 @@ export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
     },
   ).window as any
 
+  // Vue-router relies on scrollTo being available if run in a browser.
+  // The scrollTo implementation from JSDOM throws a "Not Implemented" error
+  window.scrollTo = () => {}
+
   return {
     window,
     teardown() {}
