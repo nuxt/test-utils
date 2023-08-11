@@ -123,7 +123,7 @@ describe('test utils', () => {
     expect(component.html()).toMatchInlineSnapshot(`
       "<div>This is an auto-imported component</div>
       <div> I am a global component </div>
-      <div>/</div>
+      <div>/test</div>
       <a href=\\"/test\\"> Test link </a>"
     `)
   })
