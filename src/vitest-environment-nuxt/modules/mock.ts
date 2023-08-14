@@ -6,11 +6,13 @@ import { AcornNode } from 'rollup'
 import MagicString from 'magic-string'
 import { Component } from '@nuxt/schema'
 import type { Plugin } from 'vite'
+import { resolve, normalize } from "path"
 
 const PLUGIN_NAME = 'nuxt:vitest:mock-transform'
 
 const HELPER_MOCK_IMPORT = 'mockNuxtImport'
 const HELPER_MOCK_COMPONENT = 'mockComponent'
+const HELPER_MOCK_HOIST = '__NUXT_VITEST_MOCKS'
 
 const HELPERS_NAME = [HELPER_MOCK_IMPORT, HELPER_MOCK_COMPONENT]
 
@@ -56,11 +58,19 @@ export default defineNuxtModule({
       return -1
     }
 
+    // path of the first vitest setup file to be ran
+    let resolvedFirstSetupFile: null | string = null
     addVitePlugin({
       name: PLUGIN_NAME,
       enforce: 'post',
       // Place Vitest's mock plugin after all Nuxt plugins
       configResolved(config) {
+        const firstSetupFile = Array.isArray(config.test?.setupFiles) ? config.test!.setupFiles[0] : config.test?.setupFiles
+
+        if (firstSetupFile) {
+          resolvedFirstSetupFile = normalize(resolve(firstSetupFile))
+        }
+
         const plugins = (config.plugins || []) as Plugin[]
         // `vite:mocks` was a typo in Vitest before v0.34.0
         const mockPluginIndex = plugins.findIndex(i => i.name === 'vite:mocks' || i.name === 'vitest:mocks')
@@ -74,6 +84,9 @@ export default defineNuxtModule({
       },
       transform: {
         handler(code, id) {
+          const isFirstSetupFile = normalize(id) === resolvedFirstSetupFile
+          const shouldPrependMockHoist = resolvedFirstSetupFile ? isFirstSetupFile : true
+
           if (!HELPERS_NAME.some(n => code.includes(n))) return
           if (id.includes('/node_modules/')) return
 
@@ -94,25 +107,28 @@ export default defineNuxtModule({
           const s = new MagicString(code)
           const mocksImport: MockImportInfo[] = []
           const mocksComponent: MockComponentInfo[] = []
+          const importPathsList: Set<string> = new Set()
 
           walk(ast as any, {
-            enter: node => {
+            enter: (node, parent) => {
               // find existing vi import
               if (
-                node.type === 'ImportDeclaration' &&
-                node.source.value === 'vitest' &&
-                !hasViImport
+                node.type === 'ImportDeclaration'
               ) {
                 if (
-                  node.specifiers.find(
-                    i =>
-                      i.type === 'ImportSpecifier' && i.imported.name === 'vi'
-                  )
-                ) {
-                  insertionPoint = node.range![1]
-                  hasViImport = true
+                  node.source.value === 'vitest' &&
+                  !hasViImport) {
+                  if (
+                    node.specifiers.find(
+                      i =>
+                        i.type === 'ImportSpecifier' && i.imported.name === 'vi'
+                    )
+                  ) {
+                    insertionPoint = node.range![1]
+                    hasViImport = true
+                  }
+                  return
                 }
-                return
               }
 
               if (node.type !== 'CallExpression') return
@@ -145,7 +161,7 @@ export default defineNuxtModule({
                   return this.error(`Cannot find import "${name}" to mock`)
                 }
 
-                s.overwrite(call.range![0], call.range![1], '')
+                s.overwrite(parent?.type === 'ExpressionStatement' ? parent.range![0] : call.arguments[0].range![0], parent?.type === 'ExpressionStatement' ? parent.range![1] : call.arguments[1].range![1], '')
                 mocksImport.push({
                   name,
                   import: importItem,
@@ -182,7 +198,7 @@ export default defineNuxtModule({
                 )
                 const path = component?.filePath || pathOrName
 
-                s.overwrite(call.range![0], call.range![1], '')
+                s.overwrite(parent?.type === 'ExpressionStatement' ? parent.range![0] : call.arguments[1].range![0], parent?.type === 'ExpressionStatement' ? parent.range![1] : call.arguments[1].range![1], '')
                 mocksComponent.push({
                   path: path,
                   factory: code.slice(
@@ -209,20 +225,21 @@ export default defineNuxtModule({
             mockLines.push(
               ...Array.from(mockImportMap.entries()).flatMap(
                 ([from, mocks]) => {
+                  importPathsList.add(from)
                   const lines = [
                     `vi.mock(${JSON.stringify(
                       from
                     )}, async (importOriginal) => {`,
-                    `  const mod = { ...await importOriginal() }`,
+                    `  const mocks = global.${HELPER_MOCK_HOIST}`,
+                    `  if (!mocks[${JSON.stringify(from)}]) { mocks[${JSON.stringify(from)}] = { ...await importOriginal(${JSON.stringify(from)}) } }`,
                   ]
                   for (const mock of mocks) {
                     lines.push(
-                      `  mod[${JSON.stringify(mock.name)}] = await (${
-                        mock.factory
+                      `  mocks[${JSON.stringify(from)}][${JSON.stringify(mock.name)}] = await (${mock.factory
                       })()`
                     )
                   }
-                  lines.push(`  return mod`)
+                  lines.push(`  return mocks[${JSON.stringify(from)}] `)
                   lines.push(`})`)
                   return lines
                 }
@@ -246,9 +263,23 @@ export default defineNuxtModule({
 
           if (!mockLines.length) return
 
-          if (!hasViImport) mockLines.unshift(`import {vi} from "vitest";`)
+          s.prepend(`vi.hoisted(() => { 
+              if(!global.${HELPER_MOCK_HOIST}){
+                vi.stubGlobal(${JSON.stringify(HELPER_MOCK_HOIST)}, {})
+              }
+            });\n`)
 
-          s.appendLeft(insertionPoint, '\n' + mockLines.join('\n') + ';\n')
+          if (!hasViImport) s.prepend(`import {vi} from "vitest";\n`)
+
+          s.appendLeft(insertionPoint, mockLines.join('\n') + '\n')
+
+          // do an import to trick vite to keep it
+          // if not, the module won't be mocked
+          if (shouldPrependMockHoist) {
+            importPathsList.forEach((p) => {
+              s.append(`\n import ${JSON.stringify(p)};`)
+            })
+          }
 
           return {
             code: s.toString(),
