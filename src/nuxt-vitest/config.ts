@@ -111,7 +111,7 @@ export async function getVitestConfigFromNuxt(
       environmentOptions: {
         ...options.viteConfig.test?.environmentOptions,
         nuxt: {
-          rootId: options.nuxt.options.app.rootId,
+          rootId: options.nuxt.options.app.rootId || undefined,
           ...options.viteConfig.test?.environmentOptions?.nuxt,
         },
         nuxtRuntimeConfig: options.nuxt.options.runtimeConfig,
