@@ -12,7 +12,8 @@ export default defineVitestConfig({
         rootDir: fileURLToPath(new URL('./', import.meta.url)),
         domEnvironment: process.env.VITEST_DOM_ENV as 'happy-dom' | 'jsdom' ?? 'happy-dom',
       },
-    }, 
-    setupFiles: ['./tests/setup/mocks.ts']
+    },
+    setupFiles: ['./tests/setup/mocks.ts'],
+    globals: true
   },
 })
