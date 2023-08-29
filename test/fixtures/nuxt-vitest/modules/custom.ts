@@ -12,12 +12,12 @@ export default defineNuxtModule({
     addImports([
       {
         name: 'useCustomModuleAutoImportedTarget',
-        from: resolve('runtime/composables/auto-import-mock')
+        from: resolve('runtime/composables/auto-import-mock'),
       },
       {
         name: 'useCustomModuleAutoImportedNonTarget',
-        from: resolve('runtime/composables/auto-import-mock')
-      }
+        from: resolve('runtime/composables/auto-import-mock'),
+      },
     ])
-  }
+  },
 })
