@@ -1,14 +1,14 @@
 import {
-    type DefineComponent,
-    type SetupContext,
-    Suspense,
-    h,
-    nextTick,
+  type DefineComponent,
+  type SetupContext,
+  Suspense,
+  h,
+  nextTick,
 } from 'vue'
 
 import {
-    type RenderOptions as TestingLibraryRenderOptions,
-    render as renderFromTestingLibrary,
+  type RenderOptions as TestingLibraryRenderOptions,
+  render as renderFromTestingLibrary,
 } from '@testing-library/vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
@@ -58,7 +58,7 @@ export const WRAPPER_EL_ID = 'test-wrapper'
  */
 export async function renderSuspended<T>(
   component: T,
-  options?: RenderOptions,
+  options?: RenderOptions
 ) {
   const {
     props = {},
@@ -74,7 +74,7 @@ export async function renderSuspended<T>(
 
   let setupContext: SetupContext
 
-  return new Promise<ReturnType<typeof renderFromTestingLibrary>>((resolve) => {
+  return new Promise<ReturnType<typeof renderFromTestingLibrary>>(resolve => {
     const utils = renderFromTestingLibrary(
       {
         // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -121,8 +121,8 @@ export async function renderSuspended<T>(
                         h(clonedComponent, { ...props, ...attrs }, slots)
                     },
                   }),
-              },
-            ),
+              }
+            )
           ),
       },
       defu(_options, {
@@ -134,7 +134,7 @@ export async function renderSuspended<T>(
           provide: vueApp._context.provides,
           components: { RouterLink },
         },
-      }),
+      })
     )
   })
 }

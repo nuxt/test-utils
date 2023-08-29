@@ -8,7 +8,6 @@ import WrapperTests from '~/components/WrapperTests.vue'
 
 describe('test utils', () => {
   describe('renderSuspended', () => {
-
     afterEach(() => {
       // since we're not running with Vitest globals when running the tests
       // from inside the test server. This means testing-library cannot
@@ -68,7 +67,7 @@ describe('test utils', () => {
 
     it('can receive emitted events from components rendered within nuxt suspense', async () => {
       const { emitted } = await renderSuspended(WrapperTests)
-      const button = screen.getByRole('button', {name: 'Click me!'})
+      const button = screen.getByRole('button', { name: 'Click me!' })
       await fireEvent.click(button)
 
       const emittedEvents = emitted()

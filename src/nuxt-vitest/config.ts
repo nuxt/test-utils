@@ -23,7 +23,7 @@ async function startNuxtAndGetViteConfig(
       {
         ssr: false,
         test: true,
-        modules: ['nuxt-vitest']
+        modules: ['nuxt-vitest'],
       },
       overrides
     ),
@@ -84,7 +84,7 @@ export async function getVitestConfigFromNuxt(
     ...options.viteConfig,
     define: {
       ...options.viteConfig.define,
-      ['process.env.NODE_ENV']: 'process.env.NODE_ENV'
+      ['process.env.NODE_ENV']: 'process.env.NODE_ENV',
     },
     server: {
       ...options.viteConfig.server,
@@ -132,7 +132,9 @@ export async function getVitestConfigFromNuxt(
           ...(options.nuxt.options.build.transpile.filter(
             r => typeof r === 'string' || r instanceof RegExp
           ) as Array<string | RegExp>),
-          ...(typeof options.viteConfig.test?.deps?.inline !== 'boolean' ? typeof options.viteConfig.test?.deps?.inline : []),
+          ...(typeof options.viteConfig.test?.deps?.inline !== 'boolean'
+            ? typeof options.viteConfig.test?.deps?.inline
+            : []),
         ],
       },
     },
@@ -171,9 +173,9 @@ declare module 'vitest' {
       rootId?: string
       /**
        * The name of the DOM environment to use.
-       * 
+       *
        * It also needs to be installed as a dev dependency in your project.
-       * 
+       *
        * @default {happy-dom}
        */
       domEnvironment?: 'happy-dom' | 'jsdom'

@@ -1,4 +1,4 @@
-import { App } from "h3"
+import { App } from 'h3'
 
 export type NuxtBuiltinEnvironment = 'happy-dom' | 'jsdom'
 export interface NuxtWindow extends Window {
@@ -10,7 +10,10 @@ export interface NuxtWindow extends Window {
   IntersectionObserver: any
   Headers: any
 }
-export type EnvironmentNuxt = (global: any, options: Record<string, any>) => Promise<{ 
-  window: NuxtWindow, 
+export type EnvironmentNuxt = (
+  global: any,
+  options: Record<string, any>
+) => Promise<{
+  window: NuxtWindow
   teardown(): void
 }>

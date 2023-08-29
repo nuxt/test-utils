@@ -36,7 +36,9 @@ describe('client-side nuxt features', () => {
 
   it('allows pushing to other pages', async () => {
     await navigateTo('/something')
-    expect(useNuxtApp().$router.currentRoute.value.path).toMatchInlineSnapshot('"/something"')
+    expect(useNuxtApp().$router.currentRoute.value.path).toMatchInlineSnapshot(
+      '"/something"'
+    )
     // It takes two more ticks for the Nuxt useRoute to be updated (as, after suspense resolves,
     // we wait for a final hook and then update the injected route object )
     await nextTick()

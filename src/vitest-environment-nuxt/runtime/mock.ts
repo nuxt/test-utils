@@ -117,7 +117,7 @@ export function mockComponent<
   E extends EmitsOptions = {},
   EE extends string = string,
   I extends ComponentInjectOptions = {},
-  II extends string = string
+  II extends string = string,
 >(
   path: string,
   options: OptionalFunction<
@@ -147,7 +147,7 @@ export function mockComponent<
   E extends EmitsOptions = {},
   EE extends string = string,
   I extends ComponentInjectOptions = {},
-  II extends string = string
+  II extends string = string,
 >(
   path: string,
   options: OptionalFunction<
@@ -177,7 +177,7 @@ export function mockComponent<
   E extends EmitsOptions = {},
   EE extends string = string,
   I extends ComponentInjectOptions = {},
-  II extends string = string
+  II extends string = string,
 >(
   path: string,
   options: OptionalFunction<
