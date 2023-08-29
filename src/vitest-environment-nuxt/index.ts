@@ -61,15 +61,11 @@ export default <Environment>{
       }
 
     const h3App = createApp()
-
-    // JSDOM does not include an implementation of window.fetch.
-    // `globalThis.fetch` is not available here for us to use
-    // the native standards compliant version, and node-fetch
-    // has issues in combination with JSDOM so we polyfill
-    // with cross-fetch here for JSDOM.
+    
     if (!win.fetch) {
-      // @ts-ignore skip types, we only polyfill
-      await import('whatwg-fetch')
+      await import('node-fetch-native/polyfill')
+      // @ts-expect-error URLSearchParams is not a proeprty of window
+      win.URLSearchParams = globalThis.URLSearchParams
     }
 
     // @ts-expect-error TODO: fix in h3
