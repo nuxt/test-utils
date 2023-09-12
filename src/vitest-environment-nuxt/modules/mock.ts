@@ -261,11 +261,19 @@ export default defineNuxtModule({
                     )}) } }`,
                   ]
                   for (const mock of mocks) {
-                    lines.push(
-                      `  mocks[${JSON.stringify(from)}][${JSON.stringify(
-                        mock.name
-                      )}] = await (${mock.factory})()`
-                    )
+                    if (mock.import.name === 'default') {
+                      lines.push(
+                        `  mocks[${JSON.stringify(from)}]["default"] = await (${
+                          mock.factory
+                        })()`
+                      )
+                    } else {
+                      lines.push(
+                        `  mocks[${JSON.stringify(from)}][${JSON.stringify(
+                          mock.name
+                        )}] = await (${mock.factory})()`
+                      )
+                    }
                   }
                   lines.push(`  return mocks[${JSON.stringify(from)}] `)
                   lines.push(`})`)
