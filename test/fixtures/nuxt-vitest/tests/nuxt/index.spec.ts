@@ -2,6 +2,9 @@ import { describe, it, expect } from 'vitest'
 
 import { mountSuspended, registerEndpoint } from 'vitest-environment-nuxt/utils'
 
+import { listen } from 'listhen'
+import { createApp, eventHandler, toNodeListener } from 'h3'
+
 import App from '~/app.vue'
 import FetchComponent from '~/components/FetchComponent.vue'
 import OptionsComponent from '~/components/OptionsComponent.vue'
@@ -111,10 +114,12 @@ describe('test utils', () => {
     `)
   })
 
-  it('can use $fetch', () => {
-    expect(
-      $fetch('https://jsonplaceholder.typicode.com/todos/1')
-    ).resolves.toMatchObject({ id: 1 })
+  it('can use $fetch', async () => {
+    const app = createApp().use('/todos/1', eventHandler(() => ({ id: 1 })))
+    const server = await listen(toNodeListener(app))
+    const [{ url }] = await server.getURLs()
+    expect(await $fetch<unknown>('/todos/1', { baseURL: url })).toMatchObject({ id: 1 })
+    await server.close()
   })
 
   it('can mock fetch requests', async () => {
