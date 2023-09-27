@@ -39,19 +39,20 @@ describe('client-side nuxt features', () => {
 
   it('allows pushing to other pages', async () => {
     await navigateTo('/something')
-    expect(useNuxtApp().$router.currentRoute.value.path).toEqual(
-      '/something'
-    )
+    expect(useNuxtApp().$router.currentRoute.value.path).toEqual('/something')
     // It takes a few ticks for the Nuxt useRoute to be updated (as, after suspense resolves,
     // we wait for a final hook and then update the injected route object )
     const route = useRoute()
     await new Promise<void>(resolve => {
-      const unsub = watch(() => route.path, path => {
-        if (path === '/something') {
-          unsub()
-          resolve()
+      const unsub = watch(
+        () => route.path,
+        path => {
+          if (path === '/something') {
+            unsub()
+            resolve()
+          }
         }
-      })
+      )
     })
     expect(route.path).toEqual('/something')
   })
@@ -115,10 +116,15 @@ describe('test utils', () => {
   })
 
   it('can use $fetch', async () => {
-    const app = createApp().use('/todos/1', eventHandler(() => ({ id: 1 })))
+    const app = createApp().use(
+      '/todos/1',
+      eventHandler(() => ({ id: 1 }))
+    )
     const server = await listen(toNodeListener(app))
     const [{ url }] = await server.getURLs()
-    expect(await $fetch<unknown>('/todos/1', { baseURL: url })).toMatchObject({ id: 1 })
+    expect(await $fetch<unknown>('/todos/1', { baseURL: url })).toMatchObject({
+      id: 1,
+    })
     await server.close()
   })
 
