@@ -1,5 +1,5 @@
 import { defineEventHandler } from 'h3'
-import type { EventHandler } from 'h3'
+import type { EventHandler, App, HTTPMethod } from 'h3'
 import type {
   ComponentInjectOptions,
   ComponentOptionsMixin,
@@ -21,7 +21,7 @@ export type OptionalFunction<T> = T | (() => Awaitable<T>)
  * `registerEndpoint` allows you create Nitro endpoint that returns mocked data. It can come in handy if you want to test a component that makes requests to API to display some data.
  *
  * @param url - endpoint name (e.g. `/test/`).
- * @param handler - factory function that returns the mocked data.
+ * @param options - factory function that returns the mocked data or an object containing both the `handler` and the `method` properties.
  * @example
  * ```ts
  * import { registerEndpoint } from 'nuxt-vitest/utils'
@@ -32,11 +32,34 @@ export type OptionalFunction<T> = T | (() => Awaitable<T>)
  * ```
  * @see https://github.com/danielroe/nuxt-vitest#registerendpoint
  */
-export function registerEndpoint(url: string, handler: EventHandler) {
+export function registerEndpoint(
+  url: string,
+  options:
+    | EventHandler
+    | {
+        handler: EventHandler
+        method: HTTPMethod
+      }
+) {
   // @ts-expect-error private property
-  if (!window.__app) return
-  // @ts-expect-error private property
-  window.__app.use('/_' + url, defineEventHandler(handler))
+  const app: App = window.__app
+
+  if (!app) return
+
+  const config =
+    typeof options === 'function'
+      ? {
+          handler: options,
+          method: undefined,
+        }
+      : options
+
+  app.use('/_' + url, defineEventHandler(config.handler), {
+    match(_, event) {
+      return config.method ? event?.method === config.method : true
+    },
+  })
+
   // @ts-expect-error private property
   window.__registry.add(url)
 }
