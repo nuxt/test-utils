@@ -5,9 +5,7 @@ import {
   h,
   nextTick,
 } from 'vue'
-import type {
-   RenderOptions as TestingLibraryRenderOptions,
-} from '@testing-library/vue'
+import type { RenderOptions as TestingLibraryRenderOptions } from '@testing-library/vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
 
@@ -66,7 +64,9 @@ export async function renderSuspended<T>(
     ..._options
   } = options || {}
 
-  const { render : renderFromTestingLibrary } = await import('@testing-library/vue')
+  const { render: renderFromTestingLibrary } = await import(
+    '@testing-library/vue'
+  )
 
   // @ts-ignore untyped global __unctx__
   const { vueApp } = globalThis.__unctx__.get('nuxt-app').tryUse()

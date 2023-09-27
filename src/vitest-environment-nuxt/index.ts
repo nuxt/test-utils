@@ -61,7 +61,7 @@ export default <Environment>{
       }
 
     const h3App = createApp()
-    
+
     if (!win.fetch) {
       await import('node-fetch-native/polyfill')
       // @ts-expect-error URLSearchParams is not a proeprty of window
