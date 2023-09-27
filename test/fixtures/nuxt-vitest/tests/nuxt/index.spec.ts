@@ -138,6 +138,21 @@ describe('test utils', () => {
     )
   })
 
+  it('can mock fetch requests with explicit methods', async () => {
+    registerEndpoint('/method', {
+      method: 'POST',
+      handler: () => ({ method: 'POST' }),
+    })
+    registerEndpoint('/method', {
+      method: 'GET',
+      handler: () => ({ method: 'GET' }),
+    })
+    expect(await $fetch<unknown>('/method', { method: 'POST' })).toMatchObject({
+      method: 'POST',
+    })
+    expect(await $fetch<unknown>('/method')).toMatchObject({ method: 'GET' })
+  })
+
   // TODO: reenable when merging Nuxt 3.7
   it.skip('handles nuxt routing', async () => {
     const component = await mountSuspended(App, { route: '/test' })
