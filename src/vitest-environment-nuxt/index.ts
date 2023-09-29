@@ -75,8 +75,11 @@ export default <Environment>{
     const registry = new Set<string>()
 
     win.fetch = (init: string, options?: any) => {
-      if (typeof init === 'string' && registry.has(init)) {
-        init = '/_' + init
+      if (typeof init === 'string') {
+        const base = init.split('?')[0]
+        if (registry.has(base) || registry.has(init)) {
+          init = '/_' + init
+        }
       }
       return localFetch(init, options)
     }

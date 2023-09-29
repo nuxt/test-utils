@@ -138,6 +138,17 @@ describe('test utils', () => {
     )
   })
 
+  it('can mock fetch requests', async () => {
+    registerEndpoint('/with-query', () => ({
+      title: 'mocked',
+    }))
+    expect(
+      await $fetch<unknown>('/with-query', { query: { test: true } })
+    ).toMatchObject({
+      title: 'mocked',
+    })
+  })
+
   it('can mock fetch requests with explicit methods', async () => {
     registerEndpoint('/method', {
       method: 'POST',
