@@ -1,5 +1,7 @@
-import { mount, ComponentMountingOptions } from '@vue/test-utils'
-import { h, Suspense, nextTick, SetupContext, DefineComponent } from 'vue'
+import { mount } from '@vue/test-utils'
+import type { ComponentMountingOptions } from '@vue/test-utils'
+import { h, Suspense, nextTick } from 'vue'
+import type { SetupContext, DefineComponent } from 'vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
 
