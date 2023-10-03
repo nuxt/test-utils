@@ -1,4 +1,4 @@
-import { App } from 'h3'
+import type { App } from 'h3'
 
 export type NuxtBuiltinEnvironment = 'happy-dom' | 'jsdom'
 export interface NuxtWindow extends Window {
