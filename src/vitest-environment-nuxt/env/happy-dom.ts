@@ -1,5 +1,5 @@
 import { importModule } from 'local-pkg'
-import { EnvironmentNuxt } from '../types'
+import type { EnvironmentNuxt } from '../types'
 
 export default <EnvironmentNuxt>async function (_, { happyDom = {} }) {
   const { Window, GlobalWindow } = (await importModule(
