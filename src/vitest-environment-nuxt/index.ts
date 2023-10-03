@@ -1,7 +1,8 @@
 import type { Environment } from 'vitest'
 import { createFetch } from 'ofetch'
 import { joinURL } from 'ufo'
-import { createApp, toNodeListener } from 'h3'
+import { createApp, defineEventHandler, toNodeListener } from 'h3'
+import { createRouter as createRadixRouter, exportMatcher, toRouteMatcher } from 'radix3'
 import { populateGlobal } from 'vitest/environments'
 import {
   createCall,
@@ -92,6 +93,26 @@ export default <Environment>{
     const { keys, originals } = populateGlobal(global, win, {
       bindFunctions: true,
     })
+
+    // App manifest support
+    const timestamp = Date.now()
+    const routeRulesMatcher = toRouteMatcher(
+      createRadixRouter({ routes: environmentOptions.nuxtRouteRules || {} })
+    )
+    const matcher = exportMatcher(routeRulesMatcher)
+    h3App.use('/_/_nuxt/builds/latest.json', defineEventHandler(() => ({
+      id: 'test',
+      timestamp
+    })))
+    h3App.use('/_/_nuxt/builds/meta/test.json', defineEventHandler(() => ({
+      id: 'test',
+      timestamp,
+      matcher,
+      prerendered: []
+    })))
+
+    registry.add('/_nuxt/builds/latest.json')
+    registry.add('/_nuxt/builds/meta/test.json')
 
     // @ts-ignore
     await import('#app/entry').then(r => r.default())
