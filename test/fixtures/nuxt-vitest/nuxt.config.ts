@@ -6,6 +6,13 @@ export default defineNuxtConfig({
     logToConsole: true,
     vitestConfig: {
       setupFiles: ['./tests/setup/mocks'],
+      environmentOptions: {
+        nuxt: {
+          mock: {
+            indexedDb: true,
+          },
+        },
+      },
     },
   },
   imports: {
