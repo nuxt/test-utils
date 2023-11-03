@@ -1,5 +1,6 @@
 import type { Environment } from 'vitest'
 import { createFetch } from 'ofetch'
+import { indexedDB } from 'fake-indexeddb'
 import { joinURL } from 'ufo'
 import { createApp, defineEventHandler, toNodeListener } from 'h3'
 import { createRouter as createRadixRouter, exportMatcher, toRouteMatcher } from 'radix3'
@@ -53,13 +54,20 @@ export default <Environment>{
     app.id = environmentOptions.nuxt.rootId
     win.document.body.appendChild(app)
 
-    win.IntersectionObserver =
-      win.IntersectionObserver ||
-      class IntersectionObserver {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      }
+    if (environmentOptions?.nuxt?.mock?.intersectionObserver) {
+      win.IntersectionObserver =
+        win.IntersectionObserver ||
+        class IntersectionObserver {
+          observe() {}
+          unobserve() {}
+          disconnect() {}
+        }
+    }
+
+    if (environmentOptions?.nuxt?.mock?.indexedDb) {
+      // @ts-expect-error win.indexedDB is read-only
+      win.indexedDB = indexedDB
+    }
 
     const h3App = createApp()
 

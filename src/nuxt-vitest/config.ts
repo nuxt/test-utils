@@ -114,6 +114,11 @@ export async function getVitestConfigFromNuxt(
         nuxt: {
           rootId: options.nuxt.options.app.rootId || undefined,
           ...options.viteConfig.test?.environmentOptions?.nuxt,
+          mock: {
+            intersectionObserver: true,
+            indexedDb: false,
+            ...options.viteConfig.test?.environmentOptions?.nuxt?.mock,
+          },
         },
         nuxtRuntimeConfig: options.nuxt.options.runtimeConfig,
         nuxtRouteRules: defu({}, options.nuxt.options.routeRules, options.nuxt.options.nitro?.routeRules)
@@ -181,6 +186,11 @@ declare module 'vitest' {
        * @default {happy-dom}
        */
       domEnvironment?: 'happy-dom' | 'jsdom'
+
+      mock?: {
+        intersectionObserver?: boolean
+        indexedDb?: boolean
+      }
     }
   }
 }
