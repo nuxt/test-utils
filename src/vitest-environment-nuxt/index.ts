@@ -110,9 +110,16 @@ export default <Environment>{
       matcher,
       prerendered: []
     })))
+    h3App.use('/_/_nuxt/builds/meta/dev.json', defineEventHandler(() => ({
+      id: 'test',
+      timestamp,
+      matcher,
+      prerendered: []
+    })))
 
     registry.add('/_nuxt/builds/latest.json')
     registry.add('/_nuxt/builds/meta/test.json')
+    registry.add('/_nuxt/builds/meta/dev.json')
 
     // @ts-ignore
     await import('#app/entry').then(r => r.default())
