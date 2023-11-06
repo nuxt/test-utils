@@ -1,5 +1,5 @@
 
-import type {Config} from "jest"
+import type { Config } from 'jest'
 
 export default {
   preset: 'ts-jest/presets/default-esm', // or other ESM presets
