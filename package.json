@@ -28,7 +28,8 @@
     "lint:fix": "eslint --ext .vue,.ts,.js,.mjs . --fix",
     "test:examples": "pnpm -r test",
     "prepack": "unbuild",
-    "dev:prepare": "unbuild --stub"
+    "dev:prepare": "unbuild --stub",
+    "release": "pnpm test:examples && pnpm build && changelogen --release --push && pnpm publish"
   },
   "dependencies": {
     "@nuxt/kit": "^3.8.1",
@@ -44,6 +45,7 @@
   "devDependencies": {
     "@jest/globals": "29.7.0",
     "@nuxt/eslint-config": "^0.2.0",
+    "changelogen": "^0.5.5",
     "eslint": "^8.53.0",
     "eslint-plugin-import": "^2.29.0",
     "eslint-plugin-jsdoc": "^46.8.2",
