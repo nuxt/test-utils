@@ -1,16 +1,18 @@
-import { fileURLToPath } from 'node:url'
-import { createPage, setup } from '@nuxt/test-utils'
-import { describe, expect, it } from 'vitest'
+import { fileURLToPath } from "node:url";
+import { createPage, setup } from "@nuxt/test-utils";
 
 await setup({
-  rootDir: fileURLToPath(new URL('../', import.meta.url)),
+  rootDir: fileURLToPath(new URL("../", import.meta.url)),
   browser: true,
-  runner: 'jest',
-})
+  runner: "jest",
+});
 
-describe('browser', async () => {
-  it('runs a test', async () => {
-    const page = await createPage('/') 
-    expect(page.getByRole('heading').innerText()).toContain('Welcome to Nuxt!')
-  })
-})
+describe("browser", () => {
+  it("runs a test", async () => {
+    const page = await createPage("/");
+    const text = await page.getByRole("heading",{ name: 'Welcome to Nuxt!' }).innerText()
+    await expect(text).toContain(
+      "Welcome to Nuxt!"
+    );
+  });
+});
