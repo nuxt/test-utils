@@ -52,6 +52,7 @@ export async function runTests (opts: RunTestOptions) {
           inline: [
             distDir,
             '@nuxt/test-utils',
+            '@nuxt/test-utils-nightly',
             '@nuxt/test-utils-edge'
           ]
         },
