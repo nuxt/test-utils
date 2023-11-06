@@ -1,0 +1,40 @@
+{
+  "private": true,
+  "name": "my-module",
+  "version": "1.0.0",
+  "description": "My new Nuxt module",
+  "repository": "your-org/my-module",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/module.mjs",
+      "require": "./dist/module.cjs"
+    }
+  },
+  "main": "./dist/module.cjs",
+  "types": "./dist/types.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepack": "nuxt-module-build build",
+    "dev": "nuxi dev playground",
+    "dev:build": "nuxi build playground",
+    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
+    "test": "vitest run",
+    "test:watch": "vitest watch"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^3.8.0"
+  },
+  "devDependencies": {
+    "@nuxt/module-builder": "^0.5.2",
+    "@nuxt/schema": "^3.8.0",
+    "@nuxt/test-utils": "latest",
+    "changelogen": "^0.5.5",
+    "nuxt": "^3.8.0",
+    "vitest": "0.33.0"
+  }
+}
