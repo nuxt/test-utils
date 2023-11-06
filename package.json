@@ -21,7 +21,10 @@
     "experimental.d.ts"
   ],
   "scripts": {
-    "prepack": "unbuild"
+    "lint": "eslint --ext .vue,.ts,.js,.mjs .",
+    "lint:fix": "eslint --ext .vue,.ts,.js,.mjs . --fix",
+    "prepack": "unbuild",
+    "dev:prepare": "unbuild --stub"
   },
   "dependencies": {
     "@nuxt/kit": "^3.8.1",
@@ -36,6 +39,12 @@
   },
   "devDependencies": {
     "@jest/globals": "29.7.0",
+    "@nuxt/eslint-config": "^0.2.0",
+    "eslint": "^8.53.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-jsdoc": "^46.8.2",
+    "eslint-plugin-no-only-tests": "^3.1.0",
+    "eslint-plugin-unicorn": "^49.0.0",
     "playwright-core": "1.39.0",
     "unbuild": "latest",
     "vitest": "0.33.0"
@@ -56,6 +65,9 @@
     "vitest": {
       "optional": true
     }
+  },
+  "resolutions": {
+    "@nuxt/test-utils": "workspace:*"
   },
   "engines": {
     "node": "^14.18.0 || >=16.10.0"

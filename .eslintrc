@@ -1,0 +1,80 @@
+{
+  "ignorePatterns": [
+    "dist",
+    "node_modules"
+  ],
+  "$schema": "https://json.schemastore.org/eslintrc",
+  "plugins": [
+    "unicorn",
+    "import",
+    "jsdoc",
+    "no-only-tests"
+  ],
+  "extends": [
+    "plugin:jsdoc/recommended",
+    "@nuxt/eslint-config",
+    "plugin:import/typescript"
+  ],
+  "rules": {
+    "sort-imports": [
+      "error",
+      {
+        "ignoreDeclarationSort": true
+      }
+    ],
+    "no-only-tests/no-only-tests": "error",
+    "unicorn/prefer-node-protocol": "error",
+    "no-console": "warn",
+    "vue/multi-word-component-names": "off",
+    "vue/one-component-per-file": "off",
+    "vue/require-default-prop": "off",
+    "vue/no-multiple-template-root": "off",
+    "vue/no-v-model-argument": "off",
+    "jsdoc/require-jsdoc": "off",
+    "jsdoc/require-param": "off",
+    "jsdoc/require-returns": "off",
+    "jsdoc/require-param-type": "off",
+    "no-redeclare": "off",
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      {
+        "disallowTypeAnnotations": false
+      }
+    ],
+    "@typescript-eslint/ban-ts-comment": [
+      "error",
+      {
+        "ts-expect-error": "allow-with-description",
+        "ts-ignore": true
+      }
+    ],
+    "@typescript-eslint/prefer-ts-expect-error": "error",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "test/**"
+      ],
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ],
+  "settings": {
+    "jsdoc": {
+      "ignoreInternal": true,
+      "tagNamePreference": {
+        "warning": "warning",
+        "note": "note"
+      }
+    }
+  }
+}
