@@ -25,7 +25,8 @@
     "lint:fix": "eslint --ext .vue,.ts,.js,.mjs . --fix",
     "test:examples": "pnpm -r test",
     "prepack": "unbuild",
-    "dev:prepare": "unbuild --stub"
+    "dev:prepare": "unbuild --stub",
+    "release": "pnpm test:examples && pnpm build && changelogen --release --push && pnpm publish"
   },
   "dependencies": {
     "@nuxt/kit": "^3.8.1",
