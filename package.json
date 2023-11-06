@@ -23,6 +23,7 @@
   "scripts": {
     "lint": "eslint --ext .vue,.ts,.js,.mjs .",
     "lint:fix": "eslint --ext .vue,.ts,.js,.mjs . --fix",
+    "test:examples": "pnpm -r test",
     "prepack": "unbuild",
     "dev:prepare": "unbuild --stub"
   },
