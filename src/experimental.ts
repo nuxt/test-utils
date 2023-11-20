@@ -2,8 +2,8 @@ import { $fetch as _$fetch, fetch as _fetch } from 'ofetch'
 import * as _kit from '@nuxt/kit'
 import { resolve } from 'pathe'
 import { stringifyQuery } from 'ufo'
-import { useTestContext } from './context'
-import { $fetch } from './server'
+import { useTestContext } from './core/context'
+import { $fetch } from './core/server'
 
 /**
  * This is a function to render a component directly with the Nuxt server.
