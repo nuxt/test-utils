@@ -5,6 +5,11 @@ export default defineBuildConfig({
   entries: [
     'src/index',
     'src/experimental',
+    'src/config',
+    'src/experimental',
+    'src/module',
+    'src/runtime-utils',
+    'src/vitest-environment',
     { input: 'src/runtime/', outDir: 'dist/runtime', format: 'esm' }
   ],
   externals: [
