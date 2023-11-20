@@ -71,69 +71,74 @@ export async function mountSuspended<T>(
     }
   }
 
-  return new Promise<ReturnType<typeof mount<T>> & { setupState: any }>(resolve => {
-    const vm = mount(
-      {
-        setup: (props: Record<string, any>, ctx: SetupContext) => {
-          setupContext = ctx
-          return NuxtRoot.setup(props, {
-            ...ctx,
-            expose: () => {},
-          })
-        },
-        render: (renderContext: any) =>
-          h(
-            Suspense,
-            {
-              onResolve: () =>
-                nextTick().then(() => {
-                  ;(vm as any).setupState = setupState
-                  resolve(vm as any)
-                }),
-            },
-            {
-              default: () =>
-                h({
-                  async setup() {
-                    const router = useRouter()
-                    await router.replace(route)
-
-                    // Proxy top-level setup/render context so test wrapper resolves child component
-                    const clonedComponent = {
-                      ...component,
-                      render: render
-                        ? (_ctx: any, ...args: any[]) => {
-                            // add all _ctx properties to renderContext
-                            // the renderContext must remain intact, otherwise the emits don't work
-                            for (const key in _ctx) {
-                              renderContext[key] = _ctx[key]
-                            }
-                            return render.apply(_ctx, [renderContext, ...args])
-                          }
-                        : undefined,
-                      setup: setup
-                        ? (props: Record<string, any>) =>
-                            wrappedSetup(props, setupContext)
-                        : undefined,
-                    }
-
-                    return () =>
-                      h(clonedComponent, { ...props, ...attrs }, slots)
-                  },
-                }),
-            }
-          ),
-      },
-      defu(_options, {
-        slots,
-        global: {
-          config: {
-            globalProperties: vueApp.config.globalProperties,
+  return new Promise<ReturnType<typeof mount<T>> & { setupState: any }>(
+    resolve => {
+      const vm = mount(
+        {
+          setup: (props: Record<string, any>, ctx: SetupContext) => {
+            setupContext = ctx
+            return NuxtRoot.setup(props, {
+              ...ctx,
+              expose: () => {},
+            })
           },
-          provide: vueApp._context.provides,
-          components: { RouterLink },
+          render: (renderContext: any) =>
+            h(
+              Suspense,
+              {
+                onResolve: () =>
+                  nextTick().then(() => {
+                    ;(vm as any).setupState = setupState
+                    resolve(vm as any)
+                  }),
+              },
+              {
+                default: () =>
+                  h({
+                    async setup() {
+                      const router = useRouter()
+                      await router.replace(route)
+
+                      // Proxy top-level setup/render context so test wrapper resolves child component
+                      const clonedComponent = {
+                        ...component,
+                        render: render
+                          ? (_ctx: any, ...args: any[]) => {
+                              // add all _ctx properties to renderContext
+                              // the renderContext must remain intact, otherwise the emits don't work
+                              for (const key in _ctx) {
+                                renderContext[key] = _ctx[key]
+                              }
+                              return render.apply(_ctx, [
+                                renderContext,
+                                ...args,
+                              ])
+                            }
+                          : undefined,
+                        setup: setup
+                          ? (props: Record<string, any>) =>
+                              wrappedSetup(props, setupContext)
+                          : undefined,
+                      }
+
+                      return () =>
+                        h(clonedComponent, { ...props, ...attrs }, slots)
+                    },
+                  }),
+              }
+            ),
         },
-      } satisfies ComponentMountingOptions<T>) as ComponentMountingOptions<T>
-    )
-  })
+        defu(_options, {
+          slots,
+          global: {
+            config: {
+              globalProperties: vueApp.config.globalProperties,
+            },
+            provide: vueApp._context.provides,
+            components: { RouterLink },
+          },
+        } satisfies ComponentMountingOptions<T>) as ComponentMountingOptions<T>
+      )
+    }
+  )
 }
