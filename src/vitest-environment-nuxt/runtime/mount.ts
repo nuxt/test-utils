@@ -59,6 +59,18 @@ export async function mountSuspended<T>(
   const { render, setup } = component as DefineComponent<any, any>
 
   let setupContext: SetupContext
+  let setupState: any
+
+  const wrappedSetup = async (
+    props: Record<string, any>,
+    setupContext: SetupContext
+  ) => {
+    if (setup) {
+      setupState = await setup(props, setupContext)
+      return setupState
+    }
+  }
+
   return new Promise<ReturnType<typeof mount<T>>>(resolve => {
     const vm = mount(
       {
@@ -72,7 +84,13 @@ export async function mountSuspended<T>(
         render: (renderContext: any) =>
           h(
             Suspense,
-            { onResolve: () => nextTick().then(() => resolve(vm as any)) },
+            {
+              onResolve: () =>
+                nextTick().then(() => {
+                  ;(vm as any).setupState = setupState
+                  resolve(vm as any)
+                }),
+            },
             {
               default: () =>
                 h({
@@ -95,7 +113,7 @@ export async function mountSuspended<T>(
                         : undefined,
                       setup: setup
                         ? (props: Record<string, any>) =>
-                            setup(props, setupContext)
+                            wrappedSetup(props, setupContext)
                         : undefined,
                     }
 
