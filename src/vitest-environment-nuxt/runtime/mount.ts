@@ -45,7 +45,7 @@ export type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
 export async function mountSuspended<T>(
   component: T,
   options?: MountSuspendedOptions<T>
-): Promise<ReturnType<typeof mount<T>>> {
+): Promise<ReturnType<typeof mount<T>> & { setupState: any }> {
   const {
     props = {},
     attrs = {},
@@ -71,7 +71,7 @@ export async function mountSuspended<T>(
     }
   }
 
-  return new Promise<ReturnType<typeof mount<T>>>(resolve => {
+  return new Promise<ReturnType<typeof mount<T>> & { setupState: any }>(resolve => {
     const vm = mount(
       {
         setup: (props: Record<string, any>, ctx: SetupContext) => {
