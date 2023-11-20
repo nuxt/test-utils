@@ -121,7 +121,11 @@ export async function getVitestConfigFromNuxt(
           },
         },
         nuxtRuntimeConfig: options.nuxt.options.runtimeConfig,
-        nuxtRouteRules: defu({}, options.nuxt.options.routeRules, options.nuxt.options.nitro?.routeRules)
+        nuxtRouteRules: defu(
+          {},
+          options.nuxt.options.routeRules,
+          options.nuxt.options.nitro?.routeRules
+        ),
       },
       environmentMatchGlobs: [
         ['**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', 'nuxt'],

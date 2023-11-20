@@ -85,13 +85,13 @@ export async function mountSuspended<T>(
                       ...component,
                       render: render
                         ? (_ctx: any, ...args: any[]) => {
-                          // add all _ctx properties to renderContext
-                          // the renderContext must remain intact, otherwise the emits don't work
-                          for (const key in _ctx) {
-                            renderContext[key] = _ctx[key]
+                            // add all _ctx properties to renderContext
+                            // the renderContext must remain intact, otherwise the emits don't work
+                            for (const key in _ctx) {
+                              renderContext[key] = _ctx[key]
+                            }
+                            return render.apply(_ctx, [renderContext, ...args])
                           }
-                          return render.apply(_ctx, [renderContext, ...args])
-                        }
                         : undefined,
                       setup: setup
                         ? (props: Record<string, any>) =>

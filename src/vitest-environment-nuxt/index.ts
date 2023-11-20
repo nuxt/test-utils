@@ -3,7 +3,11 @@ import { createFetch } from 'ofetch'
 import { indexedDB } from 'fake-indexeddb'
 import { joinURL } from 'ufo'
 import { createApp, defineEventHandler, toNodeListener } from 'h3'
-import { createRouter as createRadixRouter, exportMatcher, toRouteMatcher } from 'radix3'
+import {
+  createRouter as createRadixRouter,
+  exportMatcher,
+  toRouteMatcher,
+} from 'radix3'
 import { populateGlobal } from 'vitest/environments'
 import {
   createCall,
@@ -108,25 +112,38 @@ export default <Environment>{
       createRadixRouter({ routes: environmentOptions.nuxtRouteRules || {} })
     )
     const matcher = exportMatcher(routeRulesMatcher)
-    const manifestOutputPath = joinURL('/', environmentOptions?.nuxtRuntimeConfig.app?.buildAssetsDir || '_nuxt', 'builds')
+    const manifestOutputPath = joinURL(
+      '/',
+      environmentOptions?.nuxtRuntimeConfig.app?.buildAssetsDir || '_nuxt',
+      'builds'
+    )
     const manifestBaseRoutePath = joinURL('/_', manifestOutputPath)
 
-    h3App.use(`${manifestBaseRoutePath}/latest.json`, defineEventHandler(() => ({
-      id: 'test',
-      timestamp
-    })))
-    h3App.use(`${manifestBaseRoutePath}/meta/test.json`, defineEventHandler(() => ({
-      id: 'test',
-      timestamp,
-      matcher,
-      prerendered: []
-    })))
-    h3App.use(`${manifestBaseRoutePath}/meta/dev.json`, defineEventHandler(() => ({
-      id: 'test',
-      timestamp,
-      matcher,
-      prerendered: []
-    })))
+    h3App.use(
+      `${manifestBaseRoutePath}/latest.json`,
+      defineEventHandler(() => ({
+        id: 'test',
+        timestamp,
+      }))
+    )
+    h3App.use(
+      `${manifestBaseRoutePath}/meta/test.json`,
+      defineEventHandler(() => ({
+        id: 'test',
+        timestamp,
+        matcher,
+        prerendered: [],
+      }))
+    )
+    h3App.use(
+      `${manifestBaseRoutePath}/meta/dev.json`,
+      defineEventHandler(() => ({
+        id: 'test',
+        timestamp,
+        matcher,
+        prerendered: [],
+      }))
+    )
 
     registry.add(`${manifestOutputPath}/latest.json`)
     registry.add(`${manifestOutputPath}/meta/test.json`)
