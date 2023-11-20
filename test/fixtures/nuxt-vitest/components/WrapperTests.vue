@@ -15,6 +15,8 @@ defineExpose({
 
 <template>
   <div>
-    <button @click="emit('customEvent', 'foo'); $emit('otherEvent')">Click me!</button>
+    <button @click="emit('customEvent', 'foo'); $emit('otherEvent')">
+      Click me!
+    </button>
   </div>
 </template>

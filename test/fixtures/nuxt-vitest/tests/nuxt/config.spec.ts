@@ -1,4 +1,4 @@
-import { it, expect } from 'vitest'
+import { expect, it } from 'vitest'
 
 it('should return the runtimeConfig from nuxt.config', () => {
   const config = useRuntimeConfig()
