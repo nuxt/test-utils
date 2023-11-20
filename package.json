@@ -10,14 +10,8 @@
   "type": "module",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs"
-    },
-    "./experimental": {
-      "types": "./dist/experimental.d.ts",
-      "import": "./dist/experimental.mjs"
-    }
+    ".": "./dist/index.mjs",
+    "./experimental": "./dist/experimental.mjs"
   },
   "files": [
     "dist",
