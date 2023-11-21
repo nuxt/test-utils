@@ -85,11 +85,11 @@ jobs:
       - name: Install Playwright
         run: pnpm playwright-core install chromium
 
+      - name: Prepare build environment
+        run: pnpm dev:prepare
+
       - name: Build module
         run: pnpm prepack
-
-      - name: Prepare module environment
-        run: pnpm -r dev:prepare
 
       - name: Test examples
         run: pnpm test:examples
