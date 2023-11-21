@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { mountSuspended } from 'vitest-environment-nuxt/utils'
+import { mountSuspended } from '@nuxt/test-utils/runtime-utils'
 import IndexedDbComponent from '~/components/IndexedDbComponent.vue'
 
 // Mocking of indexedDB can be enabled in vite.config.ts

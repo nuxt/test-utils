@@ -31,7 +31,7 @@ async function startNuxtAndGetViteConfig(
   })
 
   if (
-    !nuxt.options._installedModules.find(i => i?.meta?.name === '@nuxt/test-utils/module')
+    !nuxt.options._installedModules.find(i => i?.meta?.name === '@nuxt/test-utils')
   ) {
     throw new Error(
       'Failed to load nuxt-vitest module. You may need to add it to your nuxt.config.'
@@ -139,6 +139,7 @@ export async function getVitestConfigFromNuxt(
           /\/node_modules\/(.*\/)?(nuxt|nuxt3)\//,
           /^#/,
           // additional deps
+          '@nuxt/test-utils',
           'vitest-environment-nuxt',
           ...(options.nuxt.options.build.transpile.filter(
             r => typeof r === 'string' || r instanceof RegExp

@@ -1,1 +1,1 @@
-export * from 'vitest-environment-nuxt/utils'
+export * from '../vitest-environment-nuxt/utils'

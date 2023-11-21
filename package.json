@@ -30,7 +30,7 @@
     "lint:fix": "eslint --ext .vue,.ts,.js,.mjs . --fix",
     "test:examples": "pnpm -r test",
     "prepack": "unbuild",
-    "dev:prepare": "unbuild --stub",
+    "dev:prepare": "nuxi prepare && unbuild --stub && pnpm -r dev:prepare",
     "release": "pnpm test:examples && pnpm build && changelogen --release --push && pnpm publish"
   },
   "dependencies": {
@@ -56,6 +56,7 @@
   "devDependencies": {
     "@jest/globals": "29.7.0",
     "@nuxt/eslint-config": "0.2.0",
+    "@nuxt/module-builder": "^0.5.2",
     "@testing-library/vue": "^7.0.0",
     "@types/estree": "^1.0.5",
     "@vitejs/plugin-vue": "^4.5.0",
@@ -64,15 +65,16 @@
     "changelogen": "0.5.5",
     "eslint": "8.54.0",
     "eslint-plugin-import": "2.29.0",
-    "h3": "^1.9.0",
     "eslint-plugin-jsdoc": "46.9.0",
     "eslint-plugin-no-only-tests": "3.1.0",
     "eslint-plugin-unicorn": "49.0.0",
+    "h3": "^1.9.0",
+    "nuxt": "^3.8.2",
     "playwright-core": "1.40.0",
-    "rollup": "^4.5.0",
+    "rollup": "^3.29.4",
     "unbuild": "latest",
     "unimport": "^3.5.0",
-    "vite": "^5.0.0",
+    "vite": "^4.5.0",
     "vitest": "0.33.0",
     "vue-router": "^4.2.5"
   },
@@ -81,6 +83,7 @@
     "@testing-library/vue": "8.0.1",
     "@vitejs/plugin-vue": "*",
     "@vitejs/plugin-vue-jsx": "*",
+    "@vue/test-utils": "^2.4.2",
     "h3": "*",
     "happy-dom": "^9.10.9 || ^10.0.0 || ^11.0.0 || ^12.0.0",
     "jsdom": "^22.0.0",
@@ -114,7 +117,8 @@
     }
   },
   "resolutions": {
-    "@nuxt/test-utils": "workspace:*"
+    "@nuxt/test-utils": "workspace:*",
+    "vitest-environment-nuxt": "file:./stubs/vitest-environment-nuxt"
   },
   "engines": {
     "node": "^14.18.0 || >=16.10.0"

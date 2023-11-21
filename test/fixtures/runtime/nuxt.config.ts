@@ -15,16 +15,16 @@ export default defineNuxtConfig({
       },
     },
   },
-  // vite: {
-  //   // TODO: fix bug with stubbing root package
-  //   resolve: {
-  //     alias: {
-  //       '@nuxt/test-utils/config': '../../../src/config',
-  //       '@nuxt/test-utils/module': '../../../src/module',
-  //       '@nuxt/test-utils/runtime-utils': '../../../src/runtime-utils',
-  //     },
-  //   },
-  // },
+  vite: {
+    // TODO: fix bug with stubbing root package
+    resolve: {
+      alias: {
+        '@nuxt/test-utils/config': '../../../src/config',
+        '@nuxt/test-utils/module': '../../../src/module',
+        '@nuxt/test-utils/runtime-utils': '../../../src/utils',
+      },
+    },
+  },
   imports: {
     injectAtEnd: true,
   },

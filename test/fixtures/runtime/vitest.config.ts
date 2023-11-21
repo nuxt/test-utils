@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import { defineVitestConfig } from '@nuxt/test-utils/config'
+import { defineVitestConfig } from '../../../src/config'
 
 export default defineVitestConfig({
   test: {

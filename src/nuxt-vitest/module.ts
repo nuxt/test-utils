@@ -1,5 +1,5 @@
 import { pathToFileURL } from 'node:url'
-import { defineNuxtModule, installModule, logger, resolvePath } from '@nuxt/kit'
+import { defineNuxtModule, logger, resolvePath } from '@nuxt/kit'
 import type { File, Reporter, Vitest, UserConfig as VitestConfig } from 'vitest'
 import { mergeConfig } from 'vite'
 import type { InlineConfig as ViteConfig } from 'vite'
@@ -8,6 +8,8 @@ import { getPort } from 'get-port-please'
 import { h } from 'vue'
 import { debounce } from 'perfect-debounce'
 import { isCI } from 'std-env'
+
+import { setupImportMocking } from './mock-module'
 
 export interface NuxtVitestOptions {
   startOnBoot?: boolean
@@ -31,9 +33,9 @@ export default defineNuxtModule<NuxtVitestOptions>({
     logToConsole: false,
   },
   async setup(options, nuxt) {
-    await installModule('vitest-environment-nuxt/module')
-
     if (!nuxt.options.dev) return
+
+    setupImportMocking()
 
     if (nuxt.options.test && nuxt.options.app.rootId === '__nuxt') {
       nuxt.options.app.rootId = 'nuxt-test'
@@ -59,6 +61,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
     let testFiles: File[] | null = null
 
     const updateTabs = debounce(() => {
+      // @ts-expect-error TODO: fix
       nuxt.callHook('devtools:customTabs:refresh')
     }, 100)
 
