@@ -1,1 +1,1 @@
-export * from 'nuxt-vitest/config'
+export * from './nuxt-vitest/config'

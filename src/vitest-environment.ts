@@ -1,1 +1,1 @@
-export { default } from 'vitest-environment-nuxt'
+export { default } from './vitest-environment-nuxt/index'

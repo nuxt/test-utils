@@ -23,7 +23,7 @@ const vitePluginBlocklist = ['vite-plugin-vue-inspector', 'vite-plugin-inspect']
 
 export default defineNuxtModule<NuxtVitestOptions>({
   meta: {
-    name: 'nuxt-vitest',
+    name: '@nuxt/test-utils',
     configKey: 'vitest',
   },
   defaults: {
