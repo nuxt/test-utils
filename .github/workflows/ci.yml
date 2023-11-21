@@ -88,9 +88,6 @@ jobs:
       - name: Prepare build environment
         run: pnpm dev:prepare
 
-      - name: Prepare module environment
-        run: pnpm -r dev:prepare
-
       - name: Build module
         run: pnpm prepack
 
