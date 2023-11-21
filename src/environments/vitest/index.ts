@@ -4,16 +4,10 @@ import { indexedDB } from 'fake-indexeddb'
 import { joinURL } from 'ufo'
 import { createApp, defineEventHandler, toNodeListener } from 'h3'
 import defu from 'defu'
-import {
-  createRouter as createRadixRouter,
-  exportMatcher,
-  toRouteMatcher,
-} from 'radix3'
+import { createRouter as createRadixRouter, exportMatcher, toRouteMatcher } from 'radix3'
 import { populateGlobal } from 'vitest/environments'
-import {
-  createCall,
-  createFetch as createLocalFetch,
-} from 'unenv/runtime/fetch/index'
+import { createCall, createFetch as createLocalFetch } from 'unenv/runtime/fetch/index'
+
 import type { NuxtBuiltinEnvironment } from './types'
 import happyDom from './env/happy-dom'
 import jsdom from './env/jsdom'
@@ -26,13 +20,11 @@ const environmentMap = {
 export default <Environment>{
   name: 'nuxt',
   async setup(global, environmentOptions) {
-    const url = joinURL(
-      'http://localhost:3000',
-      environmentOptions?.nuxtRuntimeConfig.app?.baseURL || '/'
-    )
+    const url = joinURL('http://localhost:3000', environmentOptions?.nuxtRuntimeConfig.app?.baseURL || '/')
 
-    const environment = (environmentOptions.nuxt.domEnvironment as NuxtBuiltinEnvironment) || 'happy-dom'
-    const { window: win, teardown } = await environmentMap[environment](global, defu(environmentOptions, {
+    const environmentName = (environmentOptions.nuxt.domEnvironment as NuxtBuiltinEnvironment)
+    const environment = environmentMap[environmentName] || environmentMap['happy-dom']
+    const { window: win, teardown } = await environment(global, defu(environmentOptions, {
       happyDom: { url },
       jsdom: { url },
     }))
