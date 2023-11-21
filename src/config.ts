@@ -93,6 +93,11 @@ export async function getVitestConfigFromNuxt(
           ['{test,tests}/nuxt/**.*', 'nuxt'],
         ],
         deps: {
+          optimizer: {
+            web: {
+              enabled: false,
+            },
+          },
           inline: [
             // vite-node defaults
             /\/node_modules\/(.*\/)?(nuxt|nuxt3|nuxt-nightly)\//,
