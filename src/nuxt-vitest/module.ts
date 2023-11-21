@@ -61,7 +61,6 @@ export default defineNuxtModule<NuxtVitestOptions>({
     let testFiles: File[] | null = null
 
     const updateTabs = debounce(() => {
-      // @ts-expect-error TODO: fix
       nuxt.callHook('devtools:customTabs:refresh')
     }, 100)
 
@@ -143,7 +142,6 @@ export default defineNuxtModule<NuxtVitestOptions>({
       loaded = true
     }
 
-    // @ts-expect-error TODO: ensure devtools hook is typed
     nuxt.hook('devtools:customTabs', tabs => {
       const failedCount =
         testFiles?.filter(f => f.result?.state === 'fail').length ?? 0
