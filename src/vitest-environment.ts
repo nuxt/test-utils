@@ -1,1 +1,2 @@
-export { default } from './vitest-environment-nuxt/index'
+export { default } from './environments/vitest/index'
+export type * from './environments/vitest/types'

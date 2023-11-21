@@ -6,9 +6,8 @@ export default defineBuildConfig({
     'src/index',
     'src/experimental',
     'src/config',
-    'src/experimental',
-    'src/module',
-    'src/runtime-utils',
+    'src/module.ts',
+    'src/runtime-utils.ts',
     'src/vitest-environment',
     { input: 'src/runtime/', outDir: 'dist/runtime', format: 'esm' }
   ],
