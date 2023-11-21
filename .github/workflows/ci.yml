@@ -86,6 +86,9 @@ jobs:
         run: pnpm playwright-core install chromium
 
       - name: Build module
+        run: pnpm dev:prepare
+
+      - name: Build module
         run: pnpm prepack
 
       - name: Prepare module environment
