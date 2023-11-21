@@ -6,7 +6,7 @@ settings:
 
 overrides:
   '@nuxt/test-utils': workspace:*
-  vitest-environment-nuxt: file:./stubs/vitest-environment-nuxt
+  vitest-environment-nuxt: link:./stubs/vitest-environment-nuxt
 
 importers:
 
@@ -165,8 +165,8 @@ importers:
         specifier: ^12.10.3
         version: 12.10.3
       vitest-environment-nuxt:
-        specifier: file:/Users/daniel/code/nuxt/test-utils/stubs/vitest-environment-nuxt
-        version: file:stubs/vitest-environment-nuxt
+        specifier: link:../../stubs/vitest-environment-nuxt
+        version: link:../../stubs/vitest-environment-nuxt
 
   examples/app-jest:
     dependencies:
@@ -233,8 +233,8 @@ importers:
         specifier: 0.33.0
         version: 0.33.0(happy-dom@12.10.3)(jsdom@22.1.0)
       vitest-environment-nuxt:
-        specifier: file:/Users/daniel/code/nuxt/test-utils/stubs/vitest-environment-nuxt
-        version: file:stubs/vitest-environment-nuxt
+        specifier: link:../../stubs/vitest-environment-nuxt
+        version: link:../../stubs/vitest-environment-nuxt
 
   examples/module/playground:
     dependencies:
@@ -9372,8 +9372,3 @@ packages:
       archiver-utils: 4.0.1
       compress-commons: 5.0.1
       readable-stream: 3.6.2
-
-  file:stubs/vitest-environment-nuxt:
-    resolution: {directory: stubs/vitest-environment-nuxt, type: directory}
-    name: vitest-environment-nuxt
-    dev: true
