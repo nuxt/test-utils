@@ -19,6 +19,7 @@ import jsdom from './env/jsdom'
 
 export default <Environment>{
   name: 'nuxt',
+  transformMode: 'web',
   async setup(global, environmentOptions) {
     const url = joinURL(
       'http://localhost:3000',
