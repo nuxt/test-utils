@@ -1,6 +1,6 @@
 import type { Nuxt, NuxtConfig, ViteConfig } from '@nuxt/schema'
 import type { InlineConfig as VitestConfig } from 'vitest'
-import { defineConfig, mergeConfig } from 'vite'
+import { defineConfig } from 'vite'
 import type { InlineConfig } from 'vite'
 import vuePlugin from '@vitejs/plugin-vue'
 import viteJsxPlugin from '@vitejs/plugin-vue-jsx'
@@ -81,79 +81,80 @@ export async function getVitestConfigFromNuxt(
     }
   }
 
-  return {
-    ...options.viteConfig,
-    define: {
-      ...options.viteConfig.define,
-      ['process.env.NODE_ENV']: 'process.env.NODE_ENV',
-    },
-    server: {
-      ...options.viteConfig.server,
-      middlewareMode: false,
-    },
-    plugins: [
-      ...options.viteConfig.plugins,
-      {
-        name: 'disable-auto-execute',
-        enforce: 'pre',
-        transform(code, id) {
-          if (id.match(/nuxt3?\/.*\/entry\./)) {
-            return code.replace(
-              /(?<!vueAppPromise = )entry\(\)\.catch/,
-              'Promise.resolve().catch'
-            )
-          }
-        },
+  return defu(
+    // overrides
+    {
+      define: {
+        ['process.env.NODE_ENV']: 'process.env.NODE_ENV',
       },
-    ],
-    test: {
-      ...options.viteConfig.test,
-      dir: process.cwd(),
-      environmentOptions: {
-        ...options.viteConfig.test?.environmentOptions,
-        nuxt: {
-          rootId: options.nuxt.options.app.rootId || undefined,
-          ...options.viteConfig.test?.environmentOptions?.nuxt,
-          mock: {
-            intersectionObserver: true,
-            indexedDb: false,
-            ...options.viteConfig.test?.environmentOptions?.nuxt?.mock,
+      server: { middlewareMode: false },
+      plugins: [
+        {
+          name: 'disable-auto-execute',
+          enforce: 'pre',
+          transform(code, id) {
+            if (id.match(/nuxt3?\/.*\/entry\./)) {
+              return code.replace(
+                /(?<!vueAppPromise = )entry\(\)\.catch/,
+                'Promise.resolve().catch'
+              )
+            }
           },
         },
-        nuxtRuntimeConfig: options.nuxt.options.runtimeConfig,
-        nuxtRouteRules: defu(
-          {},
-          options.nuxt.options.routeRules,
-          options.nuxt.options.nitro?.routeRules
-        ),
-      },
-      environmentMatchGlobs: [
-        ['**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', 'nuxt'],
-        ['{test,tests}/nuxt/**.*', 'nuxt'],
-        ...(options.viteConfig.test?.environmentMatchGlobs || []),
       ],
-      deps: {
-        ...options.viteConfig.test?.deps,
-        inline: [
-          // vite-node defaults
-          /\/node_modules\/(.*\/)?(nuxt|nuxt3)\//,
-          /^#/,
-          // additional deps
-          '@nuxt/test-utils',
-          'vitest-environment-nuxt',
-          ...(options.nuxt.options.build.transpile.filter(
-            r => typeof r === 'string' || r instanceof RegExp
-          ) as Array<string | RegExp>),
-          ...(typeof options.viteConfig.test?.deps?.inline !== 'boolean'
-            ? typeof options.viteConfig.test?.deps?.inline
-            : []),
+      test: {
+        dir: process.cwd(),
+        environmentOptions: {
+          nuxtRuntimeConfig: options.nuxt.options.runtimeConfig,
+          nuxtRouteRules: defu(
+            {},
+            options.nuxt.options.routeRules,
+            options.nuxt.options.nitro?.routeRules
+          ),
+        },
+        environmentMatchGlobs: [
+          ['**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', 'nuxt'],
+          ['{test,tests}/nuxt/**.*', 'nuxt'],
         ],
-      },
-    },
-  }
+        deps: {
+          inline: [
+            // vite-node defaults
+            /\/node_modules\/(.*\/)?(nuxt|nuxt3)\//,
+            /^#/,
+            // additional deps
+            '@nuxt/test-utils',
+            'vitest-environment-nuxt',
+            ...(options.nuxt.options.build.transpile.filter(
+              r => typeof r === 'string' || r instanceof RegExp
+            ) as Array<string | RegExp>),
+            ...(typeof options.viteConfig.test?.deps?.inline !== 'boolean'
+              ? typeof options.viteConfig.test?.deps?.inline
+              : []),
+          ],
+        },
+      } satisfies VitestConfig,
+    } satisfies InlineConfig,
+    // resolved vite config
+    options.viteConfig,
+    // (overrideable) defaults
+    {
+      test: {
+        environmentOptions: {
+          nuxt: {
+            rootId: options.nuxt.options.app.rootId || undefined,
+            mock: {
+              intersectionObserver: true,
+              indexedDb: false,
+            },
+          }
+        }
+      } satisfies VitestConfig
+    }
+  ) as InlineConfig & { test: VitestConfig }
 }
 
 export function defineVitestConfig(config: InlineConfig = {}) {
+  // @ts-expect-error TODO: investigate type mismatch
   return defineConfig(async () => {
     // When Nuxt module calls `startVitest`, we don't need to call `getVitestConfigFromNuxt` again
     if (process.env.__NUXT_VITEST_RESOLVED__) return config
@@ -161,9 +162,9 @@ export function defineVitestConfig(config: InlineConfig = {}) {
     const overrides = config.test?.environmentOptions?.nuxt?.overrides || {}
     overrides.rootDir = config.test?.environmentOptions?.nuxt?.rootDir
 
-    return mergeConfig(
+    return defu(
+      config,
       await getVitestConfigFromNuxt(undefined, overrides),
-      config
     )
   })
 }

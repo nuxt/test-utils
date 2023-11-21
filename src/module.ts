@@ -69,14 +69,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
     async function start() {
       const rawViteConfig = mergeConfig({}, await rawViteConfigPromise)
 
-      const viteConfig = mergeConfig(
-        await getVitestConfigFromNuxt({ nuxt, viteConfig: rawViteConfig }),
-        <ViteConfig>{
-          server: {
-            middlewareMode: false,
-          },
-        }
-      )
+      const viteConfig = await getVitestConfigFromNuxt({ nuxt, viteConfig: rawViteConfig })
 
       viteConfig.plugins = (viteConfig.plugins || []).filter((p: any) => {
         return !vitePluginBlocklist.includes(p?.name)
