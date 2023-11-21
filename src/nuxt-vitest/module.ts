@@ -33,7 +33,9 @@ export default defineNuxtModule<NuxtVitestOptions>({
     logToConsole: false,
   },
   async setup(options, nuxt) {
-    setupImportMocking()
+    if (nuxt.options.test || nuxt.options.dev) {
+      setupImportMocking()
+    }
 
     if (!nuxt.options.dev) return
 
