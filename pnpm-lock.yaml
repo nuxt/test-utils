@@ -72,6 +72,9 @@ importers:
       unenv:
         specifier: ^1.7.4
         version: 1.7.4
+      vitest-environment-nuxt:
+        specifier: workspace:*
+        version: link:stubs/vitest-environment-nuxt
       vue:
         specifier: ^3.3.4
         version: 3.3.8(typescript@5.2.2)
@@ -167,9 +170,6 @@ importers:
       happy-dom:
         specifier: ^12.10.3
         version: 12.10.3
-      vitest-environment-nuxt:
-        specifier: workspace:*
-        version: link:../../stubs/vitest-environment-nuxt
 
   examples/app-jest:
     dependencies:
