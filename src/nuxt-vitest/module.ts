@@ -33,9 +33,11 @@ export default defineNuxtModule<NuxtVitestOptions>({
     logToConsole: false,
   },
   async setup(options, nuxt) {
-    if (!nuxt.options.dev) return
+    if (nuxt.options.test || nuxt.options.dev) {
+      setupImportMocking()
+    }
 
-    setupImportMocking()
+    if (!nuxt.options.dev) return
 
     if (nuxt.options.test && nuxt.options.app.rootId === '__nuxt') {
       nuxt.options.app.rootId = 'nuxt-test'

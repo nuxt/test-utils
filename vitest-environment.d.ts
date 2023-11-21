@@ -1,1 +1,1 @@
-export * from './dist/vitest-environment'
+export { default } from './dist/vitest-environment'

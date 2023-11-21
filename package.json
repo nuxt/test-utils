@@ -85,7 +85,7 @@
   },
   "peerDependencies": {
     "@jest/globals": "^29.5.0",
-    "@testing-library/vue": "8.0.1",
+    "@testing-library/vue": "^7.0.0 || ^8.0.1",
     "@vitejs/plugin-vue": "*",
     "@vitejs/plugin-vue-jsx": "*",
     "@vue/test-utils": "^2.4.2",
@@ -123,6 +123,7 @@
   },
   "resolutions": {
     "@nuxt/test-utils": "workspace:*",
+    "happy-dom": "*",
     "vitest-environment-nuxt": "workspace:*"
   },
   "engines": {
