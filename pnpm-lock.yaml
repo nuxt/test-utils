@@ -86,8 +86,8 @@ importers:
         specifier: 0.2.0
         version: 0.2.0(eslint@8.54.0)
       '@nuxt/module-builder':
-        specifier: ^0.5.2
-        version: 0.5.3(@nuxt/kit@3.8.2)(nuxi@3.10.0)(typescript@5.2.2)
+        specifier: 0.5.2
+        version: 0.5.2(@nuxt/kit@3.8.2)(nuxi@3.10.0)(typescript@5.2.2)
       '@testing-library/vue':
         specifier: ^7.0.0
         version: 7.0.0(@vue/compiler-sfc@3.3.8)(vue@3.3.8)
@@ -131,16 +131,16 @@ importers:
         specifier: 1.40.0
         version: 1.40.0
       rollup:
-        specifier: ^3.29.4
+        specifier: 3.29.4
         version: 3.29.4
       unbuild:
         specifier: latest
         version: 2.0.0(typescript@5.2.2)
       unimport:
-        specifier: ^3.5.0
+        specifier: 3.5.0
         version: 3.5.0(rollup@3.29.4)
       vite:
-        specifier: ^4.5.0
+        specifier: 4.5.0
         version: 4.5.0(@types/node@20.8.10)
       vitest:
         specifier: 0.33.0
@@ -235,9 +235,6 @@ importers:
       vitest:
         specifier: 0.33.0
         version: 0.33.0(happy-dom@12.10.3)(jsdom@22.1.0)
-      vitest-environment-nuxt:
-        specifier: workspace:*
-        version: link:../../stubs/vitest-environment-nuxt
 
   examples/module/playground:
     dependencies:
@@ -1659,6 +1656,26 @@ packages:
     transitivePeerDependencies:
       - rollup
       - supports-color
+
+  /@nuxt/module-builder@0.5.2(@nuxt/kit@3.8.2)(nuxi@3.10.0)(typescript@5.2.2):
+    resolution: {integrity: sha512-MsnPTsa94VNrzV76RKCDS0C96uaKw9s3EbTtabI/BkAXOD4Ud1w6m0O20XUdI9tmRtE8Kbgyr4XUhD/YB3eeAw==}
+    hasBin: true
+    peerDependencies:
+      '@nuxt/kit': ^3.7.4
+      nuxi: ^3.9.0
+    dependencies:
+      '@nuxt/kit': 3.8.2(rollup@3.29.4)
+      citty: 0.1.5
+      consola: 3.2.3
+      mlly: 1.4.2
+      nuxi: 3.10.0
+      pathe: 1.1.1
+      unbuild: 2.0.0(typescript@5.2.2)
+    transitivePeerDependencies:
+      - sass
+      - supports-color
+      - typescript
+    dev: true
 
   /@nuxt/module-builder@0.5.3(@nuxt/kit@3.8.2)(nuxi@3.10.0)(typescript@5.2.2):
     resolution: {integrity: sha512-iKQHuZb8/IXzTW2CqrIlsmzBuSaM9vISTGM0+KxbBPSG5JCy5MtWbmxPIw1jgac1g/B2ZkBhOCXOxGTecCHTRQ==}
