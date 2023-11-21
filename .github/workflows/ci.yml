@@ -88,11 +88,11 @@ jobs:
       - name: Prepare build environment
         run: pnpm dev:prepare
 
-      - name: Test types
-        run: pnpm test:types
-
       - name: Build module
         run: pnpm prepack
+
+      - name: Test types
+        run: pnpm test:types
 
       - name: Test examples
         run: pnpm test:examples
