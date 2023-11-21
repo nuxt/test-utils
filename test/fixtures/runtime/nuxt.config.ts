@@ -1,6 +1,6 @@
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
-  modules: ['@nuxt/test-utils/module', '@nuxt/devtools', '~/modules/custom'],
+  modules: ['@nuxt/test-utils/module', '~/modules/custom'],
   vitest: {
     startOnBoot: true,
     logToConsole: true,
