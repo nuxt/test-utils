@@ -1,5 +1,5 @@
 import { pathToFileURL } from 'node:url'
-import { defineNuxtModule, installModule, logger, resolvePath } from '@nuxt/kit'
+import { defineNuxtModule, logger, resolvePath } from '@nuxt/kit'
 import type { File, Reporter, Vitest, UserConfig as VitestConfig } from 'vitest'
 import { mergeConfig } from 'vite'
 import type { InlineConfig as ViteConfig } from 'vite'
@@ -8,6 +8,8 @@ import { getPort } from 'get-port-please'
 import { h } from 'vue'
 import { debounce } from 'perfect-debounce'
 import { isCI } from 'std-env'
+
+import { setupImportMocking } from './mock-module'
 
 export interface NuxtVitestOptions {
   startOnBoot?: boolean
@@ -23,7 +25,7 @@ const vitePluginBlocklist = ['vite-plugin-vue-inspector', 'vite-plugin-inspect']
 
 export default defineNuxtModule<NuxtVitestOptions>({
   meta: {
-    name: 'nuxt-vitest',
+    name: '@nuxt/test-utils',
     configKey: 'vitest',
   },
   defaults: {
@@ -31,9 +33,9 @@ export default defineNuxtModule<NuxtVitestOptions>({
     logToConsole: false,
   },
   async setup(options, nuxt) {
-    await installModule('vitest-environment-nuxt/module')
-
     if (!nuxt.options.dev) return
+
+    setupImportMocking()
 
     if (nuxt.options.test && nuxt.options.app.rootId === '__nuxt') {
       nuxt.options.app.rootId = 'nuxt-test'
@@ -140,7 +142,6 @@ export default defineNuxtModule<NuxtVitestOptions>({
       loaded = true
     }
 
-    // @ts-expect-error TODO: ensure devtools hook is typed
     nuxt.hook('devtools:customTabs', tabs => {
       const failedCount =
         testFiles?.filter(f => f.result?.state === 'fail').length ?? 0

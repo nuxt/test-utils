@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { mountSuspended } from 'vitest-environment-nuxt/utils'
+import { mountSuspended } from '@nuxt/test-utils/runtime-utils'
 import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
 import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
 import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'

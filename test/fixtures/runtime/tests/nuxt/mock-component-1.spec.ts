@@ -1,13 +1,20 @@
 import { expect, it } from 'vitest'
-import { mockComponent, mountSuspended } from 'vitest-environment-nuxt/utils'
+import { mockComponent, mountSuspended } from '@nuxt/test-utils/runtime-utils'
 import App from '~/app.vue'
 
-mockComponent('SomeComponent', () => import('./mocks/MockComponent.vue'))
+mockComponent('SomeComponent', async () => {
+  const { h } = await import('vue')
+  return {
+    setup() {
+      return () => h('div', null, 'Mocked')
+    },
+  }
+})
 
 it('should mock', async () => {
   const component = await mountSuspended(App)
   expect(component.html()).toMatchInlineSnapshot(`
-    "<div> Mocked 1 * 2 = 2</div>
+    "<div>Mocked</div>
     <div> I am a global component </div>
     <div>Index page</div>
     <a href=\\"/test\\"> Test link </a>"

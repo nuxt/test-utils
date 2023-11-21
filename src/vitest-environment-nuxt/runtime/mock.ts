@@ -23,7 +23,7 @@ export type OptionalFunction<T> = T | (() => Awaitable<T>)
  * @param options - factory function that returns the mocked data or an object containing both the `handler` and the `method` properties.
  * @example
  * ```ts
- * import { registerEndpoint } from 'nuxt-vitest/utils'
+ * import { registerEndpoint } from '@nuxt/test-utils/runtime-utils'
  *
  * registerEndpoint("/test/", () => {
  *  test: "test-field"
@@ -69,7 +69,7 @@ export function registerEndpoint(
  * @param _factory - factory function that returns mocked import.
  * @example
  * ```ts
- * import { mockNuxtImport } from 'nuxt-vitest/utils'
+ * import { mockNuxtImport } from '@nuxt/test-utils/runtime-utils'
  *
  * mockNuxtImport('useStorage', () => {
  *  return () => {
@@ -94,7 +94,7 @@ export function mockNuxtImport<T = any>(
  * @param setup - factory function that returns the mocked component.
  * @example
  * ```ts
- * import { mockComponent } from 'nuxt-vitest/utils'
+ * import { mockComponent } from '@nuxt/test-utils/runtime-utils'
  *
  * mockComponent('MyComponent', {
  *  props: {

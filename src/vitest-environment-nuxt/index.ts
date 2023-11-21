@@ -149,7 +149,6 @@ export default <Environment>{
     registry.add(`${manifestOutputPath}/meta/test.json`)
     registry.add(`${manifestOutputPath}/meta/dev.json`)
 
-    // @ts-expect-error TODO: ensure alias is known
     await import('#app/entry').then(r => r.default())
 
     return {

@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { mountSuspended } from 'vitest-environment-nuxt/utils'
+import { mountSuspended } from '@nuxt/test-utils/runtime-utils'
 import MockComponent from './mocks/MockComponent.vue'
 
 it('should expose setup state', async () => {
