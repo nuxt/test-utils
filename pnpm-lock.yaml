@@ -92,8 +92,8 @@ importers:
         specifier: 0.5.4
         version: 0.5.4(@nuxt/kit@3.8.2)(nuxi@3.10.0)(typescript@5.2.2)
       '@testing-library/vue':
-        specifier: 7.0.0
-        version: 7.0.0(@vue/compiler-sfc@3.3.8)(vue@3.3.8)
+        specifier: 8.0.1
+        version: 8.0.1(@vue/compiler-sfc@3.3.8)(vue@3.3.8)
       '@types/estree':
         specifier: 1.0.5
         version: 1.0.5
@@ -2193,6 +2193,7 @@ packages:
     dependencies:
       is-glob: 4.0.3
       micromatch: 4.0.5
+      napi-wasm: 1.1.0
     bundledDependencies:
       - napi-wasm
 
@@ -2621,22 +2622,6 @@ packages:
       dom-accessibility-api: 0.5.16
       lz-string: 1.5.0
       pretty-format: 27.5.1
-    dev: true
-
-  /@testing-library/vue@7.0.0(@vue/compiler-sfc@3.3.8)(vue@3.3.8):
-    resolution: {integrity: sha512-JU/q93HGo2qdm1dCgWymkeQlfpC0/0/DBZ2nAHgEAsVZxX11xVIxT7gbXdI7HACQpUbsUWt1zABGU075Fzt9XQ==}
-    engines: {node: '>=14'}
-    peerDependencies:
-      '@vue/compiler-sfc': '>= 3'
-      vue: '>= 3'
-    dependencies:
-      '@babel/runtime': 7.23.2
-      '@testing-library/dom': 9.3.3
-      '@vue/compiler-sfc': 3.3.8
-      '@vue/test-utils': 2.4.2(vue@3.3.8)
-      vue: 3.3.8(typescript@5.2.2)
-    transitivePeerDependencies:
-      - '@vue/server-renderer'
     dev: true
 
   /@testing-library/vue@8.0.1(@vue/compiler-sfc@3.3.8)(vue@3.3.8):
@@ -6897,6 +6882,9 @@ packages:
     resolution: {integrity: sha512-7ZtY5KTCNheRGfEFxnedV5zFiORN1+Y1N6zvPTnHQd8ENUvfaDBeuJDZb2bN/oXwXxu3qkTXDzy57W5vAmDTBw==}
     engines: {node: ^14 || ^16 || >=18}
     hasBin: true
+
+  /napi-wasm@1.1.0:
+    resolution: {integrity: sha512-lHwIAJbmLSjF9VDRm9GoVOy9AGp3aIvkjv+Kvz9h16QR3uSVYH78PNQUnT2U4X53mhlnV2M7wrhibQ3GHicDmg==}
 
   /natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
