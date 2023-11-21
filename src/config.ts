@@ -84,24 +84,6 @@ export async function getVitestConfigFromNuxt(
   return defu(
     // overrides
     {
-      define: {
-        ['process.env.NODE_ENV']: 'process.env.NODE_ENV',
-      },
-      server: { middlewareMode: false },
-      plugins: [
-        {
-          name: 'disable-auto-execute',
-          enforce: 'pre',
-          transform(code, id) {
-            if (id.match(/nuxt3?\/.*\/entry\./)) {
-              return code.replace(
-                /(?<!vueAppPromise = )entry\(\)\.catch/,
-                'Promise.resolve().catch'
-              )
-            }
-          },
-        },
-      ],
       test: {
         dir: process.cwd(),
         environmentOptions: {
@@ -127,12 +109,29 @@ export async function getVitestConfigFromNuxt(
             ...(options.nuxt.options.build.transpile.filter(
               r => typeof r === 'string' || r instanceof RegExp
             ) as Array<string | RegExp>),
-            ...(typeof options.viteConfig.test?.deps?.inline !== 'boolean'
-              ? typeof options.viteConfig.test?.deps?.inline
-              : []),
           ],
         },
-      } satisfies VitestConfig,
+      } satisfies VitestConfig
+    },
+    {
+      define: {
+        ['process.env.NODE_ENV']: 'process.env.NODE_ENV',
+      },
+      server: { middlewareMode: false },
+      plugins: [
+        {
+          name: 'disable-auto-execute',
+          enforce: 'pre',
+          transform(code, id) {
+            if (id.match(/nuxt3?\/.*\/entry\./)) {
+              return code.replace(
+                /(?<!vueAppPromise = )entry\(\)\.catch/,
+                'Promise.resolve().catch'
+              )
+            }
+          },
+        },
+      ],
     } satisfies InlineConfig,
     // resolved vite config
     options.viteConfig,
@@ -153,7 +152,7 @@ export async function getVitestConfigFromNuxt(
   ) as InlineConfig & { test: VitestConfig }
 }
 
-export function defineVitestConfig(config: InlineConfig = {}) {
+export function defineVitestConfig(config: InlineConfig & { test?: VitestConfig } = {}) {
   // @ts-expect-error TODO: investigate type mismatch
   return defineConfig(async () => {
     // When Nuxt module calls `startVitest`, we don't need to call `getVitestConfigFromNuxt` again
