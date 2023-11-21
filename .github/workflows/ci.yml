@@ -45,7 +45,7 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-  test-examples:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -90,6 +90,9 @@ jobs:
 
       - name: Build module
         run: pnpm prepack
+
+      - name: Test types
+        run: pnpm test:types
 
       - name: Test examples
         run: pnpm test:examples
