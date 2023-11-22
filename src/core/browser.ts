@@ -7,9 +7,7 @@ export async function createBrowser () {
 
   let playwright: typeof import('playwright-core')
   try {
-    // Workaround for https://github.com/nuxt/nuxt/issues/13441
-    // TODO: Remove when upstream issue resolved
-    playwright = await import(String('playwright-core'))
+    playwright = await import(/* vite-ignore */ 'playwright-core')
   } catch {
     /* istanbul ignore next */
     throw new Error(`
