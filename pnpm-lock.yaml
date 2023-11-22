@@ -70,8 +70,8 @@ importers:
         specifier: ^1.3.2
         version: 1.3.2
       unenv:
-        specifier: ^1.7.4
-        version: 1.7.4
+        specifier: ^1.8.0
+        version: 1.8.0
       vitest-environment-nuxt:
         specifier: workspace:*
         version: link:stubs/vitest-environment-nuxt
@@ -143,8 +143,8 @@ importers:
         specifier: latest
         version: 2.0.0(typescript@5.2.2)
       unimport:
-        specifier: 3.5.0
-        version: 3.5.0(rollup@3.29.4)
+        specifier: 3.6.0
+        version: 3.6.0(rollup@3.29.4)
       vite:
         specifier: 4.5.0
         version: 4.5.0(@types/node@20.9.2)
@@ -1732,7 +1732,7 @@ packages:
       semver: 7.5.4
       simple-git: 3.21.0
       sirv: 2.0.3
-      unimport: 3.5.0(rollup@3.29.4)
+      unimport: 3.6.0(rollup@3.29.4)
       vite: 4.5.0(@types/node@20.9.2)
       vite-plugin-inspect: 0.7.42(@nuxt/kit@3.8.2)(rollup@3.29.4)(vite@4.5.0)
       vite-plugin-vue-inspector: 4.0.0(vite@4.5.0)
@@ -1800,7 +1800,7 @@ packages:
       semver: 7.5.4
       simple-git: 3.21.0
       sirv: 2.0.3
-      unimport: 3.5.0(rollup@3.29.4)
+      unimport: 3.6.0(rollup@3.29.4)
       vite: 4.5.0(@types/node@20.9.2)
       vite-plugin-inspect: 0.7.42(@nuxt/kit@3.8.2)(rollup@3.29.4)(vite@4.5.0)
       vite-plugin-vue-inspector: 4.0.0(vite@4.5.0)
@@ -1862,7 +1862,7 @@ packages:
       semver: 7.5.4
       ufo: 1.3.2
       unctx: 2.3.1
-      unimport: 3.5.0(rollup@3.29.4)
+      unimport: 3.6.0(rollup@3.29.4)
       untyped: 1.4.0
     transitivePeerDependencies:
       - rollup
@@ -5350,7 +5350,7 @@ packages:
       radix3: 1.1.0
       ufo: 1.3.2
       uncrypto: 0.1.3
-      unenv: 1.7.4
+      unenv: 1.8.0
 
   /happy-dom@12.10.3:
     resolution: {integrity: sha512-JzUXOh0wdNGY54oKng5hliuBkq/+aT1V3YpTM+lrN/GoLQTANZsMaIvmHiHe612rauHvPJnDZkZ+5GZR++1Abg==}
@@ -6955,8 +6955,8 @@ packages:
       ufo: 1.3.2
       uncrypto: 0.1.3
       unctx: 2.3.1
-      unenv: 1.7.4
-      unimport: 3.5.0(rollup@4.5.0)
+      unenv: 1.8.0
+      unimport: 3.6.0(rollup@4.5.0)
       unstorage: 1.10.1(idb-keyval@6.2.1)
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -9259,6 +9259,15 @@ packages:
       node-fetch-native: 1.4.1
       pathe: 1.1.1
 
+  /unenv@1.8.0:
+    resolution: {integrity: sha512-uIGbdCWZfhRRmyKj1UioCepQ0jpq638j/Cf0xFTn4zD1nGJ2lSdzYHLzfdXN791oo/0juUiSWW1fBklXMTsuqg==}
+    dependencies:
+      consola: 3.2.3
+      defu: 6.1.3
+      mime: 3.0.0
+      node-fetch-native: 1.4.1
+      pathe: 1.1.1
+
   /unhead@1.8.4:
     resolution: {integrity: sha512-r2SFK18KzjKgSaOBawjQXXAz4odqKjy+fYtw7g+nwlc3FU1JNQqScVeTic0gEK69IJ/cRsqL6bPqF1ILkyVmTQ==}
     dependencies:
@@ -9288,8 +9297,25 @@ packages:
     transitivePeerDependencies:
       - rollup
 
-  /unimport@3.5.0(rollup@4.5.0):
-    resolution: {integrity: sha512-0Ei1iTeSYxs7oxxUf79/KaBc2dPjZxe7qdVpw7yIz5YcdTZjmBYO6ToLDW+fX9QOHiueZ3xtwb5Z/wqaSfXx6A==}
+  /unimport@3.6.0(rollup@3.29.4):
+    resolution: {integrity: sha512-yXW3Z30yk1vX8fxO8uHlq9wY9K+L56LHp4Hlbv8i7tW+NENSOv8AaFJUPtOQchxlT7/JBAzCtkrBtcVjKIr1VQ==}
+    dependencies:
+      '@rollup/pluginutils': 5.0.5(rollup@3.29.4)
+      escape-string-regexp: 5.0.0
+      fast-glob: 3.3.2
+      local-pkg: 0.5.0
+      magic-string: 0.30.5
+      mlly: 1.4.2
+      pathe: 1.1.1
+      pkg-types: 1.0.3
+      scule: 1.1.0
+      strip-literal: 1.3.0
+      unplugin: 1.5.1
+    transitivePeerDependencies:
+      - rollup
+
+  /unimport@3.6.0(rollup@4.5.0):
+    resolution: {integrity: sha512-yXW3Z30yk1vX8fxO8uHlq9wY9K+L56LHp4Hlbv8i7tW+NENSOv8AaFJUPtOQchxlT7/JBAzCtkrBtcVjKIr1VQ==}
     dependencies:
       '@rollup/pluginutils': 5.0.5(rollup@4.5.0)
       escape-string-regexp: 5.0.0
