@@ -65,7 +65,10 @@ export async function getVitestConfigFromNuxt(
   overrides?: NuxtConfig
 ): Promise<InlineConfig & { test: VitestConfig }> {
   const { rootDir = process.cwd(), ..._overrides } = overrides || {}
-  if (!options) options = await startNuxtAndGetViteConfig(rootDir, _overrides)
+  if (!options) options = await startNuxtAndGetViteConfig(rootDir, {
+    test: true,
+    ..._overrides
+  })
   options.viteConfig.plugins = options.viteConfig.plugins || []
   options.viteConfig.plugins = options.viteConfig.plugins.filter(
     p => (p as any)?.name !== 'nuxt:import-protection'
@@ -81,9 +84,12 @@ export async function getVitestConfigFromNuxt(
     }
   }
 
-  return defu(
+  const resolvedConfig = defu(
     // overrides
     {
+      define: {
+        ['process.env.NODE_ENV']: 'process.env.NODE_ENV',
+      },
       test: {
         dir: process.cwd(),
         environmentOptions: {
@@ -114,9 +120,6 @@ export async function getVitestConfigFromNuxt(
       } satisfies VitestConfig
     },
     {
-      define: {
-        ['process.env.NODE_ENV']: 'process.env.NODE_ENV',
-      },
       server: { middlewareMode: false },
       plugins: [
         {
@@ -150,6 +153,10 @@ export async function getVitestConfigFromNuxt(
       } satisfies VitestConfig
     }
   ) as InlineConfig & { test: VitestConfig }
+
+  delete resolvedConfig.define!['process.browser']
+
+  return resolvedConfig
 }
 
 export function defineVitestConfig(config: InlineConfig & { test?: VitestConfig } = {}) {
