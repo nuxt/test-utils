@@ -154,6 +154,8 @@ export async function getVitestConfigFromNuxt(
     }
   ) as InlineConfig & { test: VitestConfig }
 
+  // TODO: fix this by separating nuxt/node vitest configs
+  // typescript currently checks this to determine if it can access the filesystem: https://github.com/microsoft/TypeScript/blob/d4fbc9b57d9aa7d02faac9b1e9bb7b37c687f6e9/src/compiler/core.ts#L2738-L2749
   delete resolvedConfig.define!['process.browser']
 
   return resolvedConfig
