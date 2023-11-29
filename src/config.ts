@@ -107,7 +107,7 @@ export async function getVitestConfigFromNuxt(
         deps: {
           inline: [
             // vite-node defaults
-            /\/node_modules\/(.*\/)?(nuxt|nuxt3)\//,
+            /\/node_modules\/(.*\/)?(nuxt|nuxt3|nuxt-nightly)\//,
             /^#/,
             // additional deps
             '@nuxt/test-utils',
@@ -126,7 +126,7 @@ export async function getVitestConfigFromNuxt(
           name: 'disable-auto-execute',
           enforce: 'pre',
           transform(code, id) {
-            if (id.match(/nuxt3?\/.*\/entry\./)) {
+            if (id.match(/nuxt(3|-nightly)?\/.*\/entry\./)) {
               return code.replace(
                 /(?<!vueAppPromise = )entry\(\)\.catch/,
                 'Promise.resolve().catch'
