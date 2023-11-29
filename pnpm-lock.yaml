@@ -40,7 +40,7 @@ importers:
         specifier: ^9.10.9 || ^10.0.0 || ^11.0.0 || ^12.0.0
         version: 12.10.3
       jsdom:
-        specifier: ^22.0.0
+        specifier: ^22.0.0 || ^23.0.0
         version: 22.1.0
       local-pkg:
         specifier: ^0.5.0
@@ -4518,6 +4518,7 @@ packages:
   /domexception@4.0.0:
     resolution: {integrity: sha512-A2is4PLG+eeSfoTMA95/s4pvAoSo2mKtiM5jlHkAVewmiO8ISFTFKZjH7UAM1Atli/OT/7JHOrJRJiMKUZKYBw==}
     engines: {node: '>=12'}
+    deprecated: Use your platform's native DOMException instead
     dependencies:
       webidl-conversions: 7.0.0
 
