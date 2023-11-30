@@ -1,7 +1,7 @@
 import type { Import } from 'unimport'
 import { walk } from 'estree-walker'
 import type { CallExpression, Expression, ExpressionStatement, Identifier, ImportDeclaration, ImportSpecifier, Literal, Node } from 'estree'
-import type { AcornNode, TransformPluginContext, TransformResult } from 'rollup'
+import type { AstNode, TransformPluginContext, TransformResult } from 'rollup'
 import MagicString from 'magic-string'
 import type { Component } from '@nuxt/schema'
 import type { Plugin } from 'vite'
@@ -45,12 +45,11 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
     if (!HELPERS_NAME.some(n => code.includes(n))) return
     if (id.includes('/node_modules/')) return
 
-    let ast: AcornNode
+    let ast: AstNode
     try {
       ast = this.parse(code, {
-        sourceType: 'module',
-        ecmaVersion: 'latest',
-        ranges: true,
+        // @ts-expect-error compatibility with rollup v3
+        sourceType: 'module', ecmaVersion: 'latest', ranges: true,
       })
     } catch (e) {
       return
