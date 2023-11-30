@@ -17,7 +17,7 @@ If `needs reproduction` labeled issues don't receive any substantial activity (e
 
 We have a couple of templates for starting with a minimal reproduction:
 
-👉 https://stackblitz.com/github/nuxt/test-utils/tree/main/examples/app
+👉 https://stackblitz.com/github/nuxt/test-utils/tree/main/examples/app-vitest
 👉 https://stackblitz.com/github/nuxt/test-utils/tree/main/examples/app-jest
 👉 https://stackblitz.com/github/nuxt/test-utils/tree/main/examples/module
 
