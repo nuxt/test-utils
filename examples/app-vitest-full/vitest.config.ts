@@ -15,7 +15,6 @@ export default defineVitestConfig({
 
         mock: {
           indexedDb: true,
-          intersectionObserver: true,
         },
       },
     },
