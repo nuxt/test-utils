@@ -1,7 +1,7 @@
 import type { Import } from 'unimport'
 import { walk } from 'estree-walker'
-import type { CallExpression } from 'estree'
-import type { AcornNode } from 'rollup'
+import type { CallExpression, Expression, ExpressionStatement, Identifier, ImportDeclaration, ImportSpecifier, Literal, Node } from 'estree'
+import type { AcornNode, TransformPluginContext, TransformResult } from 'rollup'
 import MagicString from 'magic-string'
 import type { Component } from '@nuxt/schema'
 import type { Plugin } from 'vite'
@@ -36,10 +36,244 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
   // path of the first vitest setup file to be ran
   let resolvedFirstSetupFile: null | string = null
 
+  function transform (this: TransformPluginContext, code: string, id: string): TransformResult | Promise<TransformResult> {
+    const isFirstSetupFile = normalize(id) === resolvedFirstSetupFile
+    const shouldPrependMockHoist = resolvedFirstSetupFile
+      ? isFirstSetupFile
+      : true
+
+    if (!HELPERS_NAME.some(n => code.includes(n))) return
+    if (id.includes('/node_modules/')) return
+
+    let ast: AcornNode
+    try {
+      ast = this.parse(code, {
+        sourceType: 'module',
+        ecmaVersion: 'latest',
+        ranges: true,
+      })
+    } catch (e) {
+      return
+    }
+
+    let insertionPoint = 0
+    let hasViImport = false
+
+    const s = new MagicString(code)
+    const mocksImport: MockImportInfo[] = []
+    const mocksComponent: MockComponentInfo[] = []
+    const importPathsList: Set<string> = new Set()
+    
+    walk(ast as any, {
+      enter: (node, parent) => {
+        // find existing vi import
+        if (isImportDeclaration(node)) {
+          if (node.source.value === 'vitest' && !hasViImport) {
+            const viImport = node.specifiers.find(
+                i =>
+                  isImportSpecifier(i) && i.imported.name === 'vi'
+              )
+            if (viImport) {
+              insertionPoint = endOf(node)
+              hasViImport = true
+            }
+            return
+          }
+        }
+
+        if (!isCallExpression(node)) return
+        // mockNuxtImport
+        if (
+          isIdentifier(node.callee) &&
+          node.callee.name === HELPER_MOCK_IMPORT
+        ) {
+          if (node.arguments.length !== 2) {
+            return this.error(
+              new Error(
+                `${HELPER_MOCK_IMPORT}() should have exactly 2 arguments`
+              ),
+              startOf(node)
+            )
+          }
+          const importName = node.arguments[0]
+          if (!isLiteral(importName) || typeof importName.value !== 'string') {
+            return this.error(
+              new Error(
+                `The first argument of ${HELPER_MOCK_IMPORT}() must be a string literal`
+              ),
+              startOf(importName)
+            )
+          }
+          const name = importName.value
+          const importItem = ctx.imports.find(_ => name === (_.as || _.name))
+          if (!importItem) {
+            console.log({ imports: ctx.imports })
+            return this.error(`Cannot find import "${name}" to mock`)
+          }
+
+          s.overwrite(
+            isExpressionStatement(parent)
+              ? startOf(parent)
+              : startOf(node.arguments[0]),
+            isExpressionStatement(parent)
+              ? endOf(parent)
+              : endOf(node.arguments[1]),
+            ''
+          )
+          mocksImport.push({
+            name,
+            import: importItem,
+            factory: code.slice(
+              startOf(node.arguments[1]),
+              endOf(node.arguments[1])
+            ),
+          })
+        }
+        // mockComponent
+        if (
+          isIdentifier(node.callee) &&
+          node.callee.name === HELPER_MOCK_COMPONENT
+        ) {
+          if (node.arguments.length !== 2) {
+            return this.error(
+              new Error(
+                `${HELPER_MOCK_COMPONENT}() should have exactly 2 arguments`
+              ),
+              startOf(node)
+            )
+          }
+          const componentName = node.arguments[0]
+          if (!isLiteral(componentName) || typeof componentName.value !== 'string') {
+            return this.error(
+              new Error(
+                `The first argument of ${HELPER_MOCK_COMPONENT}() must be a string literal`
+              ),
+              startOf(componentName)
+            )
+          }
+          const pathOrName = componentName.value
+          const component = ctx.components.find(
+            _ => _.pascalName === pathOrName || _.kebabName === pathOrName
+          )
+          const path = component?.filePath || pathOrName
+
+          s.overwrite(
+            isExpressionStatement(parent)
+              ? startOf(parent)
+              : startOf(node.arguments[1]),
+            isExpressionStatement(parent)
+              ? endOf(parent)
+              : endOf(node.arguments[1]),
+            ''
+          )
+          mocksComponent.push({
+            path: path,
+            factory: code.slice(
+              startOf(node.arguments[1]),
+              endOf(node.arguments[1])
+            ),
+          })
+        }
+      },
+    })
+
+    if (mocksImport.length === 0 && mocksComponent.length === 0) return
+
+    const mockLines = []
+
+    if (mocksImport.length) {
+      const mockImportMap = new Map<string, MockImportInfo[]>()
+      for (const mock of mocksImport) {
+        if (!mockImportMap.has(mock.import.from)) {
+          mockImportMap.set(mock.import.from, [])
+        }
+        mockImportMap.get(mock.import.from)!.push(mock)
+      }
+      mockLines.push(
+        ...Array.from(mockImportMap.entries()).flatMap(
+          ([from, mocks]) => {
+            importPathsList.add(from)
+            const lines = [
+              `vi.mock(${JSON.stringify(
+                from
+              )}, async (importOriginal) => {`,
+              `  const mocks = global.${HELPER_MOCK_HOIST}`,
+              `  if (!mocks[${JSON.stringify(
+                from
+              )}]) { mocks[${JSON.stringify(
+                from
+              )}] = { ...await importOriginal(${JSON.stringify(
+                from
+              )}) } }`,
+            ]
+            for (const mock of mocks) {
+              if (mock.import.name === 'default') {
+                lines.push(
+                  `  mocks[${JSON.stringify(from)}]["default"] = await (${
+                    mock.factory
+                  })();`
+                )
+              } else {
+                lines.push(
+                  `  mocks[${JSON.stringify(from)}][${JSON.stringify(
+                    mock.name
+                  )}] = await (${mock.factory})();`
+                )
+              }
+            }
+            lines.push(`  return mocks[${JSON.stringify(from)}] `)
+            lines.push(`});`)
+            return lines
+          }
+        )
+      )
+    }
+
+    if (mocksComponent.length) {
+      mockLines.push(
+        ...mocksComponent.flatMap(mock => {
+          return [
+            `vi.mock(${JSON.stringify(mock.path)}, async () => {`,
+            `  const factory = (${mock.factory});`,
+            `  const result = typeof factory === 'function' ? await factory() : await factory`,
+            `  return 'default' in result ? result : { default: result }`,
+            '});',
+          ]
+        })
+      )
+    }
+
+    if (!mockLines.length) return
+
+    s.prepend(`vi.hoisted(() => { 
+        if(!global.${HELPER_MOCK_HOIST}){
+          vi.stubGlobal(${JSON.stringify(HELPER_MOCK_HOIST)}, {})
+        }
+      });\n`)
+
+    if (!hasViImport) s.prepend(`import {vi} from "vitest";\n`)
+
+    s.appendLeft(insertionPoint, mockLines.join('\n') + '\n')
+
+    // do an import to trick vite to keep it
+    // if not, the module won't be mocked
+    if (shouldPrependMockHoist) {
+      importPathsList.forEach(p => {
+        s.append(`\n import ${JSON.stringify(p)};`)
+      })
+    }
+
+    return {
+      code: s.toString(),
+      map: s.generateMap(),
+    }
+  }
+
   return {
     name: PLUGIN_NAME,
     enforce: 'post',
     vite: {
+      transform,
       // Place Vitest's mock plugin after all Nuxt plugins
       configResolved(config) {
         const firstSetupFile = Array.isArray(config.test?.setupFiles)
@@ -66,241 +300,9 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
           }
         }
       },
-      transform: {
-        handler(code, id) {
-          const isFirstSetupFile = normalize(id) === resolvedFirstSetupFile
-          const shouldPrependMockHoist = resolvedFirstSetupFile
-            ? isFirstSetupFile
-            : true
-  
-          if (!HELPERS_NAME.some(n => code.includes(n))) return
-          if (id.includes('/node_modules/')) return
-  
-          let ast: AcornNode
-          try {
-            ast = this.parse(code, {
-              sourceType: 'module',
-              ecmaVersion: 'latest',
-              ranges: true,
-            })
-          } catch (e) {
-            return
-          }
-  
-          let insertionPoint = 0
-          let hasViImport = false
-  
-          const s = new MagicString(code)
-          const mocksImport: MockImportInfo[] = []
-          const mocksComponent: MockComponentInfo[] = []
-          const importPathsList: Set<string> = new Set()
-  
-          walk(ast as any, {
-            enter: (node, parent) => {
-              // find existing vi import
-              if (node.type === 'ImportDeclaration') {
-                if (node.source.value === 'vitest' && !hasViImport) {
-                  if (
-                    node.specifiers.find(
-                      i =>
-                        i.type === 'ImportSpecifier' && i.imported.name === 'vi'
-                    )
-                  ) {
-                    insertionPoint = node.range![1]
-                    hasViImport = true
-                  }
-                  return
-                }
-              }
-  
-              if (node.type !== 'CallExpression') return
-              const call = node as CallExpression
-              // mockNuxtImport
-              if (
-                call.callee.type === 'Identifier' &&
-                call.callee.name === HELPER_MOCK_IMPORT
-              ) {
-                if (call.arguments.length !== 2) {
-                  return this.error(
-                    new Error(
-                      `${HELPER_MOCK_IMPORT}() should have exactly 2 arguments`
-                    ),
-                    call.range![0]
-                  )
-                }
-                if (call.arguments[0].type !== 'Literal') {
-                  return this.error(
-                    new Error(
-                      `The first argument of ${HELPER_MOCK_IMPORT}() must be a string literal`
-                    ),
-                    call.arguments[0].range![0]
-                  )
-                }
-                const name = call.arguments[0].value as string
-                const importItem = ctx.imports.find(_ => name === (_.as || _.name))
-                if (!importItem) {
-                  console.log({ imports: ctx.imports })
-                  return this.error(`Cannot find import "${name}" to mock`)
-                }
-  
-                s.overwrite(
-                  parent?.type === 'ExpressionStatement'
-                    ? parent.range![0]
-                    : call.arguments[0].range![0],
-                  parent?.type === 'ExpressionStatement'
-                    ? parent.range![1]
-                    : call.arguments[1].range![1],
-                  ''
-                )
-                mocksImport.push({
-                  name,
-                  import: importItem,
-                  factory: code.slice(
-                    call.arguments[1].range![0],
-                    call.arguments[1].range![1]
-                  ),
-                })
-              }
-              // mockComponent
-              if (
-                call.callee.type === 'Identifier' &&
-                call.callee.name === HELPER_MOCK_COMPONENT
-              ) {
-                if (call.arguments.length !== 2) {
-                  return this.error(
-                    new Error(
-                      `${HELPER_MOCK_COMPONENT}() should have exactly 2 arguments`
-                    ),
-                    call.range![0]
-                  )
-                }
-                if (call.arguments[0].type !== 'Literal') {
-                  return this.error(
-                    new Error(
-                      `The first argument of ${HELPER_MOCK_COMPONENT}() must be a string literal`
-                    ),
-                    call.arguments[0].range![0]
-                  )
-                }
-                const pathOrName = call.arguments[0].value as string
-                const component = ctx.components.find(
-                  _ => _.pascalName === pathOrName || _.kebabName === pathOrName
-                )
-                const path = component?.filePath || pathOrName
-  
-                s.overwrite(
-                  parent?.type === 'ExpressionStatement'
-                    ? parent.range![0]
-                    : call.arguments[1].range![0],
-                  parent?.type === 'ExpressionStatement'
-                    ? parent.range![1]
-                    : call.arguments[1].range![1],
-                  ''
-                )
-                mocksComponent.push({
-                  path: path,
-                  factory: code.slice(
-                    call.arguments[1].range![0],
-                    call.arguments[1].range![1]
-                  ),
-                })
-              }
-            },
-          })
-
-          if (mocksImport.length === 0 && mocksComponent.length === 0) return
-  
-          const mockLines = []
-  
-          if (mocksImport.length) {
-            const mockImportMap = new Map<string, MockImportInfo[]>()
-            for (const mock of mocksImport) {
-              if (!mockImportMap.has(mock.import.from)) {
-                mockImportMap.set(mock.import.from, [])
-              }
-              mockImportMap.get(mock.import.from)!.push(mock)
-            }
-            mockLines.push(
-              ...Array.from(mockImportMap.entries()).flatMap(
-                ([from, mocks]) => {
-                  importPathsList.add(from)
-                  const lines = [
-                    `vi.mock(${JSON.stringify(
-                      from
-                    )}, async (importOriginal) => {`,
-                    `  const mocks = global.${HELPER_MOCK_HOIST}`,
-                    `  if (!mocks[${JSON.stringify(
-                      from
-                    )}]) { mocks[${JSON.stringify(
-                      from
-                    )}] = { ...await importOriginal(${JSON.stringify(
-                      from
-                    )}) } }`,
-                  ]
-                  for (const mock of mocks) {
-                    if (mock.import.name === 'default') {
-                      lines.push(
-                        `  mocks[${JSON.stringify(from)}]["default"] = await (${
-                          mock.factory
-                        })()`
-                      )
-                    } else {
-                      lines.push(
-                        `  mocks[${JSON.stringify(from)}][${JSON.stringify(
-                          mock.name
-                        )}] = await (${mock.factory})()`
-                      )
-                    }
-                  }
-                  lines.push(`  return mocks[${JSON.stringify(from)}] `)
-                  lines.push(`})`)
-                  return lines
-                }
-              )
-            )
-          }
-  
-          if (mocksComponent.length) {
-            mockLines.push(
-              ...mocksComponent.flatMap(mock => {
-                return [
-                  `vi.mock(${JSON.stringify(mock.path)}, async () => {`,
-                  `  const factory = (${mock.factory});`,
-                  `  const result = typeof factory === 'function' ? await factory() : await factory`,
-                  `  return 'default' in result ? result : { default: result }`,
-                  '})',
-                ]
-              })
-            )
-          }
-
-          if (!mockLines.length) return
-  
-          s.prepend(`vi.hoisted(() => { 
-              if(!global.${HELPER_MOCK_HOIST}){
-                vi.stubGlobal(${JSON.stringify(HELPER_MOCK_HOIST)}, {})
-              }
-            });\n`)
-  
-          if (!hasViImport) s.prepend(`import {vi} from "vitest";\n`)
-  
-          s.appendLeft(insertionPoint, mockLines.join('\n') + '\n')
-  
-          // do an import to trick vite to keep it
-          // if not, the module won't be mocked
-          if (shouldPrependMockHoist) {
-            importPathsList.forEach(p => {
-              s.append(`\n import ${JSON.stringify(p)};`)
-            })
-          }
-
-          return {
-            code: s.toString(),
-            map: s.generateMap(),
-          }
-        },
-      }
-    }
+    },
+    // purely for unit testing
+    rollup: { transform },
   }
 })
 
@@ -310,4 +312,30 @@ function findLastIndex<T>(arr: T[], predicate: (item: T) => boolean) {
     if (predicate(arr[i])) return i
   }
   return -1
+}
+
+function isImportDeclaration (node: Node): node is ImportDeclaration {
+  return node.type === 'ImportDeclaration'
+}
+function isImportSpecifier (node: Node): node is ImportSpecifier {
+  return node.type === 'ImportSpecifier'
+}
+function isCallExpression (node: Node): node is CallExpression {
+  return node.type === 'CallExpression'
+}
+function isIdentifier (node: Node): node is Identifier {
+  return node.type === 'Identifier'
+}
+function isLiteral (node: Node | Expression): node is Literal {
+  return node.type === 'Literal'
+}
+function isExpressionStatement (node: Node | null): node is ExpressionStatement {
+  return node?.type === 'ExpressionStatement'
+}
+// TODO: need to fix in rollup types, probably
+function startOf (node: Node) {
+  return 'range' in node && node.range ? node.range[0] : (node as any).start as number
+}
+function endOf (node: Node) {
+  return 'range' in node && node.range ? node.range[1] : (node as any).end as number
 }

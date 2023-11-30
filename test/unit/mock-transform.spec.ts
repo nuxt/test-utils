@@ -1,25 +1,48 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { type MockPluginContext, createMockPlugin } from "../../src/module/plugins/mock"
-import { parse } from 'acorn'
+import { rollup } from 'rollup'
 
 describe('mocking', () => {
   const pluginContext: MockPluginContext = { imports: [], components: [] }
   const plugin = createMockPlugin(pluginContext)
-  const getResult = (code: string): undefined | string =>
-  (plugin.raw as any)().vite.transform.handler.call({ parse }, code, '/some/file.ts')?.code
-  
+  const getResult = (code: string) => new Promise<string>(resolve => {
+    const input = '/some/file.ts'
+    rollup({
+      input,
+      plugins: [
+        {
+          name: 'virtual',
+          resolveId: (id) => id === input ? input : { id, external: true },
+          load: () => code
+        },
+        plugin.rollup(),
+        {
+          name: 'resolve',
+          transform: {
+            order: 'post',
+            handler: (code) => {
+              resolve(code)
+              // suppress any errors from rollup itself
+              return 'export default 42'
+            }
+          }
+        }
+      ]
+    })
+  })
+
   beforeEach(() => {
     pluginContext.components = []
     pluginContext.imports = []
   })
 
   describe('import mocking', () => {
-    it('should transform code with mocked imports', () => {
+    it('should transform code with mocked imports', async () => {
       pluginContext.imports = [{
         name: 'useSomeExport',
         from: 'bob'
       }]
-      expect(getResult(`
+      expect(await getResult(`
         import { mockNuxtImport } from '@nuxt/test-utils/runtime-utils'
         mockNuxtImport('useSomeExport', () => {
           return () => 'mocked'
@@ -36,9 +59,9 @@ describe('mocking', () => {
           if (!mocks[\\"bob\\"]) { mocks[\\"bob\\"] = { ...await importOriginal(\\"bob\\") } }
           mocks[\\"bob\\"][\\"useSomeExport\\"] = await (() => {
                   return () => 'mocked'
-                })()
+                })();
           return mocks[\\"bob\\"] 
-        })
+        });
 
                 import { mockNuxtImport } from '@nuxt/test-utils/runtime-utils'
                 
@@ -46,12 +69,12 @@ describe('mocking', () => {
          import \\"bob\\";"
       `)
     })
-    it('should not add `vi` import if it already exists', () => {
+    it('should not add `vi` import if it already exists', async () => {
       pluginContext.imports = [{
         name: 'useSomeExport',
         from: 'bob'
       }]
-      const code = getResult(`
+      const code = await getResult(`
         import { expect, vi } from 'vitest'
         mockNuxtImport('useSomeExport', () => 'bob')
       `)
@@ -60,7 +83,7 @@ describe('mocking', () => {
   })
 
   describe('component mocking', () => {
-    it('should work', () => {
+    it('should work', async () => {
       pluginContext.components = [{
         chunkName: 'Thing',
         export: 'default',
@@ -71,7 +94,7 @@ describe('mocking', () => {
         shortPath: 'thing.vue',
         filePath: '/test/thing.vue'
       }]
-      expect(getResult(`
+      expect(await getResult(`
         import { mockComponent } from '@nuxt/test-utils/runtime-utils'
         mockComponent('MyComponent', () => import('./MockComponent.vue'))
       `)).toMatchInlineSnapshot(`
@@ -85,7 +108,7 @@ describe('mocking', () => {
           const factory = (() => import('./MockComponent.vue'));
           const result = typeof factory === 'function' ? await factory() : await factory
           return 'default' in result ? result : { default: result }
-        })
+        });
 
                 import { mockComponent } from '@nuxt/test-utils/runtime-utils'
                 
