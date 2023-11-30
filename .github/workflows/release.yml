@@ -25,6 +25,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Prepare build environment
+        run: pnpm dev:prepare
+
       - name: nightly release
         run: pnpm changelogen --canary nightly --publish
         env:
