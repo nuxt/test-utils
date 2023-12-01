@@ -1,5 +1,5 @@
 import type { Unimport } from 'unimport'
-import { addVitePlugin, isIgnored, resolveIgnorePatterns, useNuxt } from '@nuxt/kit'
+import { addVitePlugin, resolveIgnorePatterns, useNuxt } from '@nuxt/kit'
 
 import { createMockPlugin } from './plugins/mock'
 import type { MockPluginContext } from './plugins/mock'
