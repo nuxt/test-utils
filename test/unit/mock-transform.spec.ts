@@ -15,7 +15,7 @@ describe('mocking', () => {
           resolveId: (id) => id === input ? input : { id, external: true },
           load: () => code
         },
-        plugin.rollup(),
+        plugin.vite(),
         {
           name: 'resolve',
           transform: {
@@ -50,10 +50,10 @@ describe('mocking', () => {
       `)).toMatchInlineSnapshot(`
         "import {vi} from \\"vitest\\";
         vi.hoisted(() => { 
-                      if(!global.__NUXT_VITEST_MOCKS){
-                        vi.stubGlobal(\\"__NUXT_VITEST_MOCKS\\", {})
-                      }
-                    });
+                if(!global.__NUXT_VITEST_MOCKS){
+                  vi.stubGlobal(\\"__NUXT_VITEST_MOCKS\\", {})
+                }
+              });
         vi.mock(\\"bob\\", async (importOriginal) => {
           const mocks = global.__NUXT_VITEST_MOCKS
           if (!mocks[\\"bob\\"]) { mocks[\\"bob\\"] = { ...await importOriginal(\\"bob\\") } }
@@ -100,10 +100,10 @@ describe('mocking', () => {
       `)).toMatchInlineSnapshot(`
         "import {vi} from \\"vitest\\";
         vi.hoisted(() => { 
-                      if(!global.__NUXT_VITEST_MOCKS){
-                        vi.stubGlobal(\\"__NUXT_VITEST_MOCKS\\", {})
-                      }
-                    });
+                if(!global.__NUXT_VITEST_MOCKS){
+                  vi.stubGlobal(\\"__NUXT_VITEST_MOCKS\\", {})
+                }
+              });
         vi.mock(\\"MyComponent\\", async () => {
           const factory = (() => import('./MockComponent.vue'));
           const result = typeof factory === 'function' ? await factory() : await factory

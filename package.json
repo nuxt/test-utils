@@ -30,6 +30,7 @@
     "lint:fix": "eslint --ext .vue,.ts,.js,.mjs . --fix",
     "test:examples": "pnpm -r test",
     "test:types": "vue-tsc --noEmit",
+    "test:unit": "vitest test/unit --run",
     "prepack": "unbuild",
     "dev:prepare": "nuxi prepare && unbuild --stub && pnpm -r dev:prepare",
     "release": "pnpm test:examples && pnpm build && changelogen --release --push && pnpm publish"

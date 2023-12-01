@@ -300,8 +300,6 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
         }
       },
     },
-    // purely for unit testing
-    rollup: { transform },
   }
 })
 
