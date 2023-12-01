@@ -7,6 +7,7 @@ import type { Component } from '@nuxt/schema'
 import type { Plugin } from 'vite'
 import { normalize, resolve } from 'node:path'
 import { createUnplugin } from 'unplugin'
+import { resolvePath } from '@nuxt/kit'
 
 export interface MockPluginContext {
   imports: Import[]
@@ -193,30 +194,20 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
           ([from, mocks]) => {
             importPathsList.add(from)
             const lines = [
-              `vi.mock(${JSON.stringify(
-                from
-              )}, async (importOriginal) => {`,
-              `  const mocks = global.${HELPER_MOCK_HOIST}`,
-              `  if (!mocks[${JSON.stringify(
-                from
-              )}]) { mocks[${JSON.stringify(
-                from
-              )}] = { ...await importOriginal(${JSON.stringify(
-                from
-              )}) } }`,
+              `vi.mock(${JSON.stringify(from)}, async (importOriginal) => {`,
+              `  const mocks = globalThis.${HELPER_MOCK_HOIST}`,
+              `  if (!mocks[${JSON.stringify(from)}]) {`,
+              `    mocks[${JSON.stringify(from)}] = { ...await importOriginal(${JSON.stringify(from)}) }`,
+              `  }`,
             ]
             for (const mock of mocks) {
               if (mock.import.name === 'default') {
                 lines.push(
-                  `  mocks[${JSON.stringify(from)}]["default"] = await (${
-                    mock.factory
-                  })();`
+                  `  mocks[${JSON.stringify(from)}]["default"] = await (${mock.factory})();`
                 )
               } else {
                 lines.push(
-                  `  mocks[${JSON.stringify(from)}][${JSON.stringify(
-                    mock.name
-                  )}] = await (${mock.factory})();`
+                  `  mocks[${JSON.stringify(from)}][${JSON.stringify(mock.name)}] = await (${mock.factory})();`
                 )
               }
             }
@@ -245,7 +236,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
     if (!mockLines.length) return
 
     s.prepend(`vi.hoisted(() => { 
-        if(!global.${HELPER_MOCK_HOIST}){
+        if(!globalThis.${HELPER_MOCK_HOIST}){
           vi.stubGlobal(${JSON.stringify(HELPER_MOCK_HOIST)}, {})
         }
       });\n`)
@@ -274,28 +265,29 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
     vite: {
       transform,
       // Place Vitest's mock plugin after all Nuxt plugins
-      configResolved(config) {
+      async configResolved(config) {
         const firstSetupFile = Array.isArray(config.test?.setupFiles)
-          ? config.test!.setupFiles[0]
+          ? config.test!.setupFiles.find(p => !p.includes('runtime/entry'))
           : config.test?.setupFiles
   
         if (firstSetupFile) {
-          resolvedFirstSetupFile = normalize(resolve(firstSetupFile))
+          resolvedFirstSetupFile = await resolvePath(normalize(resolve(firstSetupFile)))
         }
   
         const plugins = (config.plugins || []) as Plugin[]
+
         // `vite:mocks` was a typo in Vitest before v0.34.0
-        const mockPluginIndex = plugins.findIndex(
-          i => i.name === 'vite:mocks' || i.name === 'vitest:mocks'
-        )
+        const vitestPlugins = plugins.filter(p => p.name === 'vite:mocks' || p.name.startsWith('vitest:'))
         const lastNuxt = findLastIndex(
           plugins,
           i => i.name?.startsWith('nuxt:')
         )
-        if (mockPluginIndex !== -1 && lastNuxt !== -1) {
-          if (mockPluginIndex < lastNuxt) {
-            const [mockPlugin] = plugins.splice(mockPluginIndex, 1)
-            plugins.splice(lastNuxt, 0, mockPlugin)
+        if (lastNuxt === -1) return
+        for (const plugin of vitestPlugins) {
+          const index = plugins.indexOf(plugin)
+          if (index < lastNuxt) {
+            plugins.splice(index, 1)
+            plugins.splice(lastNuxt, 0, plugin)
           }
         }
       },

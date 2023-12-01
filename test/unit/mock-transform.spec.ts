@@ -50,13 +50,15 @@ describe('mocking', () => {
       `)).toMatchInlineSnapshot(`
         "import {vi} from \\"vitest\\";
         vi.hoisted(() => { 
-                if(!global.__NUXT_VITEST_MOCKS){
+                if(!globalThis.__NUXT_VITEST_MOCKS){
                   vi.stubGlobal(\\"__NUXT_VITEST_MOCKS\\", {})
                 }
               });
         vi.mock(\\"bob\\", async (importOriginal) => {
-          const mocks = global.__NUXT_VITEST_MOCKS
-          if (!mocks[\\"bob\\"]) { mocks[\\"bob\\"] = { ...await importOriginal(\\"bob\\") } }
+          const mocks = globalThis.__NUXT_VITEST_MOCKS
+          if (!mocks[\\"bob\\"]) {
+            mocks[\\"bob\\"] = { ...await importOriginal(\\"bob\\") }
+          }
           mocks[\\"bob\\"][\\"useSomeExport\\"] = await (() => {
                   return () => 'mocked'
                 })();
@@ -100,7 +102,7 @@ describe('mocking', () => {
       `)).toMatchInlineSnapshot(`
         "import {vi} from \\"vitest\\";
         vi.hoisted(() => { 
-                if(!global.__NUXT_VITEST_MOCKS){
+                if(!globalThis.__NUXT_VITEST_MOCKS){
                   vi.stubGlobal(\\"__NUXT_VITEST_MOCKS\\", {})
                 }
               });
