@@ -94,5 +94,8 @@ jobs:
       - name: Test types
         run: pnpm test:types
 
+      - name: Unit tests
+        run: pnpm test:unit
+
       - name: Test examples
         run: pnpm test:examples
