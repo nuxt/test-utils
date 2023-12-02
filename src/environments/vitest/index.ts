@@ -30,6 +30,8 @@ export default <Environment>{
       jsdom: { url },
     }))
 
+    win.__NUXT_VITEST_ENVIRONMENT__ = true
+
     win.__NUXT__ = {
       serverRendered: false,
       config: {
@@ -137,14 +139,12 @@ export default <Environment>{
     registry.add(`${manifestOutputPath}/meta/test.json`)
     registry.add(`${manifestOutputPath}/meta/dev.json`)
 
-    await import('#app/entry').then(r => r.default())
-
     return {
       // called after all tests with this env have been run
       teardown() {
-        teardown()
         keys.forEach(key => delete global[key])
         originals.forEach((v, k) => (global[k] = v))
+        teardown()
       },
     }
   },

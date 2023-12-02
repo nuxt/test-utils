@@ -1,10 +1,9 @@
-import type { Nuxt, NuxtConfig, ViteConfig } from '@nuxt/schema'
+import type { Nuxt, NuxtConfig } from '@nuxt/schema'
 import type { InlineConfig as VitestConfig } from 'vitest'
 import { defineConfig } from 'vite'
 import type { InlineConfig } from 'vite'
-import vuePlugin from '@vitejs/plugin-vue'
-import viteJsxPlugin from '@vitejs/plugin-vue-jsx'
 import { defu } from 'defu'
+import { createResolver } from '@nuxt/kit'
 
 interface GetVitestConfigOptions {
   nuxt: Nuxt
@@ -39,7 +38,7 @@ async function startNuxtAndGetViteConfig(
   }
 
   const promise = new Promise<GetVitestConfigOptions>((resolve, reject) => {
-    nuxt.hook('vite:extendConfig', (viteConfig, { isClient }) => {
+    nuxt.hook('vite:configResolved', (viteConfig, { isClient }) => {
       if (isClient) {
         resolve({ nuxt, viteConfig })
         throw new Error('_stop_')
@@ -55,34 +54,23 @@ async function startNuxtAndGetViteConfig(
   return promise
 }
 
-const vuePlugins = {
-  'vite:vue': [vuePlugin, 'vue'],
-  'vite:vue-jsx': [viteJsxPlugin, 'vueJsx'],
-} as const
-
 export async function getVitestConfigFromNuxt(
   options?: GetVitestConfigOptions,
   overrides?: NuxtConfig
 ): Promise<InlineConfig & { test: VitestConfig }> {
   const { rootDir = process.cwd(), ..._overrides } = overrides || {}
-  if (!options) options = await startNuxtAndGetViteConfig(rootDir, {
-    test: true,
-    ..._overrides
-  })
-  options.viteConfig.plugins = options.viteConfig.plugins || []
-  options.viteConfig.plugins = options.viteConfig.plugins.filter(
+
+  if (!options) {
+    options = await startNuxtAndGetViteConfig(rootDir, {
+      test: true,
+      ..._overrides
+    })
+  }
+
+  options.viteConfig.plugins ||= []
+  options.viteConfig.plugins = options.viteConfig.plugins?.filter(
     p => (p as any)?.name !== 'nuxt:import-protection'
   )
-
-  for (const name in vuePlugins) {
-    if (!options.viteConfig.plugins?.some(p => (p as any)?.name === name)) {
-      const [plugin, key] = vuePlugins[name as keyof typeof vuePlugins]
-      options.viteConfig.plugins.unshift(
-        // @ts-expect-error mismatching component options
-        plugin((options.viteConfig as ViteConfig)[key])
-      )
-    }
-  }
 
   const resolvedConfig = defu(
     // overrides
@@ -111,6 +99,8 @@ export async function getVitestConfigFromNuxt(
             /^#/,
             // additional deps
             '@nuxt/test-utils',
+            '@nuxt/test-utils-nightly',
+            '@nuxt/test-utils-edge',
             'vitest-environment-nuxt',
             ...(options.nuxt.options.build.transpile.filter(
               r => typeof r === 'string' || r instanceof RegExp
@@ -157,6 +147,13 @@ export async function getVitestConfigFromNuxt(
   // TODO: fix this by separating nuxt/node vitest configs
   // typescript currently checks this to determine if it can access the filesystem: https://github.com/microsoft/TypeScript/blob/d4fbc9b57d9aa7d02faac9b1e9bb7b37c687f6e9/src/compiler/core.ts#L2738-L2749
   delete resolvedConfig.define!['process.browser']
+  
+  if (!Array.isArray(resolvedConfig.test.setupFiles)) {
+    resolvedConfig.test.setupFiles = [resolvedConfig.test.setupFiles].filter(Boolean) as string[]
+  }
+
+  const resolver = createResolver(import.meta.url)
+  resolvedConfig.test.setupFiles.unshift(resolver.resolve('./runtime/entry'))
 
   return resolvedConfig
 }

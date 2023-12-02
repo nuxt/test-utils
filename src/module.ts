@@ -1,15 +1,17 @@
 import { pathToFileURL } from 'node:url'
-import { defineNuxtModule, logger, resolvePath } from '@nuxt/kit'
+import { addVitePlugin, createResolver, defineNuxtModule, logger, resolvePath } from '@nuxt/kit'
 import type { File, Reporter, Vitest, UserConfig as VitestConfig } from 'vitest'
 import { mergeConfig } from 'vite'
 import type { InlineConfig as ViteConfig } from 'vite'
-import { getVitestConfigFromNuxt } from './config'
 import { getPort } from 'get-port-please'
 import { h } from 'vue'
 import { debounce } from 'perfect-debounce'
 import { isCI } from 'std-env'
+import { defu } from 'defu'
 
+import { getVitestConfigFromNuxt } from './config'
 import { setupImportMocking } from './module/mock'
+import { NuxtRootStubPlugin } from './module/plugins/entry'
 
 export interface NuxtVitestOptions {
   startOnBoot?: boolean
@@ -37,6 +39,12 @@ export default defineNuxtModule<NuxtVitestOptions>({
       setupImportMocking()
     }
 
+    const resolver = createResolver(import.meta.url)
+    addVitePlugin(NuxtRootStubPlugin.vite({
+      entry: await resolvePath('#app/entry', { alias: nuxt.options.alias }),
+      rootStubPath: await resolvePath(resolver.resolve('./runtime/nuxt-root')),
+    }))
+
     if (!nuxt.options.dev) return
 
     if (nuxt.options.test && nuxt.options.app.rootId === '__nuxt') {
@@ -49,7 +57,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
     const rawViteConfigPromise = new Promise<ViteConfig>(resolve => {
       // Wrap with app:resolve to ensure we got the final vite config
       nuxt.hook('app:resolve', () => {
-        nuxt.hook('vite:extendConfig', (config, { isClient }) => {
+        nuxt.hook('vite:configResolved', (config, { isClient }) => {
           if (isClient) resolve(config)
         })
       })
@@ -69,16 +77,14 @@ export default defineNuxtModule<NuxtVitestOptions>({
     async function start() {
       const rawViteConfig = mergeConfig({}, await rawViteConfigPromise)
 
-      const viteConfig = await getVitestConfigFromNuxt({ nuxt, viteConfig: rawViteConfig })
+      const viteConfig = await getVitestConfigFromNuxt({ nuxt, viteConfig: defu({ test: options.vitestConfig }, rawViteConfig) })
 
       viteConfig.plugins = (viteConfig.plugins || []).filter((p: any) => {
         return !vitePluginBlocklist.includes(p?.name)
       })
 
       process.env.__NUXT_VITEST_RESOLVED__ = 'true'
-      const { startVitest } = (await import(
-        pathToFileURL(await resolvePath('vitest/node')).href
-      )) as typeof import('vitest/node')
+      const { startVitest } = (await import(pathToFileURL(await resolvePath('vitest/node')).href)) as typeof import('vitest/node')
 
       const customReporter: Reporter = {
         onInit(_ctx) {
@@ -97,10 +103,9 @@ export default defineNuxtModule<NuxtVitestOptions>({
       const watchMode = !process.env.NUXT_VITEST_DEV_TEST && !isCI
 
       // For testing dev mode in CI, maybe expose an option to user later
-      const vitestConfig: VitestConfig = watchMode
+      const overrides: VitestConfig = watchMode
         ? {
             passWithNoTests: true,
-            ...options.vitestConfig,
             reporters: options.logToConsole
               ? [
                   ...toArray(options.vitestConfig?.reporters ?? ['default']),
@@ -114,16 +119,10 @@ export default defineNuxtModule<NuxtVitestOptions>({
               port: PORT,
             },
           }
-        : {
-            ...options.vitestConfig,
-            watch: false,
-          }
-
-      // TODO: Investigate segfault when loading config file in Nuxt
-      viteConfig.configFile = false
+        : { watch: false }
 
       // Start Vitest
-      const promise = startVitest('test', [], vitestConfig, viteConfig)
+      const promise = startVitest('test', [], defu(overrides, viteConfig.test), viteConfig)
       promise.catch(() => process.exit(1))
 
       if (watchMode) {
