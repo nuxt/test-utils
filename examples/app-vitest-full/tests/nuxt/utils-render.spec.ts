@@ -21,10 +21,10 @@ describe('test utils', () => {
     it('can render components within nuxt suspense', async () => {
       const { html } = await renderSuspended(App)
       expect(html()).toMatchInlineSnapshot(`
-        "<div id="test-wrapper">
+        "<div id=\\"test-wrapper\\">
           <div>This is an auto-imported component</div>
           <div> I am a global component </div>
-          <div>Index page</div><a href="/test"> Test link </a>
+          <div>Index page</div><a href=\\"/test\\"> Test link </a>
         </div>"
       `)
     })
