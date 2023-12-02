@@ -104,6 +104,9 @@ importers:
       '@types/jsdom':
         specifier: 21.1.6
         version: 21.1.6
+      '@types/semver':
+        specifier: ^7.5.6
+        version: 7.5.6
       '@vitest/ui':
         specifier: 1.0.0-beta.6
         version: 1.0.0-beta.6(vitest@1.0.0-beta.6)
@@ -131,6 +134,9 @@ importers:
       h3:
         specifier: 1.9.0
         version: 1.9.0
+      jiti:
+        specifier: ^1.21.0
+        version: 1.21.0
       nuxt:
         specifier: 3.8.2
         version: 3.8.2(eslint@8.55.0)(rollup@4.6.1)(typescript@5.2.2)(vite@5.0.4)(vue-tsc@1.8.24)
@@ -140,6 +146,9 @@ importers:
       rollup:
         specifier: 4.6.1
         version: 4.6.1
+      semver:
+        specifier: ^7.5.4
+        version: 7.5.4
       unbuild:
         specifier: latest
         version: 2.0.0(typescript@5.2.2)
@@ -2713,8 +2722,8 @@ packages:
   /@types/resolve@1.20.2:
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
 
-  /@types/semver@7.5.4:
-    resolution: {integrity: sha512-MMzuxN3GdFwskAnb6fz0orFvhfqi752yjaXylr0Rp4oDg5H0Zn1IuyRhDVvYOwAXoJirx2xuS16I3WjxnAIHiQ==}
+  /@types/semver@7.5.6:
+    resolution: {integrity: sha512-dn1l8LaMea/IjDoHNd9J52uBbInB796CDffS6VdIxvqYCPSG0V0DzHp76GpaWnlhg88uYyPbXCDIowa86ybd5A==}
     dev: true
 
   /@types/stack-utils@2.0.2:
@@ -2847,7 +2856,7 @@ packages:
     dependencies:
       '@eslint-community/eslint-utils': 4.4.0(eslint@8.55.0)
       '@types/json-schema': 7.0.14
-      '@types/semver': 7.5.4
+      '@types/semver': 7.5.6
       '@typescript-eslint/scope-manager': 6.9.1
       '@typescript-eslint/types': 6.9.1
       '@typescript-eslint/typescript-estree': 6.9.1(typescript@5.2.2)
