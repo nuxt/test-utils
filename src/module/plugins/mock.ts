@@ -277,7 +277,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
         const plugins = (config.plugins || []) as Plugin[]
 
         // `vite:mocks` was a typo in Vitest before v0.34.0
-        const vitestPlugins = plugins.filter(p => p.name === 'vite:mocks' || p.name.startsWith('vitest:'))
+        const vitestPlugins = plugins.filter(p => (p.name === 'vite:mocks' || p.name.startsWith('vitest:')) && (p.enforce || (p as any).order) === 'post')
         const lastNuxt = findLastIndex(
           plugins,
           i => i.name?.startsWith('nuxt:')

@@ -93,6 +93,7 @@ export async function getVitestConfigFromNuxt(
           ['{test,tests}/nuxt/**.*', 'nuxt'],
         ],
         deps: {
+          // TODO: move to server.deps.inline when we update to vite v1
           inline: [
             // vite-node defaults
             /\/node_modules\/(.*\/)?(nuxt|nuxt3|nuxt-nightly)\//,
@@ -106,6 +107,11 @@ export async function getVitestConfigFromNuxt(
               r => typeof r === 'string' || r instanceof RegExp
             ) as Array<string | RegExp>),
           ],
+          optimizer: {
+            web: {
+              enabled: false,
+            },
+          },
         },
       } satisfies VitestConfig
     },
