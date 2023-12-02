@@ -48,27 +48,27 @@ describe('mocking', () => {
           return () => 'mocked'
         })
       `)).toMatchInlineSnapshot(`
-        "import {vi} from \\"vitest\\";
+        "import {vi} from "vitest";
         vi.hoisted(() => { 
                 if(!globalThis.__NUXT_VITEST_MOCKS){
-                  vi.stubGlobal(\\"__NUXT_VITEST_MOCKS\\", {})
+                  vi.stubGlobal("__NUXT_VITEST_MOCKS", {})
                 }
               });
-        vi.mock(\\"bob\\", async (importOriginal) => {
+        vi.mock("bob", async (importOriginal) => {
           const mocks = globalThis.__NUXT_VITEST_MOCKS
-          if (!mocks[\\"bob\\"]) {
-            mocks[\\"bob\\"] = { ...await importOriginal(\\"bob\\") }
+          if (!mocks["bob"]) {
+            mocks["bob"] = { ...await importOriginal("bob") }
           }
-          mocks[\\"bob\\"][\\"useSomeExport\\"] = await (() => {
+          mocks["bob"]["useSomeExport"] = await (() => {
                   return () => 'mocked'
                 })();
-          return mocks[\\"bob\\"] 
+          return mocks["bob"] 
         });
 
                 import { mockNuxtImport } from '@nuxt/test-utils/runtime-utils'
                 
               
-         import \\"bob\\";"
+         import "bob";"
       `)
     })
     it('should not add `vi` import if it already exists', async () => {
@@ -100,13 +100,13 @@ describe('mocking', () => {
         import { mockComponent } from '@nuxt/test-utils/runtime-utils'
         mockComponent('MyComponent', () => import('./MockComponent.vue'))
       `)).toMatchInlineSnapshot(`
-        "import {vi} from \\"vitest\\";
+        "import {vi} from "vitest";
         vi.hoisted(() => { 
                 if(!globalThis.__NUXT_VITEST_MOCKS){
-                  vi.stubGlobal(\\"__NUXT_VITEST_MOCKS\\", {})
+                  vi.stubGlobal("__NUXT_VITEST_MOCKS", {})
                 }
               });
-        vi.mock(\\"MyComponent\\", async () => {
+        vi.mock("MyComponent", async () => {
           const factory = (() => import('./MockComponent.vue'));
           const result = typeof factory === 'function' ? await factory() : await factory
           return 'default' in result ? result : { default: result }

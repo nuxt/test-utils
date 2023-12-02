@@ -65,7 +65,7 @@ describe('test utils', () => {
       "<div>This is an auto-imported component</div>
       <div> I am a global component </div>
       <div>Index page</div>
-      <a href=\\"/test\\"> Test link </a>"
+      <a href="/test"> Test link </a>"
     `)
   })
 
