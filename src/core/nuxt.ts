@@ -43,7 +43,7 @@ export async function loadFixture () {
 
   if (!ctx.options.dev) {
     const randomId = Math.random().toString(36).slice(2, 8)
-    const buildDir = ctx.options.buildDir || resolve(ctx.options.rootDir, '.nuxt', randomId)
+    const buildDir = ctx.options.buildDir || resolve(ctx.options.rootDir, '.nuxt', 'test', randomId)
     ctx.options.nuxtConfig = defu(ctx.options.nuxtConfig, {
       buildDir,
       nitro: {
@@ -61,7 +61,13 @@ export async function loadFixture () {
     configFile: ctx.options.configFile
   })
 
-  await fsp.mkdir(ctx.nuxt.options.buildDir, { recursive: true })
+  const buildDir = ctx.nuxt.options.buildDir
+  // avoid creating / deleting build dirs that already exist - avoids misconfiguration deletes
+  if (!existsSync(buildDir)) {
+    await fsp.mkdir(buildDir, { recursive: true })
+    ctx.teardown = ctx.teardown || []
+    ctx.teardown.push(() => fsp.rm(buildDir, { recursive: true, force: true }))
+  }
 }
 
 export async function buildFixture () {
