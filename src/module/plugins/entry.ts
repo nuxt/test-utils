@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import { dirname, join } from 'pathe'
 import { createUnplugin } from "unplugin"
 
 const PLUGIN_NAME = 'nuxt:vitest:nuxt-root-stub'
@@ -15,7 +16,7 @@ export const NuxtRootStubPlugin = createUnplugin((options: NuxtRootStubPluginOpt
     vite: {
       async resolveId(id) {
         if (id.endsWith('nuxt-vitest-app-entry')) {
-          return id
+          return join(dirname(options.entry), 'nuxt-vitest-app-entry')
         }
       },
       async load(id) {
