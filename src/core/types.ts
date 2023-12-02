@@ -33,7 +33,11 @@ export interface TestContext {
   url?: string
   serverProcess?: ExecaChildProcess
   mockFn?: Function
-  sideEffects?: (() => void)[]
+  /**
+   * Functions to run on the vitest `afterAll` hook.
+   * Useful for removing anything created during the test.
+   */
+  teardown?: (() => void)[]
 }
 
 export interface TestHooks {

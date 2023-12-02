@@ -65,8 +65,8 @@ export async function loadFixture () {
   // avoid creating / deleting build dirs that already exist - avoids misconfiguration deletes
   if (!existsSync(buildDir)) {
     await fsp.mkdir(buildDir, { recursive: true })
-    ctx.sideEffects = ctx.sideEffects || []
-    ctx.sideEffects.push(() => fsp.rm(buildDir, { recursive: true, force: true }))
+    ctx.teardown = ctx.teardown || []
+    ctx.teardown.push(() => fsp.rm(buildDir, { recursive: true, force: true }))
   }
 }
 

@@ -35,7 +35,7 @@ export function createTest (options: Partial<TestOptions>): TestHooks {
       await ctx.browser.close()
     }
     // clear side effects
-    await Promise.all((ctx.sideEffects || []).map(fn => fn()))
+    await Promise.all((ctx.teardown || []).map(fn => fn()))
   }
 
   const setup = async () => {
