@@ -61,11 +61,12 @@ export async function loadFixture () {
     configFile: ctx.options.configFile
   })
 
+  const buildDir = ctx.nuxt.options.buildDir
   // avoid creating / deleting build dirs that already exist - avoids misconfiguration deletes
-  if (!existsSync(ctx.nuxt.options.buildDir)) {
-    await fsp.mkdir(ctx.nuxt.options.buildDir, { recursive: true })
+  if (!existsSync(buildDir)) {
+    await fsp.mkdir(buildDir, { recursive: true })
     ctx.sideEffects = ctx.sideEffects || []
-    ctx.sideEffects.push(() => fsp.rm(ctx.nuxt.options.buildDir, { recursive: true, force: true }))
+    ctx.sideEffects.push(() => fsp.rm(buildDir, { recursive: true, force: true }))
   }
 }
 
