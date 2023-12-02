@@ -33,6 +33,7 @@ export interface TestContext {
   url?: string
   serverProcess?: ExecaChildProcess
   mockFn?: Function
+  sideEffects?: (() => void)[]
 }
 
 export interface TestHooks {
