@@ -14,9 +14,9 @@ export const NuxtRootStubPlugin = createUnplugin((options: NuxtRootStubPluginOpt
     name: PLUGIN_NAME,
     enforce: 'pre',
     vite: {
-      async resolveId(id) {
+      async resolveId(id, importer) {
         if (id.endsWith('nuxt-vitest-app-entry')) {
-          return join(dirname(options.entry), 'nuxt-vitest-app-entry')
+          return importer?.endsWith('index.html') ? id : join(dirname(options.entry), 'nuxt-vitest-app-entry')
         }
       },
       async load(id) {
