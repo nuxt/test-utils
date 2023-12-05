@@ -63,8 +63,6 @@ export default defineNuxtModule<NuxtVitestOptions>({
       })
     })
 
-    const PORT = await getPort({ port: 15555 })
-    const URL = `http://localhost:${PORT}/__vitest__/`
     let loaded = false
     let promise: Promise<any> | undefined
     let ctx: Vitest = undefined!
@@ -73,6 +71,8 @@ export default defineNuxtModule<NuxtVitestOptions>({
     const updateTabs = debounce(() => {
       nuxt.callHook('devtools:customTabs:refresh')
     }, 100)
+
+    let URL: string
 
     async function start() {
       const rawViteConfig = mergeConfig({}, await rawViteConfigPromise)
@@ -101,6 +101,11 @@ export default defineNuxtModule<NuxtVitestOptions>({
       }
 
       const watchMode = !process.env.NUXT_VITEST_DEV_TEST && !isCI
+
+      // We resolve the path here to ensure the dev server is already running with the correct protocol
+      const PORT = await getPort({ port: 15555 })
+      const PROTOCOL = nuxt.options.devServer.https ? 'https' : 'http'
+      URL = `${PROTOCOL}://localhost:${PORT}/__vitest__/`
 
       // For testing dev mode in CI, maybe expose an option to user later
       const overrides: VitestConfig = watchMode
