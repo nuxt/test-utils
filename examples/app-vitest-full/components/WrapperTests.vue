@@ -23,6 +23,9 @@ defineExpose({
     >
       Click me!
     </button>
-    <button id="changeModelValue" @click="modelValue = true" />
+    <button
+      id="changeModelValue"
+      @click="modelValue = true"
+    />
   </div>
 </template>
