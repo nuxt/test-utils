@@ -58,6 +58,16 @@ describe('test utils', () => {
     `)
   })
 
+  it('should work with shallow mounting within suspense', async () => {
+    const component = await mountSuspended(App, { shallow: true })
+    expect(component.html()).toMatchInlineSnapshot(`
+      "<async-component-wrapper-stub></async-component-wrapper-stub>
+      <anonymous-stub></anonymous-stub>
+      <nuxt-page-stub></nuxt-page-stub>
+      <nuxt-link-stub to="/test"></nuxt-link-stub>"
+    `)
+  })
+
   it('should render default props within nuxt suspense', async () => {
     const component = await mountSuspended(OptionsComponent)
     expect(component.find('h2').html()).toMatchInlineSnapshot(
