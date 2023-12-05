@@ -42,21 +42,8 @@ describe('client-side nuxt features', () => {
   it('allows pushing to other pages', async () => {
     await navigateTo('/something')
     expect(useNuxtApp().$router.currentRoute.value.path).toEqual('/something')
-    // It takes a few ticks for the Nuxt useRoute to be updated (as, after suspense resolves,
-    // we wait for a final hook and then update the injected route object )
-    const route = useRoute()
-    await new Promise<void>(resolve => {
-      const unsub = watch(
-        () => route.path,
-        path => {
-          if (path === '/something') {
-            unsub()
-            resolve()
-          }
-        }
-      )
-    })
-    expect(route.path).toEqual('/something')
+    await nextTick()
+    expect(useRoute().path).toEqual('/something')
   })
 })
 
