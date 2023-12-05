@@ -54,6 +54,11 @@ async function startNuxtAndGetViteConfig(
   return promise
 }
 
+const excludedPlugins = [
+  'nuxt:import-protection',
+  'vite-plugin-checker',
+]
+
 export async function getVitestConfigFromNuxt(
   options?: GetVitestConfigOptions,
   overrides?: NuxtConfig
@@ -67,10 +72,7 @@ export async function getVitestConfigFromNuxt(
     })
   }
 
-  options.viteConfig.plugins ||= []
-  options.viteConfig.plugins = options.viteConfig.plugins?.filter(
-    p => (p as any)?.name !== 'nuxt:import-protection'
-  )
+  options.viteConfig.plugins = (options.viteConfig.plugins || []).filter(p => !excludedPlugins.includes((p as any)?.name))
 
   const resolvedConfig = defu(
     // overrides
