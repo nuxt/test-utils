@@ -144,6 +144,13 @@ describe('test utils', () => {
     expect(component.emitted()).toHaveProperty('update:modelValue')
   })
 
+  // TODO: fix this failing test
+  it.todo('can access exposed methods/refs from components mounted within nuxt suspense', async () => {
+    const component = await mountSuspended(WrapperTests)
+    expect(component.vm.testExpose?.()).toBe('thing')
+    expect(component.vm.someRef).toBe('thing')
+  })
+
   it('can mock fetch requests', async () => {
     registerEndpoint('https://jsonplaceholder.typicode.com/todos/1', () => ({
       title: 'title from mocked api',

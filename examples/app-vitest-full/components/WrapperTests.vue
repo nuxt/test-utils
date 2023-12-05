@@ -11,7 +11,8 @@ function testExpose () {
 const modelValue = defineModel({ default: false })
 
 defineExpose({
-  testExpose
+  testExpose,
+  someRef: ref('thing')
 })
 </script>
 
