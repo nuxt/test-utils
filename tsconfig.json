@@ -4,7 +4,12 @@
     "moduleResolution": "Bundler",
   },
   "exclude": [
-    "**/dist/**",
+    "config.d.ts",
+    "experimental.d.ts",
+    "module.d.ts",
+    "runtime-utils.d.ts",
+    "vitest-environment.d.ts",
+    "dist/**",
     "examples/*",
   ]
 }
