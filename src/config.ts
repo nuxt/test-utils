@@ -33,7 +33,7 @@ async function startNuxtAndGetViteConfig(
     !nuxt.options._installedModules.find(i => i?.meta?.name === '@nuxt/test-utils')
   ) {
     throw new Error(
-      'Failed to load nuxt-vitest module. You may need to add it to your nuxt.config.'
+      'Failed to load `@nuxt/test-utils/module`. You may need to add it to your nuxt.config.'
     )
   }
 
