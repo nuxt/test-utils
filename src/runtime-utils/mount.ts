@@ -94,12 +94,14 @@ export async function mountSuspended<T>(
               {
                 default: () =>
                   h({
+                    name: 'MountSuspendedHelper',
                     async setup() {
                       const router = useRouter()
                       await router.replace(route)
 
                       // Proxy top-level setup/render context so test wrapper resolves child component
                       const clonedComponent = {
+                        name: 'MountSuspendedComponent',
                         ...component,
                         render: render
                           ? (_ctx: any, ...args: any[]) => {
@@ -127,16 +129,24 @@ export async function mountSuspended<T>(
               }
             ),
         },
-        defu(_options, {
-          slots,
-          global: {
-            config: {
-              globalProperties: vueApp.config.globalProperties,
+        defu(
+          _options,
+          {
+            slots,
+            global: {
+              config: {
+                globalProperties: vueApp.config.globalProperties,
+              },
+              provide: vueApp._context.provides,
+              stubs: {
+                Suspense: false,
+                MountSuspendedHelper: false,
+                [typeof (component as any).name === 'string' ? (component as any).name : 'MountSuspendedComponent']: false
+              },
+              components: { RouterLink },
             },
-            provide: vueApp._context.provides,
-            components: { RouterLink },
-          },
-        } satisfies ComponentMountingOptions<T>) as ComponentMountingOptions<T>
+          } satisfies ComponentMountingOptions<T>
+        ) as ComponentMountingOptions<T>
       )
     }
   )
