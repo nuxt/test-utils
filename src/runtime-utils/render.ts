@@ -71,6 +71,9 @@ export async function renderSuspended<T>(
   const { vueApp } = globalThis.__unctx__.get('nuxt-app').tryUse()
   const { render, setup } = component as DefineComponent<any, any>
 
+  // cleanup previously mounted test wrappers
+  document.querySelector(`#${WRAPPER_EL_ID}`)?.remove()
+
   let setupContext: SetupContext
 
   return new Promise<ReturnType<typeof renderFromTestingLibrary>>(resolve => {
