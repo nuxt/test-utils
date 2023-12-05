@@ -20,10 +20,10 @@ export interface NuxtVitestOptions {
 }
 
 /**
- * List of plugins that are not compatible with text env.
+ * List of plugins that are not compatible with test env.
  * Hard-coded for now, should remove by PR to upstream.
  */
-const vitePluginBlocklist = ['vite-plugin-vue-inspector', 'vite-plugin-inspect']
+const vitePluginBlocklist = ['vite-plugin-vue-inspector', 'vite-plugin-vue-inspector:post', 'vite-plugin-inspect']
 
 export default defineNuxtModule<NuxtVitestOptions>({
   meta: {
