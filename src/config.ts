@@ -175,7 +175,7 @@ export function defineVitestConfig(config: InlineConfig & { test?: VitestConfig 
 
     return defu(
       config,
-      await getVitestConfigFromNuxt(undefined, overrides),
+      await getVitestConfigFromNuxt(undefined, structuredClone(overrides)),
     )
   })
 }
