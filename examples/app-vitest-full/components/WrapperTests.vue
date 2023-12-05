@@ -4,14 +4,14 @@ const emit = defineEmits<{
   otherEvent: []
 }>()
 
-function testExpose() {
+function testExpose () {
   return 'expose was successful'
 }
 
 const modelValue = defineModel({ default: false })
 
 defineExpose({
-  testExpose,
+  testExpose
 })
 </script>
 
