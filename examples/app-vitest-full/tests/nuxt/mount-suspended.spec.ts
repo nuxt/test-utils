@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import { mountSuspended } from '@nuxt/test-utils/runtime-utils'
 
@@ -6,6 +6,7 @@ import App from '~/app.vue'
 import OptionsComponent from '~/components/OptionsComponent.vue'
 import WrapperTests from '~/components/WrapperTests.vue'
 
+import type { VueWrapper} from '@vue/test-utils';
 import { mount } from '@vue/test-utils'
 
 import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
@@ -110,15 +111,33 @@ describe('mountSuspended', () => {
 })
 
 describe.each(Object.entries(formats))(`%s`, (name, component) => {
-  it('mounts with props', async () => {
-    const wrapper = await mountSuspended(component, {
+  let wrapper: VueWrapper<any>
+
+  beforeEach(async () => {
+    wrapper = await mountSuspended(component, {
       props: {
         myProp: 'Hello nuxt-vitest',
       },
     })
+  })
+
+  it('mounts with props', () => {
     expect(wrapper.html()).toEqual(`
 <div>
   <h1>${name}</h1><pre>Hello nuxt-vitest</pre><pre>XHello nuxt-vitest</pre>
+</div>
+    `.trim())
+  })
+
+  // FIXME: https://github.com/nuxt/test-utils/issues/534
+  it.todo('can be updated with setProps', async () => {
+    wrapper.setProps({
+      title: 'updated title'
+    })
+    await nextTick()
+    expect(wrapper.html()).toEqual(`
+<div>
+  <h1>${name}</h1><pre>updated title</pre><pre>XHello nuxt-vitest</pre>
 </div>
     `.trim())
   })
