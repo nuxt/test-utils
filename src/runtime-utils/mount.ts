@@ -104,26 +104,20 @@ export async function mountSuspended<T>(
                         name: 'MountSuspendedComponent',
                         ...component,
                         render: render
-                          ? (_ctx: any, ...args: any[]) => {
-                              // add all _ctx properties to renderContext
-                              // the renderContext must remain intact, otherwise the emits don't work
-                              for (const key in _ctx) {
+                          ? function (this: any, _ctx: any, ...args: any[]) {
+                              for (const key in props || {}) {
                                 renderContext[key] = _ctx[key]
                               }
-                              return render.apply(_ctx, [
-                                renderContext,
-                                ...args,
-                              ])
+                              for (const key in setupState || {}) {
+                                renderContext[key] = setupState[key]
+                              }
+                              return render.call(this, renderContext, ...args)
                             }
                           : undefined,
-                        setup: setup
-                          ? (props: Record<string, any>) =>
-                              wrappedSetup(props, setupContext)
-                          : undefined,
+                        setup: setup ? (props: Record<string, any>) => wrappedSetup(props, setupContext) : undefined,
                       }
 
-                      return () =>
-                        h(clonedComponent, { ...props, ...attrs }, slots)
+                      return () => h(clonedComponent, { ...props, ...attrs }, slots)
                     },
                   }),
               }
