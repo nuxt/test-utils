@@ -1,53 +1,26 @@
 import { describe, expect, it } from 'vitest'
 
-import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime-utils'
-
-import { listen } from 'listhen'
-import { createApp, eventHandler, toNodeListener } from 'h3'
+import { mountSuspended } from '@nuxt/test-utils/runtime-utils'
 
 import App from '~/app.vue'
-import FetchComponent from '~/components/FetchComponent.vue'
 import OptionsComponent from '~/components/OptionsComponent.vue'
 import WrapperTests from '~/components/WrapperTests.vue'
 
 import { mount } from '@vue/test-utils'
 
-describe('client-side nuxt features', () => {
-  it('can use core nuxt composables within test file', () => {
-    expect(useAppConfig().hey).toMatchInlineSnapshot('false')
-  })
+import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
+import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
+import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'
+import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
 
-  it('can access auto-imported composables from within project', () => {
-    const state = useSingleState()
-    expect(state.value).toMatchInlineSnapshot('{}')
-    state.value.field = 'new value'
-    expect(state.value.field).toMatchInlineSnapshot('"new value"')
-    expect(useSingleState().value.field).toMatchInlineSnapshot('"new value"')
-  })
+const formats = {
+  ExportDefaultComponent,
+  ExportDefineComponent,
+  ExportDefaultWithRenderComponent,
+  ExportDefaultReturnsRenderComponent,
+}
 
-  it('can access injections from nuxt plugins', () => {
-    const app = useNuxtApp()
-    expect(app.$auth.didInject).toMatchInlineSnapshot('true')
-    expect(app.$router).toBeDefined()
-  })
-
-  it('defaults to index page', async () => {
-    expect(useRoute().matched[0].meta).toMatchInlineSnapshot(`
-      {
-        "value": "set in index",
-      }
-    `)
-  })
-
-  it('allows pushing to other pages', async () => {
-    await navigateTo('/something')
-    expect(useNuxtApp().$router.currentRoute.value.path).toEqual('/something')
-    await nextTick()
-    expect(useRoute().path).toEqual('/something')
-  })
-})
-
-describe('test utils', () => {
+describe('mountSuspended', () => {
   it('can mount components within nuxt suspense', async () => {
     const component = await mountSuspended(App)
     expect(component.html()).toMatchInlineSnapshot(`
@@ -114,19 +87,6 @@ describe('test utils', () => {
     `)
   })
 
-  it('can use $fetch', async () => {
-    const app = createApp().use(
-      '/todos/1',
-      eventHandler(() => ({ id: 1 }))
-    )
-    const server = await listen(toNodeListener(app))
-    const [{ url }] = await server.getURLs()
-    expect(await $fetch<unknown>('/todos/1', { baseURL: url })).toMatchObject({
-      id: 1,
-    })
-    await server.close()
-  })
-
   // This test works (you can delete it later)
   it('can receive emitted events from components using defineModel', () => {
     const component = mount(WrapperTests)
@@ -147,51 +107,19 @@ describe('test utils', () => {
     expect(component.vm.testExpose?.()).toBe('thing')
     expect(component.vm.someRef).toBe('thing')
   })
+})
 
-  it('can mock fetch requests', async () => {
-    registerEndpoint('https://jsonplaceholder.typicode.com/todos/1', () => ({
-      title: 'title from mocked api',
-    }))
-    const component = await mountSuspended(FetchComponent)
-    expect(component.html()).toMatchInlineSnapshot(
-      '"<div>title from mocked api</div>"'
-    )
-  })
-
-  it('can mock fetch requests', async () => {
-    registerEndpoint('/with-query', () => ({
-      title: 'mocked',
-    }))
-    expect(
-      await $fetch<unknown>('/with-query', { query: { test: true } })
-    ).toMatchObject({
-      title: 'mocked',
+describe.each(Object.entries(formats))(`%s`, (name, component) => {
+  it('mounts with props', async () => {
+    const wrapper = await mountSuspended(component, {
+      props: {
+        myProp: 'Hello nuxt-vitest',
+      },
     })
-  })
-
-  it('can mock fetch requests with explicit methods', async () => {
-    registerEndpoint('/method', {
-      method: 'POST',
-      handler: () => ({ method: 'POST' }),
-    })
-    registerEndpoint('/method', {
-      method: 'GET',
-      handler: () => ({ method: 'GET' }),
-    })
-    expect(await $fetch<unknown>('/method', { method: 'POST' })).toMatchObject({
-      method: 'POST',
-    })
-    expect(await $fetch<unknown>('/method')).toMatchObject({ method: 'GET' })
-  })
-
-  // TODO: reenable when merging Nuxt 3.7
-  it.skip('handles nuxt routing', async () => {
-    const component = await mountSuspended(App, { route: '/test' })
-    expect(component.html()).toMatchInlineSnapshot(`
-      "<div>This is an auto-imported component</div>
-      <div> I am a global component </div>
-      <div>/test</div>
-      <a href=\\"/test\\"> Test link </a>"
-    `)
+    expect(wrapper.html()).toEqual(`
+<div>
+  <h1>${name}</h1><pre>Hello nuxt-vitest</pre><pre>XHello nuxt-vitest</pre>
+</div>
+    `.trim())
   })
 })
