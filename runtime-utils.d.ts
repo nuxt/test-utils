@@ -1,1 +1,1 @@
-export * from './dist/runtime-utils'
+export * from './dist/runtime-utils/index.mjs'
