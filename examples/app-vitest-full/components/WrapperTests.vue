@@ -8,11 +8,13 @@ function testExpose () {
   return 'expose was successful'
 }
 
+const someRef = ref('thing')
+
 const modelValue = defineModel({ default: false })
 
 defineExpose({
   testExpose,
-  someRef: ref('thing')
+  someRef
 })
 </script>
 

@@ -94,49 +94,53 @@ export async function mountSuspended<T>(
               {
                 default: () =>
                   h({
+                    name: 'MountSuspendedHelper',
                     async setup() {
                       const router = useRouter()
                       await router.replace(route)
 
                       // Proxy top-level setup/render context so test wrapper resolves child component
                       const clonedComponent = {
+                        name: 'MountSuspendedComponent',
                         ...component,
                         render: render
-                          ? (_ctx: any, ...args: any[]) => {
-                              // add all _ctx properties to renderContext
-                              // the renderContext must remain intact, otherwise the emits don't work
-                              for (const key in _ctx) {
+                          ? function (this: any, _ctx: any, ...args: any[]) {
+                              for (const key in props || {}) {
                                 renderContext[key] = _ctx[key]
                               }
-                              return render.apply(_ctx, [
-                                renderContext,
-                                ...args,
-                              ])
+                              for (const key in setupState || {}) {
+                                renderContext[key] = setupState[key]
+                              }
+                              return render.call(this, renderContext, ...args)
                             }
                           : undefined,
-                        setup: setup
-                          ? (props: Record<string, any>) =>
-                              wrappedSetup(props, setupContext)
-                          : undefined,
+                        setup: setup ? (props: Record<string, any>) => wrappedSetup(props, setupContext) : undefined,
                       }
 
-                      return () =>
-                        h(clonedComponent, { ...props, ...attrs }, slots)
+                      return () => h(clonedComponent, { ...props, ...attrs }, slots)
                     },
                   }),
               }
             ),
         },
-        defu(_options, {
-          slots,
-          global: {
-            config: {
-              globalProperties: vueApp.config.globalProperties,
+        defu(
+          _options,
+          {
+            slots,
+            global: {
+              config: {
+                globalProperties: vueApp.config.globalProperties,
+              },
+              provide: vueApp._context.provides,
+              stubs: {
+                Suspense: false,
+                MountSuspendedHelper: false,
+                [typeof (component as any).name === 'string' ? (component as any).name : 'MountSuspendedComponent']: false
+              },
+              components: { RouterLink },
             },
-            provide: vueApp._context.provides,
-            components: { RouterLink },
-          },
-        } satisfies ComponentMountingOptions<T>) as ComponentMountingOptions<T>
+          } satisfies ComponentMountingOptions<T>
+        ) as ComponentMountingOptions<T>
       )
     }
   )

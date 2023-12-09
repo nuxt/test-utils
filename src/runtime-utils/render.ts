@@ -29,7 +29,7 @@ export const WRAPPER_EL_ID = 'test-wrapper'
  *
  * ```ts
  * // tests/components/SomeComponents.nuxt.spec.ts
- * import { renderSuspended } from '@nuxt/test-utils/runtime-utils'
+ * import { renderSuspended } from '@nuxt/test-utils/runtime'
  *
  * it('can render some component', async () => {
  * const { html } = await renderSuspended(SomeComponent)
@@ -40,7 +40,7 @@ export const WRAPPER_EL_ID = 'test-wrapper'
  * })
  *
  * // tests/App.nuxt.spec.ts
- * import { renderSuspended } from '@nuxt/test-utils/runtime-utils'
+ * import { renderSuspended } from '@nuxt/test-utils/runtime'
  * import { screen } from '@testing-library/vue'
  *
  * it('can also mount an app', async () => {
