@@ -43,7 +43,7 @@ describe('mocking', () => {
         from: 'bob'
       }]
       expect(await getResult(`
-        import { mockNuxtImport } from '@nuxt/test-utils/runtime-utils'
+        import { mockNuxtImport } from '@nuxt/test-utils/runtime'
         mockNuxtImport('useSomeExport', () => {
           return () => 'mocked'
         })
@@ -65,7 +65,7 @@ describe('mocking', () => {
           return mocks["bob"] 
         });
 
-                import { mockNuxtImport } from '@nuxt/test-utils/runtime-utils'
+                import { mockNuxtImport } from '@nuxt/test-utils/runtime'
                 
               
          import "bob";"
@@ -97,7 +97,7 @@ describe('mocking', () => {
         filePath: '/test/thing.vue'
       }]
       expect(await getResult(`
-        import { mockComponent } from '@nuxt/test-utils/runtime-utils'
+        import { mockComponent } from '@nuxt/test-utils/runtime'
         mockComponent('MyComponent', () => import('./MockComponent.vue'))
       `)).toMatchInlineSnapshot(`
         "import {vi} from "vitest";
@@ -112,7 +112,7 @@ describe('mocking', () => {
           return 'default' in result ? result : { default: result }
         });
 
-                import { mockComponent } from '@nuxt/test-utils/runtime-utils'
+                import { mockComponent } from '@nuxt/test-utils/runtime'
                 
               "
       `)

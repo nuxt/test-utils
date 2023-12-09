@@ -1,5 +1,5 @@
 import { vi } from 'vitest'
-import { mockNuxtImport } from '@nuxt/test-utils/runtime-utils'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 mockNuxtImport<typeof useAutoImportSetupMocked>(
   'useAutoImportSetupMocked',

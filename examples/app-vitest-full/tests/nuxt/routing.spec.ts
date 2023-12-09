@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { mountSuspended } from '@nuxt/test-utils/runtime-utils'
+import { mountSuspended } from '@nuxt/test-utils/runtime'
 
 import App from '~/app.vue'
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime-utils'
+import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 
 import { listen } from 'listhen'
 import { createApp, eventHandler, toNodeListener } from 'h3'

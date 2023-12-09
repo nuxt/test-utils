@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { mockComponent, mountSuspended } from '@nuxt/test-utils/runtime-utils'
+import { mockComponent, mountSuspended } from '@nuxt/test-utils/runtime'
 import { SomeComponent } from '#components'
 
 mockComponent('SomeComponent', async () => {

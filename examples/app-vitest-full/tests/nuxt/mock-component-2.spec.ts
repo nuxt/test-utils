@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { mockComponent, mountSuspended } from '@nuxt/test-utils/runtime-utils'
+import { mockComponent, mountSuspended } from '@nuxt/test-utils/runtime'
 import App from '~/app.vue'
 
 mockComponent('SomeComponent', () => import('./mocks/MockComponent.vue'))
