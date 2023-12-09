@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import { createPage, setup } from '@nuxt/test-utils'
+import { createPage, setup } from '@nuxt/test-utils/e2e'
 import { describe, expect, it } from 'vitest'
 
 await setup({
