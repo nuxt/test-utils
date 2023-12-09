@@ -1,5 +1,5 @@
 import * as _kit from '@nuxt/kit'
-import { createTest, exposeContextToEnv } from '@nuxt/test-utils'
+import { createTest, exposeContextToEnv } from '@nuxt/test-utils/e2e'
 
 // @ts-expect-error type cast
 // eslint-disable-next-line

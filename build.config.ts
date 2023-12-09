@@ -5,7 +5,7 @@ const isStub = process.argv.includes('--stub')
 export default defineBuildConfig({
   declaration: true,
   entries: [
-    'src/index',
+    'src/e2e',
     'src/experimental',
     'src/config',
     'src/module.ts',
