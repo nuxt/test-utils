@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime-utils'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 
 import App from '~/app.vue'
 
