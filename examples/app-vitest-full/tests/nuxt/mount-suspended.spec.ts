@@ -95,18 +95,18 @@ describe('mountSuspended', () => {
     expect(component.emitted()).toHaveProperty('update:modelValue')
   })
 
-  // TODO: fix this failing test
+  // FIXME: fix this failing test
   it.todo('can receive emitted events from components mounted within nuxt suspense using defineModel', async () => {
     const component = await mountSuspended(WrapperTests)
     component.find('button#changeModelValue').trigger('click')
     expect(component.emitted()).toHaveProperty('update:modelValue')
   })
 
-  // TODO: fix this failing test
-  it.todo('can access exposed methods/refs from components mounted within nuxt suspense', async () => {
+  it('can access exposed methods/refs from components mounted within nuxt suspense', async () => {
     const component = await mountSuspended(WrapperTests)
-    expect(component.vm.testExpose?.()).toBe('thing')
-    expect(component.vm.someRef).toBe('thing')
+    expect(component.vm.testExpose?.()).toBe('expose was successful')
+    // @ts-expect-error FIXME: someRef is typed as unwrapped
+    expect(component.vm.someRef.value).toBe('thing')
   })
 })
 
