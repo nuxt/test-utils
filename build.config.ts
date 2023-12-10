@@ -9,6 +9,7 @@ export default defineBuildConfig({
     'src/experimental',
     'src/config',
     'src/module.ts',
+    isStub ? { input: 'src/module-utils/', outDir: 'dist/module-utils', format: 'esm' } : 'src/module-utils/index.mjs',
     'src/vitest-environment',
     isStub ? { input: 'src/runtime-utils/', outDir: 'dist/runtime-utils', format: 'esm' } : 'src/runtime-utils/index.mjs',
     { input: 'src/runtime/', outDir: 'dist/runtime', format: 'esm' }
@@ -17,5 +18,6 @@ export default defineBuildConfig({
     "#app/entry",
     "#build/root-component.mjs",
     "#imports",
-  ]
+  ],
+  failOnWarn: false,
 })
