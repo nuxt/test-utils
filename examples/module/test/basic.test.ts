@@ -13,7 +13,6 @@ describe('ssr', async () => {
     expect(html).toContain('<div>basic <span>original value</span></div>')
   })
 
-
   it('changes runtime config and restarts', async () => {
     const restoreConfig = await setRuntimeConfig({ public: { myValue: 'overwritten by test!' } })
 
