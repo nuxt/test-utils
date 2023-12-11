@@ -38,9 +38,9 @@ export function convertObjectToConfig(obj: Record<string, unknown>) {
   return env
 }
 
-export async function setRuntimeConfig(env: Record<string, unknown>) {
-  const converted = convertObjectToConfig(env)
-  await startServer(converted)
+export async function setRuntimeConfig(config: Record<string, unknown>) {
+  const env = convertObjectToConfig(config)
+  await startServer({ env })
 
   // restore
   return async () => startServer()
