@@ -6,12 +6,15 @@ import * as _kit from '@nuxt/kit'
 import { resolve } from 'pathe'
 import { useTestContext } from './context'
 
-
 // @ts-expect-error type cast
 // eslint-disable-next-line
 const kit: typeof _kit = _kit.default || _kit
 
-export async function startServer (env: Record<string, unknown> = {}) {
+export interface StartServerOptions {
+  env?: Record<string, unknown>
+}
+
+export async function startServer (options: StartServerOptions = {}) {
   const ctx = useTestContext()
   await stopServer()
   const host = '127.0.0.1'
@@ -28,7 +31,7 @@ export async function startServer (env: Record<string, unknown> = {}) {
         PORT: String(port),
         HOST: host,
         NODE_ENV: 'development',
-        ...env
+        ...options.env
       }
     })
     await waitForPort(port, { retries: 32, host }).catch(() => {})
@@ -56,7 +59,7 @@ export async function startServer (env: Record<string, unknown> = {}) {
         PORT: String(port),
         HOST: host,
         NODE_ENV: 'test',
-        ...env
+        ...options.env
       }
     })
     await waitForPort(port, { retries: 20, host })

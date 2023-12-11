@@ -1,5 +1,5 @@
-import { snakeCase } from "scule"
-import { startServer } from "../e2e";
+import { snakeCase } from 'scule'
+import { startServer } from './server'
 
 const NUXT_ENV_PREFIX = 'NUXT_'
 

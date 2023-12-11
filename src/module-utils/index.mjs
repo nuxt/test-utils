@@ -1,1 +1,0 @@
-export { setRuntimeConfig } from './runtime-config'

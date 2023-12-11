@@ -1,7 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { $fetch, setup } from '@nuxt/test-utils/e2e'
-import { setRuntimeConfig } from '@nuxt/test-utils/module-utils'
+import { $fetch, setRuntimeConfig, setup } from '@nuxt/test-utils/e2e'
 
 describe('ssr', async () => {
   await setup({
@@ -17,7 +16,7 @@ describe('ssr', async () => {
 
   it('changes runtime config and restarts', async () => {
     const restoreConfig = await setRuntimeConfig({ public: { myValue: 'overwritten by test!' } })
-    
+
     const html = await $fetch('/')
     expect(html).toContain('<div>basic <span>overwritten by test!</span></div>')
 
