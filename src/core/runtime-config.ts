@@ -1,8 +1,6 @@
 import { snakeCase } from 'scule'
 import { startServer } from './server'
 
-const NUXT_ENV_PREFIX = 'NUXT_'
-
 export function flattenObject(obj: Record<string, unknown> = {}) {
   const flattened: Record<string, unknown> = {}
 
@@ -26,8 +24,8 @@ export function flattenObject(obj: Record<string, unknown> = {}) {
   return flattened
 }
 
-export function convertObjectToConfig(obj: Record<string, unknown>) {
-  const makeEnvKey = (str: string) => `${NUXT_ENV_PREFIX}${snakeCase(str).toUpperCase()}`
+export function convertObjectToConfig(obj: Record<string, unknown>, envPrefix: string) {
+  const makeEnvKey = (str: string) => `${envPrefix}${snakeCase(str).toUpperCase()}`
   
   const env: Record<string, unknown> = {}
   const flattened = flattenObject(obj)
@@ -38,8 +36,8 @@ export function convertObjectToConfig(obj: Record<string, unknown>) {
   return env
 }
 
-export async function setRuntimeConfig(config: Record<string, unknown>) {
-  const env = convertObjectToConfig(config)
+export async function setRuntimeConfig(config: Record<string, unknown>, envPrefix = 'NUXT_') {
+  const env = convertObjectToConfig(config, envPrefix)
   await startServer({ env })
 
   // restore
