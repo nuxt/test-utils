@@ -45,6 +45,16 @@ export default defineNuxtModule<NuxtVitestOptions>({
       rootStubPath: await resolvePath(resolver.resolve('./runtime/nuxt-root')),
     }))
 
+    // Support for in-source testing
+    if (!nuxt.options.test && !nuxt.options.dev) {
+      nuxt.options.vite.define ||= {}
+      nuxt.options.vite.define['import.meta.vitest'] = 'undefined'
+    }
+
+    nuxt.hook('prepare:types', ({ references }) => {
+      references.push({ types: 'vitest/importMeta' })
+    })
+
     if (!nuxt.options.dev) return
 
     // the nuxt instance is used by a standalone Vitest env, we skip this module

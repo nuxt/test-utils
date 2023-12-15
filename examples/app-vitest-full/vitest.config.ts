@@ -7,6 +7,7 @@ export default defineVitestConfig({
     coverage: {
       reportsDirectory: 'coverage',
     },
+    includeSource: ['../pages/index.vue'],
     environmentOptions: {
       nuxt: {
         rootDir: fileURLToPath(new URL('./', import.meta.url)),
