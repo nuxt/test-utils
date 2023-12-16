@@ -94,21 +94,25 @@ export async function getVitestConfigFromNuxt(
           ['**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', 'nuxt'],
           ['{test,tests}/nuxt/**.*', 'nuxt'],
         ],
+        server: {
+          deps: {
+            // TODO: move to server.deps.inline when we update to vite v1
+            inline: [
+              // vite-node defaults
+              /\/node_modules\/(.*\/)?(nuxt|nuxt3|nuxt-nightly)\//,
+              /^#/,
+              // additional deps
+              '@nuxt/test-utils',
+              '@nuxt/test-utils-nightly',
+              '@nuxt/test-utils-edge',
+              'vitest-environment-nuxt',
+              ...(options.nuxt.options.build.transpile.filter(
+                r => typeof r === 'string' || r instanceof RegExp
+              ) as Array<string | RegExp>),
+            ],
+          },
+        },
         deps: {
-          // TODO: move to server.deps.inline when we update to vite v1
-          inline: [
-            // vite-node defaults
-            /\/node_modules\/(.*\/)?(nuxt|nuxt3|nuxt-nightly)\//,
-            /^#/,
-            // additional deps
-            '@nuxt/test-utils',
-            '@nuxt/test-utils-nightly',
-            '@nuxt/test-utils-edge',
-            'vitest-environment-nuxt',
-            ...(options.nuxt.options.build.transpile.filter(
-              r => typeof r === 'string' || r instanceof RegExp
-            ) as Array<string | RegExp>),
-          ],
           optimizer: {
             web: {
               enabled: false,
