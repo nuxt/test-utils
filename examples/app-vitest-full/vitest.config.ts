@@ -10,9 +10,7 @@ export default defineVitestConfig({
     environmentOptions: {
       nuxt: {
         rootDir: fileURLToPath(new URL('./', import.meta.url)),
-        domEnvironment:
-          (process.env.VITEST_DOM_ENV as 'happy-dom' | 'jsdom') ?? 'happy-dom',
-
+        domEnvironment: (process.env.VITEST_DOM_ENV as 'happy-dom' | 'jsdom') ?? 'happy-dom',
         mock: {
           indexedDb: true,
         },

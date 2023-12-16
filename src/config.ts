@@ -1,6 +1,7 @@
 import type { Nuxt, NuxtConfig } from '@nuxt/schema'
 import type { InlineConfig as VitestConfig } from 'vitest'
 import { defineConfig } from 'vite'
+import { setupDotenv } from 'c12'
 import type { DotenvOptions } from 'c12'
 import type { InlineConfig } from 'vite'
 import { defu } from 'defu'
@@ -98,7 +99,13 @@ export async function getVitestConfigFromNuxt(
       test: {
         dir: process.cwd(),
         environmentOptions: {
-          nuxtRuntimeConfig: applyEnv(options.nuxt.options.runtimeConfig, { prefix: 'NUXT_' }),
+          nuxtRuntimeConfig: applyEnv(structuredClone(options.nuxt.options.runtimeConfig), {
+            prefix: 'NUXT_',
+            env: await setupDotenv(defu(loadNuxtOptions.dotenv, {
+              cwd: rootDir,
+              fileName: '.env.test'
+            })),
+          }),
           nuxtRouteRules: defu(
             {},
             options.nuxt.options.routeRules,
