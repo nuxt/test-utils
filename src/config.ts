@@ -6,7 +6,7 @@ import type { InlineConfig } from 'vite'
 import { defu } from 'defu'
 import { createResolver } from '@nuxt/kit'
 
-import { applyEnv } from './config/utils'
+import { applyEnv } from './utils'
 
 interface GetVitestConfigOptions {
   nuxt: Nuxt
