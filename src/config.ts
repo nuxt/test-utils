@@ -175,7 +175,7 @@ export function defineVitestConfig(config: InlineConfig & { test?: VitestConfig 
     const overrides = config.test?.environmentOptions?.nuxt?.overrides || {}
     overrides.rootDir = config.test?.environmentOptions?.nuxt?.rootDir
 
-    if (config.test.setupFiles && !Array.isArray(config.test.setupFiles)) {
+    if (config.test?.setupFiles && !Array.isArray(config.test.setupFiles)) {
       config.test.setupFiles = [config.test.setupFiles].filter(Boolean) as string[]
     }
 
