@@ -18,7 +18,7 @@ export default defineVitestConfig({
         },
       },
     },
-    setupFiles: ['./tests/setup/mocks.ts'],
+    setupFiles: './tests/setup/mocks.ts',
     globals: true,
   },
 })
