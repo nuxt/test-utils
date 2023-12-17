@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 import { defu } from 'defu'
-import type { TestContext, TestOptions, TestRunner } from './types'
+import type { TestContext, TestOptions } from './types'
 
 let currentContext: TestContext | undefined
 
@@ -15,12 +15,11 @@ export function createTestContext (options: Partial<TestOptions>): TestContext {
     server: true,
     build: (options.browser !== false) || (options.server !== false),
     nuxtConfig: {},
-    // TODO: auto detect based on process.env
-    runner: <TestRunner>'vitest',
+    runner: process.env.VITEST === 'true' ? 'vitest' : 'jest',
     browserOptions: {
       type: 'chromium' as const
     }
-  })
+  } satisfies Partial<TestOptions>)
 
   return setTestContext({
     options: _options as TestOptions
