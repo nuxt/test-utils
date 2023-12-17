@@ -7,7 +7,7 @@ await setup({
   dev: true,
 })
 
-describe('server (dev)', async () => {
+describe('server (dev)', () => {
   it('runs a test', async () => {
     const html = await $fetch('/')
     expect(html.slice(0, 15)).toMatchInlineSnapshot(`
