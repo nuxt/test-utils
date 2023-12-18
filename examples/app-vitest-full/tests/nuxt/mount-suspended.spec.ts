@@ -138,12 +138,10 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
     `.trim())
   })
 
-  // FIXME: https://github.com/nuxt/test-utils/issues/534
-  it.todo('can be updated with setProps', async () => {
-    wrapper.setProps({
-      title: 'updated title'
+  it.only('can be updated with setProps', async () => {
+    await wrapper.setProps({
+       myProp: 'updated title'
     })
-    await nextTick()
     expect(wrapper.html()).toEqual(`
 <div>
   <h1>${name}</h1><pre>updated title</pre><pre>XHello nuxt-vitest</pre>

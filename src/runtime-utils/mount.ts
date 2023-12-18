@@ -59,6 +59,7 @@ export async function mountSuspended<T>(
 
   let setupContext: SetupContext
   let setupState: any
+  const setProps = reactive<Record<string, any>>({})
 
   let passedProps: Record<string, any>
   const wrappedSetup = async (
@@ -89,7 +90,10 @@ export async function mountSuspended<T>(
               {
                 onResolve: () =>
                   nextTick().then(() => {
-                    (vm as any).setupState = setupState
+                    (vm as any).setupState = setupState;
+                    (vm as any).__setProps = (props: Record<string, any>) => {
+                      Object.assign(setProps, props)
+                    }
                     resolve(vm as any)
                   }),
               },
@@ -122,7 +126,7 @@ export async function mountSuspended<T>(
                         setup: setup ? (props: Record<string, any>) => wrappedSetup(props, setupContext) : undefined,
                       }
 
-                      return () => h(clonedComponent, { ...props, ...attrs }, slots)
+                      return () => h(clonedComponent, { ...defu(setProps, props) as typeof props, ...attrs }, slots)
                     },
                   }),
               }
