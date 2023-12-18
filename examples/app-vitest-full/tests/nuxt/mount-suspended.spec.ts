@@ -14,6 +14,8 @@ import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
 import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
 
+import { BoundAttrs } from '#components'
+
 const formats = {
   ExportDefaultComponent,
   ExportDefineComponent,
@@ -30,6 +32,13 @@ describe('mountSuspended', () => {
       <div>Index page</div>
       <a href="/test"> Test link </a>"
     `)
+  })
+
+  it('should handle passing setup state and props to template', async () => {
+    const wrappedComponent = await mountSuspended(BoundAttrs)
+    const component = mount(BoundAttrs)
+
+    expect(component.html()).toEqual(wrappedComponent.html())
   })
 
   it('should work with shallow mounting within suspense', async () => {

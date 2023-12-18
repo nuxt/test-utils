@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import type { ComponentMountingOptions } from '@vue/test-utils'
-import { Suspense, h, nextTick } from 'vue'
+import { Suspense, h, nextTick, isReadonly } from 'vue'
 import type { DefineComponent, SetupContext } from 'vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
@@ -60,10 +60,12 @@ export async function mountSuspended<T>(
   let setupContext: SetupContext
   let setupState: any
 
+  let passedProps: Record<string, any>
   const wrappedSetup = async (
     props: Record<string, any>,
     setupContext: SetupContext
   ) => {
+    passedProps = props
     if (setup) {
       setupState = await setup(props, setupContext)
       return setupState
@@ -105,11 +107,14 @@ export async function mountSuspended<T>(
                         ...component,
                         render: render
                           ? function (this: any, _ctx: any, ...args: any[]) {
+                              for (const key in setupState || {}) {
+                                renderContext[key] = isReadonly(setupState[key]) ? unref(setupState[key]) : setupState[key]
+                              }
                               for (const key in props || {}) {
                                 renderContext[key] = _ctx[key]
                               }
-                              for (const key in setupState || {}) {
-                                renderContext[key] = setupState[key]
+                              for (const key in passedProps || {}) {
+                                renderContext[key] = passedProps[key]
                               }
                               return render.call(this, renderContext, ...args)
                             }
