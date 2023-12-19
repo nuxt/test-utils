@@ -9,7 +9,7 @@ export default defineNuxtConfig({
       },
     },
   },
-  vitest: {
+  testUtils: {
     startOnBoot: true,
     logToConsole: true,
     vitestConfig: {
