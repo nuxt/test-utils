@@ -1,5 +1,8 @@
 <template>
-  <button :type="type" v-bind="attrs" />
+  <button
+    :type="type"
+    v-bind="attrs"
+  />
 </template>
 
 <script lang="ts">
