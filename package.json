@@ -1,6 +1,6 @@
 {
   "name": "@nuxt/test-utils",
-  "version": "3.9.0-alpha.1",
+  "version": "3.9.0-alpha.2",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nuxt/test-utils.git"
@@ -35,7 +35,7 @@
     "test:unit": "vitest test/unit --run",
     "prepack": "unbuild",
     "dev:prepare": "nuxi prepare && unbuild --stub && pnpm -r dev:prepare",
-    "release": "pnpm test:examples && pnpm build && changelogen --release --push && pnpm publish"
+    "release": "pnpm test:examples && pnpm prepack && changelogen --release --push && pnpm publish"
   },
   "dependencies": {
     "@nuxt/kit": "^3.8.2",
