@@ -138,7 +138,7 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
     `.trim())
   })
 
-  it.only('can be updated with setProps', async () => {
+  it('can be updated with setProps', async () => {
     await wrapper.setProps({
        myProp: 'updated title'
     })
