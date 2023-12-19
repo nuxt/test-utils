@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import type { ComponentMountingOptions } from '@vue/test-utils'
-import { Suspense, h, nextTick, isReadonly } from 'vue'
+import { Suspense, h, isReadonly, nextTick } from 'vue'
 import type { DefineComponent, SetupContext } from 'vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
