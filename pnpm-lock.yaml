@@ -117,8 +117,8 @@ importers:
         specifier: 7.5.6
         version: 7.5.6
       '@vitest/ui':
-        specifier: 1.0.4
-        version: 1.0.4(vitest@1.0.4)
+        specifier: 1.1.0
+        version: 1.1.0(vitest@1.0.4)
       '@vue/test-utils':
         specifier: 2.4.3
         version: 2.4.3(vue@3.3.11)
@@ -169,7 +169,7 @@ importers:
         version: 5.0.10(@types/node@20.10.0)
       vitest:
         specifier: latest
-        version: 1.0.4(@vitest/ui@1.0.4)(happy-dom@12.10.3)(jsdom@22.1.0)
+        version: 1.0.4(@vitest/ui@1.1.0)(happy-dom@12.10.3)(jsdom@22.1.0)
       vue-router:
         specifier: 4.2.5
         version: 4.2.5(vue@3.3.11)
@@ -268,7 +268,7 @@ importers:
         version: 5.3.3
       vitest:
         specifier: latest
-        version: 1.0.4(@vitest/ui@1.0.4)(happy-dom@12.10.3)(jsdom@23.0.1)
+        version: 1.0.4(@vitest/ui@1.1.0)(happy-dom@12.10.3)(jsdom@23.0.1)
       vue-tsc:
         specifier: 1.8.25
         version: 1.8.25(typescript@5.3.3)
@@ -286,7 +286,7 @@ importers:
         version: 3.8.2(eslint@8.56.0)(rollup@4.9.1)(typescript@5.3.3)(vite@5.0.10)(vue-tsc@1.8.25)
       vitest:
         specifier: latest
-        version: 1.0.4(@vitest/ui@1.0.4)(happy-dom@12.10.3)(jsdom@22.1.0)
+        version: 1.0.4(@vitest/ui@1.1.0)(happy-dom@12.10.3)(jsdom@22.1.0)
 
   examples/i18n:
     devDependencies:
@@ -304,7 +304,7 @@ importers:
         version: 3.8.2(eslint@8.56.0)(rollup@4.9.1)(typescript@5.3.3)(vite@5.0.10)(vue-tsc@1.8.25)
       vitest:
         specifier: latest
-        version: 1.0.4(@vitest/ui@1.0.4)(happy-dom@12.10.3)(jsdom@22.1.0)
+        version: 1.0.4(@vitest/ui@1.1.0)(happy-dom@12.10.3)(jsdom@22.1.0)
       vue:
         specifier: ^3.3.10
         version: 3.3.11(typescript@5.3.3)
@@ -341,7 +341,7 @@ importers:
         version: 3.8.2(eslint@8.56.0)(rollup@4.9.1)(typescript@5.3.3)(vite@5.0.10)(vue-tsc@1.8.25)
       vitest:
         specifier: latest
-        version: 1.0.4(@vitest/ui@1.0.4)(happy-dom@12.10.3)(jsdom@22.1.0)
+        version: 1.0.4(@vitest/ui@1.1.0)(happy-dom@12.10.3)(jsdom@22.1.0)
 
   examples/module/playground:
     dependencies:
@@ -3414,23 +3414,31 @@ packages:
       tinyspy: 2.2.0
     dev: true
 
-  /@vitest/ui@1.0.4(vitest@1.0.4):
-    resolution: {integrity: sha512-gd4p6e7pjukSe4joWS5wpnm/JcEfzCZUYkYWQOORqJK1mDJ0MOaXa/9BbPOEVO5TcvdnKvFJUdJpFHnqoyYwZA==}
+  /@vitest/ui@1.1.0(vitest@1.0.4):
+    resolution: {integrity: sha512-7yU1QRFBplz0xJqcgt+agcbrNFdBmLo8UUppdKkFmYx+Ih0+yMYQOyr7kOB+YoggJY/p5ZzXxdbiOz7NBX2y+w==}
     peerDependencies:
       vitest: ^1.0.0
     dependencies:
-      '@vitest/utils': 1.0.4
+      '@vitest/utils': 1.1.0
       fast-glob: 3.3.2
       fflate: 0.8.1
       flatted: 3.2.9
       pathe: 1.1.1
       picocolors: 1.0.0
       sirv: 2.0.3
-      vitest: 1.0.4(@vitest/ui@1.0.4)(happy-dom@12.10.3)(jsdom@22.1.0)
+      vitest: 1.0.4(@vitest/ui@1.1.0)(happy-dom@12.10.3)(jsdom@22.1.0)
     dev: true
 
   /@vitest/utils@1.0.4:
     resolution: {integrity: sha512-gsswWDXxtt0QvtK/y/LWukN7sGMYmnCcv1qv05CsY6cU/Y1zpGX1QuvLs+GO1inczpE6Owixeel3ShkjhYtGfA==}
+    dependencies:
+      diff-sequences: 29.6.3
+      loupe: 2.3.7
+      pretty-format: 29.7.0
+    dev: true
+
+  /@vitest/utils@1.1.0:
+    resolution: {integrity: sha512-z+s510fKmYz4Y41XhNs3vcuFTFhcij2YF7F8VQfMEYAAUfqQh0Zfg7+w9xdgFGhPf3tX3TicAe+8BDITk6ampQ==}
     dependencies:
       diff-sequences: 29.6.3
       loupe: 2.3.7
@@ -11659,7 +11667,7 @@ packages:
     optionalDependencies:
       fsevents: 2.3.3
 
-  /vitest@1.0.4(@vitest/ui@1.0.4)(happy-dom@12.10.3)(jsdom@22.1.0):
+  /vitest@1.0.4(@vitest/ui@1.1.0)(happy-dom@12.10.3)(jsdom@22.1.0):
     resolution: {integrity: sha512-s1GQHp/UOeWEo4+aXDOeFBJwFzL6mjycbQwwKWX2QcYfh/7tIerS59hWQ20mxzupTJluA2SdwiBuWwQHH67ckg==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -11688,7 +11696,7 @@ packages:
       '@vitest/runner': 1.0.4
       '@vitest/snapshot': 1.0.4
       '@vitest/spy': 1.0.4
-      '@vitest/ui': 1.0.4(vitest@1.0.4)
+      '@vitest/ui': 1.1.0(vitest@1.0.4)
       '@vitest/utils': 1.0.4
       acorn-walk: 8.3.0
       cac: 6.7.14
@@ -11718,7 +11726,7 @@ packages:
       - terser
     dev: true
 
-  /vitest@1.0.4(@vitest/ui@1.0.4)(happy-dom@12.10.3)(jsdom@23.0.1):
+  /vitest@1.0.4(@vitest/ui@1.1.0)(happy-dom@12.10.3)(jsdom@23.0.1):
     resolution: {integrity: sha512-s1GQHp/UOeWEo4+aXDOeFBJwFzL6mjycbQwwKWX2QcYfh/7tIerS59hWQ20mxzupTJluA2SdwiBuWwQHH67ckg==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -11747,7 +11755,7 @@ packages:
       '@vitest/runner': 1.0.4
       '@vitest/snapshot': 1.0.4
       '@vitest/spy': 1.0.4
-      '@vitest/ui': 1.0.4(vitest@1.0.4)
+      '@vitest/ui': 1.1.0(vitest@1.0.4)
       '@vitest/utils': 1.0.4
       acorn-walk: 8.3.0
       cac: 6.7.14
