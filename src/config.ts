@@ -151,8 +151,8 @@ export async function getVitestConfigFromNuxt(
           transform(code, id) {
             if (id.match(/nuxt(3|-nightly)?\/.*\/entry\./)) {
               return code.replace(
-                /(?<!vueAppPromise = )entry\(\)\.catch/,
-                'Promise.resolve().catch'
+                /(?<!vueAppPromise = )entry\(\)/,
+                'Promise.resolve()'
               )
             }
           },
