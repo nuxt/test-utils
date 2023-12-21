@@ -50,17 +50,15 @@ export async function startServer (options: StartServerOptions = {}) {
     ctx.serverProcess.kill()
     throw lastError || new Error('Timeout waiting for dev server!')
   } else {
-    ctx.serverProcess = execa('node', [
-      resolve(ctx.nuxt!.options.nitro.output!.dir!, 'server/index.mjs')
-    ], {
+    ctx.serverProcess = execaNode(resolve(ctx.nuxt!.options.nitro.output!.dir!, 'server/index.mjs'), {
       stdio: 'inherit',
       env: {
         ...process.env,
         PORT: String(port),
         HOST: host,
         NODE_ENV: 'test',
-        ...options.env
-      }
+        ...options.env,
+      },
     })
     await waitForPort(port, { retries: 20, host })
   }
