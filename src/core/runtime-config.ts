@@ -1,5 +1,6 @@
 import { snakeCase } from 'scule'
 import { useTestContext } from './context'
+import { startServer } from './server'
 
 export function flattenObject(obj: Record<string, unknown> = {}) {
   const flattened: Record<string, unknown> = {}
@@ -36,9 +37,14 @@ export function convertObjectToConfig(obj: Record<string, unknown>, envPrefix: s
   return env
 }
 
-export async function setRuntimeConfig(config: Record<string, unknown>, envPrefix = 'NUXT_') {
-  const env = convertObjectToConfig(config, envPrefix)
+type SetRuntimeConfigOptions = { envPrefix?: string; restart?: boolean }
+export async function setRuntimeConfig(config: Record<string, unknown>, options: SetRuntimeConfigOptions = {}) {
+  const env = convertObjectToConfig(config, options.envPrefix ?? 'NUXT_')
   const ctx = useTestContext()
+
+  if (options.restart) {
+    return await startServer({ env })
+  }
 
   let updatedConfig = false
   ctx.serverProcess?.once('message', (msg: { type: string }) => {

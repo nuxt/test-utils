@@ -40,9 +40,10 @@ describe('ssr', async () => {
   })
 
   it('changes runtime config', async () => {
-    await setRuntimeConfig({ public: { myValue: 'overwritten by test!' } })
+    expect(await $fetch('/')).toContain('<span id="runtime">original value</span></div>')
 
-    const html = await $fetch('/')
-    expect(html).toContain('<span id="runtime">overwritten by test!</span></div>')
+    await setRuntimeConfig({ public: { myValue: 'overwritten by test!' } }, { restart: true })
+
+    expect(await $fetch('/')).toContain('<span id="runtime">overwritten by test!</span></div>')
   })
 })
