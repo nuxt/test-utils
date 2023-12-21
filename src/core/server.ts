@@ -1,4 +1,4 @@
-import { execa } from 'execa'
+import { execa, execaNode } from 'execa'
 import { getRandomPort, waitForPort } from 'get-port-please'
 import type { FetchOptions } from 'ofetch'
 import { $fetch as _$fetch, fetch as _fetch } from 'ofetch'
@@ -10,7 +10,11 @@ import { useTestContext } from './context'
 // eslint-disable-next-line
 const kit: typeof _kit = _kit.default || _kit
 
-export async function startServer () {
+export interface StartServerOptions {
+  env?: Record<string, unknown>
+}
+
+export async function startServer (options: StartServerOptions = {}) {
   const ctx = useTestContext()
   await stopServer()
   const host = '127.0.0.1'
@@ -26,7 +30,8 @@ export async function startServer () {
         _PORT: String(port), // Used by internal _dev command
         PORT: String(port),
         HOST: host,
-        NODE_ENV: 'development'
+        NODE_ENV: 'development',
+        ...options.env
       }
     })
     await waitForPort(port, { retries: 32, host }).catch(() => {})
@@ -45,16 +50,15 @@ export async function startServer () {
     ctx.serverProcess.kill()
     throw lastError || new Error('Timeout waiting for dev server!')
   } else {
-    ctx.serverProcess = execa('node', [
-      resolve(ctx.nuxt!.options.nitro.output!.dir!, 'server/index.mjs')
-    ], {
+    ctx.serverProcess = execaNode(resolve(ctx.nuxt!.options.nitro.output!.dir!, 'server/index.mjs'), {
       stdio: 'inherit',
       env: {
         ...process.env,
         PORT: String(port),
         HOST: host,
-        NODE_ENV: 'test'
-      }
+        NODE_ENV: 'test',
+        ...options.env,
+      },
     })
     await waitForPort(port, { retries: 20, host })
   }
