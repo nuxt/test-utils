@@ -1,4 +1,4 @@
-import { execa } from 'execa'
+import { execa, execaNode } from 'execa'
 import { getRandomPort, waitForPort } from 'get-port-please'
 import type { FetchOptions } from 'ofetch'
 import { $fetch as _$fetch, fetch as _fetch } from 'ofetch'
