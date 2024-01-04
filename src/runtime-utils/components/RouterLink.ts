@@ -3,7 +3,10 @@ import { defineComponent, h, useRouter } from '#imports'
 export const RouterLink = defineComponent({
   functional: true,
   props: {
-    to: [String, Object],
+    to: {
+      type: [String, Object],
+      required: true
+    },
     custom: Boolean,
     replace: Boolean,
     // Not implemented
@@ -14,13 +17,14 @@ export const RouterLink = defineComponent({
   setup: (props, { slots }) => {
     const navigate = () => {}
     return () => {
-      const route = props.to ? useRouter().resolve(props.to) : {}
+      const route = useRouter().resolve(props.to)
+
       return props.custom
-        ? slots.default?.({ href: props.to, navigate, route })
+        ? slots.default?.({ href: route.href, navigate, route })
         : h(
             'a',
             {
-              href: props.to,
+              href: route.href,
               onClick: (e: MouseEvent) => {
                 e.preventDefault()
                 return navigate()
