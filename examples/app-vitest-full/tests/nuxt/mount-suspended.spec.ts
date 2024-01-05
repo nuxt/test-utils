@@ -5,6 +5,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import App from '~/app.vue'
 import OptionsComponent from '~/components/OptionsComponent.vue'
 import WrapperTests from '~/components/WrapperTests.vue'
+import LinkTests from '~/components/LinkTests.vue'
 
 import type { VueWrapper} from '@vue/test-utils';
 import { mount } from '@vue/test-utils'
@@ -148,4 +149,10 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
 </div>
     `.trim())
   })
+})
+
+it('renders links correctly', async () => {
+  const component = await mountSuspended(LinkTests)
+
+  expect(component.html()).toMatchInlineSnapshot(`"<div><a href="/test"> Link with string to prop </a><a href="/test"> Link with object to prop </a></div>"`)
 })
