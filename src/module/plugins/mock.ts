@@ -5,9 +5,7 @@ import type { AstNode, TransformPluginContext, TransformResult } from 'rollup'
 import MagicString from 'magic-string'
 import type { Component } from '@nuxt/schema'
 import type { Plugin } from 'vite'
-import { normalize, resolve } from 'node:path'
 import { createUnplugin } from 'unplugin'
-import { resolvePath } from '@nuxt/kit'
 
 export interface MockPluginContext {
   imports: Import[]
