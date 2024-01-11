@@ -276,35 +276,35 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
 })
 
 // Polyfill Array.prototype.findLastIndex for legacy Node.js
-function findLastIndex<T>(arr: T[], predicate: (item: T) => boolean) {
+function findLastIndex<T> (arr: T[], predicate: (item: T) => boolean) {
   for (let i = arr.length - 1; i >= 0; i--) {
     if (predicate(arr[i])) return i
   }
   return -1
 }
 
-function isImportDeclaration(node: Node): node is ImportDeclaration {
+function isImportDeclaration (node: Node): node is ImportDeclaration {
   return node.type === 'ImportDeclaration'
 }
-function isImportSpecifier(node: Node): node is ImportSpecifier {
+function isImportSpecifier (node: Node): node is ImportSpecifier {
   return node.type === 'ImportSpecifier'
 }
-function isCallExpression(node: Node): node is CallExpression {
+function isCallExpression (node: Node): node is CallExpression {
   return node.type === 'CallExpression'
 }
-function isIdentifier(node: Node): node is Identifier {
+function isIdentifier (node: Node): node is Identifier {
   return node.type === 'Identifier'
 }
-function isLiteral(node: Node | Expression): node is Literal {
+function isLiteral (node: Node | Expression): node is Literal {
   return node.type === 'Literal'
 }
-function isExpressionStatement(node: Node | null): node is ExpressionStatement {
+function isExpressionStatement (node: Node | null): node is ExpressionStatement {
   return node?.type === 'ExpressionStatement'
 }
 // TODO: need to fix in rollup types, probably
-function startOf(node: Node) {
+function startOf (node: Node) {
   return 'range' in node && node.range ? node.range[0] : (node as any).start as number
 }
-function endOf(node: Node) {
+function endOf (node: Node) {
   return 'range' in node && node.range ? node.range[1] : (node as any).end as number
 }
