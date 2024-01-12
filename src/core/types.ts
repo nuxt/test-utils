@@ -43,7 +43,7 @@ export interface TestContext {
 export interface TestHooks {
   beforeEach: () => void
   afterEach: () => void
-  afterAll: () => void
-  setup: () => void
+  afterAll: () => Promise<void>
+  setup: () => Promise<void>
   ctx: TestContext
 }
