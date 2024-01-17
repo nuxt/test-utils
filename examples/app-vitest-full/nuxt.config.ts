@@ -9,7 +9,7 @@ export default defineNuxtConfig({
       },
     },
   },
-  vitest: {
+  testUtils: {
     startOnBoot: true,
     logToConsole: true,
     vitestConfig: {
@@ -29,6 +29,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       hello: 'world',
+      testValue: 'default'
     },
   },
 })

@@ -4,7 +4,6 @@ import { $fetch, setup } from '@nuxt/test-utils/e2e'
 await setup({
   rootDir: fileURLToPath(new URL('../', import.meta.url)),
   dev: true,
-  runner: 'jest',
 })
 
 describe('server (dev)', () => {

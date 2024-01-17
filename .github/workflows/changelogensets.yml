@@ -15,14 +15,15 @@ concurrency:
 
 jobs:
   update-changelog:
-    # TODO: reenable after next release
-    if: false && github.repository_owner == 'nuxt' && !contains(github.event.head_commit.message, 'v3.')
+    if: github.repository_owner == 'nuxt' && !contains(github.event.head_commit.message, 'v3.')
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          fetch-depth: 0
       - run: corepack enable
-      - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
+      - uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
         with:
           node-version: 20
           cache: "pnpm"

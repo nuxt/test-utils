@@ -29,7 +29,7 @@ export type OptionalFunction<T> = T | (() => Awaitable<T>)
  *  test: "test-field"
  * })
  * ```
- * @see https://github.com/danielroe/nuxt-vitest#registerendpoint
+ * @see https://nuxt.com/docs/getting-started/testing#registerendpoint
  */
 export function registerEndpoint(
   url: string,
@@ -77,14 +77,14 @@ export function registerEndpoint(
  *  }
  * })
  * ```
- * @see https://github.com/danielroe/nuxt-vitest#mocknuxtimport
+ * @see https://nuxt.com/docs/getting-started/testing#mocknuxtimport
  */
 export function mockNuxtImport<T = any>(
   _name: string,
   _factory: () => T | Promise<T>
 ): void {
   throw new Error(
-    'mockNuxtImport() is a macro and it did not get transpiled, this may be an internal bug of nuxt-vitest.'
+    'mockNuxtImport() is a macro and it did not get transpiled. This may be an internal bug of @nuxt/test-utils.'
   )
 }
 
@@ -118,7 +118,7 @@ export function mockNuxtImport<T = any>(
  * // or you can use SFC for redirecting to a mock component
  * mockComponent('MyComponent', () => import('./MockComponent.vue'))
  * ```
- * @see https://github.com/danielroe/nuxt-vitest#mockcomponent
+ * @see https://nuxt.com/docs/getting-started/testing#mockcomponent
  */
 export function mockComponent<Props, RawBindings = object>(
   path: string,
@@ -218,6 +218,6 @@ export function mockComponent<
 ): void
 export function mockComponent(_path: string, _component: any): void {
   throw new Error(
-    'mockComponent() is a macro and it did not get transpiled, this may be an internal bug of nuxt-vitest.'
+    'mockComponent() is a macro and it did not get transpiled. This may be an internal bug of @nuxt/test-utils.'
   )
 }

@@ -1,31 +1,44 @@
 import type { Nuxt, NuxtConfig } from '@nuxt/schema'
 import type { InlineConfig as VitestConfig } from 'vitest'
 import { defineConfig } from 'vite'
+import { setupDotenv } from 'c12'
+import type { DotenvOptions } from 'c12'
 import type { InlineConfig } from 'vite'
 import { defu } from 'defu'
 import { createResolver } from '@nuxt/kit'
+
+import { applyEnv } from './utils'
 
 interface GetVitestConfigOptions {
   nuxt: Nuxt
   viteConfig: InlineConfig
 }
 
+interface LoadNuxtOptions {
+  dotenv?: Partial<DotenvOptions>
+  overrides?: Partial<NuxtConfig>
+}
+
 // https://github.com/nuxt/framework/issues/6496
 async function startNuxtAndGetViteConfig(
   rootDir = process.cwd(),
-  overrides?: Partial<NuxtConfig>
+  options: LoadNuxtOptions = {}
 ) {
   const { loadNuxt, buildNuxt } = await import('@nuxt/kit')
   const nuxt = await loadNuxt({
     cwd: rootDir,
     dev: false,
+    dotenv: defu(options.dotenv, {
+      cwd: rootDir,
+      fileName: '.env.test'
+    }),
     overrides: defu(
       {
         ssr: false,
         test: true,
         modules: ['@nuxt/test-utils/module'],
       },
-      overrides
+      options.overrides
     ),
   })
 
@@ -61,14 +74,17 @@ const excludedPlugins = [
 
 export async function getVitestConfigFromNuxt(
   options?: GetVitestConfigOptions,
-  overrides?: NuxtConfig
+  loadNuxtOptions: LoadNuxtOptions = {}
 ): Promise<InlineConfig & { test: VitestConfig }> {
-  const { rootDir = process.cwd(), ..._overrides } = overrides || {}
+  const { rootDir = process.cwd(), ..._overrides } = loadNuxtOptions.overrides || {}
 
   if (!options) {
     options = await startNuxtAndGetViteConfig(rootDir, {
-      test: true,
-      ..._overrides
+      dotenv: loadNuxtOptions.dotenv,
+      overrides: {
+        test: true,
+        ..._overrides
+      }
     })
   }
 
@@ -83,7 +99,13 @@ export async function getVitestConfigFromNuxt(
       test: {
         dir: process.cwd(),
         environmentOptions: {
-          nuxtRuntimeConfig: options.nuxt.options.runtimeConfig,
+          nuxtRuntimeConfig: applyEnv(structuredClone(options.nuxt.options.runtimeConfig), {
+            prefix: 'NUXT_',
+            env: await setupDotenv(defu(loadNuxtOptions.dotenv, {
+              cwd: rootDir,
+              fileName: '.env.test'
+            })),
+          }),
           nuxtRouteRules: defu(
             {},
             options.nuxt.options.routeRules,
@@ -94,21 +116,24 @@ export async function getVitestConfigFromNuxt(
           ['**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', 'nuxt'],
           ['{test,tests}/nuxt/**.*', 'nuxt'],
         ],
+        server: {
+          deps: {
+            inline: [
+              // vite-node defaults
+              /\/node_modules\/(.*\/)?(nuxt|nuxt3|nuxt-nightly)\//,
+              /^#/,
+              // additional deps
+              '@nuxt/test-utils',
+              '@nuxt/test-utils-nightly',
+              '@nuxt/test-utils-edge',
+              'vitest-environment-nuxt',
+              ...(options.nuxt.options.build.transpile.filter(
+                r => typeof r === 'string' || r instanceof RegExp
+              ) as Array<string | RegExp>),
+            ],
+          },
+        },
         deps: {
-          // TODO: move to server.deps.inline when we update to vite v1
-          inline: [
-            // vite-node defaults
-            /\/node_modules\/(.*\/)?(nuxt|nuxt3|nuxt-nightly)\//,
-            /^#/,
-            // additional deps
-            '@nuxt/test-utils',
-            '@nuxt/test-utils-nightly',
-            '@nuxt/test-utils-edge',
-            'vitest-environment-nuxt',
-            ...(options.nuxt.options.build.transpile.filter(
-              r => typeof r === 'string' || r instanceof RegExp
-            ) as Array<string | RegExp>),
-          ],
           optimizer: {
             web: {
               enabled: false,
@@ -126,8 +151,8 @@ export async function getVitestConfigFromNuxt(
           transform(code, id) {
             if (id.match(/nuxt(3|-nightly)?\/.*\/entry\./)) {
               return code.replace(
-                /(?<!vueAppPromise = )entry\(\)\.catch/,
-                'Promise.resolve().catch'
+                /(?<!vueAppPromise = )entry\(\)/,
+                'Promise.resolve()'
               )
             }
           },
@@ -175,9 +200,16 @@ export function defineVitestConfig(config: InlineConfig & { test?: VitestConfig 
     const overrides = config.test?.environmentOptions?.nuxt?.overrides || {}
     overrides.rootDir = config.test?.environmentOptions?.nuxt?.rootDir
 
+    if (config.test?.setupFiles && !Array.isArray(config.test.setupFiles)) {
+      config.test.setupFiles = [config.test.setupFiles].filter(Boolean) as string[]
+    }
+
     return defu(
       config,
-      await getVitestConfigFromNuxt(undefined, structuredClone(overrides)),
+      await getVitestConfigFromNuxt(undefined, {
+        dotenv: config.test?.environmentOptions?.nuxt?.dotenv,
+        overrides: structuredClone(overrides)
+      }),
     )
   })
 }
@@ -191,6 +223,13 @@ declare module 'vitest' {
        * @default {http://localhost:3000}
        */
       url?: string
+      /**
+       * You can define how environment options are read when loading the Nuxt configuration.
+       */
+      dotenv?: Partial<DotenvOptions>
+      /**
+       * Configuration that will override the values in your `nuxt.config` file.
+       */
       overrides?: NuxtConfig
       /**
        * The id of the root div to which the app should be mounted. You should also set `app.rootId` to the same value.

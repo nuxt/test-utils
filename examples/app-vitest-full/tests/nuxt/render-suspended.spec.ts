@@ -5,6 +5,7 @@ import { cleanup, fireEvent, screen } from '@testing-library/vue'
 import App from '~/app.vue'
 import OptionsComponent from '~/components/OptionsComponent.vue'
 import WrapperTests from '~/components/WrapperTests.vue'
+import LinkTests from '~/components/LinkTests.vue'
 
 describe('renderSuspended', () => {
   afterEach(() => {
@@ -90,5 +91,12 @@ describe('renderSuspended', () => {
         ],
       }
     `)
+  })
+
+  it('renders links correctly', async () => {
+    await renderSuspended(LinkTests)
+
+    expect(screen.getByRole('link', { name: 'Link with string to prop'})).toHaveProperty('href', 'http://localhost:3000/test')
+    expect(screen.getByRole('link', { name: 'Link with object to prop'})).toHaveProperty('href', 'http://localhost:3000/test')
   })
 })

@@ -2,7 +2,7 @@ import type { Nuxt, NuxtConfig } from '@nuxt/schema'
 import type { ExecaChildProcess } from 'execa'
 import type { Browser, LaunchOptions } from 'playwright-core'
 
-export type TestRunner = 'vitest' | 'jest'
+export type TestRunner = 'vitest' | 'jest' | 'cucumber'
 
 export interface TestOptions {
   testDir: string
@@ -43,7 +43,7 @@ export interface TestContext {
 export interface TestHooks {
   beforeEach: () => void
   afterEach: () => void
-  afterAll: () => void
-  setup: () => void
+  afterAll: () => Promise<void>
+  setup: () => Promise<void>
   ctx: TestContext
 }
