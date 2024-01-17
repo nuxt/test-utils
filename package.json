@@ -38,8 +38,8 @@
     "release": "pnpm test:examples && pnpm prepack && changelogen --release --push && pnpm publish"
   },
   "dependencies": {
-    "@nuxt/kit": "^3.9.1",
-    "@nuxt/schema": "^3.9.1",
+    "@nuxt/kit": "^3.9.2",
+    "@nuxt/schema": "^3.9.2",
     "c12": "^1.6.1",
     "consola": "^3.2.3",
     "defu": "^6.1.4",
@@ -82,7 +82,7 @@
     "eslint-plugin-unicorn": "50.0.1",
     "h3": "1.10.0",
     "jiti": "1.21.0",
-    "nuxt": "3.9.1",
+    "nuxt": "3.9.2",
     "playwright-core": "1.41.0",
     "rollup": "4.9.5",
     "semver": "7.5.4",
@@ -138,9 +138,12 @@
     }
   },
   "resolutions": {
+    "@nuxt/schema": "^3.9.2",
+    "@nuxt/kit": "^3.9.2",
     "@nuxt/test-utils": "workspace:*",
     "rollup": "4.9.5",
-    "vite": "5.0.11"
+    "vite": "5.0.11",
+    "vue": "^3.3.4"
   },
   "engines": {
     "node": "^14.18.0 || >=16.10.0"
