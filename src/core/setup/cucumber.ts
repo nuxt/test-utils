@@ -1,6 +1,6 @@
 import type { TestHooks } from '../types'
 
-export default async function setupJest (hooks: TestHooks) {
+export default async function setupCucumber (hooks: TestHooks) {
   const { After, AfterAll, Before, BeforeAll } = await import('@cucumber/cucumber')
 
   BeforeAll({ timeout: hooks.ctx.options.setupTimeout }, hooks.setup)
