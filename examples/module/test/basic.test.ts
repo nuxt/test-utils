@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { $fetch, setRuntimeConfig, setup } from '@nuxt/test-utils/e2e'
+import { $fetch, setup, startServer } from '@nuxt/test-utils/e2e'
 
 describe('ssr', async () => {
   await setup({
@@ -14,12 +14,12 @@ describe('ssr', async () => {
   })
 
   it('changes runtime config and restarts', async () => {
-    const restoreConfig = await setRuntimeConfig({ public: { myValue: 'overwritten by test!' } })
+    await startServer({ env: { NUXT_PUBLIC_MY_VALUE: 'overwritten by test!' } })
 
     const html = await $fetch('/')
     expect(html).toContain('<div>basic <span>overwritten by test!</span></div>')
 
-    await restoreConfig()
+    await startServer()
     const htmlRestored = await $fetch('/')
     expect(htmlRestored).toContain('<div>basic <span>original value</span></div>')
   })
