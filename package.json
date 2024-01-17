@@ -30,7 +30,7 @@
   "scripts": {
     "lint": "eslint --ext .vue,.ts,.js,.mjs .",
     "lint:fix": "eslint --ext .vue,.ts,.js,.mjs . --fix",
-    "test:examples": "pnpm -r test --filter nuxt-app-cucumber",
+    "test:examples": "pnpm -r test",
     "test:types": "vue-tsc --noEmit",
     "test:unit": "vitest test/unit --run",
     "prepack": "unbuild",
