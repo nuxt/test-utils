@@ -3,10 +3,12 @@ import { buildFixture, loadFixture } from '../nuxt'
 import { startServer, stopServer } from '../server'
 import { createBrowser } from '../browser'
 import type { TestHooks, TestOptions } from '../types'
+import setupCucumber from './cucumber'
 import setupJest from './jest'
 import setupVitest from './vitest'
 
 export const setupMaps = {
+  cucumber: setupCucumber,
   jest: setupJest,
   vitest: setupVitest
 }

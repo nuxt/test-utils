@@ -30,7 +30,7 @@
   "scripts": {
     "lint": "eslint --ext .vue,.ts,.js,.mjs .",
     "lint:fix": "eslint --ext .vue,.ts,.js,.mjs . --fix",
-    "test:examples": "pnpm -r test",
+    "test:examples": "pnpm -r test --filter !nuxt-app-cucumber && pnpm -r test --filter nuxt-app-cucumber",
     "test:types": "vue-tsc --noEmit",
     "test:unit": "vitest test/unit --run",
     "prepack": "unbuild",
@@ -63,6 +63,7 @@
     "vitest-environment-nuxt": "^1.0.0"
   },
   "devDependencies": {
+    "@cucumber/cucumber": "^10.2.1",
     "@jest/globals": "29.7.0",
     "@nuxt/devtools": "1.0.8",
     "@nuxt/eslint-config": "0.2.0",
@@ -93,6 +94,7 @@
     "vue-tsc": "1.8.27"
   },
   "peerDependencies": {
+    "@cucumber/cucumber": "^10.2.1",
     "@jest/globals": "^29.5.0",
     "@testing-library/vue": "^7.0.0 || ^8.0.1",
     "@vitest/ui": "^0.34.6 || ^1.0.0",
@@ -107,6 +109,9 @@
     "vue-router": "^4.0.0"
   },
   "peerDependenciesMeta": {
+    "@cucumber/cucumber": {
+      "optional": true
+    },
     "@testing-library/vue": {
       "optional": true
     },
