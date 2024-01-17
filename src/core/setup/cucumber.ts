@@ -5,6 +5,7 @@ export default async function setupCucumber (hooks: TestHooks) {
 
   BeforeAll({ timeout: hooks.ctx.options.setupTimeout }, async () => {
     try {
+      console.log({ timeout: hooks.ctx.options.setupTimeout })
       await hooks.setup()
     } catch (error) {
       console.error(error)
