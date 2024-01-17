@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## v3.10.0
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.9.0...v3.10.0)
+
+### 🚀 Enhancements
+
+- **e2e:** Add `cucumber` test runner ([#711](https://github.com/nuxt/test-utils/pull/711))
+- **e2e:** Support `env` option for `startServer` ([#640](https://github.com/nuxt/test-utils/pull/640))
+
+### 🩹 Fixes
+
+- **runtime-utils:** Resolve `to` in `RouterLink` stub ([#687](https://github.com/nuxt/test-utils/pull/687))
+- Mark `afterAll` and `setup` hooks as async ([#702](https://github.com/nuxt/test-utils/pull/702))
+- **module:** Always append import when mocking ([#701](https://github.com/nuxt/test-utils/pull/701))
+
+### 🏡 Chore
+
+- Add required dev deps to `app-vitest` example ([#712](https://github.com/nuxt/test-utils/pull/712))
+- Pin vue/nuxt versions ([00674cd0](https://github.com/nuxt/test-utils/commit/00674cd0))
+
+### ✅ Tests
+
+- Update config key ([25060645](https://github.com/nuxt/test-utils/commit/25060645))
+- Add example test for nuxt-injected value ([#663](https://github.com/nuxt/test-utils/pull/663))
+- Update to actually use `$t` ([#675](https://github.com/nuxt/test-utils/pull/675))
+
+### 🤖 CI
+
+- Fetch-depth: 0 ([269df289](https://github.com/nuxt/test-utils/commit/269df289))
+
+### ❤️ Contributors
+
+- Bobbie Goede <bobbiegoede@gmail.com>
+- Daniel Roe <daniel@roe.dev>
+- Julien Huang <julien.huang@outlook.fr>
+- Steve Pewsey <stevenpewsey@gmail.com>
+
 ## v3.9.0
 
 [compare changes](https://github.com/nuxt/test-utils/compare/v3.8.1...v3.9.0)
