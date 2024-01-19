@@ -1,3 +1,5 @@
+import { vi } from 'vitest'
+
 if (
   typeof window !== 'undefined' &&
   // @ts-expect-error undefined property
@@ -11,6 +13,8 @@ if (
   const nuxtApp = useNuxtApp()
   await nuxtApp.callHook('page:finish')
   useRouter().afterEach(() => nuxtApp.callHook('page:finish'))
+
+  vi.resetModules()
 }
 
 export {}
