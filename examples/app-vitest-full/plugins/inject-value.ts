@@ -1,4 +1,5 @@
-export const CUSTOM_VUE_PLUGIN_SYMBOL = Symbol('CUSTOM_VUE_PLUGIN_INJECTED')
+// TODO: investigate why `Symbol()` export without global registry doesn't match
+export const CUSTOM_VUE_PLUGIN_SYMBOL = Symbol.for('CUSTOM_VUE_PLUGIN_INJECTED')
 
 export const VUE_INJECTED_VALUE = 'injected vue plugin value'
 
