@@ -5,5 +5,6 @@ it('should return the runtimeConfig from nuxt.config', () => {
   expect(config).toBeTypeOf('object')
   expect(config?.public).toEqual({
     hello: 'world',
+    testValue: 123,
   })
 })

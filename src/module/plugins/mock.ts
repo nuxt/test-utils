@@ -5,9 +5,7 @@ import type { AstNode, TransformPluginContext, TransformResult } from 'rollup'
 import MagicString from 'magic-string'
 import type { Component } from '@nuxt/schema'
 import type { Plugin } from 'vite'
-import { normalize, resolve } from 'node:path'
 import { createUnplugin } from 'unplugin'
-import { resolvePath } from '@nuxt/kit'
 
 export interface MockPluginContext {
   imports: Import[]
@@ -33,16 +31,8 @@ export interface MockComponentInfo {
   factory: string
 }
 
-export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() => {
-  // path of the first vitest setup file to be ran
-  let resolvedFirstSetupFile: null | string = null
-
-  function transform (this: TransformPluginContext, code: string, id: string): TransformResult | Promise<TransformResult> {
-    const isFirstSetupFile = normalize(id) === resolvedFirstSetupFile
-    const shouldPrependMockHoist = resolvedFirstSetupFile
-      ? isFirstSetupFile
-      : true
-
+export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() => { 
+  function transform(this: TransformPluginContext, code: string, id: string): TransformResult | Promise<TransformResult> {
     if (!HELPERS_NAME.some(n => code.includes(n))) return
     if (id.includes('/node_modules/')) return
 
@@ -63,16 +53,16 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
     const mocksImport: MockImportInfo[] = []
     const mocksComponent: MockComponentInfo[] = []
     const importPathsList: Set<string> = new Set()
-    
+
     walk(ast as any, {
       enter: (node, parent) => {
         // find existing vi import
         if (isImportDeclaration(node)) {
           if (node.source.value === 'vitest' && !hasViImport) {
             const viImport = node.specifiers.find(
-                i =>
-                  isImportSpecifier(i) && i.imported.name === 'vi'
-              )
+              i =>
+                isImportSpecifier(i) && i.imported.name === 'vi'
+            )
             if (viImport) {
               insertionPoint = endOf(node)
               hasViImport = true
@@ -247,11 +237,9 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
 
     // do an import to trick vite to keep it
     // if not, the module won't be mocked
-    if (shouldPrependMockHoist) {
-      importPathsList.forEach(p => {
-        s.append(`\n import ${JSON.stringify(p)};`)
-      })
-    }
+    importPathsList.forEach(p => {
+      s.append(`\n import ${JSON.stringify(p)};`)
+    })
 
     return {
       code: s.toString(),
@@ -266,14 +254,6 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
       transform,
       // Place Vitest's mock plugin after all Nuxt plugins
       async configResolved(config) {
-        const firstSetupFile = Array.isArray(config.test?.setupFiles)
-          ? config.test!.setupFiles.find(p => !p.includes('runtime/entry'))
-          : config.test?.setupFiles
-  
-        if (firstSetupFile) {
-          resolvedFirstSetupFile = await resolvePath(normalize(resolve(firstSetupFile)))
-        }
-  
         const plugins = (config.plugins || []) as Plugin[]
 
         // `vite:mocks` was a typo in Vitest before v0.34.0
@@ -296,7 +276,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
 })
 
 // Polyfill Array.prototype.findLastIndex for legacy Node.js
-function findLastIndex<T>(arr: T[], predicate: (item: T) => boolean) {
+function findLastIndex<T> (arr: T[], predicate: (item: T) => boolean) {
   for (let i = arr.length - 1; i >= 0; i--) {
     if (predicate(arr[i])) return i
   }

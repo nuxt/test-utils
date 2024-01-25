@@ -5,6 +5,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import App from '~/app.vue'
 import OptionsComponent from '~/components/OptionsComponent.vue'
 import WrapperTests from '~/components/WrapperTests.vue'
+import LinkTests from '~/components/LinkTests.vue'
 
 import type { VueWrapper} from '@vue/test-utils';
 import { mount } from '@vue/test-utils'
@@ -13,6 +14,8 @@ import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
 import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
 import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
+
+import { BoundAttrs } from '#components'
 
 const formats = {
   ExportDefaultComponent,
@@ -30,6 +33,13 @@ describe('mountSuspended', () => {
       <div>Index page</div>
       <a href="/test"> Test link </a>"
     `)
+  })
+
+  it('should handle passing setup state and props to template', async () => {
+    const wrappedComponent = await mountSuspended(BoundAttrs)
+    const component = mount(BoundAttrs)
+
+    expect(component.html()).toEqual(wrappedComponent.html())
   })
 
   it('should work with shallow mounting within suspense', async () => {
@@ -129,16 +139,20 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
     `.trim())
   })
 
-  // FIXME: https://github.com/nuxt/test-utils/issues/534
-  it.todo('can be updated with setProps', async () => {
-    wrapper.setProps({
-      title: 'updated title'
+  it('can be updated with setProps', async () => {
+    await wrapper.setProps({
+       myProp: 'updated title'
     })
-    await nextTick()
     expect(wrapper.html()).toEqual(`
 <div>
   <h1>${name}</h1><pre>updated title</pre><pre>XHello nuxt-vitest</pre>
 </div>
     `.trim())
   })
+})
+
+it('renders links correctly', async () => {
+  const component = await mountSuspended(LinkTests)
+
+  expect(component.html()).toMatchInlineSnapshot(`"<div><a href="/test"> Link with string to prop </a><a href="/test"> Link with object to prop </a></div>"`)
 })

@@ -7,9 +7,11 @@ await setup({
   browser: true,
 })
 
-describe('browser', async () => {
+describe('browser', () => {
   it('runs a test', async () => {
-    const page = await createPage('/') 
-    expect(page.getByRole('heading').innerText()).toContain('Welcome to Nuxt!')
+    const page = await createPage('/')
+    const text = await page.getByRole('heading', { name: 'Welcome to Nuxt!' }).innerText()
+    expect(text).toContain('Welcome to Nuxt!')
+    await page.close()
   })
 })

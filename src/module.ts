@@ -28,7 +28,7 @@ const vitePluginBlocklist = ['vite-plugin-vue-inspector', 'vite-plugin-vue-inspe
 export default defineNuxtModule<NuxtVitestOptions>({
   meta: {
     name: '@nuxt/test-utils',
-    configKey: 'vitest',
+    configKey: 'testUtils',
   },
   defaults: {
     startOnBoot: false,
@@ -135,13 +135,13 @@ export default defineNuxtModule<NuxtVitestOptions>({
       // Start Vitest
       const promise = startVitest('test', [], defu(overrides, viteConfig.test), viteConfig)
       promise.catch(() => process.exit(1))
-
+      
       if (watchMode) {
         logger.info(`Vitest UI starting on ${URL}`)
+        nuxt.hook('close', () => promise.then(v => v?.close()))
         await new Promise(resolve => setTimeout(resolve, 1000))
       } else {
-        promise.then(v => v?.close()).then(() => process.exit())
-        promise.catch(() => process.exit(1))
+        promise.then((v) => nuxt.close().then(() => v?.close()).then(() => process.exit()))
       }
 
       loaded = true

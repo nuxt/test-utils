@@ -1,0 +1,23 @@
+{
+  "name": "nuxt-app-cucumber",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "test": "NODE_OPTIONS='--loader ts-node/esm' NODE_ENV=test cucumber-js"
+  },
+  "dependencies": {
+    "nuxt": "^3.9.1",
+    "vue": "^3.4.7",
+    "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^10.2.1",
+    "@nuxt/test-utils": "latest",
+    "ts-node": "^10.9.2"
+  }
+}

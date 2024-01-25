@@ -10,7 +10,11 @@ import { useTestContext } from './context'
 // eslint-disable-next-line
 const kit: typeof _kit = _kit.default || _kit
 
-export async function startServer () {
+export interface StartServerOptions {
+  env?: Record<string, unknown>
+}
+
+export async function startServer (options: StartServerOptions = {}) {
   const ctx = useTestContext()
   await stopServer()
   const host = '127.0.0.1'
@@ -26,7 +30,8 @@ export async function startServer () {
         _PORT: String(port), // Used by internal _dev command
         PORT: String(port),
         HOST: host,
-        NODE_ENV: 'development'
+        NODE_ENV: 'development',
+        ...options.env
       }
     })
     await waitForPort(port, { retries: 32, host }).catch(() => {})
@@ -53,7 +58,8 @@ export async function startServer () {
         ...process.env,
         PORT: String(port),
         HOST: host,
-        NODE_ENV: 'test'
+        NODE_ENV: 'test',
+        ...options.env
       }
     })
     await waitForPort(port, { retries: 20, host })
