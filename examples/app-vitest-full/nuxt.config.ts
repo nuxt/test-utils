@@ -1,6 +1,9 @@
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
   devtools: { enabled: true },
+  future: {
+    typescriptBundlerResolution: false
+  },
   modules: ['@nuxt/test-utils/module', '~/modules/custom'],
   vite: {
     vue: {
