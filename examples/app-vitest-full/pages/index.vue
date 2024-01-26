@@ -2,7 +2,7 @@
   <div>Index page</div>
 </template>
 
-<script setup>
+<script lang="ts">
 definePageMeta({
   value: 'set in index',
 })
