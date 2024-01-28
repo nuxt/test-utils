@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## v3.11.0
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.10.0...v3.11.0)
+
+### 🚀 Enhancements
+
+- **vitest-environment:** Add support for in-source testing ([#651](https://github.com/nuxt/test-utils/pull/651))
+
+### 🩹 Fixes
+
+- **runtime:** Reset modules after nuxt setup runs ([#726](https://github.com/nuxt/test-utils/pull/726))
+
+### ✅ Tests
+
+- Add example of mocking `vue-router` ([e293cea1](https://github.com/nuxt/test-utils/commit/e293cea1))
+- Add example of mocking nuxt `useRoute` ([fe465193](https://github.com/nuxt/test-utils/commit/fe465193))
+
+### ❤️ Contributors
+
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+
 ## v3.10.0
 
 [compare changes](https://github.com/nuxt/test-utils/compare/v3.9.0...v3.10.0)
