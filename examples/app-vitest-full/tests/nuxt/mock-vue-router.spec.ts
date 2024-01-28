@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import Index from '~/pages/router/route.vue'
 
 vi.mock('vue-router', () => ({
@@ -8,6 +8,12 @@ vi.mock('vue-router', () => ({
     path: '/123',
     query: {},
   })),
+}))
+
+mockNuxtImport('useRoute', () => () => ({
+  meta: {},
+  path: '/bob',
+  query: {},
 }))
 
 describe('Index', async () => {
