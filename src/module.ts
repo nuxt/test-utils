@@ -52,7 +52,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
     }
 
     nuxt.hook('prepare:types', ({ references }) => {
-      references.push({ types: 'vitest/importMeta' })
+      references.push({ types: 'vitest/import-meta' })
     })
 
     if (!nuxt.options.dev) return
