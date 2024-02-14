@@ -190,7 +190,7 @@ export async function getVitestConfigFromNuxt(
     // (overrideable) alias
     {
       alias: {
-        ...nitro ? nitro.alias : {}
+        ...nitro ? nitro.options.alias : {}
       }
     }
   ) as InlineConfig & { test: VitestConfig }
