@@ -6,6 +6,7 @@ import type { DotenvOptions } from 'c12'
 import type { InlineConfig } from 'vite'
 import { defu } from 'defu'
 import { createResolver } from '@nuxt/kit'
+import Unimport from 'unimport/unplugin'
 
 import { applyEnv } from './utils'
 
@@ -89,6 +90,17 @@ export async function getVitestConfigFromNuxt(
   }
 
   options.viteConfig.plugins = (options.viteConfig.plugins || []).filter(p => !excludedPlugins.includes((p as any)?.name))
+  
+  const nitro = (options.nuxt as any)?._nitro
+
+  if (nitro) {
+  // Nitro Plugin
+  options.viteConfig.plugins.push(Unimport.vite({
+    imports: [
+      ...nitro.unimport.getImports(),
+    ]
+  }))
+  }
 
   const resolvedConfig = defu(
     // overrides
@@ -174,6 +186,12 @@ export async function getVitestConfigFromNuxt(
           }
         }
       } satisfies VitestConfig
+    },
+    // (overrideable) alias
+    {
+      alias: {
+        ...nitro ? nitro.alias : {}
+      }
     }
   ) as InlineConfig & { test: VitestConfig }
 
