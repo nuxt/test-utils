@@ -5,6 +5,8 @@ import type { TestContext, TestOptions } from './types'
 let currentContext: TestContext | undefined
 
 export function createTestContext (options: Partial<TestOptions>): TestContext {
+  const isVitest = process.env.VITEST === 'true'
+  const isPlaywright = 'PW_TS_ESM_LEGACY_LOADER_ON' in process.env || 'TEST_WORKER_INDEX' in process.env
   const _options: Partial<TestOptions> = defu(options, {
     testDir: resolve(process.cwd(), 'test'),
     fixture: 'fixture',
@@ -15,7 +17,7 @@ export function createTestContext (options: Partial<TestOptions>): TestContext {
     server: true,
     build: (options.browser !== false) || (options.server !== false),
     nuxtConfig: {},
-    runner: process.env.VITEST === 'true' ? 'vitest' : 'jest',
+    runner: isVitest ? 'vitest' : isPlaywright ? 'playwright' : 'jest',
     browserOptions: {
       type: 'chromium' as const
     }
