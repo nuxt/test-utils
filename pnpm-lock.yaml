@@ -8,6 +8,7 @@ overrides:
   '@nuxt/kit': ^3.10.3
   '@nuxt/schema': ^3.10.3
   '@nuxt/test-utils': workspace:*
+  '@playwright/test': ^1.43.0-alpha-2024-03-14
   rollup: 4.13.0
   vite: 5.1.6
   vue: ^3.4.21
@@ -111,7 +112,7 @@ importers:
         specifier: 0.5.5
         version: 0.5.5(@nuxt/kit@3.10.3)(nuxi@3.10.1)(typescript@5.3.3)
       '@playwright/test':
-        specifier: 1.43.0-alpha-2024-03-14
+        specifier: ^1.43.0-alpha-2024-03-14
         version: 1.43.0-alpha-2024-03-14
       '@testing-library/vue':
         specifier: 8.0.2
@@ -178,7 +179,7 @@ importers:
         version: 5.1.6(@types/node@20.10.5)
       vitest:
         specifier: 1.3.1
-        version: 1.3.1(@vitest/ui@1.3.1)
+        version: 1.3.1(@vitest/ui@1.3.1)(happy-dom@12.10.3)(jsdom@23.0.1)
       vue-router:
         specifier: 4.3.0
         version: 4.3.0(vue@3.4.21)
@@ -257,6 +258,9 @@ importers:
       '@nuxt/test-utils':
         specifier: workspace:*
         version: link:../..
+      '@playwright/test':
+        specifier: ^1.43.0-alpha-2024-03-14
+        version: 1.43.0-alpha-2024-03-14
 
   examples/app-vitest:
     dependencies:
@@ -2462,7 +2466,7 @@ packages:
       '@nuxt/kit': 3.10.3(rollup@4.13.0)
       birpc: 0.2.14
       consola: 3.2.3
-      destr: 2.0.2
+      destr: 2.0.3
       error-stack-parser-es: 0.1.1
       execa: 7.2.0
       fast-glob: 3.3.2
@@ -2475,15 +2479,15 @@ packages:
       local-pkg: 0.5.0
       magicast: 0.3.2
       nuxt: 3.9.1(eslint@8.57.0)(idb-keyval@6.2.1)(rollup@4.13.0)(typescript@5.3.3)(vite@5.1.6)(vue-tsc@1.8.26)
-      nypm: 0.3.4
+      nypm: 0.3.6
       ohash: 1.1.3
       pacote: 17.0.5
       pathe: 1.1.2
       perfect-debounce: 1.0.0
       pkg-types: 1.0.3
       rc9: 2.1.1
-      scule: 1.2.0
-      semver: 7.5.4
+      scule: 1.3.0
+      semver: 7.6.0
       simple-git: 3.22.0
       sirv: 2.0.4
       unimport: 3.7.1(rollup@4.13.0)
@@ -3895,7 +3899,7 @@ packages:
       pathe: 1.1.2
       picocolors: 1.0.0
       sirv: 2.0.4
-      vitest: 1.3.1(@vitest/ui@1.3.1)
+      vitest: 1.3.1(@vitest/ui@1.3.1)(happy-dom@12.10.3)(jsdom@23.0.1)
     dev: true
 
   /@vitest/utils@1.2.1:
@@ -12233,7 +12237,7 @@ packages:
       - terser
     dev: true
 
-  /vitest@1.3.1(@vitest/ui@1.3.1):
+  /vitest@1.3.1(@vitest/ui@1.3.1)(happy-dom@12.10.3)(jsdom@23.0.1):
     resolution: {integrity: sha512-/1QJqXs8YbCrfv/GPQ05wAZf2eakUPLPa18vkJAKE7RXOKfVHqMZZ1WlTjiwl6Gcn65M5vpNUB6EFLnEdRdEXQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -12268,6 +12272,8 @@ packages:
       chai: 4.3.10
       debug: 4.3.4(supports-color@8.1.1)
       execa: 8.0.1
+      happy-dom: 12.10.3
+      jsdom: 23.0.1
       local-pkg: 0.5.0
       magic-string: 0.30.8
       pathe: 1.1.2
