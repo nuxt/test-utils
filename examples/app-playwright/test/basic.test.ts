@@ -4,6 +4,8 @@ import { setup, url } from '@nuxt/test-utils/e2e'
 
 await setup({
   rootDir: fileURLToPath(new URL('../', import.meta.url)),
+  // TODO: auto-detect playwright
+  runner: 'playwright'
 })
 
 test('test', async ({ page }) => {
