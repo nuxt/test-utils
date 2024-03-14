@@ -41,20 +41,21 @@ export default defineConfig<ConfigOptions>({
         nuxt,
       }
     },
-    {
-      name: 'Firefox',
-      use: {
-        ...devices['Desktop Firefox'],
-        nuxt,
-      }
-    },
-    {
-      name: 'WebKit',
-      use: {
-        ...devices['Desktop Safari'],
-        nuxt,
-      }
-    }
+    /* Test against other common browser engines. */
+    // {
+    //   name: 'Firefox',
+    //   use: {
+    //     ...devices['Desktop Firefox'],
+    //     nuxt,
+    //   }
+    // },
+    // {
+    //   name: 'WebKit',
+    //   use: {
+    //     ...devices['Desktop Safari'],
+    //     nuxt,
+    //   }
+    // }
     /* Test against mobile viewports. */
     // {
     //   name: 'Mobile Chrome',

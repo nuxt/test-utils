@@ -9,6 +9,7 @@ overrides:
   '@nuxt/schema': ^3.10.3
   '@nuxt/test-utils': workspace:*
   '@playwright/test': ^1.43.0-alpha-2024-03-14
+  playwright-core: ^1.43.0-alpha-2024-03-14
   rollup: 4.13.0
   vite: 5.1.6
   vue: ^3.4.21
@@ -160,8 +161,8 @@ importers:
         specifier: 3.10.3
         version: 3.10.3(eslint@8.57.0)(rollup@4.13.0)(typescript@5.3.3)(vite@5.1.6)(vue-tsc@2.0.6)
       playwright-core:
-        specifier: 1.42.1
-        version: 1.42.1
+        specifier: ^1.43.0-alpha-2024-03-14
+        version: 1.43.0-alpha-2024-03-14
       rollup:
         specifier: 4.13.0
         version: 4.13.0
@@ -231,8 +232,8 @@ importers:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@20.10.5)(ts-node@10.9.2)
       playwright-core:
-        specifier: 1.40.1
-        version: 1.40.1
+        specifier: ^1.43.0-alpha-2024-03-14
+        version: 1.43.0-alpha-2024-03-14
       ts-jest:
         specifier: ^29.1.1
         version: 29.1.1(@babel/core@7.23.9)(jest@29.7.0)(typescript@5.3.3)
@@ -284,8 +285,8 @@ importers:
         specifier: ^12.10.3
         version: 12.10.3
       playwright-core:
-        specifier: ^1.40.1
-        version: 1.41.0
+        specifier: ^1.43.0-alpha-2024-03-14
+        version: 1.43.0-alpha-2024-03-14
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -9767,24 +9768,6 @@ packages:
       jsonc-parser: 3.2.1
       mlly: 1.6.0
       pathe: 1.1.2
-
-  /playwright-core@1.40.1:
-    resolution: {integrity: sha512-+hkOycxPiV534c4HhpfX6yrlawqVUzITRKwHAmYfmsVreltEl6fAZJ3DPfLMOODw0H3s1Itd6MDCWmP1fl/QvQ==}
-    engines: {node: '>=16'}
-    hasBin: true
-    dev: true
-
-  /playwright-core@1.41.0:
-    resolution: {integrity: sha512-UGKASUhXmvqm2Lxa1fNr8sFwAtqjpgBRr9jQ7XBI8Rn5uFiEowGUGwrruUQsVPIom4bk7Lt+oLGpXobnXzrBIw==}
-    engines: {node: '>=16'}
-    hasBin: true
-    dev: true
-
-  /playwright-core@1.42.1:
-    resolution: {integrity: sha512-mxz6zclokgrke9p1vtdy/COWBH+eOZgYUVVU34C73M+4j4HLlQJHtfcqiqqxpP0o8HhMkflvfbquLX5dg6wlfA==}
-    engines: {node: '>=16'}
-    hasBin: true
-    dev: true
 
   /playwright-core@1.43.0-alpha-2024-03-14:
     resolution: {integrity: sha512-Rmf6Atjiao2KHY51+q/I4I6NAoN2+Fzdu34JxrelpWXbjOADDX7dMyn16pWC2iAnX8Zb9+1kOyRBC27mZA7k2A==}
