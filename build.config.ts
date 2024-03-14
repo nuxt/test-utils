@@ -6,6 +6,7 @@ export default defineBuildConfig({
   declaration: true,
   entries: [
     'src/e2e',
+    'src/playwright',
     'src/experimental',
     'src/config',
     'src/module.ts',
