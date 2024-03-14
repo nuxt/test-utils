@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+      - feat/playwright-runner
 
 # https://github.com/vitejs/vite/blob/main/.github/workflows/ci.yml
 env:
@@ -83,7 +84,7 @@ jobs:
             ${{ runner.os }}-playwright-bin-v1-
 
       - name: Install Playwright
-        run: pnpm playwright-core install
+        run: pnpm playwright install chromium
 
       - name: Prepare build environment
         run: pnpm dev:prepare

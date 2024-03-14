@@ -2,7 +2,7 @@ import type { Nuxt, NuxtConfig } from '@nuxt/schema'
 import type { ExecaChildProcess } from 'execa'
 import type { Browser, LaunchOptions } from 'playwright-core'
 
-export type TestRunner = 'vitest' | 'jest' | 'cucumber' | 'playwright'
+export type TestRunner = 'vitest' | 'jest' | 'cucumber' 
 
 export interface TestOptions {
   testDir: string

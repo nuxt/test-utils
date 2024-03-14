@@ -5,13 +5,11 @@ import { createBrowser } from '../browser'
 import type { TestHooks, TestOptions } from '../types'
 import setupCucumber from './cucumber'
 import setupJest from './jest'
-import setupPlaywright from './playwright'
 import setupVitest from './vitest'
 
 export const setupMaps = {
   cucumber: setupCucumber,
   jest: setupJest,
-  playwright: setupPlaywright,
   vitest: setupVitest
 }
 
