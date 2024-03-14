@@ -6,6 +6,7 @@ let currentContext: TestContext | undefined
 
 export function createTestContext (options: Partial<TestOptions>): TestContext {
   const isVitest = process.env.VITEST === 'true'
+  console.log(Object.keys(process.env))
   const isPlaywright = 'PW_TS_ESM_LEGACY_LOADER_ON' in process.env || 'TEST_WORKER_INDEX' in process.env
   const _options: Partial<TestOptions> = defu(options, {
     testDir: resolve(process.cwd(), 'test'),
