@@ -6,7 +6,7 @@ export default async function setupPlaywright (hooks: TestHooks) {
   const { test } = await import('@playwright/test')
   for (const stub of stubs) {
     try {
-      // TODO: investigate why this is required
+      // Can be removed after https://github.com/microsoft/playwright/pull/29865
       // @ts-expect-error assigning to read-only property
       process.stdout[stub] ||= () => {}
     } catch {
