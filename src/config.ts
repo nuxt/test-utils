@@ -180,6 +180,9 @@ export async function getVitestConfigFromNuxt(
   // TODO: fix this by separating nuxt/node vitest configs
   // typescript currently checks this to determine if it can access the filesystem: https://github.com/microsoft/TypeScript/blob/d4fbc9b57d9aa7d02faac9b1e9bb7b37c687f6e9/src/compiler/core.ts#L2738-L2749
   delete resolvedConfig.define!['process.browser']
+
+  // Remove built-in Nuxt logger: https://github.com/vitest-dev/vitest/issues/5211
+  delete resolvedConfig.customLogger
   
   if (!Array.isArray(resolvedConfig.test.setupFiles)) {
     resolvedConfig.test.setupFiles = [resolvedConfig.test.setupFiles].filter(Boolean) as string[]
