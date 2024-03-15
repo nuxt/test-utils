@@ -1,4 +1,4 @@
-import type { Browser, BrowserContextOptions, Page } from 'playwright-core'
+import type { Browser, BrowserContextOptions, Page, Response } from 'playwright-core'
 import { useTestContext } from './context'
 import { url } from './server'
 
@@ -33,12 +33,12 @@ export async function getBrowser (): Promise<Browser> {
 }
 
 type _GotoOptions = NonNullable<Parameters<Page['goto']>[1]>
-interface GotoOptions extends Omit<_GotoOptions, 'waitUntil'> {
+export interface GotoOptions extends Omit<_GotoOptions, 'waitUntil'> {
   waitUntil?: 'hydration' | 'route' | _GotoOptions['waitUntil']
 }
 
 interface NuxtPage extends Omit<Page, 'goto'> {
-  goto: (url: string, options?: GotoOptions) => Promise<void>
+  goto: (url: string, options?: GotoOptions) => Promise<Response|null>
 }
 
 export async function createPage (path?: string, options?: BrowserContextOptions): Promise<NuxtPage> {
@@ -46,17 +46,13 @@ export async function createPage (path?: string, options?: BrowserContextOptions
   const page = await browser.newPage(options) as unknown as NuxtPage
 
   const _goto = page.goto.bind(page)
-  page.goto = async (url, options) => {
+  page.goto = async (url, options): Promise<Response|null> => {
     const waitUntil = options?.waitUntil
     if (waitUntil && ['hydration', 'route'].includes(waitUntil)) {
       delete options.waitUntil
     }
-    const res = await _goto(url, options)
-    if (waitUntil === 'hydration') {
-      await page.waitForFunction(() => window.useNuxtApp?.().isHydrating === false)
-    } else if (waitUntil === 'route') {
-      await page.waitForFunction((route) => window.useNuxtApp?.()._route.fullPath === route, path)
-    }
+    const res = await _goto(url, options as Parameters<Page['goto']>[1])
+    await waitForHydration(page, url, waitUntil)
     return res
   }
 
@@ -65,4 +61,12 @@ export async function createPage (path?: string, options?: BrowserContextOptions
   }
 
   return page
+}
+
+export async function waitForHydration(page: Page, url: string, waitUntil?: GotoOptions['waitUntil']): Promise<void> {
+  if (waitUntil === 'hydration') {
+    await page.waitForFunction(() => window.useNuxtApp?.().isHydrating === false)
+  } else if (waitUntil === 'route') {
+    await page.waitForFunction((route) => window.useNuxtApp?.()._route.fullPath === route, url)
+  }
 }

@@ -10,7 +10,7 @@ test.use({
 })
 */
 
-test('test', async ({ page }) => {
-  await page.goto('/')
+test('test', async ({ page, goto }) => {
+  await goto('/', { waitUntil: 'hydration' })
   await expect(page.getByRole('heading')).toHaveText('Welcome to Playwright!')
 })
