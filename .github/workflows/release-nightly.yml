@@ -1,4 +1,4 @@
-name: ci
+name: release
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 permissions: {}
 
 jobs:
-  release:
+  nightly:
     runs-on: ubuntu-latest
     if: ${{ github.repository_owner == 'nuxt' && github.event_name == 'push' }}
     permissions:
