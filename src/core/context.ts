@@ -15,11 +15,16 @@ export function createTestContext (options: Partial<TestOptions>): TestContext {
     server: true,
     build: (options.browser !== false) || (options.server !== false),
     nuxtConfig: {},
-    runner: process.env.VITEST === 'true' ? 'vitest' : 'jest',
     browserOptions: {
       type: 'chromium' as const
     }
   } satisfies Partial<TestOptions>)
+
+  if (process.env.VITEST === 'true') {
+    _options.runner ||= 'vitest'
+  } else if (process.env.JEST_WORKER_ID) {
+    _options.runner ||= 'jest'
+  }
 
   return setTestContext({
     options: _options as TestOptions
