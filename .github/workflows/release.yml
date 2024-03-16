@@ -1,7 +1,9 @@
 name: release
 
 on:
-  workflow_dispatch:
+  push:
+    tags: 
+      - "v*"
 
 # Remove default permissions of GITHUB_TOKEN for security
 # https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs
@@ -12,7 +14,6 @@ jobs:
     if: github.repository_owner == 'nuxt'
     permissions:
       id-token: write
-      contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -32,13 +33,8 @@ jobs:
       - name: Prepare build environment
         run: pnpm dev:prepare
 
-      - name: Configure git
-        run: |
-          git config --global user.name "Daniel Roe"
-          git config --global user.email "daniel@roe.dev"
-
       - name: Release
-        run: pnpm changelogen --publish --release --push
+        run: pnpm changelogen --publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.RELEASE_NODE_AUTH_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
