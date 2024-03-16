@@ -15,18 +15,18 @@ export type ConfigOptions = {
       // Stubs for the rest of the methods to avoid exceptions in user code.
       if (!(stream as any).clearLine) {
         stream.clearLine = (dir: any, callback?: () => void) => {
-          callback?.();
-          return true;
-        };
+          callback?.()
+          return true
+        }
       }
       if (!(stream as any).cursorTo) {
         (stream as any).cursorTo = (x: number, y?: number | (() => void), callback?: () => void) => {
           if (callback)
-            callback();
+            callback()
           else if (y instanceof Function)
-            y();
-          return true;
-        };
+            y()
+          return true
+        }
       }
     }
   }
@@ -40,6 +40,17 @@ type TestOptions = {
   goto: (url: string, options?: GotoOptions) => Promise<Response | null>
 }
 
+/**
+ * You can use the following syntax to configure your Nuxt fixture:
+ * 
+  ```ts
+  test.use({
+    nuxt: {
+      rootDir: fileURLToPath(new URL('.', import.meta.url)),
+    }
+  })
+  ```
+ */
 export const test = base.extend<TestOptions, WorkerOptions & ConfigOptions>({
   nuxt: [undefined, { option: true, scope: 'worker' }],
   _nuxtHooks: [
@@ -62,9 +73,9 @@ export const test = base.extend<TestOptions, WorkerOptions & ConfigOptions>({
         delete options.waitUntil
       }
       const response = await page.goto(url, options as Parameters<Page['goto']>[1])
-      await waitForHydration(page, url, waitUntil);
-      return response;
-    });
+      await waitForHydration(page, url, waitUntil)
+      return response
+    })
   },
 })
 
