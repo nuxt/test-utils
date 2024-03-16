@@ -32,7 +32,7 @@ jobs:
         run: pnpm dev:prepare
 
       - name: Release
-        run: pnpm changelogen --publish
+        run: pnpm changelogen --publish --release --push
         env:
           NODE_AUTH_TOKEN: ${{ secrets.RELEASE_NODE_AUTH_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
