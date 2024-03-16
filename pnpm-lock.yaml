@@ -8,8 +8,6 @@ overrides:
   '@nuxt/kit': ^3.10.3
   '@nuxt/schema': ^3.10.3
   '@nuxt/test-utils': workspace:*
-  '@playwright/test': ^1.42.0
-  playwright-core: ^1.42.0
   rollup: 4.13.0
   vite: 5.1.6
   vue: ^3.4.21
@@ -113,7 +111,7 @@ importers:
         specifier: 0.5.5
         version: 0.5.5(@nuxt/kit@3.10.3)(nuxi@3.10.1)(typescript@5.3.3)
       '@playwright/test':
-        specifier: ^1.42.0
+        specifier: 1.42.1
         version: 1.42.1
       '@testing-library/vue':
         specifier: 8.0.2
@@ -161,7 +159,7 @@ importers:
         specifier: 3.10.3
         version: 3.10.3(eslint@8.57.0)(rollup@4.13.0)(typescript@5.3.3)(vite@5.1.6)(vue-tsc@2.0.6)
       playwright-core:
-        specifier: ^1.42.0
+        specifier: 1.42.1
         version: 1.42.1
       rollup:
         specifier: 4.13.0
@@ -232,8 +230,8 @@ importers:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@20.10.5)(ts-node@10.9.2)
       playwright-core:
-        specifier: ^1.42.0
-        version: 1.42.1
+        specifier: 1.40.1
+        version: 1.40.1
       ts-jest:
         specifier: ^29.1.1
         version: 29.1.1(@babel/core@7.23.9)(jest@29.7.0)(typescript@5.3.3)
@@ -260,7 +258,7 @@ importers:
         specifier: workspace:*
         version: link:../..
       '@playwright/test':
-        specifier: ^1.42.0
+        specifier: ^1.42.1
         version: 1.42.1
 
   examples/app-vitest:
@@ -285,7 +283,7 @@ importers:
         specifier: ^12.10.3
         version: 12.10.3
       playwright-core:
-        specifier: ^1.42.0
+        specifier: ^1.40.1
         version: 1.42.1
       typescript:
         specifier: ^5.3.3
@@ -2417,7 +2415,7 @@ packages:
       '@nuxt/kit': 3.10.3(rollup@4.13.0)
       birpc: 0.2.14
       consola: 3.2.3
-      destr: 2.0.3
+      destr: 2.0.2
       error-stack-parser-es: 0.1.1
       execa: 7.2.0
       fast-glob: 3.3.2
@@ -2430,15 +2428,15 @@ packages:
       local-pkg: 0.5.0
       magicast: 0.3.2
       nuxt: 3.10.3(eslint@8.57.0)(rollup@4.13.0)(typescript@5.3.3)(vite@5.1.6)(vue-tsc@2.0.6)
-      nypm: 0.3.6
+      nypm: 0.3.4
       ohash: 1.1.3
       pacote: 17.0.5
       pathe: 1.1.2
       perfect-debounce: 1.0.0
       pkg-types: 1.0.3
       rc9: 2.1.1
-      scule: 1.3.0
-      semver: 7.6.0
+      scule: 1.2.0
+      semver: 7.5.4
       simple-git: 3.22.0
       sirv: 2.0.4
       unimport: 3.7.1(rollup@4.13.0)
@@ -2467,7 +2465,7 @@ packages:
       '@nuxt/kit': 3.10.3(rollup@4.13.0)
       birpc: 0.2.14
       consola: 3.2.3
-      destr: 2.0.3
+      destr: 2.0.2
       error-stack-parser-es: 0.1.1
       execa: 7.2.0
       fast-glob: 3.3.2
@@ -2480,15 +2478,15 @@ packages:
       local-pkg: 0.5.0
       magicast: 0.3.2
       nuxt: 3.9.1(eslint@8.57.0)(idb-keyval@6.2.1)(rollup@4.13.0)(typescript@5.3.3)(vite@5.1.6)(vue-tsc@1.8.26)
-      nypm: 0.3.6
+      nypm: 0.3.4
       ohash: 1.1.3
       pacote: 17.0.5
       pathe: 1.1.2
       perfect-debounce: 1.0.0
       pkg-types: 1.0.3
       rc9: 2.1.1
-      scule: 1.3.0
-      semver: 7.6.0
+      scule: 1.2.0
+      semver: 7.5.4
       simple-git: 3.22.0
       sirv: 2.0.4
       unimport: 3.7.1(rollup@4.13.0)
@@ -8796,7 +8794,7 @@ packages:
     resolution: {integrity: sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==}
     engines: {node: '>= 0.6'}
 
-  /nitropack@2.8.1:
+  /nitropack@2.8.1(idb-keyval@6.2.1):
     resolution: {integrity: sha512-pODv2kEEzZSDQR+1UMXbGyNgMedUDq/qUomtiAnQKQvLy52VGlecXO1xDfH3i0kP1yKEcKTnWsx1TAF5gHM7xQ==}
     engines: {node: ^16.11.0 || >=17.0.0}
     hasBin: true
@@ -8886,98 +8884,6 @@ packages:
       - idb-keyval
       - supports-color
       - uWebSockets.js
-
-  /nitropack@2.8.1(idb-keyval@6.2.1):
-    resolution: {integrity: sha512-pODv2kEEzZSDQR+1UMXbGyNgMedUDq/qUomtiAnQKQvLy52VGlecXO1xDfH3i0kP1yKEcKTnWsx1TAF5gHM7xQ==}
-    engines: {node: ^16.11.0 || >=17.0.0}
-    hasBin: true
-    peerDependencies:
-      xml2js: ^0.6.2
-    peerDependenciesMeta:
-      xml2js:
-        optional: true
-    dependencies:
-      '@cloudflare/kv-asset-handler': 0.3.0
-      '@netlify/functions': 2.4.0
-      '@rollup/plugin-alias': 5.1.0(rollup@4.13.0)
-      '@rollup/plugin-commonjs': 25.0.7(rollup@4.13.0)
-      '@rollup/plugin-inject': 5.0.5(rollup@4.13.0)
-      '@rollup/plugin-json': 6.0.1(rollup@4.13.0)
-      '@rollup/plugin-node-resolve': 15.2.3(rollup@4.13.0)
-      '@rollup/plugin-replace': 5.0.5(rollup@4.13.0)
-      '@rollup/plugin-terser': 0.4.4(rollup@4.13.0)
-      '@rollup/plugin-wasm': 6.2.2(rollup@4.13.0)
-      '@rollup/pluginutils': 5.1.0(rollup@4.13.0)
-      '@types/http-proxy': 1.17.14
-      '@vercel/nft': 0.24.3
-      archiver: 6.0.1
-      c12: 1.10.0
-      chalk: 5.3.0
-      chokidar: 3.6.0
-      citty: 0.1.5
-      consola: 3.2.3
-      cookie-es: 1.0.0
-      defu: 6.1.4
-      destr: 2.0.3
-      dot-prop: 8.0.2
-      esbuild: 0.19.11
-      escape-string-regexp: 5.0.0
-      estree-walker: 3.0.3
-      etag: 1.8.1
-      fs-extra: 11.2.0
-      globby: 14.0.1
-      gzip-size: 7.0.0
-      h3: 1.11.1
-      hookable: 5.5.3
-      httpxy: 0.1.5
-      is-primitive: 3.0.1
-      jiti: 1.21.0
-      klona: 2.0.6
-      knitwork: 1.0.0
-      listhen: 1.5.5
-      magic-string: 0.30.8
-      mime: 3.0.0
-      mlly: 1.6.1
-      mri: 1.2.0
-      node-fetch-native: 1.6.2
-      ofetch: 1.3.3
-      ohash: 1.1.3
-      openapi-typescript: 6.7.1
-      pathe: 1.1.2
-      perfect-debounce: 1.0.0
-      pkg-types: 1.0.3
-      pretty-bytes: 6.1.1
-      radix3: 1.1.1
-      rollup: 4.13.0
-      rollup-plugin-visualizer: 5.12.0(rollup@4.13.0)
-      scule: 1.3.0
-      semver: 7.6.0
-      serve-placeholder: 2.0.1
-      serve-static: 1.15.0
-      std-env: 3.7.0
-      ufo: 1.5.1
-      uncrypto: 0.1.3
-      unctx: 2.3.1
-      unenv: 1.9.0
-      unimport: 3.7.1(rollup@4.13.0)
-      unstorage: 1.10.1(idb-keyval@6.2.1)
-    transitivePeerDependencies:
-      - '@azure/app-configuration'
-      - '@azure/cosmos'
-      - '@azure/data-tables'
-      - '@azure/identity'
-      - '@azure/keyvault-secrets'
-      - '@azure/storage-blob'
-      - '@capacitor/preferences'
-      - '@netlify/blobs'
-      - '@planetscale/database'
-      - '@upstash/redis'
-      - '@vercel/kv'
-      - encoding
-      - idb-keyval
-      - supports-color
-      - uWebSockets.js
-    dev: true
 
   /no-case@3.0.4:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
@@ -9234,7 +9140,7 @@ packages:
       knitwork: 1.0.0
       magic-string: 0.30.8
       mlly: 1.6.1
-      nitropack: 2.8.1
+      nitropack: 2.8.1(idb-keyval@6.2.1)
       nuxi: 3.10.1
       nypm: 0.3.6
       ofetch: 1.3.3
@@ -9446,7 +9352,7 @@ packages:
       knitwork: 1.0.0
       magic-string: 0.30.5
       mlly: 1.5.0
-      nitropack: 2.8.1
+      nitropack: 2.8.1(idb-keyval@6.2.1)
       nuxi: 3.10.0
       nypm: 0.3.4
       ofetch: 1.3.3
@@ -9552,7 +9458,7 @@ packages:
       knitwork: 1.0.0
       magic-string: 0.30.5
       mlly: 1.5.0
-      nitropack: 2.8.1
+      nitropack: 2.8.1(idb-keyval@6.2.1)
       nuxi: 3.10.0
       nypm: 0.3.4
       ofetch: 1.3.3
@@ -9973,6 +9879,12 @@ packages:
       jsonc-parser: 3.2.1
       mlly: 1.6.0
       pathe: 1.1.2
+
+  /playwright-core@1.40.1:
+    resolution: {integrity: sha512-+hkOycxPiV534c4HhpfX6yrlawqVUzITRKwHAmYfmsVreltEl6fAZJ3DPfLMOODw0H3s1Itd6MDCWmP1fl/QvQ==}
+    engines: {node: '>=16'}
+    hasBin: true
+    dev: true
 
   /playwright-core@1.42.1:
     resolution: {integrity: sha512-mxz6zclokgrke9p1vtdy/COWBH+eOZgYUVVU34C73M+4j4HLlQJHtfcqiqqxpP0o8HhMkflvfbquLX5dg6wlfA==}
