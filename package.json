@@ -36,7 +36,7 @@
     "test:unit": "vitest test/unit --run",
     "prepack": "unbuild",
     "dev:prepare": "nuxi prepare && unbuild --stub && pnpm -r dev:prepare",
-    "release": "pnpm test:examples && pnpm prepack && changelogen --release --push && pnpm publish"
+    "release": "pnpm test:examples && pnpm prepack && changelogen --release --push"
   },
   "dependencies": {
     "@nuxt/kit": "^3.10.3",
