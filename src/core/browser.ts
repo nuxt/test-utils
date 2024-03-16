@@ -38,7 +38,7 @@ export interface GotoOptions extends Omit<_GotoOptions, 'waitUntil'> {
 }
 
 interface NuxtPage extends Omit<Page, 'goto'> {
-  goto: (url: string, options?: GotoOptions) => Promise<Response|null>
+  goto: (url: string, options?: GotoOptions) => Promise<Response | null>
 }
 
 export async function createPage (path?: string, options?: BrowserContextOptions): Promise<NuxtPage> {
@@ -46,7 +46,7 @@ export async function createPage (path?: string, options?: BrowserContextOptions
   const page = await browser.newPage(options) as unknown as NuxtPage
 
   const _goto = page.goto.bind(page)
-  page.goto = async (url, options): Promise<Response|null> => {
+  page.goto = async (url, options): Promise<Response | null> => {
     const waitUntil = options?.waitUntil
     if (waitUntil && ['hydration', 'route'].includes(waitUntil)) {
       delete options.waitUntil
@@ -63,7 +63,7 @@ export async function createPage (path?: string, options?: BrowserContextOptions
   return page
 }
 
-export async function waitForHydration(page: Page, url: string, waitUntil?: GotoOptions['waitUntil']): Promise<void> {
+export async function waitForHydration (page: Page, url: string, waitUntil?: GotoOptions['waitUntil']): Promise<void> {
   if (waitUntil === 'hydration') {
     await page.waitForFunction(() => window.useNuxtApp?.().isHydrating === false)
   } else if (waitUntil === 'route') {

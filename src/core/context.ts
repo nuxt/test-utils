@@ -19,10 +19,11 @@ export function createTestContext (options: Partial<TestOptions>): TestContext {
       type: 'chromium' as const
     }
   } satisfies Partial<TestOptions>)
+
   if (process.env.VITEST === 'true') {
-    _options.runner = 'vitest'
+    _options.runner ||= 'vitest'
   } else if (process.env.JEST_WORKER_ID) {
-    _options.runner = 'jest'
+    _options.runner ||= 'jest'
   }
 
   return setTestContext({
