@@ -2,12 +2,7 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig, devices } from '@playwright/test'
 import type { ConfigOptions } from '@nuxt/test-utils/playwright'
 
-/* Nuxt configuration options */
-const nuxt = {
-  rootDir: fileURLToPath(new URL('.', import.meta.url)),
-} satisfies ConfigOptions
-
-const devicesToTest: Array<string | typeof devices[string]> = [
+const devicesToTest = [
   'Desktop Chrome',
   // Test against other common browser engines.
   // 'Desktop Firefox',
@@ -18,7 +13,7 @@ const devicesToTest: Array<string | typeof devices[string]> = [
   // Test against branded browsers.
   // { ...devices['Desktop Edge'], channel: 'msedge' },
   // { ...devices['Desktop Chrome'], channel: 'chrome' },
-]
+] satisfies Array<string | typeof devices[string]> 
 
 /* See https://playwright.dev/docs/test-configuration.*/
 export default defineConfig<ConfigOptions>({
@@ -37,6 +32,10 @@ export default defineConfig<ConfigOptions>({
   use: {
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    /* Nuxt configuration options */
+    nuxt: {
+      rootDir: fileURLToPath(new URL('.', import.meta.url))
+    }
   },
-  projects: devicesToTest.map(p => typeof p === 'string' ? ({ name: p, use: devices[p], nuxt }) : { ...p, nuxt }),
+  projects: devicesToTest.map(p => typeof p === 'string' ? ({ name: p, use: devices[p] }) : p),
 })

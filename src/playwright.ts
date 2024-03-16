@@ -1,10 +1,10 @@
 import { test as base } from '@playwright/test'
 import type { Page, Response } from 'playwright-core'
-import type { GotoOptions, TestHooks, setup } from './e2e'
+import type { GotoOptions, TestOptions as SetupOptions, TestHooks } from './e2e'
 import { createTest, url, waitForHydration } from './e2e'
 
 export type ConfigOptions = {
-  nuxt: Parameters<typeof setup>[0] | undefined
+  nuxt: Partial<SetupOptions> | undefined
 }
 
 {
@@ -41,7 +41,10 @@ type TestOptions = {
 }
 
 /**
- * You can use the following syntax to configure your Nuxt fixture:
+ * Use a preconfigured Nuxt fixture.
+ * 
+ * You can pass a `nuxt: {}` object in your device configuration, in the `use` key of your config file,
+ * or use the following syntax within your test file to configure your Nuxt fixture:
  * 
   ```ts
   test.use({
