@@ -12,8 +12,8 @@ export function createTestContext (options: Partial<TestOptions>): TestContext {
     setupTimeout: 120 * 1000,
     dev: !!JSON.parse(process.env.NUXT_TEST_DEV || 'false'),
     logLevel: 1,
-    server: true,
-    build: (options.browser !== false) || (options.server !== false),
+    server: !options.endpoint,
+    build: ((options.browser !== false) || (options.server !== false)) && !options.endpoint,
     nuxtConfig: {},
     browserOptions: {
       type: 'chromium' as const
@@ -27,7 +27,8 @@ export function createTestContext (options: Partial<TestOptions>): TestContext {
   }
 
   return setTestContext({
-    options: _options as TestOptions
+    options: _options as TestOptions,
+    url: _options.endpoint
   })
 }
 
