@@ -1,6 +1,7 @@
 import type { Nuxt, NuxtConfig } from '@nuxt/schema'
 import type { ExecaChildProcess } from 'execa'
 import type { Browser, LaunchOptions } from 'playwright-core'
+import type { StartServerOptions } from './server'
 
 export type TestRunner = 'vitest' | 'jest' | 'cucumber'
 
@@ -24,6 +25,7 @@ export interface TestOptions {
   }
   server: boolean
   port?: number
+  env?: StartServerOptions['env']
 }
 
 export interface TestContext {
