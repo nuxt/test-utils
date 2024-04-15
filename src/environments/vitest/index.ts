@@ -142,6 +142,7 @@ export default <Environment>{
     return {
       // called after all tests with this env have been run
       teardown() {
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         keys.forEach(key => delete global[key])
         originals.forEach((v, k) => (global[k] = v))
         teardown()

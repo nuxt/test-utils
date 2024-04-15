@@ -120,7 +120,7 @@ describe('mountSuspended', () => {
 })
 
 describe.each(Object.entries(formats))(`%s`, (name, component) => {
-  let wrapper: VueWrapper<any>
+  let wrapper: VueWrapper<unknown>
 
   beforeEach(async () => {
     wrapper = await mountSuspended(component, {

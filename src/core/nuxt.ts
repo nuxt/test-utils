@@ -4,8 +4,7 @@ import { defu } from 'defu'
 import * as _kit from '@nuxt/kit'
 import { useTestContext } from './context'
 
-// @ts-expect-error type cast
-
+// @ts-expect-error type cast kit default export
 const kit: typeof _kit = _kit.default || _kit
 
 const isNuxtApp = (dir: string) => {

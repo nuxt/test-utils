@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { defineEventHandler } from 'h3'
 import type { App, EventHandler, HTTPMethod } from 'h3'
 import type {
@@ -79,7 +80,7 @@ export function registerEndpoint(
  * ```
  * @see https://nuxt.com/docs/getting-started/testing#mocknuxtimport
  */
-export function mockNuxtImport<T = any>(
+export function mockNuxtImport<T = unknown>(
   _name: string,
   _factory: () => T | Promise<T>,
 ): void {

@@ -6,8 +6,7 @@ import * as _kit from '@nuxt/kit'
 import { resolve } from 'pathe'
 import { useTestContext } from './context'
 
-// @ts-expect-error type cast
-
+// @ts-expect-error type cast kit default export
 const kit: typeof _kit = _kit.default || _kit
 
 export interface StartServerOptions {

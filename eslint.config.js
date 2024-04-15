@@ -18,4 +18,10 @@ export default createConfigForNuxt({
       './examples/module',
     ],
   },
+}).append({
+  rules: {
+    // TODO: re-enable
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-invalid-void-type': 'off',
+  },
 })
