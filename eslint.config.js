@@ -8,7 +8,14 @@ export default createConfigForNuxt({
   },
   dirs: {
     src: [
-
+      './examples/app-cucumber',
+      './examples/app-jest',
+      './examples/app-playwright',
+      './examples/app-vitest',
+      './examples/app-vitest-full',
+      './examples/content',
+      './examples/i18n',
+      './examples/module',
     ],
   },
 })
