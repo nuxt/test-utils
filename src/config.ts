@@ -22,7 +22,7 @@ interface LoadNuxtOptions {
 // https://github.com/nuxt/framework/issues/6496
 async function startNuxtAndGetViteConfig(
   rootDir = process.cwd(),
-  options: LoadNuxtOptions = {}
+  options: LoadNuxtOptions = {},
 ) {
   const { loadNuxt, buildNuxt } = await import('@nuxt/kit')
   const nuxt = await loadNuxt({
@@ -30,7 +30,7 @@ async function startNuxtAndGetViteConfig(
     dev: false,
     dotenv: defu(options.dotenv, {
       cwd: rootDir,
-      fileName: '.env.test'
+      fileName: '.env.test',
     }),
     overrides: defu(
       {
@@ -38,7 +38,7 @@ async function startNuxtAndGetViteConfig(
         test: true,
         modules: ['@nuxt/test-utils/module'],
       },
-      options.overrides
+      options.overrides,
     ),
   })
 
@@ -46,7 +46,7 @@ async function startNuxtAndGetViteConfig(
     !nuxt.options._installedModules.find(i => i?.meta?.name === '@nuxt/test-utils')
   ) {
     throw new Error(
-      'Failed to load `@nuxt/test-utils/module`. You may need to add it to your nuxt.config.'
+      'Failed to load `@nuxt/test-utils/module`. You may need to add it to your nuxt.config.',
     )
   }
 
@@ -57,7 +57,7 @@ async function startNuxtAndGetViteConfig(
         throw new Error('_stop_')
       }
     })
-    buildNuxt(nuxt).catch(err => {
+    buildNuxt(nuxt).catch((err) => {
       if (!err.toString().includes('_stop_')) {
         reject(err)
       }
@@ -74,7 +74,7 @@ const excludedPlugins = [
 
 export async function getVitestConfigFromNuxt(
   options?: GetVitestConfigOptions,
-  loadNuxtOptions: LoadNuxtOptions = {}
+  loadNuxtOptions: LoadNuxtOptions = {},
 ): Promise<InlineConfig & { test: VitestConfig }> {
   const { rootDir = process.cwd(), ..._overrides } = loadNuxtOptions.overrides || {}
 
@@ -83,8 +83,8 @@ export async function getVitestConfigFromNuxt(
       dotenv: loadNuxtOptions.dotenv,
       overrides: {
         test: true,
-        ..._overrides
-      }
+        ..._overrides,
+      },
     })
   }
 
@@ -103,13 +103,13 @@ export async function getVitestConfigFromNuxt(
             prefix: 'NUXT_',
             env: await setupDotenv(defu(loadNuxtOptions.dotenv, {
               cwd: rootDir,
-              fileName: '.env.test'
+              fileName: '.env.test',
             })),
           }),
           nuxtRouteRules: defu(
             {},
             options.nuxt.options.routeRules,
-            options.nuxt.options.nitro?.routeRules
+            options.nuxt.options.nitro?.routeRules,
           ),
         },
         environmentMatchGlobs: [
@@ -128,7 +128,7 @@ export async function getVitestConfigFromNuxt(
               '@nuxt/test-utils-edge',
               'vitest-environment-nuxt',
               ...(options.nuxt.options.build.transpile.filter(
-                r => typeof r === 'string' || r instanceof RegExp
+                r => typeof r === 'string' || r instanceof RegExp,
               ) as Array<string | RegExp>),
             ],
           },
@@ -140,7 +140,7 @@ export async function getVitestConfigFromNuxt(
             },
           },
         },
-      } satisfies VitestConfig
+      } satisfies VitestConfig,
     },
     {
       server: { middlewareMode: false },
@@ -152,7 +152,7 @@ export async function getVitestConfigFromNuxt(
             if (id.match(/nuxt(3|-nightly)?\/.*\/entry\./)) {
               return code.replace(
                 /(?<!vueAppPromise = )entry\(\)/,
-                'Promise.resolve()'
+                'Promise.resolve()',
               )
             }
           },
@@ -171,10 +171,10 @@ export async function getVitestConfigFromNuxt(
               intersectionObserver: true,
               indexedDb: false,
             },
-          }
-        }
-      } satisfies VitestConfig
-    }
+          },
+        },
+      } satisfies VitestConfig,
+    },
   ) as InlineConfig & { test: VitestConfig }
 
   // TODO: fix this by separating nuxt/node vitest configs
@@ -183,7 +183,7 @@ export async function getVitestConfigFromNuxt(
 
   // Remove built-in Nuxt logger: https://github.com/vitest-dev/vitest/issues/5211
   delete resolvedConfig.customLogger
-  
+
   if (!Array.isArray(resolvedConfig.test.setupFiles)) {
     resolvedConfig.test.setupFiles = [resolvedConfig.test.setupFiles].filter(Boolean) as string[]
   }
@@ -211,7 +211,7 @@ export function defineVitestConfig(config: InlineConfig & { test?: VitestConfig 
       config,
       await getVitestConfigFromNuxt(undefined, {
         dotenv: config.test?.environmentOptions?.nuxt?.dotenv,
-        overrides: structuredClone(overrides)
+        overrides: structuredClone(overrides),
       }),
     )
   })

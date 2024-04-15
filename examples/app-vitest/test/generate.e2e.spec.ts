@@ -9,10 +9,10 @@ await setup({
   nuxtConfig: {
     nitro: {
       prerender: {
-        routes: ['/test']
-      }
-    }
-  }
+        routes: ['/test'],
+      },
+    },
+  },
 })
 
 describe('generate test', () => {

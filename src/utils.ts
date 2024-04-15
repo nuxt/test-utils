@@ -10,19 +10,19 @@ export type EnvOptions = {
   altPrefix?: string
 }
 
-export function getEnv (key: string, opts: EnvOptions) {
+export function getEnv(key: string, opts: EnvOptions) {
   const env = opts.env ?? process.env
   const envKey = snakeCase(key).toUpperCase()
   return destr(
-    env[opts.prefix + envKey] ?? env[opts.altPrefix + envKey]
+    env[opts.prefix + envKey] ?? env[opts.altPrefix + envKey],
   )
 }
 
-function _isObject (input: unknown) {
+function _isObject(input: unknown) {
   return typeof input === 'object' && !Array.isArray(input)
 }
 
-export function applyEnv (obj: Record<string, any>, opts: EnvOptions, parentKey = '') {
+export function applyEnv(obj: Record<string, any>, opts: EnvOptions, parentKey = '') {
   for (const key in obj) {
     const subKey = parentKey ? `${parentKey}_${key}` : key
     const envValue = getEnv(subKey, opts)
@@ -42,7 +42,8 @@ export function applyEnv (obj: Record<string, any>, opts: EnvOptions, parentKey 
       else {
         obj[key] = envValue ?? obj[key]
       }
-    } else {
+    }
+    else {
       obj[key] = envValue ?? obj[key]
     }
   }

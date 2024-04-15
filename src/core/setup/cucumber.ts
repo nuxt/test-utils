@@ -1,6 +1,6 @@
 import type { TestHooks } from '../types'
 
-export default async function setupCucumber (hooks: TestHooks) {
+export default async function setupCucumber(hooks: TestHooks) {
   const { After, AfterAll, Before, BeforeAll } = await import('@cucumber/cucumber')
 
   BeforeAll({ timeout: hooks.ctx.options.setupTimeout }, hooks.setup)
@@ -9,4 +9,3 @@ export default async function setupCucumber (hooks: TestHooks) {
   After(hooks.afterEach)
   AfterAll(hooks.afterAll)
 }
-

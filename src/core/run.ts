@@ -2,8 +2,8 @@ import { resolve } from 'pathe'
 import { distDir } from '../dirs'
 
 export interface RunTestOptions {
-  rootDir: string,
-  dev?: boolean,
+  rootDir: string
+  dev?: boolean
   watch?: boolean
   runner?: 'vitest'
   globalSetup?: boolean
@@ -11,10 +11,10 @@ export interface RunTestOptions {
 
 const RunTestDefaults: Partial<RunTestOptions> = {
   runner: 'vitest',
-  globalSetup: true
+  globalSetup: true,
 }
 
-export async function runTests (opts: RunTestOptions) {
+export async function runTests(opts: RunTestOptions) {
   opts = { ...RunTestDefaults, ...opts }
 
   if (opts.runner !== 'vitest') {
@@ -38,13 +38,13 @@ export async function runTests (opts: RunTestOptions) {
       root: opts.rootDir,
       run: !opts.watch,
       deps: {
-        inline: [/@nuxt\/test-utils/]
-      }
+        inline: [/@nuxt\/test-utils/],
+      },
     },
     // Vite options
     {
       esbuild: {
-        tsconfigRaw: '{}'
+        tsconfigRaw: '{}',
       },
       test: {
         dir: opts.rootDir,
@@ -53,15 +53,15 @@ export async function runTests (opts: RunTestOptions) {
             distDir,
             '@nuxt/test-utils',
             '@nuxt/test-utils-nightly',
-            '@nuxt/test-utils-edge'
-          ]
+            '@nuxt/test-utils-edge',
+          ],
         },
         globals: true,
         globalSetup: [
-          ...opts.globalSetup ? [resolve(distDir, './runtime/global-setup')] : []
-        ]
-      }
-    }
+          ...opts.globalSetup ? [resolve(distDir, './runtime/global-setup')] : [],
+        ],
+      },
+    },
   )
 
   if (!succeeded) {

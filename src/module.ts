@@ -60,7 +60,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
     // the nuxt instance is used by a standalone Vitest env, we skip this module
     if (process.env.TEST || process.env.VITE_TEST) return
 
-    const rawViteConfigPromise = new Promise<ViteConfig>(resolve => {
+    const rawViteConfigPromise = new Promise<ViteConfig>((resolve) => {
       // Wrap with app:resolve to ensure we got the final vite config
       nuxt.hook('app:resolve', () => {
         nuxt.hook('vite:configResolved', (config, { isClient }) => {
@@ -135,23 +135,24 @@ export default defineNuxtModule<NuxtVitestOptions>({
       // Start Vitest
       const promise = startVitest('test', [], defu(overrides, viteConfig.test), viteConfig)
       promise.catch(() => process.exit(1))
-      
+
       if (watchMode) {
         logger.info(`Vitest UI starting on ${URL}`)
         nuxt.hook('close', () => promise.then(v => v?.close()))
         await new Promise(resolve => setTimeout(resolve, 1000))
-      } else {
-        promise.then((v) => nuxt.close().then(() => v?.close()).then(() => process.exit()))
+      }
+      else {
+        promise.then(v => nuxt.close().then(() => v?.close()).then(() => process.exit()))
       }
 
       loaded = true
     }
 
-    nuxt.hook('devtools:customTabs', tabs => {
-      const failedCount =
-        testFiles?.filter(f => f.result?.state === 'fail').length ?? 0
-      const passedCount =
-        testFiles?.filter(f => f.result?.state === 'pass').length ?? 0
+    nuxt.hook('devtools:customTabs', (tabs) => {
+      const failedCount
+        = testFiles?.filter(f => f.result?.state === 'fail').length ?? 0
+      const passedCount
+        = testFiles?.filter(f => f.result?.state === 'pass').length ?? 0
       const totalCount = testFiles?.length ?? 0
 
       tabs.push({
@@ -179,14 +180,14 @@ export default defineNuxtModule<NuxtVitestOptions>({
             },
         extraTabVNode: totalCount
           ? h('div', { style: { color: failedCount ? 'orange' : 'green' } }, [
-              h('span', {}, passedCount),
-              h('span', { style: { opacity: '0.5', fontSize: '0.9em' } }, '/'),
-              h(
-                'span',
-                { style: { opacity: '0.8', fontSize: '0.9em' } },
-                totalCount
-              ),
-            ])
+            h('span', {}, passedCount),
+            h('span', { style: { opacity: '0.5', fontSize: '0.9em' } }, '/'),
+            h(
+              'span',
+              { style: { opacity: '0.8', fontSize: '0.9em' } },
+              totalCount,
+            ),
+          ])
           : undefined,
       })
     })

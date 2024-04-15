@@ -12,15 +12,15 @@ export default defineComponent({
   props: {
     type: {
       type: String as () => 'button',
-      default: 'button'
-    }
+      default: 'button',
+    },
   },
-  setup () {
+  setup() {
     return {
       attrs: computed(() => ({
-        'data-test': 'true'
-      }))
+        'data-test': 'true',
+      })),
     }
-  }
+  },
 })
 </script>

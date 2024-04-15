@@ -42,10 +42,10 @@ type TestOptions = {
 
 /**
  * Use a preconfigured Nuxt fixture.
- * 
+ *
  * You can pass a `nuxt: {}` object in your device configuration, in the `use` key of your config file,
  * or use the following syntax within your test file to configure your Nuxt fixture:
- * 
+ *
   ```ts
   test.use({
     nuxt: {
@@ -62,7 +62,7 @@ export const test = base.extend<TestOptions, WorkerOptions & ConfigOptions>({
       await hooks.setup()
       await use(hooks)
       await hooks.afterAll()
-    }, { scope: 'worker' }
+    }, { scope: 'worker' },
   ],
   baseURL: async ({ _nuxtHooks }, use) => {
     _nuxtHooks.beforeEach()

@@ -43,7 +43,7 @@ export type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
  */
 export async function mountSuspended<T>(
   component: T,
-  options?: MountSuspendedOptions<T>
+  options?: MountSuspendedOptions<T>,
 ): Promise<ReturnType<typeof mount<T>> & { setupState: any }> {
   const {
     props = {},
@@ -64,7 +64,7 @@ export async function mountSuspended<T>(
   let passedProps: Record<string, any>
   const wrappedSetup = async (
     props: Record<string, any>,
-    setupContext: SetupContext
+    setupContext: SetupContext,
   ) => {
     passedProps = props
     if (setup) {
@@ -74,7 +74,7 @@ export async function mountSuspended<T>(
   }
 
   return new Promise<ReturnType<typeof mount<T>> & { setupState: any }>(
-    resolve => {
+    (resolve) => {
       const vm = mount(
         {
           setup: (props: Record<string, any>, ctx: SetupContext) => {
@@ -111,17 +111,17 @@ export async function mountSuspended<T>(
                         ...component,
                         render: render
                           ? function (this: any, _ctx: any, ...args: any[]) {
-                              for (const key in setupState || {}) {
-                                renderContext[key] = isReadonly(setupState[key]) ? unref(setupState[key]) : setupState[key]
-                              }
-                              for (const key in props || {}) {
-                                renderContext[key] = _ctx[key]
-                              }
-                              for (const key in passedProps || {}) {
-                                renderContext[key] = passedProps[key]
-                              }
-                              return render.call(this, renderContext, ...args)
+                            for (const key in setupState || {}) {
+                              renderContext[key] = isReadonly(setupState[key]) ? unref(setupState[key]) : setupState[key]
                             }
+                            for (const key in props || {}) {
+                              renderContext[key] = _ctx[key]
+                            }
+                            for (const key in passedProps || {}) {
+                              renderContext[key] = passedProps[key]
+                            }
+                            return render.call(this, renderContext, ...args)
+                          }
                           : undefined,
                         setup: setup ? (props: Record<string, any>) => wrappedSetup(props, setupContext) : undefined,
                       }
@@ -129,7 +129,7 @@ export async function mountSuspended<T>(
                       return () => h(clonedComponent, { ...defu(setProps, props) as typeof props, ...attrs }, slots)
                     },
                   }),
-              }
+              },
             ),
         },
         defu(
@@ -144,13 +144,13 @@ export async function mountSuspended<T>(
               stubs: {
                 Suspense: false,
                 MountSuspendedHelper: false,
-                [typeof (component as any).name === 'string' ? (component as any).name : 'MountSuspendedComponent']: false
+                [typeof (component as any).name === 'string' ? (component as any).name : 'MountSuspendedComponent']: false,
               },
               components: { RouterLink },
             },
-          } satisfies ComponentMountingOptions<T>
-        ) as ComponentMountingOptions<T>
+          } satisfies ComponentMountingOptions<T>,
+        ) as ComponentMountingOptions<T>,
       )
-    }
+    },
   )
 }

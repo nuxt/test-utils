@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { defineEventHandler } from 'h3'
 import type { App, EventHandler, HTTPMethod } from 'h3'
 import type {
@@ -36,17 +37,17 @@ export function registerEndpoint(
   options:
     | EventHandler
     | {
-        handler: EventHandler
-        method: HTTPMethod
-      }
+      handler: EventHandler
+      method: HTTPMethod
+    },
 ) {
   // @ts-expect-error private property
   const app: App = window.__app
 
   if (!app) return
 
-  const config =
-    typeof options === 'function'
+  const config
+    = typeof options === 'function'
       ? {
           handler: options,
           method: undefined,
@@ -79,12 +80,12 @@ export function registerEndpoint(
  * ```
  * @see https://nuxt.com/docs/getting-started/testing#mocknuxtimport
  */
-export function mockNuxtImport<T = any>(
+export function mockNuxtImport<T = unknown>(
   _name: string,
-  _factory: () => T | Promise<T>
+  _factory: () => T | Promise<T>,
 ): void {
   throw new Error(
-    'mockNuxtImport() is a macro and it did not get transpiled. This may be an internal bug of @nuxt/test-utils.'
+    'mockNuxtImport() is a macro and it did not get transpiled. This may be an internal bug of @nuxt/test-utils.',
   )
 }
 
@@ -218,6 +219,6 @@ export function mockComponent<
 ): void
 export function mockComponent(_path: string, _component: any): void {
   throw new Error(
-    'mockComponent() is a macro and it did not get transpiled. This may be an internal bug of @nuxt/test-utils.'
+    'mockComponent() is a macro and it did not get transpiled. This may be an internal bug of @nuxt/test-utils.',
   )
 }

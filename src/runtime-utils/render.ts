@@ -53,7 +53,7 @@ export const WRAPPER_EL_ID = 'test-wrapper'
  */
 export async function renderSuspended<T>(
   component: T,
-  options?: RenderOptions
+  options?: RenderOptions,
 ) {
   const {
     props = {},
@@ -76,10 +76,10 @@ export async function renderSuspended<T>(
 
   let setupContext: SetupContext
 
-  return new Promise<ReturnType<typeof renderFromTestingLibrary>>(resolve => {
+  return new Promise<ReturnType<typeof renderFromTestingLibrary>>((resolve) => {
     const utils = renderFromTestingLibrary(
       {
-        // eslint-disable-next-line @typescript-eslint/no-shadow
+
         setup: (props: any, ctx: any) => {
           setupContext = ctx
 
@@ -113,8 +113,7 @@ export async function renderSuspended<T>(
                               render(renderContext, ...args)
                           : undefined,
                         setup: setup
-                          ? // eslint-disable-next-line @typescript-eslint/no-shadow
-                            (props: Record<string, any>) =>
+                          ? (props: Record<string, any>) =>
                               setup(props, setupContext)
                           : undefined,
                       }
@@ -123,8 +122,8 @@ export async function renderSuspended<T>(
                         h(clonedComponent, { ...props, ...attrs }, slots)
                     },
                   }),
-              }
-            )
+              },
+            ),
           ),
       },
       defu(_options, {
@@ -136,7 +135,7 @@ export async function renderSuspended<T>(
           provide: vueApp._context.provides,
           components: { RouterLink },
         },
-      })
+      }),
     )
   })
 }

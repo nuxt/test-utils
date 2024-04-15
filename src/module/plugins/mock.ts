@@ -31,7 +31,7 @@ export interface MockComponentInfo {
   factory: string
 }
 
-export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() => { 
+export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() => {
   function transform(this: TransformPluginContext, code: string, id: string): TransformResult | Promise<TransformResult> {
     if (!HELPERS_NAME.some(n => code.includes(n))) return
     if (id.includes('/node_modules/')) return
@@ -42,7 +42,8 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
         // @ts-expect-error compatibility with rollup v3
         sourceType: 'module', ecmaVersion: 'latest', ranges: true,
       })
-    } catch (e) {
+    }
+    catch (e) {
       return
     }
 
@@ -61,7 +62,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
           if (node.source.value === 'vitest' && !hasViImport) {
             const viImport = node.specifiers.find(
               i =>
-                isImportSpecifier(i) && i.imported.name === 'vi'
+                isImportSpecifier(i) && i.imported.name === 'vi',
             )
             if (viImport) {
               insertionPoint = endOf(node)
@@ -74,24 +75,24 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
         if (!isCallExpression(node)) return
         // mockNuxtImport
         if (
-          isIdentifier(node.callee) &&
-          node.callee.name === HELPER_MOCK_IMPORT
+          isIdentifier(node.callee)
+          && node.callee.name === HELPER_MOCK_IMPORT
         ) {
           if (node.arguments.length !== 2) {
             return this.error(
               new Error(
-                `${HELPER_MOCK_IMPORT}() should have exactly 2 arguments`
+                `${HELPER_MOCK_IMPORT}() should have exactly 2 arguments`,
               ),
-              startOf(node)
+              startOf(node),
             )
           }
           const importName = node.arguments[0]
           if (!isLiteral(importName) || typeof importName.value !== 'string') {
             return this.error(
               new Error(
-                `The first argument of ${HELPER_MOCK_IMPORT}() must be a string literal`
+                `The first argument of ${HELPER_MOCK_IMPORT}() must be a string literal`,
               ),
-              startOf(importName)
+              startOf(importName),
             )
           }
           const name = importName.value
@@ -108,42 +109,42 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
             isExpressionStatement(parent)
               ? endOf(parent)
               : endOf(node.arguments[1]),
-            ''
+            '',
           )
           mocksImport.push({
             name,
             import: importItem,
             factory: code.slice(
               startOf(node.arguments[1]),
-              endOf(node.arguments[1])
+              endOf(node.arguments[1]),
             ),
           })
         }
         // mockComponent
         if (
-          isIdentifier(node.callee) &&
-          node.callee.name === HELPER_MOCK_COMPONENT
+          isIdentifier(node.callee)
+          && node.callee.name === HELPER_MOCK_COMPONENT
         ) {
           if (node.arguments.length !== 2) {
             return this.error(
               new Error(
-                `${HELPER_MOCK_COMPONENT}() should have exactly 2 arguments`
+                `${HELPER_MOCK_COMPONENT}() should have exactly 2 arguments`,
               ),
-              startOf(node)
+              startOf(node),
             )
           }
           const componentName = node.arguments[0]
           if (!isLiteral(componentName) || typeof componentName.value !== 'string') {
             return this.error(
               new Error(
-                `The first argument of ${HELPER_MOCK_COMPONENT}() must be a string literal`
+                `The first argument of ${HELPER_MOCK_COMPONENT}() must be a string literal`,
               ),
-              startOf(componentName)
+              startOf(componentName),
             )
           }
           const pathOrName = componentName.value
           const component = ctx.components.find(
-            _ => _.pascalName === pathOrName || _.kebabName === pathOrName
+            _ => _.pascalName === pathOrName || _.kebabName === pathOrName,
           )
           const path = component?.filePath || pathOrName
 
@@ -154,13 +155,13 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
             isExpressionStatement(parent)
               ? endOf(parent)
               : endOf(node.arguments[1]),
-            ''
+            '',
           )
           mocksComponent.push({
             path: path,
             factory: code.slice(
               startOf(node.arguments[1]),
-              endOf(node.arguments[1])
+              endOf(node.arguments[1]),
             ),
           })
         }
@@ -193,25 +194,26 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
             for (const mock of mocks) {
               if (mock.import.name === 'default') {
                 lines.push(
-                  `  mocks[${JSON.stringify(from)}]["default"] = await (${mock.factory})();`
+                  `  mocks[${JSON.stringify(from)}]["default"] = await (${mock.factory})();`,
                 )
-              } else {
+              }
+              else {
                 lines.push(
-                  `  mocks[${JSON.stringify(from)}][${JSON.stringify(mock.name)}] = await (${mock.factory})();`
+                  `  mocks[${JSON.stringify(from)}][${JSON.stringify(mock.name)}] = await (${mock.factory})();`,
                 )
               }
             }
             lines.push(`  return mocks[${JSON.stringify(from)}] `)
             lines.push(`});`)
             return lines
-          }
-        )
+          },
+        ),
       )
     }
 
     if (mocksComponent.length) {
       mockLines.push(
-        ...mocksComponent.flatMap(mock => {
+        ...mocksComponent.flatMap((mock) => {
           return [
             `vi.mock(${JSON.stringify(mock.path)}, async () => {`,
             `  const factory = (${mock.factory});`,
@@ -219,7 +221,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
             `  return 'default' in result ? result : { default: result }`,
             '});',
           ]
-        })
+        }),
       )
     }
 
@@ -237,7 +239,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
 
     // do an import to trick vite to keep it
     // if not, the module won't be mocked
-    importPathsList.forEach(p => {
+    importPathsList.forEach((p) => {
       s.append(`\n import ${JSON.stringify(p)};`)
     })
 
@@ -260,7 +262,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
         const vitestPlugins = plugins.filter(p => (p.name === 'vite:mocks' || p.name.startsWith('vitest:')) && (p.enforce || (p as any).order) === 'post')
         const lastNuxt = findLastIndex(
           plugins,
-          i => i.name?.startsWith('nuxt:')
+          i => i.name?.startsWith('nuxt:'),
         )
         if (lastNuxt === -1) return
         for (const plugin of vitestPlugins) {
@@ -276,35 +278,35 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
 })
 
 // Polyfill Array.prototype.findLastIndex for legacy Node.js
-function findLastIndex<T> (arr: T[], predicate: (item: T) => boolean) {
+function findLastIndex<T>(arr: T[], predicate: (item: T) => boolean) {
   for (let i = arr.length - 1; i >= 0; i--) {
     if (predicate(arr[i])) return i
   }
   return -1
 }
 
-function isImportDeclaration (node: Node): node is ImportDeclaration {
+function isImportDeclaration(node: Node): node is ImportDeclaration {
   return node.type === 'ImportDeclaration'
 }
-function isImportSpecifier (node: Node): node is ImportSpecifier {
+function isImportSpecifier(node: Node): node is ImportSpecifier {
   return node.type === 'ImportSpecifier'
 }
-function isCallExpression (node: Node): node is CallExpression {
+function isCallExpression(node: Node): node is CallExpression {
   return node.type === 'CallExpression'
 }
-function isIdentifier (node: Node): node is Identifier {
+function isIdentifier(node: Node): node is Identifier {
   return node.type === 'Identifier'
 }
-function isLiteral (node: Node | Expression): node is Literal {
+function isLiteral(node: Node | Expression): node is Literal {
   return node.type === 'Literal'
 }
-function isExpressionStatement (node: Node | null): node is ExpressionStatement {
+function isExpressionStatement(node: Node | null): node is ExpressionStatement {
   return node?.type === 'ExpressionStatement'
 }
 // TODO: need to fix in rollup types, probably
-function startOf (node: Node) {
+function startOf(node: Node) {
   return 'range' in node && node.range ? node.range[0] : (node as any).start as number
 }
-function endOf (node: Node) {
+function endOf(node: Node) {
   return 'range' in node && node.range ? node.range[1] : (node as any).end as number
 }

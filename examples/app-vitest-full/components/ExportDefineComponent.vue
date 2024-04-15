@@ -20,12 +20,12 @@ export default defineComponent({
   props: {
     myProp: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   setup(props) {
     return {
-      setupMyProp: 'X' + props.myProp
+      setupMyProp: 'X' + props.myProp,
     }
   },
 })

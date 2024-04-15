@@ -1,9 +1,9 @@
 import { importModule } from 'local-pkg'
 import type { EnvironmentNuxt } from '../types'
 
-export default <EnvironmentNuxt>async function (global, { jsdom = {} }) {
-  const { CookieJar, JSDOM, ResourceLoader, VirtualConsole } =
-    (await importModule('jsdom')) as typeof import('jsdom')
+export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
+  const { CookieJar, JSDOM, ResourceLoader, VirtualConsole }
+    = (await importModule('jsdom')) as typeof import('jsdom')
   const {
     html = '<!DOCTYPE html>',
     userAgent,
