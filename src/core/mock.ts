@@ -7,7 +7,7 @@ export function mockFn() {
   return ctx.mockFn
 }
 
-export function mockLogger (): Record<LogType, (...args: any[]) => void> {
+export function mockLogger(): Record<LogType, (...args: any[]) => void> {
   const mocks: Partial<Record<LogType, (...args: any[]) => void>> = {}
   consola.mockTypes((type) => {
     mocks[type] = mockFn()

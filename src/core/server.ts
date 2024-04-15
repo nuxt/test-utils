@@ -74,7 +74,7 @@ export async function stopServer() {
   }
 }
 
-export function fetch (path: string, options?: RequestInit) {
+export function fetch(path: string, options?: RequestInit) {
   return _fetch(url(path), options)
 }
 
