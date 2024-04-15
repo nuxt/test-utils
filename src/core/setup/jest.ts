@@ -1,6 +1,6 @@
 import type { TestHooks } from '../types'
 
-export default async function setupJest (hooks: TestHooks) {
+export default async function setupJest(hooks: TestHooks) {
   const { jest, test, beforeEach, afterAll, afterEach } = await import('@jest/globals')
 
   hooks.ctx.mockFn = jest.fn

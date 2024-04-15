@@ -1,6 +1,6 @@
 import type { TestHooks } from '../types'
 
-export default async function setupVitest (hooks: TestHooks) {
+export default async function setupVitest(hooks: TestHooks) {
   const vitest = await import('vitest')
 
   hooks.ctx.mockFn = vitest.vi.fn

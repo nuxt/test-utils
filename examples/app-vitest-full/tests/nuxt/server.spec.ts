@@ -11,7 +11,7 @@ describe('server mocks and data fetching', () => {
   it('can use $fetch', async () => {
     const app = createApp().use(
       '/todos/1',
-      eventHandler(() => ({ id: 1 }))
+      eventHandler(() => ({ id: 1 })),
     )
     const server = await listen(toNodeListener(app))
     const [{ url }] = await server.getURLs()
@@ -27,7 +27,7 @@ describe('server mocks and data fetching', () => {
     }))
     const component = await mountSuspended(FetchComponent)
     expect(component.html()).toMatchInlineSnapshot(
-      '"<div>title from mocked api</div>"'
+      '"<div>title from mocked api</div>"',
     )
   })
 
@@ -36,7 +36,7 @@ describe('server mocks and data fetching', () => {
       title: 'mocked',
     }))
     expect(
-      await $fetch<unknown>('/with-query', { query: { test: true } })
+      await $fetch<unknown>('/with-query', { query: { test: true } }),
     ).toMatchObject({
       title: 'mocked',
     })

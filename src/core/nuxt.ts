@@ -5,16 +5,16 @@ import * as _kit from '@nuxt/kit'
 import { useTestContext } from './context'
 
 // @ts-expect-error type cast
-// eslint-disable-next-line
+
 const kit: typeof _kit = _kit.default || _kit
 
 const isNuxtApp = (dir: string) => {
   return existsSync(dir) && (
-    existsSync(resolve(dir, 'pages')) ||
-    existsSync(resolve(dir, 'nuxt.config.js')) ||
-    existsSync(resolve(dir, 'nuxt.config.mjs')) ||
-    existsSync(resolve(dir, 'nuxt.config.cjs')) ||
-    existsSync(resolve(dir, 'nuxt.config.ts'))
+    existsSync(resolve(dir, 'pages'))
+    || existsSync(resolve(dir, 'nuxt.config.js'))
+    || existsSync(resolve(dir, 'nuxt.config.mjs'))
+    || existsSync(resolve(dir, 'nuxt.config.cjs'))
+    || existsSync(resolve(dir, 'nuxt.config.ts'))
   )
 }
 
@@ -24,7 +24,7 @@ const resolveRootDir = () => {
   const dirs = [
     options.rootDir,
     resolve(options.testDir, options.fixture),
-    process.cwd()
+    process.cwd(),
   ]
 
   for (const dir of dirs) {
@@ -36,7 +36,7 @@ const resolveRootDir = () => {
   throw new Error('Invalid nuxt app. (Please explicitly set `options.rootDir` pointing to a valid nuxt app)')
 }
 
-export async function loadFixture () {
+export async function loadFixture() {
   const ctx = useTestContext()
 
   ctx.options.rootDir = resolveRootDir()
@@ -48,9 +48,9 @@ export async function loadFixture () {
       buildDir,
       nitro: {
         output: {
-          dir: resolve(buildDir, 'output')
-        }
-      }
+          dir: resolve(buildDir, 'output'),
+        },
+      },
     })
   }
 
@@ -58,7 +58,7 @@ export async function loadFixture () {
     cwd: ctx.options.rootDir,
     dev: ctx.options.dev,
     overrides: ctx.options.nuxtConfig,
-    configFile: ctx.options.configFile
+    configFile: ctx.options.configFile,
   })
 
   const buildDir = ctx.nuxt.options.buildDir
@@ -70,7 +70,7 @@ export async function loadFixture () {
   }
 }
 
-export async function buildFixture () {
+export async function buildFixture() {
   const ctx = useTestContext()
   // Hide build info for test
   const prevLevel = kit.logger.level
