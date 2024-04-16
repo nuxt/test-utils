@@ -3,6 +3,7 @@ import { getRandomPort, waitForPort } from 'get-port-please'
 import type { FetchOptions } from 'ofetch'
 import { $fetch as _$fetch, fetch as _fetch } from 'ofetch'
 import * as _kit from '@nuxt/kit'
+import type { $Fetch } from 'nitropack'
 import { resolve } from 'pathe'
 import { useTestContext } from './context'
 
@@ -78,9 +79,9 @@ export function fetch(path: string, options?: RequestInit) {
   return _fetch(url(path), options)
 }
 
-export function $fetch(path: string, options?: FetchOptions) {
+export const $fetch = (function $fetch(path: string, options?: FetchOptions) {
   return _$fetch(url(path), options)
-}
+}) as $Fetch
 
 export function url(path: string) {
   const ctx = useTestContext()
