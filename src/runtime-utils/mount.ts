@@ -44,7 +44,7 @@ export type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
 export async function mountSuspended<T>(
   component: T,
   options?: MountSuspendedOptions<T>,
-): Promise<ReturnType<typeof mount<T>> & { setupState: any }> {
+): Promise<ReturnType<typeof mount<T>> & { setupState: Record<string, unknown> }> {
   const {
     props = {},
     attrs = {},
@@ -55,46 +55,47 @@ export async function mountSuspended<T>(
 
   // @ts-expect-error untyped global __unctx__
   const vueApp = globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
-  const { render, setup } = component as DefineComponent<any, any>
+  const { render, setup } = component as DefineComponent<Record<string, unknown>, Record <string, unknown>>
 
   let setupContext: SetupContext
-  let setupState: any
-  const setProps = reactive<Record<string, any>>({})
+  let setupState: Record<string, unknown>
+  const setProps = reactive<Record<string, unknown>>({})
 
-  let passedProps: Record<string, any>
+  let passedProps: Record<string, unknown>
   const wrappedSetup = async (
-    props: Record<string, any>,
+    props: Record<string, unknown>,
     setupContext: SetupContext,
   ) => {
     passedProps = props
     if (setup) {
-      setupState = await setup(props, setupContext)
+      const result = await setup(props, setupContext)
+      setupState = result && typeof result === 'object' ? result : {}
       return setupState
     }
   }
 
-  return new Promise<ReturnType<typeof mount<T>> & { setupState: any }>(
+  return new Promise<ReturnType<typeof mount<T>> & { setupState: Record<string, unknown> }>(
     (resolve) => {
       const vm = mount(
         {
-          setup: (props: Record<string, any>, ctx: SetupContext) => {
+          setup: (props: Record<string, unknown>, ctx: SetupContext) => {
             setupContext = ctx
             return NuxtRoot.setup(props, {
               ...ctx,
               expose: () => {},
             })
           },
-          render: (renderContext: any) =>
+          render: (renderContext: Record<string, unknown>) =>
             h(
               Suspense,
               {
                 onResolve: () =>
                   nextTick().then(() => {
-                    (vm as any).setupState = setupState;
-                    (vm as any).__setProps = (props: Record<string, any>) => {
+                    (vm as unknown as AugmentedVueInstance).setupState = setupState;
+                    (vm as unknown as AugmentedVueInstance).__setProps = (props: Record<string, unknown>) => {
                       Object.assign(setProps, props)
                     }
-                    resolve(vm as any)
+                    resolve(vm as ReturnType<typeof mount<T>> & { setupState: Record<string, unknown> })
                   }),
               },
               {
@@ -110,7 +111,7 @@ export async function mountSuspended<T>(
                         name: 'MountSuspendedComponent',
                         ...component,
                         render: render
-                          ? function (this: any, _ctx: any, ...args: any[]) {
+                          ? function (this: unknown, _ctx: Record<string, unknown>, ...args: unknown[]) {
                             for (const key in setupState || {}) {
                               renderContext[key] = isReadonly(setupState[key]) ? unref(setupState[key]) : setupState[key]
                             }
@@ -123,7 +124,7 @@ export async function mountSuspended<T>(
                             return render.call(this, renderContext, ...args)
                           }
                           : undefined,
-                        setup: setup ? (props: Record<string, any>) => wrappedSetup(props, setupContext) : undefined,
+                        setup: setup ? (props: Record<string, unknown>) => wrappedSetup(props, setupContext) : undefined,
                       }
 
                       return () => h(clonedComponent, { ...defu(setProps, props) as typeof props, ...attrs }, slots)
@@ -144,7 +145,7 @@ export async function mountSuspended<T>(
               stubs: {
                 Suspense: false,
                 MountSuspendedHelper: false,
-                [typeof (component as any).name === 'string' ? (component as any).name : 'MountSuspendedComponent']: false,
+                [component && typeof component === 'object' && 'name' in component && typeof component.name === 'string' ? component.name : 'MountSuspendedComponent']: false,
               },
               components: { RouterLink },
             },
@@ -153,4 +154,9 @@ export async function mountSuspended<T>(
       )
     },
   )
+}
+
+interface AugmentedVueInstance {
+  setupState?: Record<string, unknown>
+  __setProps?: (props: Record<string, unknown>) => void
 }
