@@ -55,7 +55,8 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
     const mocksComponent: MockComponentInfo[] = []
     const importPathsList: Set<string> = new Set()
 
-    walk(ast as any, {
+    // @ts-expect-error mismatch between acorn/estree types
+    walk(ast, {
       enter: (node, parent) => {
         // find existing vi import
         if (isImportDeclaration(node)) {
@@ -259,7 +260,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
         const plugins = (config.plugins || []) as Plugin[]
 
         // `vite:mocks` was a typo in Vitest before v0.34.0
-        const vitestPlugins = plugins.filter(p => (p.name === 'vite:mocks' || p.name.startsWith('vitest:')) && (p.enforce || (p as any).order) === 'post')
+        const vitestPlugins = plugins.filter(p => (p.name === 'vite:mocks' || p.name.startsWith('vitest:')) && (p.enforce || ('order' in p && p.order === 'post')))
         const lastNuxt = findLastIndex(
           plugins,
           i => i.name?.startsWith('nuxt:'),
@@ -305,8 +306,8 @@ function isExpressionStatement(node: Node | null): node is ExpressionStatement {
 }
 // TODO: need to fix in rollup types, probably
 function startOf(node: Node) {
-  return 'range' in node && node.range ? node.range[0] : (node as any).start as number
+  return 'range' in node && node.range ? node.range[0] : ('start' in node ? node.start as number : undefined as never)
 }
 function endOf(node: Node) {
-  return 'range' in node && node.range ? node.range[1] : (node as any).end as number
+  return 'range' in node && node.range ? node.range[1] : ('end' in node ? node.end as number : undefined as never)
 }

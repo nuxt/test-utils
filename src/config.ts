@@ -88,7 +88,7 @@ export async function getVitestConfigFromNuxt(
     })
   }
 
-  options.viteConfig.plugins = (options.viteConfig.plugins || []).filter(p => !excludedPlugins.includes((p as any)?.name))
+  options.viteConfig.plugins = (options.viteConfig.plugins || []).filter(p => !p || !('name' in p) || !excludedPlugins.includes(p.name))
 
   const resolvedConfig = defu(
     // overrides

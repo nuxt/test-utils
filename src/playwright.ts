@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { test as base } from '@playwright/test'
 import type { Page, Response } from 'playwright-core'
 import type { GotoOptions, TestOptions as SetupOptions, TestHooks } from './e2e'

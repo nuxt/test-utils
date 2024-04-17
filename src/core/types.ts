@@ -32,7 +32,7 @@ export interface TestContext {
   browser?: Browser
   url?: string
   serverProcess?: ExecaChildProcess
-  mockFn?: (...args: any[]) => unknown
+  mockFn?: (...args: unknown[]) => unknown
   /**
    * Functions to run on the vitest `afterAll` hook.
    * Useful for removing anything created during the test.

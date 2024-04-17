@@ -1,6 +1,9 @@
 // TODO: export these
 // https://github.com/unjs/nitro/tree/main/src/runtime/utils.env.ts
 
+// TODO: improve types upstream
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import destr from 'destr'
 import { snakeCase } from 'scule'
 

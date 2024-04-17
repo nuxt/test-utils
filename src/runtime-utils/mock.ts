@@ -217,7 +217,7 @@ export function mockComponent<
     >
   >
 ): void
-export function mockComponent(_path: string, _component: any): void {
+export function mockComponent(_path: string, _component: unknown): void {
   throw new Error(
     'mockComponent() is a macro and it did not get transpiled. This may be an internal bug of @nuxt/test-utils.',
   )

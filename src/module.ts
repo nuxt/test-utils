@@ -70,7 +70,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
     })
 
     let loaded = false
-    let promise: Promise<any> | undefined
+    let promise: Promise<void> | undefined
     let ctx: Vitest = undefined!
     let testFiles: File[] | null = null
 
@@ -85,8 +85,8 @@ export default defineNuxtModule<NuxtVitestOptions>({
 
       const viteConfig = await getVitestConfigFromNuxt({ nuxt, viteConfig: defu({ test: options.vitestConfig }, rawViteConfig) })
 
-      viteConfig.plugins = (viteConfig.plugins || []).filter((p: any) => {
-        return !vitePluginBlocklist.includes(p?.name)
+      viteConfig.plugins = (viteConfig.plugins || []).filter((p) => {
+        return !p || !('name' in p) || !vitePluginBlocklist.includes(p.name)
       })
 
       process.env.__NUXT_VITEST_RESOLVED__ = 'true'
