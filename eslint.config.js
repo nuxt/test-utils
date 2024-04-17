@@ -20,8 +20,6 @@ export default createConfigForNuxt({
   },
 }).append({
   rules: {
-    // TODO: re-enable
-    '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-invalid-void-type': 'off',
   },
 })
