@@ -3,7 +3,6 @@ import { getRandomPort, waitForPort } from 'get-port-please'
 import type { FetchOptions } from 'ofetch'
 import { $fetch as _$fetch, fetch as _fetch } from 'ofetch'
 import * as _kit from '@nuxt/kit'
-import type { $Fetch } from 'nitropack'
 import { resolve } from 'pathe'
 import { useTestContext } from './context'
 
@@ -39,7 +38,7 @@ export async function startServer(options: StartServerOptions = {}) {
     for (let i = 0; i < 150; i++) {
       await new Promise(resolve => setTimeout(resolve, 100))
       try {
-        const res = await $fetch<string>(ctx.nuxt!.options.app.baseURL, { responseType: 'text' })
+        const res = await $fetch(ctx.nuxt!.options.app.baseURL, { responseType: 'text' }) as string
         if (!res.includes('__NUXT_LOADING__')) {
           return
         }
@@ -79,9 +78,10 @@ export function fetch(path: string, options?: RequestInit) {
   return _fetch(url(path), options)
 }
 
-export const $fetch = (function $fetch(path: string, options?: FetchOptions) {
+// TODO: fix type inference of `$fetch`
+export function $fetch(path: string, options?: FetchOptions) {
   return _$fetch(url(path), options)
-}) as $Fetch
+}
 
 export function url(path: string) {
   const ctx = useTestContext()
