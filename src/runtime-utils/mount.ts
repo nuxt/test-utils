@@ -15,6 +15,10 @@ export type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
   route?: RouteLocationRaw
 }
 
+// TODO: improve return types
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SetupState = Record<string, any>
+
 /**
  * `mountSuspended` allows you to mount any vue component within the Nuxt environment, allowing async setup and access to injections from your Nuxt plugins. For example:
  *
@@ -44,7 +48,7 @@ export type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
 export async function mountSuspended<T>(
   component: T,
   options?: MountSuspendedOptions<T>,
-): Promise<ReturnType<typeof mount<T>> & { setupState: Record<string, unknown> }> {
+): Promise<ReturnType<typeof mount<T>> & { setupState: SetupState }> {
   const {
     props = {},
     attrs = {},
@@ -55,7 +59,7 @@ export async function mountSuspended<T>(
 
   // @ts-expect-error untyped global __unctx__
   const vueApp = globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
-  const { render, setup } = component as DefineComponent<Record<string, unknown>, Record <string, unknown>>
+  const { render, setup } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
 
   let setupContext: SetupContext
   let setupState: Record<string, unknown>
@@ -70,7 +74,7 @@ export async function mountSuspended<T>(
     if (setup) {
       const result = await setup(props, setupContext)
       setupState = result && typeof result === 'object' ? result : {}
-      return setupState
+      return result
     }
   }
 
