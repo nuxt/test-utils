@@ -7,9 +7,9 @@ import App from '~/app.vue'
 mockNuxtImport('queryContent', () => (_id: string) => ({
   limit: (_limit: number) => ({
     find: () => [{
-      title: 'My page'
-    }]
-  })
+      title: 'My page',
+    }],
+  }),
 }))
 
 describe('test utils', () => {

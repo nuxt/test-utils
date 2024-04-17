@@ -23,7 +23,7 @@ export default <Environment>{
   async setup(global, environmentOptions) {
     const url = joinURL('http://localhost:3000', environmentOptions?.nuxtRuntimeConfig.app?.baseURL || '/')
 
-    const environmentName = (environmentOptions.nuxt.domEnvironment as NuxtBuiltinEnvironment)
+    const environmentName = environmentOptions.nuxt.domEnvironment as NuxtBuiltinEnvironment
     const environment = environmentMap[environmentName] || environmentMap['happy-dom']
     const { window: win, teardown } = await environment(global, defu(environmentOptions, {
       happyDom: { url },
@@ -49,9 +49,9 @@ export default <Environment>{
     win.document.body.appendChild(app)
 
     if (environmentOptions?.nuxt?.mock?.intersectionObserver) {
-      win.IntersectionObserver =
-        win.IntersectionObserver ||
-        class IntersectionObserver {
+      win.IntersectionObserver
+        = win.IntersectionObserver
+        || class IntersectionObserver {
           observe() {}
           unobserve() {}
           disconnect() {}
@@ -77,14 +77,17 @@ export default <Environment>{
 
     const registry = new Set<string>()
 
-    win.fetch = (init: string, options?: any) => {
+    win.fetch = (init, options) => {
       if (typeof init === 'string') {
         const base = init.split('?')[0]
         if (registry.has(base) || registry.has(init)) {
           init = '/_' + init
         }
       }
-      return localFetch(init, options)
+      return localFetch(init.toString(), {
+        ...options,
+        headers: Array.isArray(options?.headers) ? new Headers(options?.headers) : options?.headers,
+      })
     }
 
     win.$fetch = createFetch({ fetch: win.fetch, Headers: win.Headers })
@@ -99,13 +102,13 @@ export default <Environment>{
     // App manifest support
     const timestamp = Date.now()
     const routeRulesMatcher = toRouteMatcher(
-      createRadixRouter({ routes: environmentOptions.nuxtRouteRules || {} })
+      createRadixRouter({ routes: environmentOptions.nuxtRouteRules || {} }),
     )
     const matcher = exportMatcher(routeRulesMatcher)
     const manifestOutputPath = joinURL(
       '/',
       environmentOptions?.nuxtRuntimeConfig.app?.buildAssetsDir || '_nuxt',
-      'builds'
+      'builds',
     )
     const manifestBaseRoutePath = joinURL('/_', manifestOutputPath)
 
@@ -114,7 +117,7 @@ export default <Environment>{
       defineEventHandler(() => ({
         id: 'test',
         timestamp,
-      }))
+      })),
     )
     h3App.use(
       `${manifestBaseRoutePath}/meta/test.json`,
@@ -123,7 +126,7 @@ export default <Environment>{
         timestamp,
         matcher,
         prerendered: [],
-      }))
+      })),
     )
     h3App.use(
       `${manifestBaseRoutePath}/meta/dev.json`,
@@ -132,7 +135,7 @@ export default <Environment>{
         timestamp,
         matcher,
         prerendered: [],
-      }))
+      })),
     )
 
     registry.add(`${manifestOutputPath}/latest.json`)
@@ -142,6 +145,7 @@ export default <Environment>{
     return {
       // called after all tests with this env have been run
       teardown() {
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         keys.forEach(key => delete global[key])
         originals.forEach((v, k) => (global[k] = v))
         teardown()

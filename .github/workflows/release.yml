@@ -1,20 +1,25 @@
-name: ci
+name: release
 
 on:
   push:
-    branches:
-      - main
+    tags: 
+      - "v*"
 
+# Remove default permissions of GITHUB_TOKEN for security
+# https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs
 permissions: {}
 
 jobs:
   release:
-    runs-on: ubuntu-latest
-    if: ${{ github.repository_owner == 'nuxt' && github.event_name == 'push' }}
+    if: github.repository_owner == 'nuxt'
     permissions:
       id-token: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          fetch-depth: 0
       - run: corepack enable
       - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
         with:
@@ -28,8 +33,8 @@ jobs:
       - name: Prepare build environment
         run: pnpm dev:prepare
 
-      - name: nightly release
-        run: pnpm changelogen --canary nightly --publish
+      - name: Release
+        run: pnpm changelogen --publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.RELEASE_NODE_AUTH_TOKEN }}
           NPM_CONFIG_PROVENANCE: true

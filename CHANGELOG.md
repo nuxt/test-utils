@@ -2,6 +2,51 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## v3.12.1
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.12.0...v3.12.1)
+
+### 🩹 Fixes
+
+- Publish `playwright.d.ts` ([#797](https://github.com/nuxt/test-utils/pull/797))
+
+### ❤️ Contributors
+
+- Ryota Watanabe ([@wattanx](http://github.com/wattanx))
+
+## v3.12.0
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.11.0...v3.12.0)
+
+### 🚀 Enhancements
+
+- **e2e:** Add `'route'`/`'hydration'` options for `page.goto()` ([#739](https://github.com/nuxt/test-utils/pull/739))
+- **e2e:** Add `playwright` runner ([#776](https://github.com/nuxt/test-utils/pull/776))
+
+### 🩹 Fixes
+
+- **config:** Remove nuxt's custom vite logger ([eca52f5c](https://github.com/nuxt/test-utils/commit/eca52f5c))
+
+### 🏡 Chore
+
+- Force correct typing for e2e subpath ([9fd93a8c](https://github.com/nuxt/test-utils/commit/9fd93a8c))
+- Don't run publish step separately ([0078d0bc](https://github.com/nuxt/test-utils/commit/0078d0bc))
+
+### 🤖 CI
+
+- Remove caching of Playwright browsers ([#785](https://github.com/nuxt/test-utils/pull/785))
+- Add release workflow ([76604ce0](https://github.com/nuxt/test-utils/commit/76604ce0))
+- Update `changelogen` command ([e3368daf](https://github.com/nuxt/test-utils/commit/e3368daf))
+- Add git user ([5aa95b02](https://github.com/nuxt/test-utils/commit/5aa95b02))
+- Add contents permission ([cf6cd3a8](https://github.com/nuxt/test-utils/commit/cf6cd3a8))
+- Rename some workflows ([7ea235e9](https://github.com/nuxt/test-utils/commit/7ea235e9))
+- Do less in workflow ([1f664fc5](https://github.com/nuxt/test-utils/commit/1f664fc5))
+
+### ❤️ Contributors
+
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+- Max Schmitt ([@mxschmitt](http://github.com/mxschmitt))
+
 ## v3.11.0
 
 [compare changes](https://github.com/nuxt/test-utils/compare/v3.10.0...v3.11.0)

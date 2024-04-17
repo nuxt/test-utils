@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { dirname, extname, join } from 'pathe'
-import { createUnplugin } from "unplugin"
+import { createUnplugin } from 'unplugin'
 
 const PLUGIN_NAME = 'nuxt:vitest:nuxt-root-stub'
 
@@ -28,7 +28,7 @@ export const NuxtRootStubPlugin = createUnplugin((options: NuxtRootStubPluginOpt
           const entryContents = readFileSync(options.entry, 'utf-8')
           return entryContents.replace('#build/root-component.mjs', options.rootStubPath)
         }
-      }
+      },
     },
   }
 })

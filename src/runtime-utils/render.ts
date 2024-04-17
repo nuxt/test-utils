@@ -53,7 +53,7 @@ export const WRAPPER_EL_ID = 'test-wrapper'
  */
 export async function renderSuspended<T>(
   component: T,
-  options?: RenderOptions
+  options?: RenderOptions,
 ) {
   const {
     props = {},
@@ -69,18 +69,18 @@ export async function renderSuspended<T>(
 
   // @ts-expect-error untyped global __unctx__
   const { vueApp } = globalThis.__unctx__.get('nuxt-app').tryUse()
-  const { render, setup } = component as DefineComponent<any, any>
+  const { render, setup } = component as DefineComponent<Record<string, unknown>, Record <string, unknown>>
 
   // cleanup previously mounted test wrappers
   document.querySelector(`#${WRAPPER_EL_ID}`)?.remove()
 
   let setupContext: SetupContext
 
-  return new Promise<ReturnType<typeof renderFromTestingLibrary>>(resolve => {
+  return new Promise<ReturnType<typeof renderFromTestingLibrary>>((resolve) => {
     const utils = renderFromTestingLibrary(
       {
-        // eslint-disable-next-line @typescript-eslint/no-shadow
-        setup: (props: any, ctx: any) => {
+
+        setup: (props: Record<string, unknown>, ctx: SetupContext) => {
           setupContext = ctx
 
           return NuxtRoot.setup(props, {
@@ -88,7 +88,7 @@ export async function renderSuspended<T>(
             expose: () => {},
           })
         },
-        render: (renderContext: any) =>
+        render: (renderContext: unknown) =>
           // See discussions in https://github.com/testing-library/vue-testing-library/issues/230
           // we add this additional root element because otherwise testing-library breaks
           // because there's no root element while Suspense is resolving
@@ -109,12 +109,11 @@ export async function renderSuspended<T>(
                       const clonedComponent = {
                         ...component,
                         render: render
-                          ? (_ctx: any, ...args: any[]) =>
+                          ? (_ctx: unknown, ...args: unknown[]) =>
                               render(renderContext, ...args)
                           : undefined,
                         setup: setup
-                          ? // eslint-disable-next-line @typescript-eslint/no-shadow
-                            (props: Record<string, any>) =>
+                          ? (props: Record<string, unknown>) =>
                               setup(props, setupContext)
                           : undefined,
                       }
@@ -123,8 +122,8 @@ export async function renderSuspended<T>(
                         h(clonedComponent, { ...props, ...attrs }, slots)
                     },
                   }),
-              }
-            )
+              },
+            ),
           ),
       },
       defu(_options, {
@@ -136,7 +135,7 @@ export async function renderSuspended<T>(
           provide: vueApp._context.provides,
           components: { RouterLink },
         },
-      })
+      }),
     )
   })
 }

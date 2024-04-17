@@ -11,6 +11,6 @@ mockNuxtImport('useRuntimeConfig', () => {
 
 it('should mock core nuxt composables', () => {
   expect(useRuntimeConfig().public?.API_ENTRYPOINT).toMatchInlineSnapshot(
-    '"http://api.example.com"'
+    '"http://api.example.com"',
   )
 })

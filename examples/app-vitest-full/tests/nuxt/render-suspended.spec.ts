@@ -36,7 +36,7 @@ describe('renderSuspended', () => {
       <h2>
         The original
       </h2>
-    `
+    `,
     )
   })
 
@@ -51,7 +51,7 @@ describe('renderSuspended', () => {
       <h2>
         title from mount suspense props
       </h2>
-    `
+    `,
     )
   })
 
@@ -74,7 +74,7 @@ describe('renderSuspended', () => {
     expect(emittedEvents.click).toMatchObject(
       expect.arrayContaining([
         expect.arrayContaining([expect.objectContaining({ type: 'click' })]),
-      ])
+      ]),
     )
 
     // since this is a native event it doesn't serialize well
@@ -96,7 +96,7 @@ describe('renderSuspended', () => {
   it('renders links correctly', async () => {
     await renderSuspended(LinkTests)
 
-    expect(screen.getByRole('link', { name: 'Link with string to prop'})).toHaveProperty('href', 'http://localhost:3000/test')
-    expect(screen.getByRole('link', { name: 'Link with object to prop'})).toHaveProperty('href', 'http://localhost:3000/test')
+    expect(screen.getByRole('link', { name: 'Link with string to prop' })).toHaveProperty('href', 'http://localhost:3000/test')
+    expect(screen.getByRole('link', { name: 'Link with object to prop' })).toHaveProperty('href', 'http://localhost:3000/test')
   })
 })
