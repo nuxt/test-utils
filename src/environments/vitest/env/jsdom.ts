@@ -1,38 +1,28 @@
 import { importModule } from 'local-pkg'
-import type { EnvironmentNuxt } from '../types'
+import type { DOMWindow, SupportedContentTypes } from 'jsdom'
+import defu from 'defu'
+import type { JSDOMOptions } from 'vitest'
+import type { EnvironmentNuxt, NuxtWindow } from '../types'
 
 export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
-  const { CookieJar, JSDOM, ResourceLoader, VirtualConsole }
-    = (await importModule('jsdom')) as typeof import('jsdom')
-  const {
-    html = '<!DOCTYPE html>',
-    userAgent,
-    url = 'http://localhost:3000',
-    contentType = 'text/html',
-    pretendToBeVisual = true,
-    includeNodeLocations = false,
-    runScripts = 'dangerously',
-    resources,
-    console = false,
-    cookieJar = false,
-    ...restOptions
-  } = jsdom as any
-  const window = new JSDOM(html, {
-    pretendToBeVisual,
-    resources:
-      resources ?? (userAgent ? new ResourceLoader({ userAgent }) : undefined),
-    runScripts,
-    url,
-    virtualConsole:
-      console && global.console
-        ? new VirtualConsole().sendTo(global.console)
-        : undefined,
-    cookieJar: cookieJar ? new CookieJar() : undefined,
-    includeNodeLocations,
-    contentType,
-    userAgent,
-    ...restOptions,
-  }).window as any
+  const { CookieJar, JSDOM, ResourceLoader, VirtualConsole } = (await importModule('jsdom')) as typeof import('jsdom')
+  const jsdomOptions = defu(jsdom, {
+    html: '<!DOCTYPE html>',
+    url: 'http://localhost:3000',
+    contentType: 'text/html' as const,
+    pretendToBeVisual: true,
+    includeNodeLocations: false,
+    runScripts: 'dangerously',
+    console: false,
+    cookieJar: false,
+  } satisfies JSDOMOptions) as JSDOMOptions & { contentType: SupportedContentTypes }
+
+  const window = new JSDOM(jsdomOptions.html, {
+    ...jsdomOptions,
+    resources: jsdomOptions.resources ?? (jsdomOptions.userAgent ? new ResourceLoader({ userAgent: jsdomOptions.userAgent }) : undefined),
+    virtualConsole: jsdomOptions.console && global.console ? new VirtualConsole().sendTo(global.console) : undefined,
+    cookieJar: jsdomOptions.cookieJar ? new CookieJar() : undefined,
+  }).window as DOMWindow & NuxtWindow
 
   // Vue-router relies on scrollTo being available if run in a browser.
   // The scrollTo implementation from JSDOM throws a "Not Implemented" error

@@ -77,14 +77,17 @@ export default <Environment>{
 
     const registry = new Set<string>()
 
-    win.fetch = (init: string, options?: any) => {
+    win.fetch = (init, options) => {
       if (typeof init === 'string') {
         const base = init.split('?')[0]
         if (registry.has(base) || registry.has(init)) {
           init = '/_' + init
         }
       }
-      return localFetch(init, options)
+      return localFetch(init.toString(), {
+        ...options,
+        headers: Array.isArray(options?.headers) ? new Headers(options?.headers) : options?.headers,
+      })
     }
 
     win.$fetch = createFetch({ fetch: win.fetch, Headers: win.Headers })
