@@ -1,10 +1,5 @@
-import {
-  type DefineComponent,
-  type SetupContext,
-  Suspense,
-  h,
-  nextTick,
-} from 'vue'
+import { Suspense, effectScope, h, nextTick } from 'vue'
+import type { DefineComponent, SetupContext } from 'vue'
 import type { RenderOptions as TestingLibraryRenderOptions } from '@testing-library/vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
@@ -72,6 +67,9 @@ export async function renderSuspended<T>(
   const { render, setup } = component as DefineComponent<Record<string, unknown>, Record <string, unknown>>
 
   // cleanup previously mounted test wrappers
+  for (const fn of window.__cleanup || []) {
+    fn()
+  }
   document.querySelector(`#${WRAPPER_EL_ID}`)?.remove()
 
   let setupContext: SetupContext
@@ -79,14 +77,20 @@ export async function renderSuspended<T>(
   return new Promise<ReturnType<typeof renderFromTestingLibrary>>((resolve) => {
     const utils = renderFromTestingLibrary(
       {
-
         setup: (props: Record<string, unknown>, ctx: SetupContext) => {
           setupContext = ctx
 
-          return NuxtRoot.setup(props, {
+          const scope = effectScope()
+
+          window.__cleanup ||= []
+          window.__cleanup.push(() => {
+            scope.stop()
+          })
+
+          return scope.run(() => NuxtRoot.setup(props, {
             ...ctx,
             expose: () => {},
-          })
+          }))
         },
         render: (renderContext: unknown) =>
           // See discussions in https://github.com/testing-library/vue-testing-library/issues/230
@@ -109,17 +113,14 @@ export async function renderSuspended<T>(
                       const clonedComponent = {
                         ...component,
                         render: render
-                          ? (_ctx: unknown, ...args: unknown[]) =>
-                              render(renderContext, ...args)
+                          ? (_ctx: unknown, ...args: unknown[]) => render(renderContext, ...args)
                           : undefined,
                         setup: setup
-                          ? (props: Record<string, unknown>) =>
-                              setup(props, setupContext)
+                          ? (props: Record<string, unknown>) => setup(props, setupContext)
                           : undefined,
                       }
 
-                      return () =>
-                        h(clonedComponent, { ...props, ...attrs }, slots)
+                      return () => h(clonedComponent, { ...props, ...attrs }, slots)
                     },
                   }),
               },
@@ -138,4 +139,10 @@ export async function renderSuspended<T>(
       }),
     )
   })
+}
+
+declare global {
+  interface Window {
+    __cleanup?: Array<() => void>
+  }
 }
