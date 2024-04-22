@@ -78,7 +78,7 @@ export function fetch(path: string, options?: RequestInit) {
   return _fetch(url(path), options)
 }
 
-export const $fetch = (function(path: string, options?: FetchOptions) {
+export const $fetch = (function (path: string, options?: FetchOptions) {
   return _$fetch(url(path), options)
 }) as typeof globalThis['$fetch']
 
