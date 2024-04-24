@@ -53,6 +53,7 @@ export async function loadFixture() {
     })
   }
 
+  // TODO: share Nuxt instance with running Nuxt if possible
   if (ctx.options.build) {
     ctx.nuxt = await kit.loadNuxt({
       cwd: ctx.options.rootDir,
