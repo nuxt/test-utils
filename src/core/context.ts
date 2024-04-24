@@ -1,5 +1,6 @@
 import { resolve } from 'node:path'
 import { defu } from 'defu'
+import { withTrailingSlash } from 'ufo'
 import type { TestContext, TestOptions } from './types'
 
 let currentContext: TestContext | undefined
@@ -12,13 +13,19 @@ export function createTestContext(options: Partial<TestOptions>): TestContext {
     setupTimeout: 120 * 1000,
     dev: !!JSON.parse(process.env.NUXT_TEST_DEV || 'false'),
     logLevel: 1,
-    server: !options.endpoint,
-    build: ((options.browser !== false) || (options.server !== false)) && !options.endpoint,
+    server: true,
+    build: (options.browser !== false) || (options.server !== false),
     nuxtConfig: {},
     browserOptions: {
       type: 'chromium' as const,
     },
   } satisfies Partial<TestOptions>)
+
+  // Disable build and server if endpoint is provided
+  if (_options.endpoint) {
+    _options.build = false
+    _options.server = false
+  }
 
   if (process.env.VITEST === 'true') {
     _options.runner ||= 'vitest'
@@ -29,7 +36,7 @@ export function createTestContext(options: Partial<TestOptions>): TestContext {
 
   return setTestContext({
     options: _options as TestOptions,
-    url: options.endpoint,
+    url: withTrailingSlash(_options.endpoint),
   })
 }
 

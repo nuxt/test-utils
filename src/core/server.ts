@@ -18,7 +18,7 @@ export async function startServer(options: StartServerOptions = {}) {
   await stopServer()
   const host = '127.0.0.1'
   const port = ctx.options.port || await getRandomPort(host)
-  ctx.url = `http://${host}:${port}`
+  ctx.url = `http://${host}:${port}/`
   if (ctx.options.dev) {
     const nuxiCLI = await kit.resolvePath('nuxi/cli')
     ctx.serverProcess = execa(nuxiCLI, ['_dev'], {
