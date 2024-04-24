@@ -29,6 +29,7 @@ export function createTestContext(options: Partial<TestOptions>): TestContext {
 
   return setTestContext({
     options: _options as TestOptions,
+    url: options.endpoint,
   })
 }
 
