@@ -3,7 +3,7 @@ import { isNuxtError, useNuxtApp, useRoute } from '#imports'
 import { PageRouteSymbol } from '#app/components/injections'
 
 export default defineComponent({
-  setup (_options, { slots }) {
+  setup(_options, { slots }) {
     const nuxtApp = useNuxtApp()
 
     // Inject default route (outside of pages) as active route
@@ -26,5 +26,5 @@ export default defineComponent({
     })
 
     return () => h(Suspense, { onResolve: done }, slots.default?.())
-  }
+  },
 })

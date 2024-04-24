@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## v3.12.1
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.12.0...v3.12.1)
+
+### 🩹 Fixes
+
+- Publish `playwright.d.ts` ([#797](https://github.com/nuxt/test-utils/pull/797))
+
+### ❤️ Contributors
+
+- Ryota Watanabe ([@wattanx](http://github.com/wattanx))
+
 ## v3.12.0
 
 [compare changes](https://github.com/nuxt/test-utils/compare/v3.11.0...v3.12.0)

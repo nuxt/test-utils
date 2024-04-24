@@ -1,5 +1,5 @@
-export default defineNuxtPlugin(async _nuxtApp => {
-  await new Promise(resolve => {
+export default defineNuxtPlugin(async (_nuxtApp) => {
+  await new Promise((resolve) => {
     setTimeout(resolve, 1000)
   })
 

@@ -1,19 +1,19 @@
-import { beforeEach, describe, expect, it } from "vitest"
-import { type MockPluginContext, createMockPlugin } from "../../src/module/plugins/mock"
+import { beforeEach, describe, expect, it } from 'vitest'
 import { rollup } from 'rollup'
+import { type MockPluginContext, createMockPlugin } from '../../src/module/plugins/mock'
 
 describe('mocking', () => {
   const pluginContext: MockPluginContext = { imports: [], components: [] }
   const plugin = createMockPlugin(pluginContext)
-  const getResult = (code: string) => new Promise<string>(resolve => {
+  const getResult = (code: string) => new Promise<string>((resolve) => {
     const input = '/some/file.ts'
     rollup({
       input,
       plugins: [
         {
           name: 'virtual',
-          resolveId: (id) => id === input ? input : { id, external: true },
-          load: () => code
+          resolveId: id => id === input ? input : { id, external: true },
+          load: () => code,
         },
         plugin.vite(),
         {
@@ -24,10 +24,10 @@ describe('mocking', () => {
               resolve(code)
               // suppress any errors from rollup itself
               return 'export default 42'
-            }
-          }
-        }
-      ]
+            },
+          },
+        },
+      ],
     })
   })
 
@@ -40,7 +40,7 @@ describe('mocking', () => {
     it('should transform code with mocked imports', async () => {
       pluginContext.imports = [{
         name: 'useSomeExport',
-        from: 'bob'
+        from: 'bob',
       }]
       expect(await getResult(`
         import { mockNuxtImport } from '@nuxt/test-utils/runtime'
@@ -74,7 +74,7 @@ describe('mocking', () => {
     it('should not add `vi` import if it already exists', async () => {
       pluginContext.imports = [{
         name: 'useSomeExport',
-        from: 'bob'
+        from: 'bob',
       }]
       const code = await getResult(`
         import { expect, vi } from 'vitest'
@@ -94,7 +94,7 @@ describe('mocking', () => {
         prefetch: false,
         preload: false,
         shortPath: 'thing.vue',
-        filePath: '/test/thing.vue'
+        filePath: '/test/thing.vue',
       }]
       expect(await getResult(`
         import { mockComponent } from '@nuxt/test-utils/runtime'

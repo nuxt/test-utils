@@ -4,6 +4,7 @@
     <pre>{{ retrievedValue }}</pre>
   </div>
 </template>
+
 <script setup lang="ts">
 import { get, set } from 'idb-keyval'
 

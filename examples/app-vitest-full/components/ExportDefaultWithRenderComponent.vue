@@ -3,19 +3,19 @@ export default {
   props: {
     myProp: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   setup(props) {
     return {
-      setupMyProp: 'X' + props.myProp
+      setupMyProp: 'X' + props.myProp,
     }
   },
   render() {
     return h('div', [
       h('h1', 'ExportDefaultWithRenderComponent'),
       h('pre', this.myProp),
-      h('pre', this.setupMyProp)
+      h('pre', this.setupMyProp),
     ])
   },
 }

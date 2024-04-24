@@ -5,7 +5,7 @@
 
 <script setup lang="ts">
 definePageMeta({
-  value: 'set in index'
+  value: 'set in index',
 })
 const posts = await queryContent('/').limit(1).find()
 </script>

@@ -8,7 +8,7 @@ describe('Mounting app with `@nuxtjs/i18n`', () => {
     const component = await mountSuspended(App)
     expect(component.vm).toBeTruthy()
     expect(component.text()).toMatchInlineSnapshot(
-      `"Hi from @nuxtjs/i18n: from the en locale"`
+      `"Hi from @nuxtjs/i18n: from the en locale"`,
     )
   })
 })

@@ -2,13 +2,12 @@ import { beforeEach, describe, expect, it } from 'vitest'
 
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 
+import type { VueWrapper } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import App from '~/app.vue'
 import OptionsComponent from '~/components/OptionsComponent.vue'
 import WrapperTests from '~/components/WrapperTests.vue'
 import LinkTests from '~/components/LinkTests.vue'
-
-import type { VueWrapper} from '@vue/test-utils';
-import { mount } from '@vue/test-utils'
 
 import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
 import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
@@ -55,7 +54,7 @@ describe('mountSuspended', () => {
   it('should render default props within nuxt suspense', async () => {
     const component = await mountSuspended(OptionsComponent)
     expect(component.find('h2').html()).toMatchInlineSnapshot(
-      '"<h2>The original</h2>"'
+      '"<h2>The original</h2>"',
     )
   })
 
@@ -66,7 +65,7 @@ describe('mountSuspended', () => {
       },
     })
     expect(component.find('h2').html()).toMatchInlineSnapshot(
-      '"<h2>title from mount suspense props</h2>"'
+      '"<h2>title from mount suspense props</h2>"',
     )
   })
 
@@ -77,7 +76,7 @@ describe('mountSuspended', () => {
       },
     })
     expect(component.find('div').html()).toMatchInlineSnapshot(
-      '"<div>slot from mount suspense</div>"'
+      '"<div>slot from mount suspense</div>"',
     )
   })
 
@@ -121,7 +120,7 @@ describe('mountSuspended', () => {
 })
 
 describe.each(Object.entries(formats))(`%s`, (name, component) => {
-  let wrapper: VueWrapper<any>
+  let wrapper: VueWrapper<unknown>
 
   beforeEach(async () => {
     wrapper = await mountSuspended(component, {
@@ -141,7 +140,7 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
 
   it('can be updated with setProps', async () => {
     await wrapper.setProps({
-       myProp: 'updated title'
+      myProp: 'updated title',
     })
     expect(wrapper.html()).toEqual(`
 <div>

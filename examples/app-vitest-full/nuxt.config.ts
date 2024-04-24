@@ -29,7 +29,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       hello: 'world',
-      testValue: 'default'
+      testValue: 'default',
     },
   },
 })

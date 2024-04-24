@@ -7,6 +7,6 @@ export default defineNuxtConfig({
     },
   },
   modules: [
-    MyModule
-  ]
+    MyModule,
+  ],
 })
