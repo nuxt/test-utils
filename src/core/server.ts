@@ -91,5 +91,5 @@ export function url(path: string) {
   if (path.startsWith(ctx.url)) {
     return path
   }
-  return joinURL(ctx.url)
+  return joinURL(ctx.url, path)
 }
