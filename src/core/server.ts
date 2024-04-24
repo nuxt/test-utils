@@ -4,6 +4,7 @@ import type { FetchOptions } from 'ofetch'
 import { $fetch as _$fetch, fetch as _fetch } from 'ofetch'
 import * as _kit from '@nuxt/kit'
 import { resolve } from 'pathe'
+import { joinURL } from 'ufo'
 import { useTestContext } from './context'
 
 // @ts-expect-error type cast kit default export
@@ -90,5 +91,5 @@ export function url(path: string) {
   if (path.startsWith(ctx.url)) {
     return path
   }
-  return ctx.url + path
+  return joinURL(ctx.url)
 }
