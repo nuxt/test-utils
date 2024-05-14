@@ -9,7 +9,7 @@ import { RouterLink } from './components/RouterLink'
 
 // @ts-expect-error virtual file
 import NuxtRoot from '#build/root-component.mjs'
-import { useRouter } from '#imports'
+import { tryUseNuxtApp, useRouter } from '#imports'
 
 export type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
   route?: RouteLocationRaw
@@ -57,8 +57,7 @@ export async function mountSuspended<T>(
     ..._options
   } = options || {}
 
-  // @ts-expect-error untyped global __unctx__
-  const vueApp = globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
+  const vueApp = tryUseNuxtApp()!.vueApp
   const { render, setup } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
 
   let setupContext: SetupContext

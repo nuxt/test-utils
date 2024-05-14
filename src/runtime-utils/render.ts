@@ -8,7 +8,7 @@ import { RouterLink } from './components/RouterLink'
 
 // @ts-expect-error virtual file
 import NuxtRoot from '#build/root-component.mjs'
-import { useRouter } from '#imports'
+import { tryUseNuxtApp, useRouter } from '#imports'
 
 export type RenderOptions = TestingLibraryRenderOptions & {
   route?: RouteLocationRaw
@@ -62,8 +62,7 @@ export async function renderSuspended<T>(
     '@testing-library/vue'
   )
 
-  // @ts-expect-error untyped global __unctx__
-  const { vueApp } = globalThis.__unctx__.get('nuxt-app').tryUse()
+  const vueApp = tryUseNuxtApp()!.vueApp
   const { render, setup } = component as DefineComponent<Record<string, unknown>, Record <string, unknown>>
 
   // cleanup previously mounted test wrappers
