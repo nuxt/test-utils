@@ -5,6 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  '@cucumber/cucumber': 10.7.0
   '@nuxt/kit': ^3.11.2
   '@nuxt/schema': ^3.11.2
   '@nuxt/test-utils': workspace:*
@@ -190,8 +191,8 @@ importers:
         version: 4.3.2(vue@3.4.27(typescript@5.4.5))
     devDependencies:
       '@cucumber/cucumber':
-        specifier: ^10.6.0
-        version: 10.6.0
+        specifier: 10.7.0
+        version: 10.7.0
       '@nuxt/test-utils':
         specifier: workspace:*
         version: link:../..
@@ -680,11 +681,6 @@ packages:
 
   '@cucumber/cucumber-expressions@17.1.0':
     resolution: {integrity: sha512-PCv/ppsPynniKPWJr5v566daCVe+pbxQpHGrIu/Ev57cCH9Rv+X0F6lio4Id3Z64TaG7btCRLUGewIgLwmrwOA==}
-
-  '@cucumber/cucumber@10.6.0':
-    resolution: {integrity: sha512-1ui/PDJelSRioZGYZdxeNepnCetbjbv16FUDdWi6WdjAeMqfCsuiJHjN++b7Wjxd1xKhXdSLfMntqpuNcPTIug==}
-    engines: {node: 18 || >=20}
-    hasBin: true
 
   '@cucumber/cucumber@10.7.0':
     resolution: {integrity: sha512-8E5vqOIpZOJlRH/aoZc50+yahrObvkbZSxI5WUqM39V3BHNpfzNaPpuLYpSHD2j+gTlubZ8c56RE3Udq38m66g==}
@@ -7061,50 +7057,6 @@ snapshots:
   '@cucumber/cucumber-expressions@17.1.0':
     dependencies:
       regexp-match-indices: 1.0.2
-
-  '@cucumber/cucumber@10.6.0':
-    dependencies:
-      '@cucumber/ci-environment': 10.0.1
-      '@cucumber/cucumber-expressions': 17.1.0
-      '@cucumber/gherkin': 28.0.0
-      '@cucumber/gherkin-streams': 5.0.1(@cucumber/gherkin@28.0.0)(@cucumber/message-streams@4.0.1(@cucumber/messages@24.1.0))(@cucumber/messages@24.1.0)
-      '@cucumber/gherkin-utils': 9.0.0
-      '@cucumber/html-formatter': 21.3.1(@cucumber/messages@24.1.0)
-      '@cucumber/message-streams': 4.0.1(@cucumber/messages@24.1.0)
-      '@cucumber/messages': 24.1.0
-      '@cucumber/tag-expressions': 6.1.0
-      assertion-error-formatter: 3.0.0
-      capital-case: 1.0.4
-      chalk: 4.1.2
-      cli-table3: 0.6.3
-      commander: 10.0.1
-      debug: 4.3.4(supports-color@8.1.1)
-      error-stack-parser: 2.1.4
-      figures: 3.2.0
-      glob: 10.3.10
-      has-ansi: 4.0.1
-      indent-string: 4.0.0
-      is-installed-globally: 0.4.0
-      is-stream: 2.0.1
-      knuth-shuffle-seeded: 1.0.6
-      lodash.merge: 4.6.2
-      lodash.mergewith: 4.6.2
-      luxon: 3.2.1
-      mkdirp: 2.1.6
-      mz: 2.7.0
-      progress: 2.0.3
-      read-pkg-up: 7.0.1
-      resolve-pkg: 2.0.0
-      semver: 7.5.3
-      string-argv: 0.3.1
-      strip-ansi: 6.0.1
-      supports-color: 8.1.1
-      tmp: 0.2.3
-      type-fest: 4.9.0
-      util-arity: 1.1.0
-      xmlbuilder: 15.1.1
-      yaml: 2.3.4
-      yup: 1.2.0
 
   '@cucumber/cucumber@10.7.0':
     dependencies:
