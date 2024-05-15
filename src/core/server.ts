@@ -4,6 +4,7 @@ import type { FetchOptions } from 'ofetch'
 import { $fetch as _$fetch, fetch as _fetch } from 'ofetch'
 import * as _kit from '@nuxt/kit'
 import { resolve } from 'pathe'
+
 import { useTestContext } from './context'
 
 // @ts-expect-error type cast kit default export
@@ -70,7 +71,7 @@ export async function startServer(options: StartServerOptions = {}) {
 export async function stopServer() {
   const ctx = useTestContext()
   if (ctx.serverProcess) {
-    await ctx.serverProcess.kill()
+    ctx.serverProcess.kill()
   }
 }
 
