@@ -2,6 +2,51 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## v3.13.0
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.12.1...v3.13.0)
+
+### 🚀 Enhancements
+
+- **e2e:** Improve types for `$fetch` ([b21d9a54](https://github.com/nuxt/test-utils/commit/b21d9a54))
+- **deps:** Upgrade `execa` to v9 ([#843](https://github.com/nuxt/test-utils/pull/843))
+
+### 🔥 Performance
+
+- **e2e:** Don't iterate when cleaning up if nothing registered ([#753](https://github.com/nuxt/test-utils/pull/753))
+
+### 🩹 Fixes
+
+- **e2e:** Improve types for `fetch` and `mockLogger` ([eb40a6a6](https://github.com/nuxt/test-utils/commit/eb40a6a6))
+- **e2e:** Force string response within `startServer` ([1b182505](https://github.com/nuxt/test-utils/commit/1b182505))
+- **e2e:** Improve return types for `mockLogger` ([21aa7a2f](https://github.com/nuxt/test-utils/commit/21aa7a2f))
+- **runtime:** Improve types for `renderSuspended` and `mountSuspended` ([1636cede](https://github.com/nuxt/test-utils/commit/1636cede))
+- **e2e:** Revert changes for `$fetch` inference to unbreak build ([dd295d39](https://github.com/nuxt/test-utils/commit/dd295d39))
+- **vitest:** Strongly type vitest environment options ([37582c71](https://github.com/nuxt/test-utils/commit/37582c71))
+- **module:** Correctly filter vite plugins ([021824d0](https://github.com/nuxt/test-utils/commit/021824d0))
+- **runtime:** Preserve `setupState` return ([ab7fd457](https://github.com/nuxt/test-utils/commit/ab7fd457))
+- **playwright:** Bump dependency and remove polyfill ([#819](https://github.com/nuxt/test-utils/pull/819))
+- **runtime:** Use `effectScope` in `renderSuspended` ([#820](https://github.com/nuxt/test-utils/pull/820))
+- **e2e:** Type `$fetch` using globalThis instead ([b1269edb](https://github.com/nuxt/test-utils/commit/b1269edb))
+- Set `buildId` to `nuxt-app` for compatibility with nuxt v3.12+ ([a00b2c1f](https://github.com/nuxt/test-utils/commit/a00b2c1f))
+- **runtime-utils:** Use `tryUseNuxtApp` rather than `buildId` override ([726e0a2d](https://github.com/nuxt/test-utils/commit/726e0a2d))
+
+### 🏡 Chore
+
+- Migrate to eslint v9 ([#814](https://github.com/nuxt/test-utils/pull/814))
+- Reduce internal typing of `any` ([3e3bc306](https://github.com/nuxt/test-utils/commit/3e3bc306))
+- Reenable `no-explicit-any` rule ([28385546](https://github.com/nuxt/test-utils/commit/28385546))
+- Normalise internal package names ([3f58b110](https://github.com/nuxt/test-utils/commit/3f58b110))
+- Update example command ([e271b63e](https://github.com/nuxt/test-utils/commit/e271b63e))
+- Add name for `app-vitest-full` ([882c144e](https://github.com/nuxt/test-utils/commit/882c144e))
+- Ignore `@nuxt/devtools` upgrades for now ([54f654d6](https://github.com/nuxt/test-utils/commit/54f654d6))
+- Lint ([08ee3515](https://github.com/nuxt/test-utils/commit/08ee3515))
+
+### ❤️ Contributors
+
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+- Michael Brevard <yonshi29@gmail.com>
+
 ## v3.12.1
 
 [compare changes](https://github.com/nuxt/test-utils/compare/v3.12.0...v3.12.1)
