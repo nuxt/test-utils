@@ -62,7 +62,9 @@ export async function renderSuspended<T>(
     '@testing-library/vue'
   )
 
-  const vueApp = tryUseNuxtApp()!.vueApp
+  const vueApp = tryUseNuxtApp()?.vueApp
+    // @ts-expect-error untyped global __unctx__
+    || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
   const { render, setup } = component as DefineComponent<Record<string, unknown>, Record <string, unknown>>
 
   // cleanup previously mounted test wrappers
