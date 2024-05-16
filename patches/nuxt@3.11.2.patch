@@ -1,0 +1,25 @@
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 04537d45037445e8dc497d90ad631e48af69a18d..4d5ea3ef4c39e1c3cd1f5a562fd16db78cbd85fe 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -3538,7 +3538,7 @@ const schemaModule = defineNuxtModule({
+       return;
+     }
+     const resolver = createResolver(import.meta.url);
+-    const _resolveSchema = jiti(dirname(import.meta.url), {
++    const _resolveSchema = jiti(dirname(fileURLToPath(import.meta.url)), {
+       esmResolve: true,
+       interopDefault: true,
+       cache: false,
+diff --git a/package.json b/package.json
+index a31b531cc199c4fc8db32ded20bbb5e47cb9197a..d6cd12555201dbb6df4e622ba3ad90dd72560465 100644
+--- a/package.json
++++ b/package.json
+@@ -137,5 +137,6 @@
+   "engines": {
+     "node": "^14.18.0 || >=16.10.0"
+   },
+-  "scripts": {}
++  "scripts": {},
++  "packageManager": "pnpm@9.1.1+sha256.9551e803dcb7a1839fdf5416153a844060c7bce013218ce823410532504ac10b"
+ }
