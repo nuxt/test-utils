@@ -35,7 +35,7 @@ export async function startServer(options: StartServerOptions = {}) {
       },
     })
     await waitForPort(port, { retries: 32, host }).catch(() => {})
-    let lastError
+    let lastError: Error
     for (let i = 0; i < 150; i++) {
       await new Promise(resolve => setTimeout(resolve, 100))
       try {
@@ -45,11 +45,12 @@ export async function startServer(options: StartServerOptions = {}) {
         }
       }
       catch (e) {
-        lastError = e
+        lastError = e as Error
       }
     }
-    ctx.serverProcess.kill()
-    throw lastError || new Error('Timeout waiting for dev server!')
+    lastError ||= new Error('Timeout waiting for dev server!')
+    ctx.serverProcess.kill(lastError)
+    throw lastError
   }
   else {
     ctx.serverProcess = execa('node', [
