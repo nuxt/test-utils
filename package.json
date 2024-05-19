@@ -47,7 +47,7 @@
     "defu": "^6.1.4",
     "destr": "^2.0.3",
     "estree-walker": "^3.0.3",
-    "execa": "^9.1.0",
+    "execa": "^8.0.1",
     "fake-indexeddb": "^5.0.2",
     "get-port-please": "^3.1.2",
     "local-pkg": "^0.5.0",
@@ -68,17 +68,17 @@
     "@cucumber/cucumber": "10.7.0",
     "@jest/globals": "29.7.0",
     "@nuxt/devtools": "1.0.8",
-    "@nuxt/eslint-config": "0.3.12",
+    "@nuxt/eslint-config": "0.3.13",
     "@nuxt/module-builder": "0.6.0",
     "@playwright/test": "1.44.0",
-    "@testing-library/vue": "8.0.3",
+    "@testing-library/vue": "8.1.0",
     "@types/estree": "1.0.5",
     "@types/jsdom": "21.1.6",
     "@types/semver": "7.5.8",
     "@vitest/ui": "1.6.0",
     "@vue/test-utils": "2.4.6",
     "changelogen": "0.5.5",
-    "eslint": "9.2.0",
+    "eslint": "9.3.0",
     "h3": "1.11.1",
     "jiti": "1.21.0",
     "nitropack": "2.9.6",
@@ -154,5 +154,10 @@
   "engines": {
     "node": ">=18.20.2"
   },
-  "packageManager": "pnpm@9.1.1"
+  "packageManager": "pnpm@9.1.1",
+  "pnpm": {
+    "patchedDependencies": {
+      "nuxt@3.11.2": "patches/nuxt@3.11.2.patch"
+    }
+  }
 }

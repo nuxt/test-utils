@@ -10,7 +10,7 @@ import { RouterLink } from './components/RouterLink'
 import NuxtRoot from '#build/root-component.mjs'
 import { tryUseNuxtApp, useRouter } from '#imports'
 
-export type RenderOptions = TestingLibraryRenderOptions & {
+export type RenderOptions<C = unknown> = TestingLibraryRenderOptions<C> & {
   route?: RouteLocationRaw
 }
 
@@ -48,7 +48,7 @@ export const WRAPPER_EL_ID = 'test-wrapper'
  */
 export async function renderSuspended<T>(
   component: T,
-  options?: RenderOptions,
+  options?: RenderOptions<T>,
 ) {
   const {
     props = {},
@@ -121,7 +121,7 @@ export async function renderSuspended<T>(
                           : undefined,
                       }
 
-                      return () => h(clonedComponent, { ...props, ...attrs }, slots)
+                      return () => h(clonedComponent, { ...(props && typeof props === 'object' ? props : {}), ...attrs }, slots)
                     },
                   }),
               },
