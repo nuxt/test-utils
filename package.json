@@ -154,5 +154,10 @@
   "engines": {
     "node": ">=18.20.2"
   },
-  "packageManager": "pnpm@9.1.1"
+  "packageManager": "pnpm@9.1.1",
+  "pnpm": {
+    "patchedDependencies": {
+      "nuxt@3.11.2": "patches/nuxt@3.11.2.patch"
+    }
+  }
 }
