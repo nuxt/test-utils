@@ -34,6 +34,7 @@ async function startNuxtAndGetViteConfig(
     }),
     overrides: defu(
       {
+        buildId: 'test',
         ssr: false,
         test: true,
         modules: ['@nuxt/test-utils/module'],
