@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## v3.13.1
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.13.0...v3.13.1)
+
+### 🩹 Fixes
+
+- Revert `execa` to v8 for now ([fef8b062](https://github.com/nuxt/test-utils/commit/fef8b062))
+- **config:** Force `buildId` to `test` manually ([25e081e4](https://github.com/nuxt/test-utils/commit/25e081e4))
+- **runtime-utils:** Use `appId` fallback after `tryUseNuxtApp` ([#849](https://github.com/nuxt/test-utils/pull/849))
+
+### 🏡 Chore
+
+- Update type ([052094bc](https://github.com/nuxt/test-utils/commit/052094bc))
+
+### 🤖 CI
+
+- Run test suite on windows ([#851](https://github.com/nuxt/test-utils/pull/851))
+
+### ❤️ Contributors
+
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+
 ## v3.13.0
 
 [compare changes](https://github.com/nuxt/test-utils/compare/v3.12.1...v3.13.0)

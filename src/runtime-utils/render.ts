@@ -1,4 +1,4 @@
-import { Suspense, effectScope, h, nextTick } from 'vue'
+import { Suspense, effectScope, h, nextTick, isReadonly, unref } from 'vue'
 import type { DefineComponent, SetupContext } from 'vue'
 import type { RenderOptions as TestingLibraryRenderOptions } from '@testing-library/vue'
 import { defu } from 'defu'
@@ -10,12 +10,14 @@ import { RouterLink } from './components/RouterLink'
 import NuxtRoot from '#build/root-component.mjs'
 import { tryUseNuxtApp, useRouter } from '#imports'
 
-export type RenderOptions = TestingLibraryRenderOptions & {
+export type RenderOptions<C = unknown> = TestingLibraryRenderOptions<C> & {
   route?: RouteLocationRaw
 }
 
 export const WRAPPER_EL_ID = 'test-wrapper'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SetupState = Record<string, any>
 /**
  * `renderSuspended` allows you to mount any vue component within the Nuxt environment, allowing async setup and access to injections from your Nuxt plugins.
  *
@@ -48,7 +50,7 @@ export const WRAPPER_EL_ID = 'test-wrapper'
  */
 export async function renderSuspended<T>(
   component: T,
-  options?: RenderOptions,
+  options?: RenderOptions<T>,
 ) {
   const {
     props = {},
@@ -62,8 +64,13 @@ export async function renderSuspended<T>(
     '@testing-library/vue'
   )
 
-  const vueApp = tryUseNuxtApp()!.vueApp
-  const { render, setup } = component as DefineComponent<Record<string, unknown>, Record <string, unknown>>
+  const vueApp = tryUseNuxtApp()?.vueApp
+    // @ts-expect-error untyped global __unctx__
+    || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
+  const { render, setup } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
+
+  let setupContext: SetupContext
+  let setupState: SetupState
 
   // cleanup previously mounted test wrappers
   for (const fn of window.__cleanup || []) {
@@ -71,9 +78,20 @@ export async function renderSuspended<T>(
   }
   document.querySelector(`#${WRAPPER_EL_ID}`)?.remove()
 
-  let setupContext: SetupContext
+  let passedProps: Record<string, unknown>
+  const wrappedSetup = async (
+    props: Record<string, unknown>,
+    setupContext: SetupContext,
+  ) => {
+    passedProps = props
+    if (setup) {
+      const result = await setup(props, setupContext)
+      setupState = result && typeof result === 'object' ? result : {}
+      return result
+    }
+  }
 
-  return new Promise<ReturnType<typeof renderFromTestingLibrary>>((resolve) => {
+  return new Promise<ReturnType<typeof renderFromTestingLibrary> & { setupState: SetupState }>((resolve) => {
     const utils = renderFromTestingLibrary(
       {
         setup: (props: Record<string, unknown>, ctx: SetupContext) => {
@@ -88,10 +106,10 @@ export async function renderSuspended<T>(
 
           return scope.run(() => NuxtRoot.setup(props, {
             ...ctx,
-            expose: () => {},
+            expose: () => ({}),
           }))
         },
-        render: (renderContext: unknown) =>
+        render: (renderContext: Record<string, unknown>) =>
           // See discussions in https://github.com/testing-library/vue-testing-library/issues/230
           // we add this additional root element because otherwise testing-library breaks
           // because there's no root element while Suspense is resolving
@@ -100,26 +118,43 @@ export async function renderSuspended<T>(
             { id: WRAPPER_EL_ID },
             h(
               Suspense,
-              { onResolve: () => nextTick().then(() => resolve(utils)) },
+              {
+                onResolve: () =>
+                  nextTick().then(() => {
+                    (utils as unknown as AugmentedVueInstance).setupState = setupState
+                    resolve(utils as ReturnType<typeof renderFromTestingLibrary> & { setupState: SetupState })
+                  }),
+              },
               {
                 default: () =>
                   h({
+                    name: 'RenderHelper',
                     async setup() {
                       const router = useRouter()
                       await router.replace(route)
 
                       // Proxy top-level setup/render context so test wrapper resolves child component
                       const clonedComponent = {
+                        name: 'RenderSuspendedComponent',
                         ...component,
                         render: render
-                          ? (_ctx: unknown, ...args: unknown[]) => render(renderContext, ...args)
+                          ? function (this: unknown, _ctx: Record<string, unknown>, ...args: unknown[]) {
+                            for (const key in setupState || {}) {
+                              renderContext[key] = isReadonly(setupState[key]) ? unref(setupState[key]) : setupState[key]
+                            }
+                            for (const key in props || {}) {
+                              renderContext[key] = _ctx[key]
+                            }
+                            for (const key in passedProps || {}) {
+                              renderContext[key] = passedProps[key]
+                            }
+                            return render.call(this, renderContext, ...args)
+                          }
                           : undefined,
-                        setup: setup
-                          ? (props: Record<string, unknown>) => setup(props, setupContext)
-                          : undefined,
+                        setup: setup ? (props: Record<string, unknown>) => wrappedSetup(props, setupContext) : undefined,
                       }
 
-                      return () => h(clonedComponent, { ...props, ...attrs }, slots)
+                      return () => h(clonedComponent, { ...(props && typeof props === 'object' ? props : {}), ...attrs }, slots)
                     },
                   }),
               },
@@ -144,4 +179,8 @@ declare global {
   interface Window {
     __cleanup?: Array<() => void>
   }
+}
+
+interface AugmentedVueInstance {
+  setupState?: SetupState
 }
