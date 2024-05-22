@@ -46,10 +46,11 @@ export default <Environment>{
     const multiApp = (environmentOptions?.future.multiApp as boolean) || false
     if (!multiApp) {
       win.__NUXT__ = __NUXT__
-    } else {
+    }
+    else {
       const appId = environmentOptions?.appId || 'nuxt-app'
       win.__NUXT__ = {
-        [appId]: __NUXT__
+        [appId]: __NUXT__,
       }
     }
 
