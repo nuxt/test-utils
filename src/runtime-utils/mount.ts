@@ -7,7 +7,8 @@ import type { RouteLocationRaw } from 'vue-router'
 
 import { RouterLink } from './components/RouterLink'
 
-// @ts-expect-error virtual file
+// TODO: remove after Nuxt v3.12
+// @ts-ignore for backwards compatibility
 import NuxtRoot from '#build/root-component.mjs'
 import { tryUseNuxtApp, useRouter } from '#imports'
 
