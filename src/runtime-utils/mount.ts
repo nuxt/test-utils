@@ -8,6 +8,7 @@ import type { RouteLocationRaw } from 'vue-router'
 import { RouterLink } from './components/RouterLink'
 
 // TODO: remove after Nuxt v3.12
+// eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error,@typescript-eslint/ban-ts-comment
 // @ts-ignore for backwards compatibility
 import NuxtRoot from '#build/root-component.mjs'
 import { tryUseNuxtApp, useRouter } from '#imports'
