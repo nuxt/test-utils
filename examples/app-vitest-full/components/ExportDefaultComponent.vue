@@ -3,7 +3,10 @@
     <h1>ExportDefaultComponent</h1>
     <pre>{{ myProp }}</pre>
     <pre>{{ setupMyProp }}</pre>
-    <span v-for="item in myArrayProp" :key="item">{{ item }}
+    <span
+      v-for="item in myArrayProp"
+      :key="item"
+    >{{ item }}
     </span>
   </div>
 </template>
