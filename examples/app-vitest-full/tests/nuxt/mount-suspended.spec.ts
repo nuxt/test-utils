@@ -126,6 +126,7 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
     wrapper = await mountSuspended(component, {
       props: {
         myProp: 'Hello nuxt-vitest',
+        myArrayProp: ['hello', 'nuxt', 'vitest'],
       },
     })
   })
@@ -133,7 +134,7 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
   it('mounts with props', () => {
     expect(wrapper.html()).toEqual(`
 <div>
-  <h1>${name}</h1><pre>Hello nuxt-vitest</pre><pre>XHello nuxt-vitest</pre>
+  <h1>${name}</h1><pre>Hello nuxt-vitest</pre><pre>XHello nuxt-vitest</pre><span>hello</span><span>nuxt</span><span>vitest</span>
 </div>
     `.trim())
   })
@@ -144,7 +145,19 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
     })
     expect(wrapper.html()).toEqual(`
 <div>
-  <h1>${name}</h1><pre>updated title</pre><pre>XHello nuxt-vitest</pre>
+  <h1>${name}</h1><pre>updated title</pre><pre>XHello nuxt-vitest</pre><span>hello</span><span>nuxt</span><span>vitest</span>
+</div>
+    `.trim())
+  })
+
+  it('can be updated array with setProps', async () => {
+    await wrapper.setProps({
+      myProp: 'updated title',
+      myArrayProp: ['updated', 'prop'],
+    })
+    expect(wrapper.html()).toEqual(`
+<div>
+  <h1>${name}</h1><pre>updated title</pre><pre>XHello nuxt-vitest</pre><span>updated</span><span>prop</span>
 </div>
     `.trim())
   })
