@@ -23,7 +23,7 @@ export interface TestOptions {
     launch?: LaunchOptions
   }
   server: boolean
-  endpoint?: string
+  host?: string
   port?: number
 }
 

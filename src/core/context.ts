@@ -22,7 +22,7 @@ export function createTestContext(options: Partial<TestOptions>): TestContext {
   } satisfies Partial<TestOptions>)
 
   // Disable build and server if endpoint is provided
-  if (_options.endpoint) {
+  if (_options.host) {
     _options.build = false
     _options.server = false
   }
@@ -36,7 +36,7 @@ export function createTestContext(options: Partial<TestOptions>): TestContext {
 
   return setTestContext({
     options: _options as TestOptions,
-    url: withTrailingSlash(_options.endpoint),
+    url: withTrailingSlash(_options.host),
   })
 }
 
