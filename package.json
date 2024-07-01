@@ -1,6 +1,6 @@
 {
   "name": "@nuxt/test-utils",
-  "version": "3.12.1",
+  "version": "3.13.1",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nuxt/test-utils.git"
@@ -40,15 +40,15 @@
     "release": "pnpm prepack && pnpm test:examples && changelogen --release --push"
   },
   "dependencies": {
-    "@nuxt/kit": "^3.11.2",
-    "@nuxt/schema": "^3.11.2",
+    "@nuxt/kit": "^3.12.2",
+    "@nuxt/schema": "^3.12.2",
     "c12": "^1.10.0",
     "consola": "^3.2.3",
     "defu": "^6.1.4",
     "destr": "^2.0.3",
     "estree-walker": "^3.0.3",
     "execa": "^8.0.1",
-    "fake-indexeddb": "^5.0.2",
+    "fake-indexeddb": "^6.0.0",
     "get-port-please": "^3.1.2",
     "local-pkg": "^0.5.0",
     "magic-string": "^0.30.10",
@@ -65,33 +65,33 @@
     "vitest-environment-nuxt": "^1.0.0"
   },
   "devDependencies": {
-    "@cucumber/cucumber": "10.5.1",
+    "@cucumber/cucumber": "10.7.0",
     "@jest/globals": "29.7.0",
     "@nuxt/devtools": "1.0.8",
-    "@nuxt/eslint-config": "0.3.9",
-    "@nuxt/module-builder": "0.5.5",
-    "@playwright/test": "1.43.1",
-    "@testing-library/vue": "8.0.3",
+    "@nuxt/eslint-config": "0.3.13",
+    "@nuxt/module-builder": "0.6.0",
+    "@playwright/test": "1.44.0",
+    "@testing-library/vue": "8.1.0",
     "@types/estree": "1.0.5",
     "@types/jsdom": "21.1.6",
     "@types/semver": "7.5.8",
-    "@vitest/ui": "1.5.0",
-    "@vue/test-utils": "2.4.5",
+    "@vitest/ui": "1.6.0",
+    "@vue/test-utils": "2.4.6",
     "changelogen": "0.5.5",
-    "eslint": "9.1.0",
+    "eslint": "9.3.0",
     "h3": "1.11.1",
     "jiti": "1.21.0",
     "nitropack": "2.9.6",
-    "nuxt": "3.11.2",
-    "playwright-core": "1.43.1",
-    "rollup": "4.16.2",
-    "semver": "7.6.0",
+    "nuxt": "3.12.2",
+    "playwright-core": "1.44.0",
+    "rollup": "4.18.0",
+    "semver": "7.6.2",
     "unbuild": "latest",
     "unimport": "3.7.1",
-    "vite": "5.2.10",
-    "vitest": "1.5.0",
+    "vite": "5.2.11",
+    "vitest": "1.6.0",
     "vue-router": "4.3.2",
-    "vue-tsc": "2.0.14"
+    "vue-tsc": "2.0.19"
   },
   "peerDependencies": {
     "@cucumber/cucumber": "^10.3.1",
@@ -143,15 +143,21 @@
     }
   },
   "resolutions": {
-    "@nuxt/kit": "^3.11.2",
-    "@nuxt/schema": "^3.11.2",
+    "@cucumber/cucumber": "10.7.0",
+    "@nuxt/kit": "^3.12.2",
+    "@nuxt/schema": "^3.12.2",
     "@nuxt/test-utils": "workspace:*",
-    "rollup": "4.16.2",
-    "vite": "5.2.10",
-    "vue": "^3.4.24"
+    "rollup": "4.18.0",
+    "vite": "5.2.11",
+    "vue": "^3.4.27"
   },
   "engines": {
-    "node": "^14.18.0 || >=16.10.0"
+    "node": ">=18.20.3"
   },
-  "packageManager": "pnpm@9.0.5"
+  "packageManager": "pnpm@9.1.2",
+  "pnpm": {
+    "patchedDependencies": {
+      "nuxt@3.11.2": "patches/nuxt@3.11.2.patch"
+    }
+  }
 }

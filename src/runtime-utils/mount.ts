@@ -2,14 +2,16 @@ import { mount } from '@vue/test-utils'
 import type { ComponentMountingOptions } from '@vue/test-utils'
 import { Suspense, h, isReadonly, nextTick, reactive, unref } from 'vue'
 import type { DefineComponent, SetupContext } from 'vue'
-import { defu } from 'defu'
+import { defu, createDefu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
 
 import { RouterLink } from './components/RouterLink'
 
-// @ts-expect-error virtual file
+// TODO: remove after Nuxt v3.12
+// eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error,@typescript-eslint/ban-ts-comment
+// @ts-ignore for backwards compatibility
 import NuxtRoot from '#build/root-component.mjs'
-import { useRouter } from '#imports'
+import { tryUseNuxtApp, useRouter } from '#imports'
 
 export type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
   route?: RouteLocationRaw
@@ -57,8 +59,9 @@ export async function mountSuspended<T>(
     ..._options
   } = options || {}
 
-  // @ts-expect-error untyped global __unctx__
-  const vueApp = globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
+  const vueApp = tryUseNuxtApp()?.vueApp
+    // @ts-expect-error untyped global __unctx__
+    || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
   const { render, setup } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
 
   let setupContext: SetupContext
@@ -131,7 +134,7 @@ export async function mountSuspended<T>(
                         setup: setup ? (props: Record<string, unknown>) => wrappedSetup(props, setupContext) : undefined,
                       }
 
-                      return () => h(clonedComponent, { ...defu(setProps, props) as typeof props, ...attrs }, slots)
+                      return () => h(clonedComponent, { ...defuReplaceArray(setProps, props) as typeof props, ...attrs }, slots)
                     },
                   }),
               },
@@ -164,3 +167,10 @@ interface AugmentedVueInstance {
   setupState?: Record<string, unknown>
   __setProps?: (props: Record<string, unknown>) => void
 }
+
+const defuReplaceArray = createDefu((obj, key, value) => {
+  if (Array.isArray(obj[key])) {
+    obj[key] = value
+    return true
+  }
+})

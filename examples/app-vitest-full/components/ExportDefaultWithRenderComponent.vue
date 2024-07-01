@@ -5,6 +5,10 @@ export default {
       type: String,
       required: true,
     },
+    myArrayProp: {
+      type: Array as PropType<string[]>,
+      default: () => ([]),
+    },
   },
   setup(props) {
     return {
@@ -16,6 +20,7 @@ export default {
       h('h1', 'ExportDefaultWithRenderComponent'),
       h('pre', this.myProp),
       h('pre', this.setupMyProp),
+      this.myArrayProp.map(item => h('span', item)),
     ])
   },
 }

@@ -71,7 +71,7 @@ export async function startServer(options: StartServerOptions = {}) {
 export async function stopServer() {
   const ctx = useTestContext()
   if (ctx.serverProcess) {
-    await ctx.serverProcess.kill()
+    ctx.serverProcess.kill()
   }
 }
 
