@@ -4,7 +4,7 @@ import type { FetchOptions } from 'ofetch'
 import { $fetch as _$fetch, fetch as _fetch } from 'ofetch'
 import * as _kit from '@nuxt/kit'
 import { resolve } from 'pathe'
-
+import { joinURL } from 'ufo'
 import { useTestContext } from './context'
 
 // @ts-expect-error type cast kit default export
@@ -19,7 +19,7 @@ export async function startServer(options: StartServerOptions = {}) {
   await stopServer()
   const host = '127.0.0.1'
   const port = ctx.options.port || await getRandomPort(host)
-  ctx.url = `http://${host}:${port}`
+  ctx.url = `http://${host}:${port}/`
   if (ctx.options.dev) {
     const nuxiCLI = await kit.resolvePath('nuxi/cli')
     ctx.serverProcess = execa(nuxiCLI, ['_dev'], {
@@ -91,5 +91,5 @@ export function url(path: string) {
   if (path.startsWith(ctx.url)) {
     return path
   }
-  return ctx.url + path
+  return joinURL(ctx.url, path)
 }
