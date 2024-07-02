@@ -13,7 +13,7 @@ const devicesToTest = [
   // Test against branded browsers.
   // { ...devices['Desktop Edge'], channel: 'msedge' },
   // { ...devices['Desktop Chrome'], channel: 'chrome' },
-] satisfies Array<string | typeof devices[string]>
+] satisfies Array<string | (typeof devices)[string]>
 
 /* See https://playwright.dev/docs/test-configuration. */
 export default defineConfig<ConfigOptions>({
@@ -34,8 +34,12 @@ export default defineConfig<ConfigOptions>({
     trace: 'on-first-retry',
     /* Nuxt configuration options */
     nuxt: {
+      /* Reuse a server if it's already running. Useful when developing tests. */
+      reuseExistingServer: process.env.CI ? false : true,
       rootDir: fileURLToPath(new URL('.', import.meta.url)),
     },
   },
-  projects: devicesToTest.map(p => typeof p === 'string' ? ({ name: p, use: devices[p] }) : p),
+  projects: devicesToTest.map(p =>
+    typeof p === 'string' ? { name: p, use: devices[p] } : p,
+  ),
 })

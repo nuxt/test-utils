@@ -1,6 +1,6 @@
 import { createTestContext, setTestContext } from '../context'
 import { buildFixture, loadFixture } from '../nuxt'
-import { startServer, stopServer } from '../server'
+import { reuseExistingServer, startServer, stopServer } from '../server'
 import { createBrowser } from '../browser'
 import type { TestHooks, TestOptions } from '../types'
 import setupCucumber from './cucumber'
@@ -41,20 +41,24 @@ export function createTest(options: Partial<TestOptions>): TestHooks {
   }
 
   const setup = async () => {
+    if (ctx.options.reuseExistingServer) {
+      await reuseExistingServer()
+    }
+
     if (ctx.options.fixture) {
       await loadFixture()
     }
 
-    if (ctx.options.build) {
+    if (ctx.options.build && !ctx.options.reuseExistingServer) {
       await buildFixture()
     }
 
-    if (ctx.options.server) {
+    if (ctx.options.server && !ctx.options.reuseExistingServer) {
       await startServer()
     }
 
     if (ctx.options.waitFor) {
-      await (new Promise(resolve => setTimeout(resolve, ctx.options.waitFor)))
+      await new Promise(resolve => setTimeout(resolve, ctx.options.waitFor))
     }
 
     if (ctx.options.browser) {

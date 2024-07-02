@@ -11,6 +11,7 @@ export interface TestOptions {
   rootDir: string
   buildDir: string
   nuxtConfig: NuxtConfig
+  reuseExistingServer?: boolean
   build: boolean
   dev: boolean
   setupTimeout: number
@@ -23,6 +24,7 @@ export interface TestOptions {
     launch?: LaunchOptions
   }
   server: boolean
+  host?: string
   port?: number
 }
 
