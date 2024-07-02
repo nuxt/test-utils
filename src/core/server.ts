@@ -65,7 +65,7 @@ export async function startServer(options: StartServerOptions = {}) {
   }
   else {
     ctx.serverProcess = execa('node', [
-      resolve(ctx.nuxt!.options.nitro.output!.dir!, 'server/index.mjs')
+      resolve(ctx.nuxt!.options.nitro.output!.dir!, 'server/index.mjs'),
     ], {
         stdio: 'inherit',
         env: {
@@ -74,9 +74,8 @@ export async function startServer(options: StartServerOptions = {}) {
           HOST: host,
           NODE_ENV: 'test',
           ...options.env,
-        },
       },
-    )
+    })
     await waitForPort(port, { retries: 20, host })
   }
 }
@@ -92,9 +91,9 @@ export function fetch(path: string, options?: RequestInit) {
   return _fetch(url(path), options)
 }
 
-export const $fetch = function (path: string, options?: FetchOptions) {
+export const $fetch = (function (path: string, options?: FetchOptions) {
   return _$fetch(url(path), options)
-} as typeof globalThis['$fetch']
+}) as typeof globalThis['$fetch']
 
 export function url(path: string) {
   const ctx = useTestContext()
