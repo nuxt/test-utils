@@ -14,7 +14,7 @@ export interface StartServerOptions {
   env?: Record<string, unknown>
 }
 
-export async function reuseExistingServer(options: StartServerOptions = {}) {
+export async function reuseExistingServer() {
   const ctx = useTestContext()
   const host = ctx.options.host || 'localhost' // Default to localhost since it's the host used by nuxt dev server
   const port = ctx.options.port || 3000 // Default to 3000 since it's the port used by nuxt dev server
