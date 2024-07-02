@@ -39,5 +39,5 @@ export default defineConfig<ConfigOptions>({
       rootDir: fileURLToPath(new URL('.', import.meta.url)),
     },
   },
-  projects: devicesToTest.map(p => typeof p === 'string' ? { name: p, use: devices[p] } : p),
+  projects: devicesToTest.map(p => typeof p === 'string' ? ({ name: p, use: devices[p] }) : p),
 })

@@ -64,10 +64,9 @@ export async function startServer(options: StartServerOptions = {}) {
     throw lastError || new Error('Timeout waiting for dev server!')
   }
   else {
-    ctx.serverProcess = execa(
-      'node',
-      [resolve(ctx.nuxt!.options.nitro.output!.dir!, 'server/index.mjs')],
-      {
+    ctx.serverProcess = execa('node', [
+      resolve(ctx.nuxt!.options.nitro.output!.dir!, 'server/index.mjs')
+    ], {
         stdio: 'inherit',
         env: {
           ...process.env,
