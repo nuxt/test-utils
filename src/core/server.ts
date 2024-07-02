@@ -30,7 +30,7 @@ export async function startServer(options: StartServerOptions = {}) {
   const ctx = useTestContext()
   await stopServer()
   const host = '127.0.0.1'
-  const port = ctx.options.port || (await getRandomPort(host))
+  const port = ctx.options.port || await getRandomPort(host)
   ctx.url = `http://${host}:${port}`
   if (ctx.options.dev) {
     const nuxiCLI = await kit.resolvePath('nuxi/cli')
@@ -67,13 +67,13 @@ export async function startServer(options: StartServerOptions = {}) {
     ctx.serverProcess = execa('node', [
       resolve(ctx.nuxt!.options.nitro.output!.dir!, 'server/index.mjs'),
     ], {
-        stdio: 'inherit',
-        env: {
-          ...process.env,
-          PORT: String(port),
-          HOST: host,
-          NODE_ENV: 'test',
-          ...options.env,
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        PORT: String(port),
+        HOST: host,
+        NODE_ENV: 'test',
+        ...options.env,
       },
     })
     await waitForPort(port, { retries: 20, host })
