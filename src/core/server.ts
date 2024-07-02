@@ -51,9 +51,7 @@ export async function startServer(options: StartServerOptions = {}) {
     for (let i = 0; i < 150; i++) {
       await new Promise(resolve => setTimeout(resolve, 100))
       try {
-        const res = await $fetch<string>(ctx.nuxt!.options.app.baseURL, {
-          responseType: 'text',
-        })
+        const res = await $fetch<string>(ctx.nuxt!.options.app.baseURL, { responseType: 'text' })
         if (!res.includes('__NUXT_LOADING__')) {
           return
         }
@@ -97,7 +95,7 @@ export function fetch(path: string, options?: RequestInit) {
 
 export const $fetch = function (path: string, options?: FetchOptions) {
   return _$fetch(url(path), options)
-} as (typeof globalThis)['$fetch']
+} as typeof globalThis['$fetch']
 
 export function url(path: string) {
   const ctx = useTestContext()

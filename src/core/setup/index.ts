@@ -58,7 +58,7 @@ export function createTest(options: Partial<TestOptions>): TestHooks {
     }
 
     if (ctx.options.waitFor) {
-      await new Promise(resolve => setTimeout(resolve, ctx.options.waitFor))
+      await (new Promise(resolve => setTimeout(resolve, ctx.options.waitFor)))
     }
 
     if (ctx.options.browser) {
