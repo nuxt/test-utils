@@ -45,7 +45,7 @@ export function createTest(options: Partial<TestOptions>): TestHooks {
       await reuseExistingServer()
     }
 
-    if (ctx.options.fixture) {
+    if (ctx.options.fixture && !ctx.options.reuseExistingServer) {
       await loadFixture()
     }
 
