@@ -14,18 +14,31 @@ export interface StartServerOptions {
   env?: Record<string, unknown>
 }
 
+/**
+ * Reuse an existing server if it's already running.
+ *
+ * This is useful to do test first development and speed up the test execution.
+ */
 export async function reuseExistingServer() {
   const ctx = useTestContext()
-  const host = ctx.options.host || 'localhost' // Default to localhost since it's the host used by nuxt dev server
+  const host = ctx.options.host || 'localhost' // Default to localhost since it's the host used by nuxt dev server (127.0.0.1 is not working)
   const port = ctx.options.port || 3000 // Default to 3000 since it's the port used by nuxt dev server
 
   if (port === undefined) {
     throw new Error('Port is required when reusing server')
   }
 
+  // TODO: To run against deployed server, maybe we should allow to change the protocol?
   ctx.url = `http://${host}:${port}`
 }
 
+/**
+ * Start a new server.
+ *
+ * This server can be a dev server using the Nuxt CLI dev command or a production server using the Nuxt build output.
+ *
+ * During testing, it's recommended to reuse an existing server using `reuseExistingServer` setting. This will speed up the test execution and allow test first development.
+ */
 export async function startServer(options: StartServerOptions = {}) {
   const ctx = useTestContext()
   await stopServer()
