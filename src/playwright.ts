@@ -16,6 +16,22 @@ type TestOptions = {
 }
 
 /**
+ * The function used to create the _nuxtHooks fixture internally.
+ * It's exported so projects have the option to overwrite the `_nuxtHooks` fixture and e.g. overwrite settings in the nuxt config before the nuxt app is built.
+ * @param nuxt the nuxt config that should be used to create the nuxt app to test
+ * @param use the `use` function of playwright
+ */
+export const nuxtHooksFixture = async (
+  nuxt: ConfigOptions['nuxt'],
+  use: (hooks: WorkerOptions['_nuxtHooks']) => Promise<void>,
+) => {
+  const hooks = createTest(nuxt || {})
+  await hooks.setup()
+  await use(hooks)
+  await hooks.afterAll()
+}
+
+/**
  * Use a preconfigured Nuxt fixture.
  *
  * You can pass a `nuxt: {}` object in your device configuration, in the `use` key of your config file,
@@ -31,14 +47,7 @@ type TestOptions = {
  */
 export const test = base.extend<TestOptions, WorkerOptions & ConfigOptions>({
   nuxt: [undefined, { option: true, scope: 'worker' }],
-  _nuxtHooks: [
-    async ({ nuxt }, use) => {
-      const hooks = createTest(nuxt || {})
-      await hooks.setup()
-      await use(hooks)
-      await hooks.afterAll()
-    }, { scope: 'worker' },
-  ],
+  _nuxtHooks: [({ nuxt }, use) => nuxtHooksFixture(nuxt, use), { scope: 'worker' }],
   baseURL: async ({ _nuxtHooks }, use) => {
     _nuxtHooks.beforeEach()
     await use(url('/'))
