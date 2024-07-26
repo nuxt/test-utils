@@ -10,6 +10,6 @@
 <script setup>
 await new Promise(resolve => setTimeout(resolve, 1))
 useHead({
-  title: 'My App'
+  title: 'My App',
 })
 </script>

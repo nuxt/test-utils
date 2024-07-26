@@ -2,13 +2,14 @@ import type { Browser, BrowserContextOptions, Page, Response } from 'playwright-
 import { useTestContext } from './context'
 import { url } from './server'
 
-export async function createBrowser () {
+export async function createBrowser() {
   const ctx = useTestContext()
 
   let playwright: typeof import('playwright-core')
   try {
     playwright = await import(/* vite-ignore */ 'playwright-core')
-  } catch {
+  }
+  catch {
     /* istanbul ignore next */
     throw new Error(`
       The dependency 'playwright-core' not found.
@@ -24,7 +25,7 @@ export async function createBrowser () {
   ctx.browser = await playwright[type].launch(launch)
 }
 
-export async function getBrowser (): Promise<Browser> {
+export async function getBrowser(): Promise<Browser> {
   const ctx = useTestContext()
   if (!ctx.browser) {
     await createBrowser()
@@ -41,7 +42,7 @@ interface NuxtPage extends Omit<Page, 'goto'> {
   goto: (url: string, options?: GotoOptions) => Promise<Response | null>
 }
 
-export async function createPage (path?: string, options?: BrowserContextOptions): Promise<NuxtPage> {
+export async function createPage(path?: string, options?: BrowserContextOptions): Promise<NuxtPage> {
   const browser = await getBrowser()
   const page = await browser.newPage(options) as unknown as NuxtPage
 
@@ -63,10 +64,11 @@ export async function createPage (path?: string, options?: BrowserContextOptions
   return page
 }
 
-export async function waitForHydration (page: Page, url: string, waitUntil?: GotoOptions['waitUntil']): Promise<void> {
+export async function waitForHydration(page: Page, url: string, waitUntil?: GotoOptions['waitUntil']): Promise<void> {
   if (waitUntil === 'hydration') {
     await page.waitForFunction(() => window.useNuxtApp?.().isHydrating === false)
-  } else if (waitUntil === 'route') {
-    await page.waitForFunction((route) => window.useNuxtApp?.()._route.fullPath === route, url)
+  }
+  else if (waitUntil === 'route') {
+    await page.waitForFunction(route => window.useNuxtApp?.()._route.fullPath === route, url)
   }
 }

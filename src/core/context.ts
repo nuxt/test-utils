@@ -4,7 +4,7 @@ import type { TestContext, TestOptions } from './types'
 
 let currentContext: TestContext | undefined
 
-export function createTestContext (options: Partial<TestOptions>): TestContext {
+export function createTestContext(options: Partial<TestOptions>): TestContext {
   const _options: Partial<TestOptions> = defu(options, {
     testDir: resolve(process.cwd(), 'test'),
     fixture: 'fixture',
@@ -16,22 +16,23 @@ export function createTestContext (options: Partial<TestOptions>): TestContext {
     build: (options.browser !== false) || (options.server !== false),
     nuxtConfig: {},
     browserOptions: {
-      type: 'chromium' as const
-    }
+      type: 'chromium' as const,
+    },
   } satisfies Partial<TestOptions>)
 
   if (process.env.VITEST === 'true') {
     _options.runner ||= 'vitest'
-  } else if (process.env.JEST_WORKER_ID) {
+  }
+  else if (process.env.JEST_WORKER_ID) {
     _options.runner ||= 'jest'
   }
 
   return setTestContext({
-    options: _options as TestOptions
+    options: _options as TestOptions,
   })
 }
 
-export function useTestContext (): TestContext {
+export function useTestContext(): TestContext {
   recoverContextFromEnv()
   if (!currentContext) {
     throw new Error('No context is available. (Forgot calling setup or createContext?)')
@@ -39,25 +40,25 @@ export function useTestContext (): TestContext {
   return currentContext
 }
 
-export function setTestContext (context: TestContext): TestContext
-export function setTestContext (context?: TestContext): TestContext | undefined
-export function setTestContext (context?: TestContext): TestContext | undefined {
+export function setTestContext(context: TestContext): TestContext
+export function setTestContext(context?: TestContext): TestContext | undefined
+export function setTestContext(context?: TestContext): TestContext | undefined {
   currentContext = context
   return currentContext
 }
 
-export function isDev () {
+export function isDev() {
   const ctx = useTestContext()
   return ctx.options.dev
 }
 
-export function recoverContextFromEnv () {
+export function recoverContextFromEnv() {
   if (!currentContext && process.env.NUXT_TEST_CONTEXT) {
     setTestContext(JSON.parse(process.env.NUXT_TEST_CONTEXT || '{}'))
   }
 }
 
-export function exposeContextToEnv () {
+export function exposeContextToEnv() {
   const { options, browser, url } = currentContext!
   process.env.NUXT_TEST_CONTEXT = JSON.stringify({ options, browser, url })
 }

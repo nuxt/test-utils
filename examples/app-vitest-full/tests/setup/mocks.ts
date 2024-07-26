@@ -8,7 +8,7 @@ mockNuxtImport<typeof useAutoImportSetupMocked>(
   () =>
     vi.fn(() => {
       return 'mocked in setup'
-    })
+    }),
 )
 
 mockNuxtImport<typeof useAutoImportSetupOverridenMocked>(
@@ -16,5 +16,5 @@ mockNuxtImport<typeof useAutoImportSetupOverridenMocked>(
   () =>
     vi.fn(() => {
       return 'mocked in setup'
-    })
+    }),
 )

@@ -10,10 +10,10 @@ import setupVitest from './vitest'
 export const setupMaps = {
   cucumber: setupCucumber,
   jest: setupJest,
-  vitest: setupVitest
+  vitest: setupVitest,
 }
 
-export function createTest (options: Partial<TestOptions>): TestHooks {
+export function createTest(options: Partial<TestOptions>): TestHooks {
   const ctx = createTestContext(options)
 
   const beforeEach = () => {
@@ -37,7 +37,7 @@ export function createTest (options: Partial<TestOptions>): TestHooks {
       await ctx.browser.close()
     }
     // clear side effects
-    await Promise.all((ctx.teardown || []).map(fn => fn()))
+    await Promise.all(!ctx.teardown ? [] : ctx.teardown.map(fn => fn()))
   }
 
   const setup = async () => {
@@ -67,11 +67,11 @@ export function createTest (options: Partial<TestOptions>): TestHooks {
     afterEach,
     afterAll,
     setup,
-    ctx
+    ctx,
   }
 }
 
-export async function setup (options: Partial<TestOptions> = {}) {
+export async function setup(options: Partial<TestOptions> = {}) {
   const hooks = createTest(options)
 
   const setupFn = setupMaps[hooks.ctx.options.runner]

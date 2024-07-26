@@ -7,31 +7,6 @@ export type ConfigOptions = {
   nuxt: Partial<SetupOptions> | undefined
 }
 
-{
-  // Can be removed after Playwright v1.43 is released.
-  // Waiting for https://github.com/microsoft/playwright/pull/29865
-  if (process.env.TEST_WORKER_INDEX) {
-    for (const stream of [process.stdout, process.stderr]) {
-      // Stubs for the rest of the methods to avoid exceptions in user code.
-      if (!(stream as any).clearLine) {
-        stream.clearLine = (dir: any, callback?: () => void) => {
-          callback?.()
-          return true
-        }
-      }
-      if (!(stream as any).cursorTo) {
-        (stream as any).cursorTo = (x: number, y?: number | (() => void), callback?: () => void) => {
-          if (callback)
-            callback()
-          else if (y instanceof Function)
-            y()
-          return true
-        }
-      }
-    }
-  }
-}
-
 type WorkerOptions = {
   _nuxtHooks: TestHooks
 }
@@ -42,10 +17,10 @@ type TestOptions = {
 
 /**
  * Use a preconfigured Nuxt fixture.
- * 
+ *
  * You can pass a `nuxt: {}` object in your device configuration, in the `use` key of your config file,
  * or use the following syntax within your test file to configure your Nuxt fixture:
- * 
+ *
   ```ts
   test.use({
     nuxt: {
@@ -62,7 +37,7 @@ export const test = base.extend<TestOptions, WorkerOptions & ConfigOptions>({
       await hooks.setup()
       await use(hooks)
       await hooks.afterAll()
-    }, { scope: 'worker' }
+    }, { scope: 'worker' },
   ],
   baseURL: async ({ _nuxtHooks }, use) => {
     _nuxtHooks.beforeEach()

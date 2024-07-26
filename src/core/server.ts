@@ -4,17 +4,17 @@ import type { FetchOptions } from 'ofetch'
 import { $fetch as _$fetch, fetch as _fetch } from 'ofetch'
 import * as _kit from '@nuxt/kit'
 import { resolve } from 'pathe'
+
 import { useTestContext } from './context'
 
-// @ts-expect-error type cast
-// eslint-disable-next-line
+// @ts-expect-error type cast kit default export
 const kit: typeof _kit = _kit.default || _kit
 
 export interface StartServerOptions {
   env?: Record<string, unknown>
 }
 
-export async function startServer (options: StartServerOptions = {}) {
+export async function startServer(options: StartServerOptions = {}) {
   const ctx = useTestContext()
   await stopServer()
   const host = '127.0.0.1'
@@ -33,26 +33,28 @@ export async function startServer (options: StartServerOptions = {}) {
         NODE_ENV: 'development',
         ...options.env,
         ...ctx.options.env,
-      }
+      },
     })
     await waitForPort(port, { retries: 32, host }).catch(() => {})
     let lastError
     for (let i = 0; i < 150; i++) {
       await new Promise(resolve => setTimeout(resolve, 100))
       try {
-        const res = await $fetch(ctx.nuxt!.options.app.baseURL)
+        const res = await $fetch<string>(ctx.nuxt!.options.app.baseURL, { responseType: 'text' })
         if (!res.includes('__NUXT_LOADING__')) {
           return
         }
-      } catch (e) {
+      }
+      catch (e) {
         lastError = e
       }
     }
     ctx.serverProcess.kill()
     throw lastError || new Error('Timeout waiting for dev server!')
-  } else {
+  }
+  else {
     ctx.serverProcess = execa('node', [
-      resolve(ctx.nuxt!.options.nitro.output!.dir!, 'server/index.mjs')
+      resolve(ctx.nuxt!.options.nitro.output!.dir!, 'server/index.mjs'),
     ], {
       stdio: 'inherit',
       env: {
@@ -62,28 +64,28 @@ export async function startServer (options: StartServerOptions = {}) {
         NODE_ENV: 'test',
         ...options.env,
         ...ctx.options.env,
-      }
+      },
     })
     await waitForPort(port, { retries: 20, host })
   }
 }
 
-export async function stopServer () {
+export async function stopServer() {
   const ctx = useTestContext()
   if (ctx.serverProcess) {
-    await ctx.serverProcess.kill()
+    ctx.serverProcess.kill()
   }
 }
 
-export function fetch (path: string, options?: any) {
+export function fetch(path: string, options?: RequestInit) {
   return _fetch(url(path), options)
 }
 
-export function $fetch (path: string, options?: FetchOptions) {
+export const $fetch = (function (path: string, options?: FetchOptions) {
   return _$fetch(url(path), options)
-}
+}) as typeof globalThis['$fetch']
 
-export function url (path: string) {
+export function url(path: string) {
   const ctx = useTestContext()
   if (!ctx.url) {
     throw new Error('url is not available (is server option enabled?)')

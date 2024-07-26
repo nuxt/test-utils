@@ -1,11 +1,26 @@
 import { afterEach, describe, expect, it } from 'vitest'
+
 import { renderSuspended } from '@nuxt/test-utils/runtime'
-import { cleanup, fireEvent, screen } from '@testing-library/vue'
+import { cleanup, fireEvent, screen, render } from '@testing-library/vue'
 
 import App from '~/app.vue'
 import OptionsComponent from '~/components/OptionsComponent.vue'
 import WrapperTests from '~/components/WrapperTests.vue'
 import LinkTests from '~/components/LinkTests.vue'
+
+import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
+import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
+import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'
+import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
+
+import { BoundAttrs } from '#components'
+
+const formats = {
+  ExportDefaultComponent,
+  ExportDefineComponent,
+  ExportDefaultWithRenderComponent,
+  ExportDefaultReturnsRenderComponent,
+}
 
 describe('renderSuspended', () => {
   afterEach(() => {
@@ -29,6 +44,13 @@ describe('renderSuspended', () => {
     `)
   })
 
+  it('should handle passing setup state and props to template', async () => {
+    const wrappedComponent = await renderSuspended(BoundAttrs)
+    const component = render(BoundAttrs)
+
+    expect(`<div id="test-wrapper">${component.html()}</div>`).toEqual(wrappedComponent.html())
+  })
+
   it('should render default props within nuxt suspense', async () => {
     await renderSuspended(OptionsComponent)
     expect(screen.getByRole('heading', { level: 2 })).toMatchInlineSnapshot(
@@ -36,27 +58,27 @@ describe('renderSuspended', () => {
       <h2>
         The original
       </h2>
-    `
+    `,
     )
   })
 
   it('should render passed props within nuxt suspense', async () => {
     await renderSuspended(OptionsComponent, {
       props: {
-        title: 'title from mount suspense props',
+        title: 'title from render suspense props',
       },
     })
     expect(screen.getByRole('heading', { level: 2 })).toMatchInlineSnapshot(
       `
       <h2>
-        title from mount suspense props
+        title from render suspense props
       </h2>
-    `
+    `,
     )
   })
 
   it('can pass slots to rendered components within nuxt suspense', async () => {
-    const text = 'slot from mount suspense'
+    const text = 'slot from render suspense'
     await renderSuspended(OptionsComponent, {
       slots: {
         default: () => text,
@@ -74,7 +96,7 @@ describe('renderSuspended', () => {
     expect(emittedEvents.click).toMatchObject(
       expect.arrayContaining([
         expect.arrayContaining([expect.objectContaining({ type: 'click' })]),
-      ])
+      ]),
     )
 
     // since this is a native event it doesn't serialize well
@@ -92,11 +114,31 @@ describe('renderSuspended', () => {
       }
     `)
   })
+})
 
-  it('renders links correctly', async () => {
-    await renderSuspended(LinkTests)
+describe.each(Object.entries(formats))(`%s`, (name, component) => {
+  it('mounts with props', async () => {
+    const wrapper = await renderSuspended(component, {
+      props: {
+        myProp: 'Hello nuxt-vitest',
+      },
+    })
 
-    expect(screen.getByRole('link', { name: 'Link with string to prop'})).toHaveProperty('href', 'http://localhost:3000/test')
-    expect(screen.getByRole('link', { name: 'Link with object to prop'})).toHaveProperty('href', 'http://localhost:3000/test')
+    expect(wrapper.html()).toEqual(`
+<div id="test-wrapper">
+  <div>
+    <h1>${name}</h1><pre>Hello nuxt-vitest</pre><pre>XHello nuxt-vitest</pre>
+  </div>
+</div>
+    `.trim())
   })
+})
+
+it('renders links correctly', async () => {
+  const component = await renderSuspended(LinkTests)
+
+  expect(component.html()).toMatchInlineSnapshot(`
+  "<div id="test-wrapper">
+    <div><a href="/test"> Link with string to prop </a><a href="/test"> Link with object to prop </a></div>
+  </div>"`)
 })

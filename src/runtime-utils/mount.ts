@@ -2,18 +2,21 @@ import { mount } from '@vue/test-utils'
 import type { ComponentMountingOptions } from '@vue/test-utils'
 import { Suspense, h, isReadonly, nextTick, reactive, unref } from 'vue'
 import type { DefineComponent, SetupContext } from 'vue'
-import { defu } from 'defu'
+import { defu, createDefu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
 
 import { RouterLink } from './components/RouterLink'
 
-// @ts-expect-error virtual file
 import NuxtRoot from '#build/root-component.mjs'
-import { useRouter } from '#imports'
+import { tryUseNuxtApp, useRouter } from '#imports'
 
 export type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
   route?: RouteLocationRaw
 }
+
+// TODO: improve return types
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SetupState = Record<string, any>
 
 /**
  * `mountSuspended` allows you to mount any vue component within the Nuxt environment, allowing async setup and access to injections from your Nuxt plugins. For example:
@@ -43,8 +46,8 @@ export type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
  */
 export async function mountSuspended<T>(
   component: T,
-  options?: MountSuspendedOptions<T>
-): Promise<ReturnType<typeof mount<T>> & { setupState: any }> {
+  options?: MountSuspendedOptions<T>,
+): Promise<ReturnType<typeof mount<T>> & { setupState: SetupState }> {
   const {
     props = {},
     attrs = {},
@@ -53,48 +56,50 @@ export async function mountSuspended<T>(
     ..._options
   } = options || {}
 
-  // @ts-expect-error untyped global __unctx__
-  const vueApp = globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
-  const { render, setup } = component as DefineComponent<any, any>
+  const vueApp = tryUseNuxtApp()?.vueApp
+    // @ts-expect-error untyped global __unctx__
+    || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
+  const { render, setup } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
 
   let setupContext: SetupContext
-  let setupState: any
-  const setProps = reactive<Record<string, any>>({})
+  let setupState: Record<string, unknown>
+  const setProps = reactive<Record<string, unknown>>({})
 
-  let passedProps: Record<string, any>
+  let passedProps: Record<string, unknown>
   const wrappedSetup = async (
-    props: Record<string, any>,
-    setupContext: SetupContext
+    props: Record<string, unknown>,
+    setupContext: SetupContext,
   ) => {
     passedProps = props
     if (setup) {
-      setupState = await setup(props, setupContext)
-      return setupState
+      const result = await setup(props, setupContext)
+      setupState = result && typeof result === 'object' ? result : {}
+      return result
     }
   }
 
-  return new Promise<ReturnType<typeof mount<T>> & { setupState: any }>(
-    resolve => {
+  return new Promise<ReturnType<typeof mount<T>> & { setupState: Record<string, unknown> }>(
+    (resolve) => {
       const vm = mount(
         {
-          setup: (props: Record<string, any>, ctx: SetupContext) => {
+          setup: (props: Record<string, unknown>, ctx: SetupContext) => {
             setupContext = ctx
             return NuxtRoot.setup(props, {
               ...ctx,
               expose: () => {},
             })
           },
-          render: (renderContext: any) =>
+          render: (renderContext: Record<string, unknown>) =>
             h(
               Suspense,
               {
                 onResolve: () =>
                   nextTick().then(() => {
-                    (vm as any).setupState = setupState;
-                    (vm as any).__setProps = (props: Record<string, any>) => {
+                    (vm as unknown as AugmentedVueInstance).setupState = setupState;
+                    (vm as unknown as AugmentedVueInstance).__setProps = (props: Record<string, unknown>) => {
                       Object.assign(setProps, props)
                     }
-                    resolve(vm as any)
+                    resolve(vm as ReturnType<typeof mount<T>> & { setupState: Record<string, unknown> })
                   }),
               },
               {
@@ -110,26 +115,26 @@ export async function mountSuspended<T>(
                         name: 'MountSuspendedComponent',
                         ...component,
                         render: render
-                          ? function (this: any, _ctx: any, ...args: any[]) {
-                              for (const key in setupState || {}) {
-                                renderContext[key] = isReadonly(setupState[key]) ? unref(setupState[key]) : setupState[key]
-                              }
-                              for (const key in props || {}) {
-                                renderContext[key] = _ctx[key]
-                              }
-                              for (const key in passedProps || {}) {
-                                renderContext[key] = passedProps[key]
-                              }
-                              return render.call(this, renderContext, ...args)
+                          ? function (this: unknown, _ctx: Record<string, unknown>, ...args: unknown[]) {
+                            for (const key in setupState || {}) {
+                              renderContext[key] = isReadonly(setupState[key]) ? unref(setupState[key]) : setupState[key]
                             }
+                            for (const key in props || {}) {
+                              renderContext[key] = _ctx[key]
+                            }
+                            for (const key in passedProps || {}) {
+                              renderContext[key] = passedProps[key]
+                            }
+                            return render.call(this, renderContext, ...args)
+                          }
                           : undefined,
-                        setup: setup ? (props: Record<string, any>) => wrappedSetup(props, setupContext) : undefined,
+                        setup: setup ? (props: Record<string, unknown>) => wrappedSetup(props, setupContext) : undefined,
                       }
 
-                      return () => h(clonedComponent, { ...defu(setProps, props) as typeof props, ...attrs }, slots)
+                      return () => h(clonedComponent, { ...defuReplaceArray(setProps, props) as typeof props, ...attrs }, slots)
                     },
                   }),
-              }
+              },
             ),
         },
         defu(
@@ -144,13 +149,25 @@ export async function mountSuspended<T>(
               stubs: {
                 Suspense: false,
                 MountSuspendedHelper: false,
-                [typeof (component as any).name === 'string' ? (component as any).name : 'MountSuspendedComponent']: false
+                [component && typeof component === 'object' && 'name' in component && typeof component.name === 'string' ? component.name : 'MountSuspendedComponent']: false,
               },
               components: { RouterLink },
             },
-          } satisfies ComponentMountingOptions<T>
-        ) as ComponentMountingOptions<T>
+          } satisfies ComponentMountingOptions<T>,
+        ) as ComponentMountingOptions<T>,
       )
-    }
+    },
   )
 }
+
+interface AugmentedVueInstance {
+  setupState?: Record<string, unknown>
+  __setProps?: (props: Record<string, unknown>) => void
+}
+
+const defuReplaceArray = createDefu((obj, key, value) => {
+  if (Array.isArray(obj[key])) {
+    obj[key] = value
+    return true
+  }
+})

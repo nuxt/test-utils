@@ -3,6 +3,10 @@
     <h1>ExportDefineComponent</h1>
     <pre>{{ myProp }}</pre>
     <pre>{{ setupMyProp }}</pre>
+    <span
+      v-for="item in myArrayProp"
+      :key="item"
+    >{{ item }}</span>
   </div>
 </template>
 
@@ -20,12 +24,16 @@ export default defineComponent({
   props: {
     myProp: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
+    myArrayProp: {
+      type: Array as PropType<string[]>,
+      default: () => ([]),
+    },
   },
   setup(props) {
     return {
-      setupMyProp: 'X' + props.myProp
+      setupMyProp: 'X' + props.myProp,
     }
   },
 })
