@@ -54,7 +54,7 @@ export function createTest(options: Partial<TestOptions>): TestHooks {
     }
 
     if (ctx.options.server && !ctx.options.reuseExistingServer) {
-      await startServer()
+      await startServer(ctx.options.env)
     }
 
     if (ctx.options.waitFor) {

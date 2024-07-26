@@ -8,4 +8,9 @@ export default defineNuxtConfig({
     'playwright-report',
     'test-results',
   ],
+  runtimeConfig: {
+    public: {
+      myValue: 'Welcome to Playwright!',
+    },
+  },
 })
