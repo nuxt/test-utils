@@ -12,6 +12,7 @@ export interface TestOptions {
   rootDir: string
   buildDir: string
   nuxtConfig: NuxtConfig
+  reuseExistingServer?: boolean
   build: boolean
   dev: boolean
   setupTimeout: number

@@ -34,6 +34,8 @@ export default defineConfig<ConfigOptions>({
     trace: 'on-first-retry',
     /* Nuxt configuration options */
     nuxt: {
+      /* Reuse a server if it's already running. Useful for test first development. */
+      reuseExistingServer: process.env.CI ? false : true,
       rootDir: fileURLToPath(new URL('.', import.meta.url)),
     },
   },
