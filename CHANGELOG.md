@@ -2,6 +2,41 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## v3.14.0
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.13.1...v3.14.0)
+
+### 🚀 Enhancements
+
+- **runtime-utils:** Expose setup result from `renderSuspended` ([#852](https://github.com/nuxt/test-utils/pull/852))
+- **e2e:** Allow overwriting env variables in `setup` ([#903](https://github.com/nuxt/test-utils/pull/903))
+- **e2e:** Allow running e2e tests against existing server ([#803](https://github.com/nuxt/test-utils/pull/803))
+- **e2e:** Allow updating env in context before `setup` runs ([#812](https://github.com/nuxt/test-utils/pull/812))
+
+### 🩹 Fixes
+
+- **runtime-utils:** Ts-ignore `#build/` import until nuxt v3.12 release ([66b23ae6](https://github.com/nuxt/test-utils/commit/66b23ae6))
+- **runtime-utils:** Allow `setProps` to replace an array ([#877](https://github.com/nuxt/test-utils/pull/877))
+
+### 🏡 Chore
+
+- Ignore ts-ignores for now ([ac2d9fbb](https://github.com/nuxt/test-utils/commit/ac2d9fbb))
+- Add @danielroe to code owners ([76f65b3b](https://github.com/nuxt/test-utils/commit/76f65b3b))
+- Remove ts-ignore now that we're upgraded ([16827f7f](https://github.com/nuxt/test-utils/commit/16827f7f))
+
+### ✅ Tests
+
+- Bump timeout in windows browser spec ([73e2c716](https://github.com/nuxt/test-utils/commit/73e2c716))
+
+### ❤️ Contributors
+
+- Jessé Correia Lins ([@linspw](http://github.com/linspw))
+- Tobias Diez <code@tobiasdiez.com>
+- Mark Brockhoff ([@markbrockhoff](http://github.com/markbrockhoff))
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+- MaruyamaTomoki ([@tomoki1207](http://github.com/tomoki1207))
+- Joao Vitor Alves <joaovitor_as08802@hotmail.com>
+
 ## v3.13.1
 
 [compare changes](https://github.com/nuxt/test-utils/compare/v3.13.0...v3.13.1)
