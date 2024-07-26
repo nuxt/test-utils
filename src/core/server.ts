@@ -32,7 +32,6 @@ export async function startServer(options: StartServerOptions = {}) {
         HOST: host,
         NODE_ENV: 'development',
         ...options.env,
-        ...ctx.options.env,
       },
     })
     await waitForPort(port, { retries: 32, host }).catch(() => {})
@@ -63,7 +62,6 @@ export async function startServer(options: StartServerOptions = {}) {
         HOST: host,
         NODE_ENV: 'test',
         ...options.env,
-        ...ctx.options.env,
       },
     })
     await waitForPort(port, { retries: 20, host })
