@@ -1,5 +1,9 @@
 <template>
   <h1>
-    Welcome to Playwright!
+    {{ config.public.myValue }}
   </h1>
 </template>
+
+<script setup>
+const config = useRuntimeConfig()
+</script>
