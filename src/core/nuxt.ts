@@ -53,19 +53,22 @@ export async function loadFixture() {
     })
   }
 
-  ctx.nuxt = await kit.loadNuxt({
-    cwd: ctx.options.rootDir,
-    dev: ctx.options.dev,
-    overrides: ctx.options.nuxtConfig,
-    configFile: ctx.options.configFile,
-  })
+  // TODO: share Nuxt instance with running Nuxt if possible
+  if (ctx.options.build) {
+    ctx.nuxt = await kit.loadNuxt({
+      cwd: ctx.options.rootDir,
+      dev: ctx.options.dev,
+      overrides: ctx.options.nuxtConfig,
+      configFile: ctx.options.configFile,
+    })
 
-  const buildDir = ctx.nuxt.options.buildDir
-  // avoid creating / deleting build dirs that already exist - avoids misconfiguration deletes
-  if (!existsSync(buildDir)) {
-    await fsp.mkdir(buildDir, { recursive: true })
-    ctx.teardown = ctx.teardown || []
-    ctx.teardown.push(() => fsp.rm(buildDir, { recursive: true, force: true }))
+    const buildDir = ctx.nuxt.options.buildDir
+    // avoid creating / deleting build dirs that already exist - avoids misconfiguration deletes
+    if (!existsSync(buildDir)) {
+      await fsp.mkdir(buildDir, { recursive: true })
+      ctx.teardown = ctx.teardown || []
+      ctx.teardown.push(() => fsp.rm(buildDir, { recursive: true, force: true }))
+    }
   }
 }
 
