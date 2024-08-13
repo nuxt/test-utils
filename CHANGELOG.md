@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## v3.14.1
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.14.0...v3.14.1)
+
+### 🩹 Fixes
+
+- **e2e,config:** Provide fallback `compatibilityDate` ([8e01e3f7f](https://github.com/nuxt/test-utils/commit/8e01e3f7f))
+- **module:** Don't include type-check plugin in resolved `vitest` plugins ([#911](https://github.com/nuxt/test-utils/pull/911))
+
+### 📖 Documentation
+
+- Provide intellisense hints for setup properties ([#906](https://github.com/nuxt/test-utils/pull/906))
+
+### 🏡 Chore
+
+- Dedupe vitest ([6e36b5471](https://github.com/nuxt/test-utils/commit/6e36b5471))
+- Ignore upgrading dependencies for stubbed libs ([4329c4ddc](https://github.com/nuxt/test-utils/commit/4329c4ddc))
+
+### ❤️ Contributors
+
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+- Valentin Brajon ([@vbrajon](http://github.com/vbrajon))
+- Adam DeHaven ([@adamdehaven](http://github.com/adamdehaven))
+
 ## v3.14.0
 
 [compare changes](https://github.com/nuxt/test-utils/compare/v3.13.1...v3.14.0)
