@@ -224,7 +224,7 @@ export function defineVitestConfig(config: InlineConfig & { test?: VitestConfig 
   })
 }
 
-declare module 'vitest' {
+declare module 'vitest/node' {
   interface EnvironmentOptions {
     nuxt?: {
       rootDir?: string
