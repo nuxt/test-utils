@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import { defineEventHandler } from 'h3'
 import type { App, EventHandler, HTTPMethod } from 'h3'
 import type {
