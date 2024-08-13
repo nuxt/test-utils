@@ -224,40 +224,49 @@ export function defineVitestConfig(config: InlineConfig & { test?: VitestConfig 
   })
 }
 
+interface NuxtEnvironmentOptions {
+  rootDir?: string
+  /**
+   * The starting URL for your Nuxt window environment
+   * @default {http://localhost:3000}
+   */
+  url?: string
+  /**
+   * You can define how environment options are read when loading the Nuxt configuration.
+   */
+  dotenv?: Partial<DotenvOptions>
+  /**
+   * Configuration that will override the values in your `nuxt.config` file.
+   */
+  overrides?: NuxtConfig
+  /**
+   * The id of the root div to which the app should be mounted. You should also set `app.rootId` to the same value.
+   * @default {nuxt-test}
+   */
+  rootId?: string
+  /**
+   * The name of the DOM environment to use.
+   *
+   * It also needs to be installed as a dev dependency in your project.
+   * @default {happy-dom}
+   */
+  domEnvironment?: 'happy-dom' | 'jsdom'
+
+  mock?: {
+    intersectionObserver?: boolean
+    indexedDb?: boolean
+  }
+}
+
 declare module 'vitest/node' {
   interface EnvironmentOptions {
-    nuxt?: {
-      rootDir?: string
-      /**
-       * The starting URL for your Nuxt window environment
-       * @default {http://localhost:3000}
-       */
-      url?: string
-      /**
-       * You can define how environment options are read when loading the Nuxt configuration.
-       */
-      dotenv?: Partial<DotenvOptions>
-      /**
-       * Configuration that will override the values in your `nuxt.config` file.
-       */
-      overrides?: NuxtConfig
-      /**
-       * The id of the root div to which the app should be mounted. You should also set `app.rootId` to the same value.
-       * @default {nuxt-test}
-       */
-      rootId?: string
-      /**
-       * The name of the DOM environment to use.
-       *
-       * It also needs to be installed as a dev dependency in your project.
-       * @default {happy-dom}
-       */
-      domEnvironment?: 'happy-dom' | 'jsdom'
+    nuxt?: NuxtEnvironmentOptions
+  }
+}
 
-      mock?: {
-        intersectionObserver?: boolean
-        indexedDb?: boolean
-      }
-    }
+declare module 'vitest' {
+  // @ts-expect-error Duplicate augmentation for backwards-compatibility
+  interface EnvironmentOptions {
+    nuxt?: NuxtEnvironmentOptions
   }
 }
