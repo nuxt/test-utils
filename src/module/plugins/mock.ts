@@ -43,7 +43,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
         sourceType: 'module', ecmaVersion: 'latest', ranges: true,
       })
     }
-    catch (e) {
+    catch {
       return
     }
 
