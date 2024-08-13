@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
 import { defu } from 'defu'
 import { withTrailingSlash } from 'ufo'
+import type { DateString } from 'compatx'
 import type { TestContext, TestOptions } from './types'
 
 let currentContext: TestContext | undefined
@@ -15,7 +16,10 @@ export function createTestContext(options: Partial<TestOptions>): TestContext {
     logLevel: 1,
     server: true,
     build: (options.browser !== false) || (options.server !== false),
-    nuxtConfig: {},
+    nuxtConfig: {
+      // suppress compatibility date warning for runtime environment tests
+      compatibilityDate: '2024-04-03' as DateString,
+    },
     browserOptions: {
       type: 'chromium' as const,
     },

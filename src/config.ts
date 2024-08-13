@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 import { setupDotenv } from 'c12'
 import type { DotenvOptions } from 'c12'
 import type { InlineConfig } from 'vite'
+import type { DateString } from 'compatx'
 import { defu } from 'defu'
 import { createResolver } from '@nuxt/kit'
 
@@ -32,6 +33,10 @@ async function startNuxtAndGetViteConfig(
       cwd: rootDir,
       fileName: '.env.test',
     }),
+    defaults: {
+      // suppress compatibility date warning for runtime environment tests
+      compatibilityDate: '2024-04-03' as DateString,
+    },
     overrides: defu(
       {
         appId: 'nuxt-app',
