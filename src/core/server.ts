@@ -54,7 +54,7 @@ export async function startServer(options: StartServerOptions = {}) {
   }
   else {
     ctx.serverProcess = execa('node', [
-      resolve(ctx.nuxt!.options.nitro.output!.dir!, 'server/index.mjs'),
+      resolve(ctx.options.nuxtConfig.nitro.output!.dir!, 'server/index.mjs'),
     ], {
       stdio: 'inherit',
       env: {
