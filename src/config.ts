@@ -76,6 +76,7 @@ async function startNuxtAndGetViteConfig(
 
 const excludedPlugins = [
   'nuxt:import-protection',
+  'nuxt:import-conditions',
   'vite-plugin-checker',
 ]
 
