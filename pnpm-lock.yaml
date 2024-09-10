@@ -354,8 +354,8 @@ importers:
         specifier: workspace:*
         version: link:../..
       '@nuxtjs/i18n':
-        specifier: 8.3.3
-        version: 8.3.3(magicast@0.3.4)(rollup@4.21.2)(vue@3.5.4(typescript@5.6.2))(webpack-sources@3.2.3)
+        specifier: 8.5.2
+        version: 8.5.2(magicast@0.3.4)(rollup@4.21.2)(vue@3.5.4(typescript@5.6.2))(webpack-sources@3.2.3)
       nuxt:
         specifier: 3.13.1
         version: 3.13.1(@opentelemetry/api@1.9.0)(@parcel/watcher@2.4.1)(@types/node@20.10.5)(encoding@0.1.13)(eslint@9.10.0(jiti@1.21.6))(idb-keyval@6.2.1)(ioredis@5.4.1)(magicast@0.3.4)(optionator@0.9.3)(rollup@4.21.2)(terser@5.24.0)(typescript@5.6.2)(vite@5.4.3(@types/node@20.10.5)(terser@5.24.0))(vue-tsc@2.1.6(typescript@5.6.2))(webpack-sources@3.2.3)
@@ -1639,8 +1639,8 @@ packages:
     peerDependencies:
       vue: ^3.5.4
 
-  '@nuxtjs/i18n@8.3.3':
-    resolution: {integrity: sha512-R/Q7GgBf9sVKlB4Mz/2KPhlZwO7nm+YcADcJcBDGfQVoNZjGg2muDCkCXSqpqIjkm264QcERFoPP42aBR+SlgA==}
+  '@nuxtjs/i18n@8.5.2':
+    resolution: {integrity: sha512-x5AZAd2sfvL3cYfpwCMQn7DyiwWCTPZSciiMWcfWQunin1V5toyzQRKjztvA6lh2iVOyeZF9bJpCkHG+UkOlkA==}
     engines: {node: ^14.16.0 || >=16.11.0}
 
   '@nuxtjs/mdc@0.8.3':
@@ -5590,6 +5590,7 @@ packages:
 
   reflect-metadata@0.2.1:
     resolution: {integrity: sha512-i5lLI6iw9AU3Uu4szRNPPEkomnkjRTaVt9hy/bn5g/oSzekBSMeLZblcjP74AW0vBabqERLLIrz+gR8QYR54Tw==}
+    deprecated: This version has a critical bug in fallback handling. Please upgrade to reflect-metadata@0.2.2 or newer.
 
   regenerator-runtime@0.14.0:
     resolution: {integrity: sha512-srw17NI0TUWHuGa5CFGGmhfNIeja30WMBfbslPNhf6JrqQlLN5gcrvig1oqPxiVaXb0oW0XRKtH6Nngs5lKCIA==}
@@ -8350,7 +8351,7 @@ snapshots:
       - vue-tsc
       - webpack-sources
 
-  '@nuxtjs/i18n@8.3.3(magicast@0.3.4)(rollup@4.21.2)(vue@3.5.4(typescript@5.6.2))(webpack-sources@3.2.3)':
+  '@nuxtjs/i18n@8.5.2(magicast@0.3.4)(rollup@4.21.2)(vue@3.5.4(typescript@5.6.2))(webpack-sources@3.2.3)':
     dependencies:
       '@intlify/h3': 0.5.0
       '@intlify/shared': 9.12.1
