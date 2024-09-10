@@ -53,8 +53,9 @@ export async function startServer(options: StartServerOptions = {}) {
     throw lastError || new Error('Timeout waiting for dev server!')
   }
   else {
+    const outputDir = ctx.nuxt ? ctx.nuxt.options.nitro.output!.dir! : ctx.options.nuxtConfig.nitro!.output!.dir!
     ctx.serverProcess = execa('node', [
-      resolve(ctx.options.nuxtConfig.nitro.output!.dir!, 'server/index.mjs'),
+      resolve(outputDir, 'server/index.mjs'),
     ], {
       stdio: 'inherit',
       env: {
