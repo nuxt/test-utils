@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@cucumber/cucumber': 10.9.0
+  '@cucumber/cucumber': 11.0.0
   '@nuxt/devtools': 1.0.8
   '@nuxt/kit': ^3.13.1
   '@nuxt/schema': ^3.13.1
@@ -100,8 +100,8 @@ importers:
         version: 3.5.3(typescript@5.6.2)
     devDependencies:
       '@cucumber/cucumber':
-        specifier: 10.9.0
-        version: 10.9.0
+        specifier: 11.0.0
+        version: 11.0.0
       '@jest/globals':
         specifier: 29.7.0
         version: 29.7.0
@@ -200,8 +200,8 @@ importers:
         version: 4.4.3(vue@3.5.3(typescript@5.6.2))
     devDependencies:
       '@cucumber/cucumber':
-        specifier: 10.9.0
-        version: 10.9.0
+        specifier: 11.0.0
+        version: 11.0.0
       '@nuxt/test-utils':
         specifier: workspace:*
         version: link:../..
@@ -694,9 +694,9 @@ packages:
   '@cucumber/cucumber-expressions@17.1.0':
     resolution: {integrity: sha512-PCv/ppsPynniKPWJr5v566daCVe+pbxQpHGrIu/Ev57cCH9Rv+X0F6lio4Id3Z64TaG7btCRLUGewIgLwmrwOA==}
 
-  '@cucumber/cucumber@10.9.0':
-    resolution: {integrity: sha512-7XHJ6nmr9IkIag0nv6or82HfelbSInrEe3H4aT6dMHyTehwFLUifG6eQQ+uE4LZIOXAnzLPH37YmqygEO67vCA==}
-    engines: {node: 18 || >=20}
+  '@cucumber/cucumber@11.0.0':
+    resolution: {integrity: sha512-5Aswe6UWpoQ6oKrXvEaw0+m7tv9vdwCMDpeY6Pd9i2YfcUuM89R/LC8p1M/d6TAJv7Lv1v0E3+8FB3qj5MBhHQ==}
+    engines: {node: 18 || 20 || >=22}
     hasBin: true
 
   '@cucumber/gherkin-streams@5.0.1':
@@ -7355,7 +7355,7 @@ snapshots:
     dependencies:
       regexp-match-indices: 1.0.2
 
-  '@cucumber/cucumber@10.9.0':
+  '@cucumber/cucumber@11.0.0':
     dependencies:
       '@cucumber/ci-environment': 10.0.1
       '@cucumber/cucumber-expressions': 17.1.0
@@ -7397,7 +7397,7 @@ snapshots:
       type-fest: 4.9.0
       util-arity: 1.1.0
       xmlbuilder: 15.1.1
-      yaml: 2.4.5
+      yaml: 2.5.0
       yup: 1.2.0
 
   '@cucumber/gherkin-streams@5.0.1(@cucumber/gherkin@28.0.0)(@cucumber/message-streams@4.0.1(@cucumber/messages@24.1.0))(@cucumber/messages@24.1.0)':
