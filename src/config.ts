@@ -1,5 +1,5 @@
 import type { Nuxt, NuxtConfig } from '@nuxt/schema'
-import type { InlineConfig as VitestConfig } from 'vitest'
+import type { InlineConfig as VitestConfig } from 'vitest/node'
 import { defineConfig } from 'vite'
 import { setupDotenv } from 'c12'
 import type { DotenvOptions } from 'c12'
@@ -76,6 +76,7 @@ async function startNuxtAndGetViteConfig(
 
 const excludedPlugins = [
   'nuxt:import-protection',
+  'nuxt:import-conditions',
   'vite-plugin-checker',
 ]
 

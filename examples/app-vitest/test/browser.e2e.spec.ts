@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url'
 import { createPage, setup } from '@nuxt/test-utils/e2e'
 import { describe, expect, it } from 'vitest'
+import { isWindows } from 'std-env'
 
 await setup({
   rootDir: fileURLToPath(new URL('../', import.meta.url)),
@@ -13,5 +14,5 @@ describe('browser', () => {
     const text = await page.getByRole('heading', { name: 'Welcome to Nuxt!' }).textContent()
     expect(text).toContain('Welcome to Nuxt!')
     await page.close()
-  }, 10000)
+  }, isWindows ? 60000 : 10000)
 })
