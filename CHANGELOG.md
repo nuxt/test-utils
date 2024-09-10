@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## v3.14.2
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.14.1...v3.14.2)
+
+### 🔥 Performance
+
+- **e2e:** Use `tinyexec` to run commands ([#939](https://github.com/nuxt/test-utils/pull/939))
+
+### 🩹 Fixes
+
+- **config:** Exclude new nuxt import-conditions plugin ([7cc8f653b](https://github.com/nuxt/test-utils/commit/7cc8f653b))
+
+### 📖 Documentation
+
+- Add contribution instructions ([c765d175a](https://github.com/nuxt/test-utils/commit/c765d175a))
+
+### 🏡 Chore
+
+- **vitest-environment-nuxt:** Specify license is MIT ([#919](https://github.com/nuxt/test-utils/pull/919))
+- Release `vitest-environment-nuxt` ([e30c044cf](https://github.com/nuxt/test-utils/commit/e30c044cf))
+- Update `@nuxtjs/i18n` separately ([3d8955d36](https://github.com/nuxt/test-utils/commit/3d8955d36))
+- Set `compatibilityDate` in fixtures ([7723f969c](https://github.com/nuxt/test-utils/commit/7723f969c))
+- Update vitest type import ([05e94fcc4](https://github.com/nuxt/test-utils/commit/05e94fcc4))
+- Trim tag from `tinyexec` stdout ([2b50cfee0](https://github.com/nuxt/test-utils/commit/2b50cfee0))
+
+### ❤️ Contributors
+
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+- Bobbie Goede <bobbiegoede@gmail.com>
+- Marley Adamson ([@transreport-marley](http://github.com/transreport-marley))
+
 ## v3.14.1
 
 [compare changes](https://github.com/nuxt/test-utils/compare/v3.14.0...v3.14.1)
