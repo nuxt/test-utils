@@ -1,6 +1,6 @@
 import type { Nuxt, NuxtConfig } from '@nuxt/schema'
-import type { ExecaChildProcess } from 'execa'
 import type { Browser, LaunchOptions } from 'playwright-core'
+import type { exec } from 'tinyexec'
 import type { StartServerOptions } from './server'
 
 export type TestRunner = 'vitest' | 'jest' | 'cucumber'
@@ -72,7 +72,7 @@ export interface TestContext {
   nuxt?: Nuxt
   browser?: Browser
   url?: string
-  serverProcess?: ExecaChildProcess
+  serverProcess?: ReturnType<typeof exec>
   mockFn?: (...args: unknown[]) => unknown
   /**
    * Functions to run on the vitest `afterAll` hook.
