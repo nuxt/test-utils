@@ -7,6 +7,7 @@ import App from '~/app.vue'
 import OptionsComponent from '~/components/OptionsComponent.vue'
 import WrapperTests from '~/components/WrapperTests.vue'
 import LinkTests from '~/components/LinkTests.vue'
+import DirectiveComponent from '~/components/DirectiveComponent.vue'
 
 import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
 import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
@@ -75,6 +76,15 @@ describe('renderSuspended', () => {
       </h2>
     `,
     )
+  })
+
+  it('respects directives registered in nuxt plugins', async () => {
+    const component = await renderSuspended(DirectiveComponent)
+    expect(component.html()).toMatchInlineSnapshot(`
+      "<div id="test-wrapper">
+        <div data-directive="true"></div>
+      </div>"
+    `)
   })
 
   it('can pass slots to rendered components within nuxt suspense', async () => {

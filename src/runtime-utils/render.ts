@@ -166,6 +166,7 @@ export async function renderSuspended<T>(
           config: {
             globalProperties: vueApp.config.globalProperties,
           },
+          directives: vueApp._context.directives,
           provide: vueApp._context.provides,
           components: { RouterLink },
         },
