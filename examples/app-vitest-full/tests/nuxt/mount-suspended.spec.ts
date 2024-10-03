@@ -16,6 +16,7 @@ import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultRetur
 import OptionsApiPage from '~/pages/other/options-api.vue'
 
 import { BoundAttrs } from '#components'
+import DirectiveComponent from '~/components/DirectiveComponent.vue'
 
 const formats = {
   ExportDefaultComponent,
@@ -130,6 +131,11 @@ describe('mountSuspended', () => {
     expect(component.vm.testExpose?.()).toBe('expose was successful')
     // @ts-expect-error FIXME: someRef is typed as unwrapped
     expect(component.vm.someRef.value).toBe('thing')
+  })
+
+  it('respects directives registered in nuxt plugins', async () => {
+    const component = await mountSuspended(DirectiveComponent)
+    expect(component.html()).toMatchInlineSnapshot(`"<div data-directive="true"></div>"`)
   })
 })
 

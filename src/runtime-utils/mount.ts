@@ -164,6 +164,7 @@ export async function mountSuspended<T>(
               config: {
                 globalProperties: vueApp.config.globalProperties,
               },
+              directives: vueApp._context.directives,
               provide: vueApp._context.provides,
               stubs: {
                 Suspense: false,
