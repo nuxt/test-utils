@@ -1,14 +1,32 @@
 <template>
   <ul>
-    <li data-testid="greetingInSetup">{{ greetingInSetup }}</li>
-    <li data-testid="greetingInData1">{{ greetingInData1 }}</li>
-    <li data-testid="greetingInData2">{{ greetingInData2 }}</li>
-    <li data-testid="greetingInComputed">{{ greetingInComputed }}</li>
-    <li data-testid="computedData1">{{ computedData1 }}</li>
-    <li data-testid="computedGreetingInMethods">{{ computedGreetingInMethods }}</li>
-    <li data-testid="greetingInMethods">{{ greetingInMethods() }}</li>
-    <li data-testid="returnData1">{{ returnData1() }}</li>
-    <li data-testid="returnComputedData1">{{ returnComputedData1() }}</li>
+    <li data-testid="greetingInSetup">
+      {{ greetingInSetup }}
+    </li>
+    <li data-testid="greetingInData1">
+      {{ greetingInData1 }}
+    </li>
+    <li data-testid="greetingInData2">
+      {{ greetingInData2 }}
+    </li>
+    <li data-testid="greetingInComputed">
+      {{ greetingInComputed }}
+    </li>
+    <li data-testid="computedData1">
+      {{ computedData1 }}
+    </li>
+    <li data-testid="computedGreetingInMethods">
+      {{ computedGreetingInMethods }}
+    </li>
+    <li data-testid="greetingInMethods">
+      {{ greetingInMethods() }}
+    </li>
+    <li data-testid="returnData1">
+      {{ returnData1() }}
+    </li>
+    <li data-testid="returnComputedData1">
+      {{ returnComputedData1() }}
+    </li>
   </ul>
 </template>
 
