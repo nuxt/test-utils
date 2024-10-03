@@ -21,7 +21,9 @@ export default <Environment>{
   name: 'nuxt',
   transformMode: 'web',
   async setup(global, environmentOptions) {
-    const url = joinURL('http://localhost:3000', environmentOptions?.nuxtRuntimeConfig.app?.baseURL || '/')
+    const url = joinURL(environmentOptions?.nuxt.url ?? 'http://localhost:3000',
+      environmentOptions?.nuxtRuntimeConfig.app?.baseURL || '/',
+    )
 
     const environmentName = environmentOptions.nuxt.domEnvironment as NuxtBuiltinEnvironment
     const environment = environmentMap[environmentName] || environmentMap['happy-dom']
