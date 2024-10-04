@@ -66,7 +66,7 @@ export async function renderSuspended<T>(
   const vueApp = tryUseNuxtApp()?.vueApp
     // @ts-expect-error untyped global __unctx__
     || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
-  const { render, setup } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
+  const { render, setup, data, computed, methods } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
 
   let setupContext: SetupContext
   let setupState: SetupState
@@ -139,13 +139,13 @@ export async function renderSuspended<T>(
                         render: render
                           ? function (this: unknown, _ctx: Record<string, unknown>, ...args: unknown[]) {
                             // Set before setupState set to allow asyncData to overwrite data
-                            // if (data && typeof data === 'function') {
-                            //   // @ts-expect-error error TS2554: Expected 1 arguments, but got 0
-                            //   const dataObject: Record<string, unknown> = data()
-                            //   for (const key in dataObject) {
-                            //     renderContext[key] = dataObject[key]
-                            //   }
-                            // }
+                            if (data && typeof data === 'function') {
+                              // @ts-expect-error error TS2554: Expected 1 arguments, but got 0
+                              const dataObject: Record<string, unknown> = data()
+                              for (const key in dataObject) {
+                                renderContext[key] = dataObject[key]
+                              }
+                            }
                             for (const key in setupState || {}) {
                               renderContext[key] = isReadonly(setupState[key]) ? unref(setupState[key]) : setupState[key]
                             }
@@ -155,17 +155,17 @@ export async function renderSuspended<T>(
                             for (const key in passedProps || {}) {
                               renderContext[key] = passedProps[key]
                             }
-                            // if (methods && typeof methods === 'object') {
-                            //   for (const key in methods) {
-                            //     renderContext[key] = methods[key]
-                            //   }
-                            // }
-                            // if (computed && typeof computed === 'object') {
-                            //   for (const key in computed) {
-                            //     // @ts-expect-error error TS2339: Property 'call' does not exist on type 'ComputedGetter<any> | WritableComputedOptions<any, any>'
-                            //     renderContext[key] = computed[key].call(renderContext)
-                            //   }
-                            // }
+                            if (methods && typeof methods === 'object') {
+                              for (const key in methods) {
+                                renderContext[key] = methods[key]
+                              }
+                            }
+                            if (computed && typeof computed === 'object') {
+                              for (const key in computed) {
+                                // @ts-expect-error error TS2339: Property 'call' does not exist on type 'ComputedGetter<any> | WritableComputedOptions<any, any>'
+                                renderContext[key] = computed[key].call(renderContext)
+                              }
+                            }
                             return render.call(this, renderContext, ...args)
                           }
                           : undefined,
