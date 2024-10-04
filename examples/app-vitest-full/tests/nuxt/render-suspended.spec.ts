@@ -12,6 +12,7 @@ import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
 import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
 import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
+import OptionsApiPage from '~/pages/other/options-api.vue'
 
 import { BoundAttrs } from '#components'
 
@@ -85,6 +86,19 @@ describe('renderSuspended', () => {
       },
     })
     expect(screen.getByText(text)).toBeDefined()
+  })
+
+  it('should render asyncData and other options api properties within nuxt suspense', async () => {
+    const { getByTestId } = await renderSuspended(OptionsApiPage)
+    expect(getByTestId('greetingInSetup').textContent).toBe('Hello, setup')
+    expect(getByTestId('greetingInData1').textContent).toBe('Hello, data1')
+    expect(getByTestId('greetingInData2').textContent).toBe('Hello, overwritten by asyncData')
+    expect(getByTestId('greetingInComputed').textContent).toBe('Hello, computed property')
+    expect(getByTestId('computedData1').textContent).toBe('Hello, data1')
+    expect(getByTestId('computedGreetingInMethods').textContent).toBe('Hello, method')
+    expect(getByTestId('greetingInMethods').textContent).toBe('Hello, method')
+    expect(getByTestId('returnData1').textContent).toBe('Hello, data1')
+    expect(getByTestId('returnComputedData1').textContent).toBe('Hello, data1')
   })
 
   it('can receive emitted events from components rendered within nuxt suspense', async () => {
