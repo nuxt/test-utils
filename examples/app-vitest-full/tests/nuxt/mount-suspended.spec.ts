@@ -13,6 +13,7 @@ import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
 import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
 import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
+import OptionsApiPage from '~/pages/other/options-api.vue'
 
 import { BoundAttrs } from '#components'
 import DirectiveComponent from '~/components/DirectiveComponent.vue'
@@ -79,6 +80,19 @@ describe('mountSuspended', () => {
     expect(component.find('div').html()).toMatchInlineSnapshot(
       '"<div>slot from mount suspense</div>"',
     )
+  })
+
+  it('should render asyncData and other options api properties within nuxt suspense', async () => {
+    const component = await mountSuspended(OptionsApiPage)
+    expect(component.find('[data-testid="greetingInSetup"]').text()).toBe('Hello, setup')
+    expect(component.find('[data-testid="greetingInData1"]').text()).toBe('Hello, data1')
+    expect(component.find('[data-testid="greetingInData2"]').text()).toBe('Hello, overwritten by asyncData')
+    expect(component.find('[data-testid="greetingInComputed"]').text()).toBe('Hello, computed property')
+    expect(component.find('[data-testid="computedData1"]').text()).toBe('Hello, data1')
+    expect(component.find('[data-testid="computedGreetingInMethods"]').text()).toBe('Hello, method')
+    expect(component.find('[data-testid="greetingInMethods"]').text()).toBe('Hello, method')
+    expect(component.find('[data-testid="returnData1"]').text()).toBe('Hello, data1')
+    expect(component.find('[data-testid="returnComputedData1"]').text()).toBe('Hello, data1')
   })
 
   it('can receive emitted events from components mounted within nuxt suspense', async () => {
