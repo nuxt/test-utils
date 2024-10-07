@@ -92,6 +92,7 @@ export default <Environment>{
       })
     }
 
+    // @ts-expect-error fetch types differ slightly
     win.$fetch = createFetch({ fetch: win.fetch, Headers: win.Headers })
 
     win.__registry = registry
