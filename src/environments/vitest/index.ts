@@ -1,4 +1,4 @@
-import type { Environment } from 'vitest'
+import type { Environment } from 'vitest/environments'
 import { createFetch } from 'ofetch'
 import { indexedDB } from 'fake-indexeddb'
 import { joinURL } from 'ufo'
