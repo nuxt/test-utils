@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## v3.14.3
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.14.2...v3.14.3)
+
+### 🩹 Fixes
+
+- **vitest-environment:** Respect custom url in setup ([#957](https://github.com/nuxt/test-utils/pull/957))
+- **runtime-utils:** Pass global `directives` to `mountSuspended` ([#960](https://github.com/nuxt/test-utils/pull/960))
+- **runtime-utils:** Pass global `directives` to `renderSuspended` ([cf1b48ff](https://github.com/nuxt/test-utils/commit/cf1b48ff))
+- **runtime-utils:** Support options api data, computed + methods ([#963](https://github.com/nuxt/test-utils/pull/963))
+
+### 🏡 Chore
+
+- Update vitest type import ([af810cbd](https://github.com/nuxt/test-utils/commit/af810cbd))
+
+### ✅ Tests
+
+- Bump playwright setup time for windows ([21ade1f2](https://github.com/nuxt/test-utils/commit/21ade1f2))
+
+### ❤️ Contributors
+
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+- INOUE Takuya ([@inouetakuya](http://github.com/inouetakuya))
+- Joel Wenzel ([@joel-wenzel](http://github.com/joel-wenzel))
+- Ryoya ([@harunari0928](http://github.com/harunari0928))
+
 ## v3.14.2
 
 [compare changes](https://github.com/nuxt/test-utils/compare/v3.14.1...v3.14.2)
