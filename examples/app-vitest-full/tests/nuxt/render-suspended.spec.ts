@@ -100,15 +100,15 @@ describe('renderSuspended', () => {
 
   it('should render asyncData and other options api properties within nuxt suspense', async () => {
     const { getByTestId } = await renderSuspended(OptionsApiPage)
-    expect(getByTestId('greetingInSetup').textContent).toBe('Hello, setup')
-    expect(getByTestId('greetingInData1').textContent).toBe('Hello, data1')
-    expect(getByTestId('greetingInData2').textContent).toBe('Hello, overwritten by asyncData')
-    expect(getByTestId('greetingInComputed').textContent).toBe('Hello, computed property')
-    expect(getByTestId('computedData1').textContent).toBe('Hello, data1')
-    expect(getByTestId('computedGreetingInMethods').textContent).toBe('Hello, method')
-    expect(getByTestId('greetingInMethods').textContent).toBe('Hello, method')
-    expect(getByTestId('returnData1').textContent).toBe('Hello, data1')
-    expect(getByTestId('returnComputedData1').textContent).toBe('Hello, data1')
+    expect(getByTestId('greeting-in-setup').textContent).toBe('Hello, setup')
+    expect(getByTestId('greeting-in-data1').textContent).toBe('Hello, data1')
+    expect(getByTestId('greeting-in-data2').textContent).toBe('Hello, overwritten by asyncData')
+    expect(getByTestId('greeting-in-computed').textContent).toBe('Hello, computed property')
+    expect(getByTestId('computed-data1').textContent).toBe('Hello, data1')
+    expect(getByTestId('computed-greeting-in-methods').textContent).toBe('Hello, method')
+    expect(getByTestId('greeting-in-methods').textContent).toBe('Hello, method')
+    expect(getByTestId('return-data1').textContent).toBe('Hello, data1')
+    expect(getByTestId('return-computed-data1').textContent).toBe('Hello, data1')
   })
 
   it('can receive emitted events from components rendered within nuxt suspense', async () => {

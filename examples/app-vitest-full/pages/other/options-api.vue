@@ -1,30 +1,30 @@
 <template>
   <ul>
-    <li data-testid="greetingInSetup">
+    <li data-testid="greeting-in-setup">
       {{ greetingInSetup }}
     </li>
-    <li data-testid="greetingInData1">
+    <li data-testid="greeting-in-data1">
       {{ greetingInData1 }}
     </li>
-    <li data-testid="greetingInData2">
+    <li data-testid="greeting-in-data2">
       {{ greetingInData2 }}
     </li>
-    <li data-testid="greetingInComputed">
+    <li data-testid="greeting-in-computed">
       {{ greetingInComputed }}
     </li>
-    <li data-testid="computedData1">
+    <li data-testid="computed-data1">
       {{ computedData1 }}
     </li>
-    <li data-testid="computedGreetingInMethods">
+    <li data-testid="computed-greeting-in-methods">
       {{ computedGreetingInMethods }}
     </li>
-    <li data-testid="greetingInMethods">
+    <li data-testid="greeting-in-methods">
       {{ greetingInMethods() }}
     </li>
-    <li data-testid="returnData1">
+    <li data-testid="return-data1">
       {{ returnData1() }}
     </li>
-    <li data-testid="returnComputedData1">
+    <li data-testid="return-computed-data1">
       {{ returnComputedData1() }}
     </li>
   </ul>
