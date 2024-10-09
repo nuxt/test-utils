@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach, afterEach } from 'vitest'
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 
 import { renderSuspended } from '@nuxt/test-utils/runtime'
 import { cleanup, fireEvent, screen, render } from '@testing-library/vue'
