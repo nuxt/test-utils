@@ -27,12 +27,28 @@
     <li data-testid="return-computed-data1">
       {{ returnComputedData1() }}
     </li>
+    <li>
+      <button
+        data-testid="button-in-page"
+        @click="onClickButtonInPage"
+      >
+        Button in page
+      </button>
+    </li>
+    <li>
+      <TestButton @test-button-click="onClickButtonInComponent" />
+    </li>
   </ul>
 </template>
 
 <script lang="ts">
+import TestButton from '~/components/TestButton.vue'
+
 export default defineNuxtComponent({
   name: 'OptionsApiPage',
+  components: {
+    TestButton,
+  },
   setup() {
     return {
       greetingInSetup: 'Hello, setup',
@@ -69,6 +85,16 @@ export default defineNuxtComponent({
     },
     returnComputedData1() {
       return this.computedData1
+    },
+    onClickButtonInPage() {
+      if (this === undefined) {
+        console.error('this in onClickButtonInPage is undefined')
+      }
+    },
+    onClickButtonInComponent() {
+      if (this === undefined) {
+        console.error('this in onClickButtonInComponent is undefined')
+      }
     },
   },
 })
