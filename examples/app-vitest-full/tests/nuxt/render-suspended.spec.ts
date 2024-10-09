@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 
 import { renderSuspended } from '@nuxt/test-utils/runtime'
 import { cleanup, fireEvent, screen, render } from '@testing-library/vue'
@@ -98,19 +98,6 @@ describe('renderSuspended', () => {
     expect(screen.getByText(text)).toBeDefined()
   })
 
-  it('should render asyncData and other options api properties within nuxt suspense', async () => {
-    const { getByTestId } = await renderSuspended(OptionsApiPage)
-    expect(getByTestId('greetingInSetup').textContent).toBe('Hello, setup')
-    expect(getByTestId('greetingInData1').textContent).toBe('Hello, data1')
-    expect(getByTestId('greetingInData2').textContent).toBe('Hello, overwritten by asyncData')
-    expect(getByTestId('greetingInComputed').textContent).toBe('Hello, computed property')
-    expect(getByTestId('computedData1').textContent).toBe('Hello, data1')
-    expect(getByTestId('computedGreetingInMethods').textContent).toBe('Hello, method')
-    expect(getByTestId('greetingInMethods').textContent).toBe('Hello, method')
-    expect(getByTestId('returnData1').textContent).toBe('Hello, data1')
-    expect(getByTestId('returnComputedData1').textContent).toBe('Hello, data1')
-  })
-
   it('can receive emitted events from components rendered within nuxt suspense', async () => {
     const { emitted } = await renderSuspended(WrapperTests)
     const button = screen.getByRole('button', { name: 'Click me!' })
@@ -137,6 +124,43 @@ describe('renderSuspended', () => {
         ],
       }
     `)
+  })
+
+  describe('Options API', () => {
+    beforeEach(() => {
+      vi.spyOn(console, 'error').mockImplementation((message) => {
+        console.log('[spy] console.error has been called', message)
+      })
+    })
+
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
+
+    it('should render asyncData and other options api properties within nuxt suspense', async () => {
+      const { getByTestId } = await renderSuspended(OptionsApiPage)
+      expect(getByTestId('greeting-in-setup').textContent).toBe('Hello, setup')
+      expect(getByTestId('greeting-in-data1').textContent).toBe('Hello, data1')
+      expect(getByTestId('greeting-in-data2').textContent).toBe('Hello, overwritten by asyncData')
+      expect(getByTestId('greeting-in-computed').textContent).toBe('Hello, computed property')
+      expect(getByTestId('computed-data1').textContent).toBe('Hello, data1')
+      expect(getByTestId('computed-greeting-in-methods').textContent).toBe('Hello, method')
+      expect(getByTestId('greeting-in-methods').textContent).toBe('Hello, method')
+      expect(getByTestId('return-data1').textContent).toBe('Hello, data1')
+      expect(getByTestId('return-computed-data1').textContent).toBe('Hello, data1')
+    })
+
+    it('should not output error when button in page is clicked', async () => {
+      const { getByTestId } = await renderSuspended(OptionsApiPage)
+      await fireEvent.click(getByTestId('button-in-page'))
+      expect(console.error).not.toHaveBeenCalled()
+    })
+
+    it('should not output error when button in component is clicked', async () => {
+      const { getByTestId } = await renderSuspended(OptionsApiPage)
+      await fireEvent.click(getByTestId('test-button'))
+      expect(console.error).not.toHaveBeenCalled()
+    })
   })
 })
 
