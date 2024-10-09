@@ -34,7 +34,7 @@ export default <Environment>{
 
     win.__NUXT_VITEST_ENVIRONMENT__ = true
 
-    win.__NUXT__ = {
+    const __NUXT__ = {
       serverRendered: false,
       config: {
         public: {},
@@ -43,6 +43,17 @@ export default <Environment>{
       },
       data: {},
       state: {},
+    }
+
+    const multiApp = (environmentOptions?.future.multiApp as boolean) || false
+    if (!multiApp) {
+      win.__NUXT__ = __NUXT__
+    }
+    else {
+      const appId = environmentOptions?.appId || 'nuxt-app'
+      win.__NUXT__ = {
+        [appId]: __NUXT__,
+      }
     }
 
     const app = win.document.createElement('div')
