@@ -157,7 +157,7 @@ export async function renderSuspended<T>(
                             }
                             if (methods && typeof methods === 'object') {
                               for (const key in methods) {
-                                renderContext[key] = methods[key]
+                                renderContext[key] = methods[key].bind(renderContext)
                               }
                             }
                             if (computed && typeof computed === 'object') {

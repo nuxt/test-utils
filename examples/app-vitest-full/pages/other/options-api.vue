@@ -1,38 +1,54 @@
 <template>
   <ul>
-    <li data-testid="greetingInSetup">
+    <li data-testid="greeting-in-setup">
       {{ greetingInSetup }}
     </li>
-    <li data-testid="greetingInData1">
+    <li data-testid="greeting-in-data1">
       {{ greetingInData1 }}
     </li>
-    <li data-testid="greetingInData2">
+    <li data-testid="greeting-in-data2">
       {{ greetingInData2 }}
     </li>
-    <li data-testid="greetingInComputed">
+    <li data-testid="greeting-in-computed">
       {{ greetingInComputed }}
     </li>
-    <li data-testid="computedData1">
+    <li data-testid="computed-data1">
       {{ computedData1 }}
     </li>
-    <li data-testid="computedGreetingInMethods">
+    <li data-testid="computed-greeting-in-methods">
       {{ computedGreetingInMethods }}
     </li>
-    <li data-testid="greetingInMethods">
+    <li data-testid="greeting-in-methods">
       {{ greetingInMethods() }}
     </li>
-    <li data-testid="returnData1">
+    <li data-testid="return-data1">
       {{ returnData1() }}
     </li>
-    <li data-testid="returnComputedData1">
+    <li data-testid="return-computed-data1">
       {{ returnComputedData1() }}
+    </li>
+    <li>
+      <button
+        data-testid="button-in-page"
+        @click="onClickButtonInPage"
+      >
+        Button in page
+      </button>
+    </li>
+    <li>
+      <TestButton @test-button-click="onClickButtonInComponent" />
     </li>
   </ul>
 </template>
 
 <script lang="ts">
+import TestButton from '~/components/TestButton.vue'
+
 export default defineNuxtComponent({
   name: 'OptionsApiPage',
+  components: {
+    TestButton,
+  },
   setup() {
     return {
       greetingInSetup: 'Hello, setup',
@@ -69,6 +85,16 @@ export default defineNuxtComponent({
     },
     returnComputedData1() {
       return this.computedData1
+    },
+    onClickButtonInPage() {
+      if (this === undefined) {
+        console.error('this in onClickButtonInPage is undefined')
+      }
+    },
+    onClickButtonInComponent() {
+      if (this === undefined) {
+        console.error('this in onClickButtonInComponent is undefined')
+      }
     },
   },
 })
