@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## v3.14.4
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.14.3...v3.14.4)
+
+### 🩹 Fixes
+
+- **e2e:** Set `NODE_ENV` when running built server ([#969](https://github.com/nuxt/test-utils/pull/969))
+- **runtime-utils:** Bind this in options api methods ([#971](https://github.com/nuxt/test-utils/pull/971))
+
+### ❤️ Contributors
+
+- INOUE Takuya ([@inouetakuya](http://github.com/inouetakuya))
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+
 ## v3.14.3
 
 [compare changes](https://github.com/nuxt/test-utils/compare/v3.14.2...v3.14.3)
