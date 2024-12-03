@@ -15,6 +15,7 @@ import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRend
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
 import OptionsApiPage from '~/pages/other/options-api.vue'
 import ComponentWithReservedProp from '~/components/ComponentWithReservedProp.vue'
+import ComponentWithReservedState from '~/components/ComponentWithReservedState.vue'
 
 import { BoundAttrs } from '#components'
 import DirectiveComponent from '~/components/DirectiveComponent.vue'
@@ -137,6 +138,12 @@ describe('mountSuspended', () => {
       error: '500',
     })
     expect(span.text()).toBe('500')
+  })
+
+  it('can handle reserved words in setup state', async () => {
+    const comp = await mountSuspended(ComponentWithReservedState)
+    const span = comp.find('span')
+    expect(span.text()).toBe('false')
   })
 
   describe('Options API', () => {

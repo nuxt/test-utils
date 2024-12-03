@@ -144,7 +144,17 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
                               }
                             }
                             for (const key in setupState || {}) {
-                              renderContext[key] = isReadonly(setupState[key]) ? unref(setupState[key]) : setupState[key]
+                              const warn = console.warn
+                              console.warn = () => {}
+                              try {
+                                renderContext[key] = isReadonly(setupState[key]) ? unref(setupState[key]) : setupState[key]
+                              }
+                              catch {
+                                // ignore errors setting properties that are not exposed to template
+                              }
+                              finally {
+                                console.warn = warn
+                              }
                               if (key === 'props') {
                                 renderContext[key] = cloneProps(renderContext[key] as Record<string, unknown>)
                               }
