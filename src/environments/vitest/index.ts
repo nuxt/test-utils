@@ -25,6 +25,14 @@ export default <Environment>{
       environmentOptions?.nuxtRuntimeConfig.app?.baseURL || '/',
     )
 
+    const consoleInfo = console.info
+    console.info = (...args) => {
+      if (args[0] === '<Suspense> is an experimental feature and its API will likely change.') {
+        return
+      }
+      return consoleInfo(...args)
+    }
+
     const environmentName = environmentOptions.nuxt.domEnvironment as NuxtBuiltinEnvironment
     const environment = environmentMap[environmentName] || environmentMap['happy-dom']
     const { window: win, teardown } = await environment(global, defu(environmentOptions, {
@@ -150,6 +158,7 @@ export default <Environment>{
       teardown() {
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         keys.forEach(key => delete global[key])
+        console.info = consoleInfo
         originals.forEach((v, k) => (global[k] = v))
         teardown()
       },
