@@ -14,6 +14,7 @@ import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
 import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
 import OptionsApiPage from '~/pages/other/options-api.vue'
+import ComponentWithReservedProp from '~/components/ComponentWithReservedProp.vue'
 
 import { BoundAttrs } from '#components'
 import DirectiveComponent from '~/components/DirectiveComponent.vue'
@@ -121,6 +122,21 @@ describe('mountSuspended', () => {
   it('respects directives registered in nuxt plugins', async () => {
     const component = await mountSuspended(DirectiveComponent)
     expect(component.html()).toMatchInlineSnapshot(`"<div data-directive="true"></div>"`)
+  })
+
+  it('can handle reserved words in component props', async () => {
+    const comp = await mountSuspended(ComponentWithReservedProp, {
+      props: {
+        error: '404',
+      },
+    })
+    const span = comp.find('span')
+    expect(span.text()).toBe('404')
+
+    await comp.setProps({
+      error: '500',
+    })
+    expect(span.text()).toBe('500')
   })
 
   describe('Options API', () => {

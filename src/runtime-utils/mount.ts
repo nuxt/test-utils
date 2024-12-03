@@ -66,10 +66,7 @@ export async function mountSuspended<T>(
   const setProps = reactive<Record<string, unknown>>({})
 
   let passedProps: Record<string, unknown>
-  const wrappedSetup = async (
-    props: Record<string, unknown>,
-    setupContext: SetupContext,
-  ) => {
+  const wrappedSetup = async (props: Record<string, unknown>, setupContext: SetupContext) => {
     passedProps = props
     if (setup) {
       const result = await setup(props, setupContext)
@@ -131,12 +128,16 @@ export async function mountSuspended<T>(
                             }
                             for (const key in setupState || {}) {
                               renderContext[key] = isReadonly(setupState[key]) ? unref(setupState[key]) : setupState[key]
+                              if (key === 'props') {
+                                renderContext[key] = cloneProps(renderContext[key] as Record<string, unknown>)
+                              }
                             }
+                            const propsContext = 'props' in renderContext ? renderContext.props as Record<string, unknown> : renderContext
                             for (const key in props || {}) {
-                              renderContext[key] = _ctx[key]
+                              propsContext[key] = _ctx[key]
                             }
                             for (const key in passedProps || {}) {
-                              renderContext[key] = passedProps[key]
+                              propsContext[key] = passedProps[key]
                             }
                             if (methods && typeof methods === 'object') {
                               for (const key in methods) {
@@ -196,3 +197,11 @@ const defuReplaceArray = createDefu((obj, key, value) => {
     return true
   }
 })
+
+function cloneProps(props: Record<string, unknown>) {
+  const newProps = reactive<Record<string, unknown>>({})
+  for (const key in props) {
+    newProps[key] = props[key]
+  }
+  return newProps
+}
