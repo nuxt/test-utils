@@ -47,10 +47,7 @@ type SetupState = Record<string, any>
  * @param component the component to be tested
  * @param options optional options to set up your component
  */
-export async function renderSuspended<T>(
-  component: T,
-  options?: RenderOptions<T>,
-) {
+export async function renderSuspended<T>(component: T, options?: RenderOptions<T>) {
   const {
     props = {},
     attrs = {},
@@ -148,12 +145,16 @@ export async function renderSuspended<T>(
                             }
                             for (const key in setupState || {}) {
                               renderContext[key] = isReadonly(setupState[key]) ? unref(setupState[key]) : setupState[key]
+                              if (key === 'props') {
+                                renderContext[key] = cloneProps(renderContext[key] as Record<string, unknown>)
+                              }
                             }
+                            const propsContext = 'props' in renderContext ? renderContext.props as Record<string, unknown> : renderContext
                             for (const key in props || {}) {
-                              renderContext[key] = _ctx[key]
+                              propsContext[key] = _ctx[key]
                             }
                             for (const key in passedProps || {}) {
-                              renderContext[key] = passedProps[key]
+                              propsContext[key] = passedProps[key]
                             }
                             if (methods && typeof methods === 'object') {
                               for (const key in methods) {
@@ -202,4 +203,12 @@ declare global {
 
 interface AugmentedVueInstance {
   setupState?: SetupState
+}
+
+function cloneProps(props: Record<string, unknown>) {
+  const newProps = reactive<Record<string, unknown>>({})
+  for (const key in props) {
+    newProps[key] = props[key]
+  }
+  return newProps
 }
