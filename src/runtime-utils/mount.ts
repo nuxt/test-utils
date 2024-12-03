@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import type { ComponentMountingOptions } from '@vue/test-utils'
-import { Suspense, h, isReadonly, nextTick, reactive, unref } from 'vue'
+import { Suspense, h, isReadonly, nextTick, reactive, unref, getCurrentInstance } from 'vue'
 import type { DefineComponent, SetupContext } from 'vue'
 import { defu, createDefu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
@@ -116,6 +116,11 @@ export async function mountSuspended<T>(
                         ...component,
                         render: render
                           ? function (this: unknown, _ctx: Record<string, unknown>, ...args: unknown[]) {
+                            // When using defineModel, getCurrentInstance().emit is executed internally. it needs to override.
+                            const currentInstance = getCurrentInstance()
+                            if (currentInstance) {
+                              currentInstance.emit = setupContext.emit
+                            }
                             // Set before setupState set to allow asyncData to overwrite data
                             if (data && typeof data === 'function') {
                               // @ts-expect-error error TS2554: Expected 1 arguments, but got 0

@@ -99,15 +99,13 @@ describe('mountSuspended', () => {
     `)
   })
 
-  // This test works (you can delete it later)
   it('can receive emitted events from components using defineModel', () => {
     const component = mount(WrapperTests)
     component.find('button#changeModelValue').trigger('click')
     expect(component.emitted()).toHaveProperty('update:modelValue')
   })
 
-  // FIXME: fix this failing test
-  it.todo('can receive emitted events from components mounted within nuxt suspense using defineModel', async () => {
+  it('can receive emitted events from components mounted within nuxt suspense using defineModel', async () => {
     const component = await mountSuspended(WrapperTests)
     component.find('button#changeModelValue').trigger('click')
     expect(component.emitted()).toHaveProperty('update:modelValue')
