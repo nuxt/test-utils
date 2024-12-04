@@ -58,7 +58,7 @@ export async function createPage(path?: string, options?: BrowserContextOptions)
   }
 
   if (path) {
-    await page.goto(url(path), { waitUntil: 'hydration' })
+    await page.goto(url(path), options?.javaScriptEnabled === false ? {} : { waitUntil: 'hydration' })
   }
 
   return page
