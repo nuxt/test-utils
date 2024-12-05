@@ -2,6 +2,51 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## v3.15.0
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.14.4...v3.15.0)
+
+### 🚀 Enhancements
+
+- **e2e:** Expose `NuxtPage` playwright type ([#1015](https://github.com/nuxt/test-utils/pull/1015))
+- **playwright:** Allow providing default test options ([#1001](https://github.com/nuxt/test-utils/pull/1001))
+
+### 🩹 Fixes
+
+- **runtime-utils:** Support `defineModel` in `mountSuspended` ([#1011](https://github.com/nuxt/test-utils/pull/1011))
+- **core:** Bump teardown timeout for jest ([3225562ea](https://github.com/nuxt/test-utils/commit/3225562ea))
+- **runtime-utils:** Handle reserved `props` ([#1025](https://github.com/nuxt/test-utils/pull/1025))
+- **vitest-environment:** Suppress suspense warning ([#1026](https://github.com/nuxt/test-utils/pull/1026))
+- **runtime-utils:** Suppress errors setting unneeded properties ([4e9f34b96](https://github.com/nuxt/test-utils/commit/4e9f34b96))
+- **e2e:** Handle `javaScriptEnabled: false` ([ca06f3375](https://github.com/nuxt/test-utils/commit/ca06f3375))
+- **e2e:** Use subpath import for `distDir` string ([094acb299](https://github.com/nuxt/test-utils/commit/094acb299))
+- **e2e:** Remove `dirname` when calculating `distDir` ([56122b745](https://github.com/nuxt/test-utils/commit/56122b745))
+- **e2e:** Use `nuxtConfig.nitro.output.dir` with `build: false` ([#936](https://github.com/nuxt/test-utils/pull/936))
+
+### 🏡 Chore
+
+- Upgrade typescript separately ([ee6f4c088](https://github.com/nuxt/test-utils/commit/ee6f4c088))
+- Add `knip` and reduce peer dependencies ([4e10bd266](https://github.com/nuxt/test-utils/commit/4e10bd266))
+- Revert node requirement ([bb4345a84](https://github.com/nuxt/test-utils/commit/bb4345a84))
+- Use `installed-check` to keep `engines.node` in sync ([ebcc5effa](https://github.com/nuxt/test-utils/commit/ebcc5effa))
+
+### ✅ Tests
+
+- Bump jest timeout ([00f409c8d](https://github.com/nuxt/test-utils/commit/00f409c8d))
+- Add test case for `mountSuspended` + #imports ([4f3f50327](https://github.com/nuxt/test-utils/commit/4f3f50327))
+
+### 🤖 CI
+
+- Run tests on node 22 ([86fd24c46](https://github.com/nuxt/test-utils/commit/86fd24c46))
+
+### ❤️ Contributors
+
+- Alexander Rozhkov ([@Al-Rozhkov](http://github.com/Al-Rozhkov))
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+- Torma Gábor ([@GaborTorma](http://github.com/GaborTorma))
+- Ahmadou Waly NDIAYE ([@sir-kain](http://github.com/sir-kain))
+- Ryota Watanabe ([@wattanx](http://github.com/wattanx))
+
 ## v3.14.4
 
 [compare changes](https://github.com/nuxt/test-utils/compare/v3.14.3...v3.14.4)
