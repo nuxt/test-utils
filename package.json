@@ -19,8 +19,12 @@
     "./runtime": "./dist/runtime-utils/index.mjs",
     "./vitest-environment": "./dist/vitest-environment.mjs"
   },
+  "imports": {
+    "#dirs": "./dirs.js"
+  },
   "files": [
     "dist",
+    "dirs.js",
     "config.d.ts",
     "e2e.d.ts",
     "experimental.d.ts",

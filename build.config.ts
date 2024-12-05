@@ -15,6 +15,7 @@ export default defineBuildConfig({
     { input: 'src/runtime/', outDir: 'dist/runtime', format: 'esm' },
   ],
   externals: [
+    '#dirs',
     '#app/entry',
     '#build/root-component.mjs',
     '#imports',
