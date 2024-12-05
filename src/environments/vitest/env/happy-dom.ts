@@ -8,7 +8,7 @@ export default <EnvironmentNuxt> async function (_, { happyDom = {} }) {
   return {
     window,
     teardown() {
-      window.happyDOM.cancelAsync()
+      window.happyDOM.abort()
     },
   }
 }

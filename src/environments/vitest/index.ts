@@ -1,4 +1,4 @@
-import type { Environment } from 'vitest'
+import type { Environment } from 'vitest/environments'
 import { createFetch } from 'ofetch'
 import { indexedDB } from 'fake-indexeddb'
 import { joinURL } from 'ufo'
@@ -21,7 +21,17 @@ export default <Environment>{
   name: 'nuxt',
   transformMode: 'web',
   async setup(global, environmentOptions) {
-    const url = joinURL('http://localhost:3000', environmentOptions?.nuxtRuntimeConfig.app?.baseURL || '/')
+    const url = joinURL(environmentOptions?.nuxt.url ?? 'http://localhost:3000',
+      environmentOptions?.nuxtRuntimeConfig.app?.baseURL || '/',
+    )
+
+    const consoleInfo = console.info
+    console.info = (...args) => {
+      if (args[0] === '<Suspense> is an experimental feature and its API will likely change.') {
+        return
+      }
+      return consoleInfo(...args)
+    }
 
     const environmentName = environmentOptions.nuxt.domEnvironment as NuxtBuiltinEnvironment
     const environment = environmentMap[environmentName] || environmentMap['happy-dom']
@@ -90,6 +100,7 @@ export default <Environment>{
       })
     }
 
+    // @ts-expect-error fetch types differ slightly
     win.$fetch = createFetch({ fetch: win.fetch, Headers: win.Headers })
 
     win.__registry = registry
@@ -147,6 +158,7 @@ export default <Environment>{
       teardown() {
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         keys.forEach(key => delete global[key])
+        console.info = consoleInfo
         originals.forEach((v, k) => (global[k] = v))
         teardown()
       },

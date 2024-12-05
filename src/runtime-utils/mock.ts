@@ -15,8 +15,8 @@ import type {
   SetupContext,
 } from 'vue'
 
-export type Awaitable<T> = T | Promise<T>
-export type OptionalFunction<T> = T | (() => Awaitable<T>)
+type Awaitable<T> = T | Promise<T>
+type OptionalFunction<T> = T | (() => Awaitable<T>)
 
 /**
  * `registerEndpoint` allows you create Nitro endpoint that returns mocked data. It can come in handy if you want to test a component that makes requests to API to display some data.

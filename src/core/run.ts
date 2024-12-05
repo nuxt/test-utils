@@ -1,5 +1,5 @@
 import { resolve } from 'pathe'
-import { distDir } from '../dirs'
+import { distDir } from '#dirs'
 
 export interface RunTestOptions {
   rootDir: string

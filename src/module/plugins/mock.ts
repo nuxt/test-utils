@@ -20,13 +20,13 @@ const HELPER_MOCK_HOIST = '__NUXT_VITEST_MOCKS'
 
 const HELPERS_NAME = [HELPER_MOCK_IMPORT, HELPER_MOCK_COMPONENT]
 
-export interface MockImportInfo {
+interface MockImportInfo {
   name: string
   import: Import
   factory: string
 }
 
-export interface MockComponentInfo {
+interface MockComponentInfo {
   path: string
   factory: string
 }
@@ -63,7 +63,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
           if (node.source.value === 'vitest' && !hasViImport) {
             const viImport = node.specifiers.find(
               i =>
-                isImportSpecifier(i) && i.imported.name === 'vi',
+                isImportSpecifier(i) && i.imported.type === 'Identifier' && i.imported.name === 'vi',
             )
             if (viImport) {
               insertionPoint = endOf(node)

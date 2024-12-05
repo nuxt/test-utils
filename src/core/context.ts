@@ -16,6 +16,7 @@ export function createTestContext(options: Partial<TestOptions>): TestContext {
     logLevel: 1,
     server: true,
     build: (options.browser !== false) || (options.server !== false),
+    env: {},
     nuxtConfig: {
       // suppress compatibility date warning for runtime environment tests
       compatibilityDate: '2024-04-03' as DateString,
@@ -24,6 +25,10 @@ export function createTestContext(options: Partial<TestOptions>): TestContext {
       type: 'chromium' as const,
     },
   } satisfies Partial<TestOptions>)
+
+  if (!_options.dev) {
+    _options.env!.NODE_ENV ||= 'production'
+  }
 
   // Disable build and server if endpoint is provided
   if (_options.host) {

@@ -8,5 +8,5 @@ export default async function setupJest(hooks: TestHooks) {
   test('setup', hooks.setup, hooks.ctx.options.setupTimeout)
   beforeEach(hooks.beforeEach)
   afterEach(hooks.afterEach)
-  afterAll(hooks.afterAll)
+  afterAll(hooks.afterAll, 20000)
 }

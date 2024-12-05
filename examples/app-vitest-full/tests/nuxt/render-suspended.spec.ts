@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 
 import { renderSuspended } from '@nuxt/test-utils/runtime'
 import { cleanup, fireEvent, screen, render } from '@testing-library/vue'
@@ -7,11 +7,13 @@ import App from '~/app.vue'
 import OptionsComponent from '~/components/OptionsComponent.vue'
 import WrapperTests from '~/components/WrapperTests.vue'
 import LinkTests from '~/components/LinkTests.vue'
+import DirectiveComponent from '~/components/DirectiveComponent.vue'
 
 import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
 import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
 import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
+import OptionsApiPage from '~/pages/other/options-api.vue'
 
 import { BoundAttrs } from '#components'
 
@@ -77,6 +79,15 @@ describe('renderSuspended', () => {
     )
   })
 
+  it('respects directives registered in nuxt plugins', async () => {
+    const component = await renderSuspended(DirectiveComponent)
+    expect(component.html()).toMatchInlineSnapshot(`
+      "<div id="test-wrapper">
+        <div data-directive="true"></div>
+      </div>"
+    `)
+  })
+
   it('can pass slots to rendered components within nuxt suspense', async () => {
     const text = 'slot from render suspense'
     await renderSuspended(OptionsComponent, {
@@ -113,6 +124,43 @@ describe('renderSuspended', () => {
         ],
       }
     `)
+  })
+
+  describe('Options API', () => {
+    beforeEach(() => {
+      vi.spyOn(console, 'error').mockImplementation((message) => {
+        console.log('[spy] console.error has been called', message)
+      })
+    })
+
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
+
+    it('should render asyncData and other options api properties within nuxt suspense', async () => {
+      const { getByTestId } = await renderSuspended(OptionsApiPage)
+      expect(getByTestId('greeting-in-setup').textContent).toBe('Hello, setup')
+      expect(getByTestId('greeting-in-data1').textContent).toBe('Hello, data1')
+      expect(getByTestId('greeting-in-data2').textContent).toBe('Hello, overwritten by asyncData')
+      expect(getByTestId('greeting-in-computed').textContent).toBe('Hello, computed property')
+      expect(getByTestId('computed-data1').textContent).toBe('Hello, data1')
+      expect(getByTestId('computed-greeting-in-methods').textContent).toBe('Hello, method')
+      expect(getByTestId('greeting-in-methods').textContent).toBe('Hello, method')
+      expect(getByTestId('return-data1').textContent).toBe('Hello, data1')
+      expect(getByTestId('return-computed-data1').textContent).toBe('Hello, data1')
+    })
+
+    it('should not output error when button in page is clicked', async () => {
+      const { getByTestId } = await renderSuspended(OptionsApiPage)
+      await fireEvent.click(getByTestId('button-in-page'))
+      expect(console.error).not.toHaveBeenCalled()
+    })
+
+    it('should not output error when button in component is clicked', async () => {
+      const { getByTestId } = await renderSuspended(OptionsApiPage)
+      await fireEvent.click(getByTestId('test-button'))
+      expect(console.error).not.toHaveBeenCalled()
+    })
   })
 })
 

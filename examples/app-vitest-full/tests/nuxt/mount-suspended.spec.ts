@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 
@@ -13,8 +13,13 @@ import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
 import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
 import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
+import OptionsApiPage from '~/pages/other/options-api.vue'
+import ComponentWithReservedProp from '~/components/ComponentWithReservedProp.vue'
+import ComponentWithReservedState from '~/components/ComponentWithReservedState.vue'
+import ComponentWithImports from '~/components/ComponentWithImports.vue'
 
 import { BoundAttrs } from '#components'
+import DirectiveComponent from '~/components/DirectiveComponent.vue'
 
 const formats = {
   ExportDefaultComponent,
@@ -32,6 +37,12 @@ describe('mountSuspended', () => {
       <div>Index page</div>
       <a href="/test"> Test link </a>"
     `)
+  })
+
+  it('should work with #imports', async () => {
+    const comp = await mountSuspended(ComponentWithImports)
+    const span = comp.find('span')
+    expect(span.text()).toBe('should work with #imports')
   })
 
   it('should handle passing setup state and props to template', async () => {
@@ -97,15 +108,13 @@ describe('mountSuspended', () => {
     `)
   })
 
-  // This test works (you can delete it later)
   it('can receive emitted events from components using defineModel', () => {
     const component = mount(WrapperTests)
     component.find('button#changeModelValue').trigger('click')
     expect(component.emitted()).toHaveProperty('update:modelValue')
   })
 
-  // FIXME: fix this failing test
-  it.todo('can receive emitted events from components mounted within nuxt suspense using defineModel', async () => {
+  it('can receive emitted events from components mounted within nuxt suspense using defineModel', async () => {
     const component = await mountSuspended(WrapperTests)
     component.find('button#changeModelValue').trigger('click')
     expect(component.emitted()).toHaveProperty('update:modelValue')
@@ -116,6 +125,69 @@ describe('mountSuspended', () => {
     expect(component.vm.testExpose?.()).toBe('expose was successful')
     // @ts-expect-error FIXME: someRef is typed as unwrapped
     expect(component.vm.someRef.value).toBe('thing')
+  })
+
+  it('respects directives registered in nuxt plugins', async () => {
+    const component = await mountSuspended(DirectiveComponent)
+    expect(component.html()).toMatchInlineSnapshot(`"<div data-directive="true"></div>"`)
+  })
+
+  it('can handle reserved words in component props', async () => {
+    const comp = await mountSuspended(ComponentWithReservedProp, {
+      props: {
+        error: '404',
+      },
+    })
+    const span = comp.find('span')
+    expect(span.text()).toBe('404')
+
+    await comp.setProps({
+      error: '500',
+    })
+    expect(span.text()).toBe('500')
+  })
+
+  it('can handle reserved words in setup state', async () => {
+    const comp = await mountSuspended(ComponentWithReservedState)
+    const span = comp.find('span')
+    expect(span.text()).toBe('false')
+  })
+
+  describe('Options API', () => {
+    beforeEach(() => {
+      vi.spyOn(console, 'error').mockImplementation((message) => {
+        console.log('[spy] console.error has been called', message)
+      })
+    })
+
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
+
+    it('should render asyncData and other options api properties within nuxt suspense', async () => {
+      const component = await mountSuspended(OptionsApiPage)
+      expect(component.find('[data-testid="greeting-in-setup"]').text()).toBe('Hello, setup')
+      expect(component.find('[data-testid="greeting-in-data1"]').text()).toBe('Hello, data1')
+      expect(component.find('[data-testid="greeting-in-data2"]').text()).toBe('Hello, overwritten by asyncData')
+      expect(component.find('[data-testid="greeting-in-computed"]').text()).toBe('Hello, computed property')
+      expect(component.find('[data-testid="computed-data1"]').text()).toBe('Hello, data1')
+      expect(component.find('[data-testid="computed-greeting-in-methods"]').text()).toBe('Hello, method')
+      expect(component.find('[data-testid="greeting-in-methods"]').text()).toBe('Hello, method')
+      expect(component.find('[data-testid="return-data1"]').text()).toBe('Hello, data1')
+      expect(component.find('[data-testid="return-computed-data1"]').text()).toBe('Hello, data1')
+    })
+
+    it('should not output error when button in page is clicked', async () => {
+      const component = await mountSuspended(OptionsApiPage)
+      await component.find('[data-testid="button-in-page"]').trigger('click')
+      expect(console.error).not.toHaveBeenCalled()
+    })
+
+    it('should not output error when button in component is clicked', async () => {
+      const component = await mountSuspended(OptionsApiPage)
+      await component.find('[data-testid="test-button"]').trigger('click')
+      expect(console.error).not.toHaveBeenCalled()
+    })
   })
 })
 

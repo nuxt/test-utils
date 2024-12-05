@@ -38,7 +38,7 @@ export interface GotoOptions extends Omit<_GotoOptions, 'waitUntil'> {
   waitUntil?: 'hydration' | 'route' | _GotoOptions['waitUntil']
 }
 
-interface NuxtPage extends Omit<Page, 'goto'> {
+export interface NuxtPage extends Omit<Page, 'goto'> {
   goto: (url: string, options?: GotoOptions) => Promise<Response | null>
 }
 
@@ -58,7 +58,7 @@ export async function createPage(path?: string, options?: BrowserContextOptions)
   }
 
   if (path) {
-    await page.goto(url(path), { waitUntil: 'hydration' })
+    await page.goto(url(path), options?.javaScriptEnabled === false ? {} : { waitUntil: 'hydration' })
   }
 
   return page

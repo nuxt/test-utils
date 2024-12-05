@@ -2,6 +2,77 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## v3.14.4
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.14.3...v3.14.4)
+
+### 🩹 Fixes
+
+- **e2e:** Set `NODE_ENV` when running built server ([#969](https://github.com/nuxt/test-utils/pull/969))
+- **runtime-utils:** Bind this in options api methods ([#971](https://github.com/nuxt/test-utils/pull/971))
+
+### ❤️ Contributors
+
+- INOUE Takuya ([@inouetakuya](http://github.com/inouetakuya))
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+
+## v3.14.3
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.14.2...v3.14.3)
+
+### 🩹 Fixes
+
+- **vitest-environment:** Respect custom url in setup ([#957](https://github.com/nuxt/test-utils/pull/957))
+- **runtime-utils:** Pass global `directives` to `mountSuspended` ([#960](https://github.com/nuxt/test-utils/pull/960))
+- **runtime-utils:** Pass global `directives` to `renderSuspended` ([cf1b48ff](https://github.com/nuxt/test-utils/commit/cf1b48ff))
+- **runtime-utils:** Support options api data, computed + methods ([#963](https://github.com/nuxt/test-utils/pull/963))
+
+### 🏡 Chore
+
+- Update vitest type import ([af810cbd](https://github.com/nuxt/test-utils/commit/af810cbd))
+
+### ✅ Tests
+
+- Bump playwright setup time for windows ([21ade1f2](https://github.com/nuxt/test-utils/commit/21ade1f2))
+
+### ❤️ Contributors
+
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+- INOUE Takuya ([@inouetakuya](http://github.com/inouetakuya))
+- Joel Wenzel ([@joel-wenzel](http://github.com/joel-wenzel))
+- Ryoya ([@harunari0928](http://github.com/harunari0928))
+
+## v3.14.2
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.14.1...v3.14.2)
+
+### 🔥 Performance
+
+- **e2e:** Use `tinyexec` to run commands ([#939](https://github.com/nuxt/test-utils/pull/939))
+
+### 🩹 Fixes
+
+- **config:** Exclude new nuxt import-conditions plugin ([7cc8f653b](https://github.com/nuxt/test-utils/commit/7cc8f653b))
+
+### 📖 Documentation
+
+- Add contribution instructions ([c765d175a](https://github.com/nuxt/test-utils/commit/c765d175a))
+
+### 🏡 Chore
+
+- **vitest-environment-nuxt:** Specify license is MIT ([#919](https://github.com/nuxt/test-utils/pull/919))
+- Release `vitest-environment-nuxt` ([e30c044cf](https://github.com/nuxt/test-utils/commit/e30c044cf))
+- Update `@nuxtjs/i18n` separately ([3d8955d36](https://github.com/nuxt/test-utils/commit/3d8955d36))
+- Set `compatibilityDate` in fixtures ([7723f969c](https://github.com/nuxt/test-utils/commit/7723f969c))
+- Update vitest type import ([05e94fcc4](https://github.com/nuxt/test-utils/commit/05e94fcc4))
+- Trim tag from `tinyexec` stdout ([2b50cfee0](https://github.com/nuxt/test-utils/commit/2b50cfee0))
+
+### ❤️ Contributors
+
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+- Bobbie Goede <bobbiegoede@gmail.com>
+- Marley Adamson ([@transreport-marley](http://github.com/transreport-marley))
+
 ## v3.14.1
 
 [compare changes](https://github.com/nuxt/test-utils/compare/v3.14.0...v3.14.1)
