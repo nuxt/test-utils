@@ -16,6 +16,7 @@ import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultRetur
 import OptionsApiPage from '~/pages/other/options-api.vue'
 import ComponentWithReservedProp from '~/components/ComponentWithReservedProp.vue'
 import ComponentWithReservedState from '~/components/ComponentWithReservedState.vue'
+import ComponentWithImports from '~/components/ComponentWithImports.vue'
 
 import { BoundAttrs } from '#components'
 import DirectiveComponent from '~/components/DirectiveComponent.vue'
@@ -36,6 +37,12 @@ describe('mountSuspended', () => {
       <div>Index page</div>
       <a href="/test"> Test link </a>"
     `)
+  })
+
+  it('should work with #imports', async () => {
+    const comp = await mountSuspended(ComponentWithImports)
+    const span = comp.find('span')
+    expect(span.text()).toBe('should work with #imports')
   })
 
   it('should handle passing setup state and props to template', async () => {
