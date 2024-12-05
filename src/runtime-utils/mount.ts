@@ -10,7 +10,7 @@ import { RouterLink } from './components/RouterLink'
 import NuxtRoot from '#build/root-component.mjs'
 import { tryUseNuxtApp, useRouter } from '#imports'
 
-export type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
+type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
   route?: RouteLocationRaw
 }
 

@@ -1,6 +1,6 @@
 import type { App } from 'h3'
 import type { $Fetch } from 'nitropack'
-import type { JSDOMOptions, HappyDOMOptions } from 'vitest'
+import type { JSDOMOptions, HappyDOMOptions } from 'vitest/node'
 
 export type NuxtBuiltinEnvironment = 'happy-dom' | 'jsdom'
 export interface NuxtWindow extends Window {

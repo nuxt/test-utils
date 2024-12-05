@@ -20,13 +20,13 @@ const HELPER_MOCK_HOIST = '__NUXT_VITEST_MOCKS'
 
 const HELPERS_NAME = [HELPER_MOCK_IMPORT, HELPER_MOCK_COMPONENT]
 
-export interface MockImportInfo {
+interface MockImportInfo {
   name: string
   import: Import
   factory: string
 }
 
-export interface MockComponentInfo {
+interface MockComponentInfo {
   path: string
   factory: string
 }

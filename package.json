@@ -53,6 +53,7 @@
     "estree-walker": "^3.0.3",
     "fake-indexeddb": "^6.0.0",
     "get-port-please": "^3.1.2",
+    "h3": "^1.13.0",
     "local-pkg": "^0.5.1",
     "magic-string": "^0.30.13",
     "node-fetch-native": "^1.6.4",
@@ -66,14 +67,14 @@
     "ufo": "^1.5.4",
     "unenv": "^1.10.0",
     "unplugin": "^2.0.0",
-    "vitest-environment-nuxt": "^1.0.1"
+    "vite": "^5.4.11",
+    "vitest-environment-nuxt": "^1.0.1",
+    "vue": "^3.5.13"
   },
   "devDependencies": {
     "@cucumber/cucumber": "11.1.0",
     "@jest/globals": "29.7.0",
-    "@nuxt/devtools": "1.0.8",
     "@nuxt/eslint-config": "0.7.2",
-    "@nuxt/module-builder": "0.8.4",
     "@playwright/test": "1.49.0",
     "@testing-library/vue": "8.1.0",
     "@types/estree": "1.0.6",
@@ -84,8 +85,8 @@
     "changelogen": "0.5.7",
     "compatx": "0.1.8",
     "eslint": "9.16.0",
-    "h3": "1.13.0",
     "jiti": "2.4.0",
+    "knip": "^5.39.2",
     "nitropack": "2.10.4",
     "nuxt": "3.14.1592",
     "playwright-core": "1.49.0",
@@ -94,7 +95,6 @@
     "typescript": "5.6.3",
     "unbuild": "latest",
     "unimport": "3.13.2",
-    "vite": "5.4.11",
     "vitest": "2.1.8",
     "vue-router": "4.4.5",
     "vue-tsc": "2.1.10"
@@ -106,18 +106,16 @@
     "@testing-library/vue": "^7.0.0 || ^8.0.1",
     "@vitest/ui": "^0.34.6 || ^1.0.0 || ^2.0.0",
     "@vue/test-utils": "^2.4.2",
-    "h3": "*",
     "happy-dom": "^9.10.9 || ^10.0.0 || ^11.0.0 || ^12.0.0 || ^13.0.0 || ^14.0.0 || ^15.0.0",
     "jsdom": "^22.0.0 || ^23.0.0 || ^24.0.0 || ^25.0.0",
-    "nitropack": "*",
     "playwright-core": "^1.43.1",
-    "vite": "*",
-    "vitest": "^0.34.6 || ^1.0.0 || ^2.0.0",
-    "vue": "^3.3.4",
-    "vue-router": "^4.0.0"
+    "vitest": "^0.34.6 || ^1.0.0 || ^2.0.0"
   },
   "peerDependenciesMeta": {
     "@cucumber/cucumber": {
+      "optional": true
+    },
+    "@jest/globals": {
       "optional": true
     },
     "@playwright/test": {
@@ -126,22 +124,19 @@
     "@testing-library/vue": {
       "optional": true
     },
-    "happy-dom": {
+    "@vitest/ui": {
       "optional": true
     },
     "@vue/test-utils": {
       "optional": true
     },
+    "happy-dom": {
+      "optional": true
+    },
     "jsdom": {
       "optional": true
     },
-    "@jest/globals": {
-      "optional": true
-    },
     "playwright-core": {
-      "optional": true
-    },
-    "@vitest/ui": {
       "optional": true
     },
     "vitest": {

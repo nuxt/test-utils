@@ -1,7 +1,7 @@
 import { importModule } from 'local-pkg'
 import type { DOMWindow, SupportedContentTypes } from 'jsdom'
 import defu from 'defu'
-import type { JSDOMOptions } from 'vitest'
+import type { JSDOMOptions } from 'vitest/node'
 import type { EnvironmentNuxt, NuxtWindow } from '../types'
 
 export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {

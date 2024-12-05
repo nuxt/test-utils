@@ -1,6 +1,8 @@
 import { pathToFileURL } from 'node:url'
 import { addVitePlugin, createResolver, defineNuxtModule, logger, resolvePath } from '@nuxt/kit'
-import type { File, Reporter, Vitest, UserConfig as VitestConfig } from 'vitest'
+import type { Vitest, UserConfig as VitestConfig } from 'vitest/node'
+import type { Reporter } from 'vitest/reporters'
+import type { RunnerTestFile } from 'vitest'
 import { mergeConfig } from 'vite'
 import type { InlineConfig as ViteConfig } from 'vite'
 import { getPort } from 'get-port-please'
@@ -72,7 +74,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
     let loaded = false
     let promise: Promise<void> | undefined
     let ctx: Vitest = undefined!
-    let testFiles: File[] | null = null
+    let testFiles: RunnerTestFile[] | null = null
 
     const updateTabs = debounce(() => {
       nuxt.callHook('devtools:customTabs:refresh')

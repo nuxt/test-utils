@@ -9,11 +9,11 @@ import { RouterLink } from './components/RouterLink'
 import NuxtRoot from '#build/root-component.mjs'
 import { tryUseNuxtApp, useRouter } from '#imports'
 
-export type RenderOptions<C = unknown> = TestingLibraryRenderOptions<C> & {
+type RenderOptions<C = unknown> = TestingLibraryRenderOptions<C> & {
   route?: RouteLocationRaw
 }
 
-export const WRAPPER_EL_ID = 'test-wrapper'
+const WRAPPER_EL_ID = 'test-wrapper'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SetupState = Record<string, any>
@@ -56,9 +56,7 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
     ..._options
   } = options || {}
 
-  const { render: renderFromTestingLibrary } = await import(
-    '@testing-library/vue'
-  )
+  const { render: renderFromTestingLibrary } = await import('@testing-library/vue')
 
   const vueApp = tryUseNuxtApp()?.vueApp
     // @ts-expect-error untyped global __unctx__

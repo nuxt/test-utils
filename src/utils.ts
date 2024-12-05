@@ -7,13 +7,13 @@
 import destr from 'destr'
 import { snakeCase } from 'scule'
 
-export type EnvOptions = {
+type EnvOptions = {
   env?: Record<string, any>
   prefix?: string
   altPrefix?: string
 }
 
-export function getEnv(key: string, opts: EnvOptions) {
+function getEnv(key: string, opts: EnvOptions) {
   const env = opts.env ?? process.env
   const envKey = snakeCase(key).toUpperCase()
   return destr(

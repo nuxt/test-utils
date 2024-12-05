@@ -3,16 +3,13 @@ import { resolve } from 'pathe'
 import { exec } from 'tinyexec'
 import { determineSemverChange, getGitDiff, loadChangelogConfig, parseCommits } from 'changelogen'
 
-export interface Dep {
+interface Dep {
   name: string
   range: string
   type: string
 }
 
-type ThenArg<T> = T extends PromiseLike<infer U> ? U : T
-export type Package = ThenArg<ReturnType<typeof loadPackage>>
-
-export async function loadPackage(dir: string) {
+async function loadPackage(dir: string) {
   const pkgPath = resolve(dir, 'package.json')
   const data = JSON.parse(await fsp.readFile(pkgPath, 'utf-8').catch(() => '{}'))
   const save = () => fsp.writeFile(pkgPath, JSON.stringify(data, null, 2) + '\n')
