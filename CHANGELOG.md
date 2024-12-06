@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## v3.15.1
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.15.0...v3.15.1)
+
+### 🩹 Fixes
+
+- **runtime-utils:** Import `reactive` ([f05c0faf3](https://github.com/nuxt/test-utils/commit/f05c0faf3))
+
+### ❤️ Contributors
+
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+
 ## v3.15.0
 
 [compare changes](https://github.com/nuxt/test-utils/compare/v3.14.4...v3.15.0)
