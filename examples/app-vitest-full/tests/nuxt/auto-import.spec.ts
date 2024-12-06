@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('auto-imports', () => {
   it('can use core nuxt composables within test file', () => {
@@ -16,5 +16,18 @@ describe('auto-imports', () => {
   it('should not mock imports that are mocked in another test file', () => {
     expect(useAutoImportedTarget()).toMatchInlineSnapshot('"the original"')
     expect(useAutoImportedNonTarget()).toMatchInlineSnapshot('"the original"')
+  })
+
+  it('setInterval is not auto-imported', () => {
+    vi.useFakeTimers()
+
+    let triggerd = false
+    setInterval(() => {
+      triggerd = true
+    }, 1000)
+
+    vi.advanceTimersByTime(1000)
+
+    expect(triggerd).toBe(true)
   })
 })
