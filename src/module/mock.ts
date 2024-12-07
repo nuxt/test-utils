@@ -28,6 +28,14 @@ export function setupImportMocking() {
     ctx.components = _
   })
 
+  nuxt.hook('imports:sources', (presets) => {
+    // because the native setInterval cannot be mocked
+    const idx = presets.findIndex(p => p.imports.includes('setInterval'))
+    if (idx !== -1) {
+      presets.splice(idx, 1)
+    }
+  })
+
   // We want to run Nuxt plugins on test files
   nuxt.options.ignore = nuxt.options.ignore.filter(i => i !== '**/*.{spec,test}.{js,cts,mts,ts,jsx,tsx}')
   if (nuxt._ignore) {
