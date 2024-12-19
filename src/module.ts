@@ -182,14 +182,14 @@ export default defineNuxtModule<NuxtVitestOptions>({
             },
         extraTabVNode: totalCount
           ? h('div', { style: { color: failedCount ? 'orange' : 'green' } }, [
-            h('span', {}, passedCount),
-            h('span', { style: { opacity: '0.5', fontSize: '0.9em' } }, '/'),
-            h(
-              'span',
-              { style: { opacity: '0.8', fontSize: '0.9em' } },
-              totalCount,
-            ),
-          ])
+              h('span', {}, passedCount),
+              h('span', { style: { opacity: '0.5', fontSize: '0.9em' } }, '/'),
+              h(
+                'span',
+                { style: { opacity: '0.8', fontSize: '0.9em' } },
+                totalCount,
+              ),
+            ])
           : undefined,
       })
     })
