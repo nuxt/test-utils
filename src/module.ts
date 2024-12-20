@@ -1,3 +1,5 @@
+/// <reference types="@nuxt/devtools-kit" />
+
 import { pathToFileURL } from 'node:url'
 import { addVitePlugin, createResolver, defineNuxtModule, logger, resolvePath } from '@nuxt/kit'
 import type { Vitest, UserConfig as VitestConfig } from 'vitest/node'
