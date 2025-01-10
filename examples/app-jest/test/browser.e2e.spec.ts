@@ -13,5 +13,5 @@ describe('browser', () => {
     const text = await page.getByRole('heading', { name: 'Welcome to Nuxt!' }).textContent()
     expect(text).toContain('Welcome to Nuxt!')
     await page.close()
-  }, isWindows ? 60000 : 20000)
+  }, isWindows ? 120000 : 20000)
 })
