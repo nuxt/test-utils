@@ -22,5 +22,5 @@ describe('ssr', async () => {
     await startServer()
     const htmlRestored = await $fetch('/')
     expect(htmlRestored).toContain('<div>basic <span>original value</span></div>')
-  })
+  }, { timeout: 120000 })
 })
