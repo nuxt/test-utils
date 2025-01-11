@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## v3.15.2
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.15.1...v3.15.2)
+
+### 🩹 Fixes
+
+- **module:** Remove `setInterval` from the presets ([#1035](https://github.com/nuxt/test-utils/pull/1035))
+
+### 🏡 Chore
+
+- Add devtools-kit types + specify vite in jest fixture ([c37781b5](https://github.com/nuxt/test-utils/commit/c37781b5))
+- Double windows timeout ([45e16131](https://github.com/nuxt/test-utils/commit/45e16131))
+
+### ✅ Tests
+
+- Update windows timeout for e2e test ([1acb335b](https://github.com/nuxt/test-utils/commit/1acb335b))
+
+### ❤️ Contributors
+
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+- Ryota Watanabe ([@wattanx](http://github.com/wattanx))
+
 ## v3.15.1
 
 [compare changes](https://github.com/nuxt/test-utils/compare/v3.15.0...v3.15.1)
