@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## v3.15.3
+
+[compare changes](https://github.com/nuxt/test-utils/compare/v3.15.2...v3.15.3)
+
+### 🩹 Fixes
+
+- **e2e:** Use `node:path` to resolve `dist` directory ([#1054](https://github.com/nuxt/test-utils/pull/1054))
+
+### ❤️ Contributors
+
+- Scott Bedard ([@scottbedard](http://github.com/scottbedard))
+
 ## v3.15.2
 
 [compare changes](https://github.com/nuxt/test-utils/compare/v3.15.1...v3.15.2)
