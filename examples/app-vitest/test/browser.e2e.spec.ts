@@ -6,6 +6,7 @@ import { isWindows } from 'std-env'
 await setup({
   rootDir: fileURLToPath(new URL('../', import.meta.url)),
   browser: true,
+  setupTimeout: isWindows ? 240000 : 120000,
 })
 
 describe('browser', () => {
@@ -14,5 +15,5 @@ describe('browser', () => {
     const text = await page.getByRole('heading', { name: 'Welcome to Nuxt!' }).textContent()
     expect(text).toContain('Welcome to Nuxt!')
     await page.close()
-  }, isWindows ? 120000 : 10000)
+  })
 })
