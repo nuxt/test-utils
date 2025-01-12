@@ -2,6 +2,7 @@ import { resolve } from 'node:path'
 import { defu } from 'defu'
 import { withTrailingSlash } from 'ufo'
 import type { DateString } from 'compatx'
+import { isWindows } from 'std-env'
 import type { TestContext, TestOptions } from './types'
 
 let currentContext: TestContext | undefined
@@ -11,7 +12,7 @@ export function createTestContext(options: Partial<TestOptions>): TestContext {
     testDir: resolve(process.cwd(), 'test'),
     fixture: 'fixture',
     configFile: 'nuxt.config',
-    setupTimeout: 120 * 1000,
+    setupTimeout: isWindows ? 240_000 : 120_000,
     dev: !!JSON.parse(process.env.NUXT_TEST_DEV || 'false'),
     logLevel: 1,
     server: true,
