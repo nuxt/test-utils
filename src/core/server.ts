@@ -1,14 +1,10 @@
-import { exec } from 'tinyexec'
+import { x } from 'tinyexec'
 import { getRandomPort, waitForPort } from 'get-port-please'
 import type { FetchOptions } from 'ofetch'
 import { $fetch as _$fetch, fetch as _fetch } from 'ofetch'
-import * as _kit from '@nuxt/kit'
 import { resolve } from 'pathe'
 import { joinURL } from 'ufo'
 import { useTestContext } from './context'
-
-// @ts-expect-error type cast kit default export
-const kit: typeof _kit = _kit.default || _kit
 
 export interface StartServerOptions {
   env?: Record<string, unknown>
@@ -21,8 +17,8 @@ export async function startServer(options: StartServerOptions = {}) {
   const port = ctx.options.port || (await getRandomPort(host))
   ctx.url = `http://${host}:${port}/`
   if (ctx.options.dev) {
-    const nuxiCLI = await kit.resolvePath('nuxi/cli')
-    ctx.serverProcess = exec(nuxiCLI, ['_dev'], {
+    ctx.serverProcess = x('nuxi', ['_dev'], {
+      throwOnError: true,
       nodeOptions: {
         cwd: ctx.nuxt!.options.rootDir,
         stdio: 'inherit',
@@ -58,10 +54,11 @@ export async function startServer(options: StartServerOptions = {}) {
   }
   else {
     const outputDir = ctx.nuxt ? ctx.nuxt.options.nitro.output!.dir! : ctx.options.nuxtConfig.nitro!.output!.dir!
-    ctx.serverProcess = exec(
+    ctx.serverProcess = x(
       'node',
       [resolve(outputDir, 'server/index.mjs')],
       {
+        throwOnError: true,
         nodeOptions: {
           stdio: 'inherit',
           env: {
