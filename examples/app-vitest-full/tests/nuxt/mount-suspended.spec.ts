@@ -199,6 +199,7 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
       props: {
         myProp: 'Hello nuxt-vitest',
         myArrayProp: ['hello', 'nuxt', 'vitest'],
+        myObjProp: { title: 'Hello nuxt/test-utils' },
       },
     })
   })
@@ -206,7 +207,7 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
   it('mounts with props', () => {
     expect(wrapper.html()).toEqual(`
 <div>
-  <h1>${name}</h1><pre>Hello nuxt-vitest</pre><pre>XHello nuxt-vitest</pre><span>hello</span><span>nuxt</span><span>vitest</span>
+  <h1>${name}</h1><pre>Hello nuxt-vitest</pre><pre>XHello nuxt-vitest</pre><span>hello</span><span>nuxt</span><span>vitest</span><span>myObjProp: {"title":"Hello nuxt/test-utils"}</span>
 </div>
     `.trim())
   })
@@ -217,7 +218,7 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
     })
     expect(wrapper.html()).toEqual(`
 <div>
-  <h1>${name}</h1><pre>updated title</pre><pre>XHello nuxt-vitest</pre><span>hello</span><span>nuxt</span><span>vitest</span>
+  <h1>${name}</h1><pre>updated title</pre><pre>XHello nuxt-vitest</pre><span>hello</span><span>nuxt</span><span>vitest</span><span>myObjProp: {"title":"Hello nuxt/test-utils"}</span>
 </div>
     `.trim())
   })
@@ -229,7 +230,19 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
     })
     expect(wrapper.html()).toEqual(`
 <div>
-  <h1>${name}</h1><pre>updated title</pre><pre>XHello nuxt-vitest</pre><span>updated</span><span>prop</span>
+  <h1>${name}</h1><pre>updated title</pre><pre>XHello nuxt-vitest</pre><span>updated</span><span>prop</span><span>myObjProp: {"title":"Hello nuxt/test-utils"}</span>
+</div>
+    `.trim())
+  })
+
+  it('can be updated object with setProps', async () => {
+    await wrapper.setProps({
+      myProp: 'updated title',
+      myObjProp: {},
+    })
+    expect(wrapper.html()).toEqual(`
+<div>
+  <h1>${name}</h1><pre>updated title</pre><pre>XHello nuxt-vitest</pre><span>hello</span><span>nuxt</span><span>vitest</span><span>myObjProp: {}</span>
 </div>
     `.trim())
   })

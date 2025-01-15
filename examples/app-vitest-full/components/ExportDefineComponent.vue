@@ -7,6 +7,7 @@
       v-for="item in myArrayProp"
       :key="item"
     >{{ item }}</span>
+    <span>myObjProp: {{ JSON.stringify(myObjProp) }}</span>
   </div>
 </template>
 
@@ -29,6 +30,10 @@ export default defineComponent({
     myArrayProp: {
       type: Array as PropType<string[]>,
       default: () => ([]),
+    },
+    myObjProp: {
+      type: Object as PropType<{ title: string }>,
+      default: () => ({}),
     },
   },
   setup(props) {
