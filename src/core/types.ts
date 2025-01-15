@@ -28,9 +28,14 @@ export interface TestOptions {
   dev: boolean
   /**
    * The amount of time (in milliseconds) to allow for `setupTest` to complete its work (which could include building or generating files for a Nuxt application, depending on the options that are passed).
-   * @default `60000`
+   * @default `120000` or `240000` on windows
    */
   setupTimeout: number
+  /**
+   * The amount of time (in milliseconds) to allow tearing down the test environment, such as closing the browser.
+   * @default `30000`
+   */
+  teardownTimeout: number
   waitFor: number
   /**
    * Under the hood, Nuxt test utils uses [`playwright`](https://playwright.dev) to carry out browser testing. If this option is set, a browser will be launched and can be controlled in the subsequent test suite.

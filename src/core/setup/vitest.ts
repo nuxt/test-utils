@@ -9,5 +9,5 @@ export default async function setupVitest(hooks: TestHooks) {
   vitest.beforeAll(hooks.setup, hooks.ctx.options.setupTimeout)
   vitest.beforeEach(hooks.beforeEach)
   vitest.afterEach(hooks.afterEach)
-  vitest.afterAll(hooks.afterAll)
+  vitest.afterAll(hooks.afterAll, hooks.ctx.options.teardownTimeout)
 }
