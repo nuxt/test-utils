@@ -144,7 +144,7 @@ export default <Environment>{
     )
 
     registry.add(`${manifestOutputPath}/latest.json`)
-    registry.add(`${manifestBaseRoutePath}/meta/${buildId}.json`)
+    registry.add(`${manifestOutputPath}/meta/${buildId}.json`)
 
     return {
       // called after all tests with this env have been run
