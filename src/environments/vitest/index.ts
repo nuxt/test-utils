@@ -123,26 +123,20 @@ export default <Environment>{
     )
     const manifestBaseRoutePath = joinURL('/_', manifestOutputPath)
 
+    // @ts-expect-error untyped __NUXT__ variable
+    const buildId = win.__NUXT__.config.app.buildId || 'test'
+
     h3App.use(
       `${manifestBaseRoutePath}/latest.json`,
       defineEventHandler(() => ({
-        id: 'test',
+        id: buildId,
         timestamp,
       })),
     )
     h3App.use(
-      `${manifestBaseRoutePath}/meta/test.json`,
+      `${manifestBaseRoutePath}/meta/${buildId}.json`,
       defineEventHandler(() => ({
-        id: 'test',
-        timestamp,
-        matcher,
-        prerendered: [],
-      })),
-    )
-    h3App.use(
-      `${manifestBaseRoutePath}/meta/dev.json`,
-      defineEventHandler(() => ({
-        id: 'test',
+        id: buildId,
         timestamp,
         matcher,
         prerendered: [],
@@ -150,8 +144,7 @@ export default <Environment>{
     )
 
     registry.add(`${manifestOutputPath}/latest.json`)
-    registry.add(`${manifestOutputPath}/meta/test.json`)
-    registry.add(`${manifestOutputPath}/meta/dev.json`)
+    registry.add(`${manifestBaseRoutePath}/meta/${buildId}.json`)
 
     return {
       // called after all tests with this env have been run
