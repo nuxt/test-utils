@@ -166,7 +166,7 @@ export async function mountSuspended<T>(
                         setup: setup ? (props: Record<string, unknown>) => wrappedSetup(props, setupContext) : undefined,
                       }
 
-                      return () => h(clonedComponent, { ...defuReplaceArray(setProps, props) as typeof props, ...attrs }, slots)
+                      return () => h(clonedComponent, { ...customMerge(setProps, props) as typeof props, ...attrs }, slots)
                     },
                   }),
               },
@@ -201,11 +201,9 @@ interface AugmentedVueInstance {
   __setProps?: (props: Record<string, unknown>) => void
 }
 
-const defuReplaceArray = createDefu((obj, key, value) => {
-  if (Array.isArray(obj[key])) {
-    obj[key] = value
-    return true
-  }
+const customMerge = createDefu((obj, key, value) => {
+  obj[key] = value
+  return true
 })
 
 function cloneProps(props: Record<string, unknown>) {

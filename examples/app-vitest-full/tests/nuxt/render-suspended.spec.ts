@@ -169,13 +169,14 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
     const wrapper = await renderSuspended(component, {
       props: {
         myProp: 'Hello nuxt-vitest',
+        myObjProp: { title: 'Hello nuxt/test-utils' },
       },
     })
 
     expect(wrapper.html()).toEqual(`
 <div id="test-wrapper">
   <div>
-    <h1>${name}</h1><pre>Hello nuxt-vitest</pre><pre>XHello nuxt-vitest</pre>
+    <h1>${name}</h1><pre>Hello nuxt-vitest</pre><pre>XHello nuxt-vitest</pre><span>myObjProp: {"title":"Hello nuxt/test-utils"}</span>
   </div>
 </div>
     `.trim())

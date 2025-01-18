@@ -9,6 +9,10 @@ export default {
       type: Array as PropType<string[]>,
       default: () => ([]),
     },
+    myObjProp: {
+      type: Object as PropType<{ title: string }>,
+      default: () => ({}),
+    },
   },
   setup(props) {
     const pre = 'X' + props.myProp
@@ -17,6 +21,7 @@ export default {
       h('pre', props.myProp),
       h('pre', pre),
       props.myArrayProp.map(item => h('span', item)),
+      h('span', `myObjProp: ${JSON.stringify(props.myObjProp)}`),
     ])
   },
 }
