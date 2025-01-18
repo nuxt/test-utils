@@ -187,7 +187,7 @@ export async function mountSuspended<T>(
                 MountSuspendedHelper: false,
                 [component && typeof component === 'object' && 'name' in component && typeof component.name === 'string' ? component.name : 'MountSuspendedComponent']: false,
               },
-              components: { RouterLink },
+              components: { ...vueApp._context.components, RouterLink },
             },
           } satisfies ComponentMountingOptions<T>,
         ) as ComponentMountingOptions<T>,

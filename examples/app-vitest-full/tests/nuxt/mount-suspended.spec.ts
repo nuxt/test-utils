@@ -20,6 +20,7 @@ import ComponentWithImports from '~/components/ComponentWithImports.vue'
 
 import { BoundAttrs } from '#components'
 import DirectiveComponent from '~/components/DirectiveComponent.vue'
+import CustomComponent from '~/components/CustomComponent.vue'
 
 const formats = {
   ExportDefaultComponent,
@@ -130,6 +131,11 @@ describe('mountSuspended', () => {
   it('respects directives registered in nuxt plugins', async () => {
     const component = await mountSuspended(DirectiveComponent)
     expect(component.html()).toMatchInlineSnapshot(`"<div data-directive="true"></div>"`)
+  })
+
+  it('respects custom component registered in nuxt plugins', async () => {
+    const component = await mountSuspended(CustomComponent)
+    expect(component.html()).toMatchInlineSnapshot(`"<button data-testid="test-button"> Button in TestButton component </button>"`)
   })
 
   it('can handle reserved words in component props', async () => {
