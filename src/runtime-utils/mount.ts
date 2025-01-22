@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import type { ComponentMountingOptions } from '@vue/test-utils'
 import { Suspense, h, isReadonly, nextTick, reactive, unref, getCurrentInstance } from 'vue'
 import type { DefineComponent, SetupContext } from 'vue'
-import { defu, createDefu } from 'defu'
+import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
 
 import { RouterLink } from './components/RouterLink'
@@ -166,7 +166,7 @@ export async function mountSuspended<T>(
                         setup: setup ? (props: Record<string, unknown>) => wrappedSetup(props, setupContext) : undefined,
                       }
 
-                      return () => h(clonedComponent, { ...customMerge(setProps, props) as typeof props, ...attrs }, slots)
+                      return () => h(clonedComponent, { ...props, ...setProps, ...attrs }, slots)
                     },
                   }),
               },
@@ -200,11 +200,6 @@ interface AugmentedVueInstance {
   setupState?: Record<string, unknown>
   __setProps?: (props: Record<string, unknown>) => void
 }
-
-const customMerge = createDefu((obj, key, value) => {
-  obj[key] = value
-  return true
-})
 
 function cloneProps(props: Record<string, unknown>) {
   const newProps = reactive<Record<string, unknown>>({})
