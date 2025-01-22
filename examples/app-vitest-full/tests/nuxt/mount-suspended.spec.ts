@@ -252,6 +252,30 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
 </div>
     `.trim())
   })
+
+  it('can be updated to null with setProps', async () => {
+    await wrapper.setProps({
+      myProp: 'updated title',
+      myObjProp: null,
+    })
+    expect(wrapper.html()).toEqual(`
+<div>
+  <h1>${name}</h1><pre>updated title</pre><pre>XHello nuxt-vitest</pre><span>hello</span><span>nuxt</span><span>vitest</span><span>myObjProp: null</span>
+</div>
+    `.trim())
+  })
+
+  it('can be updated to undefined with setProps', async () => {
+    await wrapper.setProps({
+      myProp: 'updated title',
+      myObjProp: undefined,
+    })
+    expect(wrapper.html()).toEqual(`
+<div>
+  <h1>${name}</h1><pre>updated title</pre><pre>XHello nuxt-vitest</pre><span>hello</span><span>nuxt</span><span>vitest</span><span>myObjProp: {}</span>
+</div>
+    `.trim())
+  })
 })
 
 it('renders links correctly', async () => {
