@@ -198,7 +198,7 @@ describe('mountSuspended', () => {
 })
 
 describe.each(Object.entries(formats))(`%s`, (name, component) => {
-  let wrapper: VueWrapper<unknown>
+  let wrapper: VueWrapper<InstanceType<typeof component>>
 
   beforeEach(async () => {
     wrapper = await mountSuspended(component, {
@@ -216,6 +216,14 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
   <h1>${name}</h1><pre>Hello nuxt-vitest</pre><pre>XHello nuxt-vitest</pre><span>hello</span><span>nuxt</span><span>vitest</span><span>myObjProp: {"title":"Hello nuxt/test-utils"}</span>
 </div>
     `.trim())
+
+    expect(wrapper.props()).toEqual({
+      myProp: 'Hello nuxt-vitest',
+      myArrayProp: ['hello', 'nuxt', 'vitest'],
+      myObjProp: { title: 'Hello nuxt/test-utils' },
+    })
+
+    expect(wrapper.props('myProp')).toBe('Hello nuxt-vitest')
   })
 
   it('can be updated with setProps', async () => {
@@ -227,6 +235,12 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
   <h1>${name}</h1><pre>updated title</pre><pre>XHello nuxt-vitest</pre><span>hello</span><span>nuxt</span><span>vitest</span><span>myObjProp: {"title":"Hello nuxt/test-utils"}</span>
 </div>
     `.trim())
+
+    expect(wrapper.props()).toEqual({
+      myProp: 'updated title',
+      myArrayProp: ['hello', 'nuxt', 'vitest'],
+      myObjProp: { title: 'Hello nuxt/test-utils' },
+    })
   })
 
   it('can be updated array with setProps', async () => {

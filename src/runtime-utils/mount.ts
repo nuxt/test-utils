@@ -96,6 +96,12 @@ export async function mountSuspended<T>(
                     (vm as unknown as AugmentedVueInstance).__setProps = (props: Record<string, unknown>) => {
                       Object.assign(setProps, props)
                     }
+                    vm.props = new Proxy(vm.props, {
+                      apply: (target, thisValue, args) => {
+                        const component = thisValue.findComponent({ name: 'MountSuspendedComponent' })
+                        return component.props(...args)
+                      },
+                    })
                     resolve(vm as ReturnType<typeof mount<T>> & { setupState: Record<string, unknown> })
                   }),
               },
