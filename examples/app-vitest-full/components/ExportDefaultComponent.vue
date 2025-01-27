@@ -33,7 +33,7 @@ export default {
       default: () => ([]),
     },
     myObjProp: {
-      type: Object as PropType<{ title: string }>,
+      type: [Object, null, {}] as PropType<{ title: string } | null | object>,
       default: () => ({}),
     },
   },
