@@ -61,11 +61,11 @@ export default <Environment>{
     if (environmentOptions?.nuxt?.mock?.intersectionObserver) {
       win.IntersectionObserver
         = win.IntersectionObserver
-        || class IntersectionObserver {
-          observe() {}
-          unobserve() {}
-          disconnect() {}
-        }
+          || class IntersectionObserver {
+            observe() {}
+            unobserve() {}
+            disconnect() {}
+          }
     }
 
     if (environmentOptions?.nuxt?.mock?.indexedDb) {
