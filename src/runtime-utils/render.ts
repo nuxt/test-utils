@@ -1,4 +1,4 @@
-import { Suspense, effectScope, h, nextTick, isReadonly, reactive, unref } from 'vue'
+import { Suspense, effectScope, h, nextTick, isReadonly, reactive, unref, defineComponent } from 'vue'
 import type { DefineComponent, SetupContext } from 'vue'
 import type { RenderOptions as TestingLibraryRenderOptions } from '@testing-library/vue'
 import { defu } from 'defu'
@@ -85,6 +85,12 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
     }
   }
 
+  const WrapperComponent = defineComponent({
+    inheritAttrs: false,
+    render() {
+      return h('div', { id: WRAPPER_EL_ID }, this.$slots.default?.())
+    },
+  })
   return new Promise<ReturnType<typeof renderFromTestingLibrary> & { setupState: SetupState }>((resolve) => {
     const utils = renderFromTestingLibrary(
       {
@@ -108,8 +114,7 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
           // we add this additional root element because otherwise testing-library breaks
           // because there's no root element while Suspense is resolving
           h(
-            'div',
-            { id: WRAPPER_EL_ID },
+            WrapperComponent,
             h(
               Suspense,
               {
@@ -190,6 +195,7 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
       },
       defu(_options, {
         slots,
+        attrs,
         global: {
           config: {
             globalProperties: vueApp.config.globalProperties,
