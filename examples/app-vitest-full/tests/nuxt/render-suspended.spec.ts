@@ -11,6 +11,7 @@ import DirectiveComponent from '~/components/DirectiveComponent.vue'
 
 import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
 import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
+import ComponentWithAttrs from '~/components/ComponentWithAttrs.vue'
 import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
 import OptionsApiPage from '~/pages/other/options-api.vue'
@@ -123,6 +124,13 @@ describe('renderSuspended', () => {
           [],
         ],
       }
+    `)
+  })
+
+  it('should define $attrs', async () => {
+    const { html } = await renderSuspended(ComponentWithAttrs, { attrs: { foo: 'bar' } })
+    expect(html()).toMatchInlineSnapshot(`
+      "<div id="test-wrapper"><span foo="bar"></span></div>"
     `)
   })
 

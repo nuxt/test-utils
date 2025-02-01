@@ -14,6 +14,7 @@ import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
 import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
 import OptionsApiPage from '~/pages/other/options-api.vue'
+import ComponentWithAttrs from '~/components/ComponentWithAttrs.vue'
 import ComponentWithReservedProp from '~/components/ComponentWithReservedProp.vue'
 import ComponentWithReservedState from '~/components/ComponentWithReservedState.vue'
 import ComponentWithImports from '~/components/ComponentWithImports.vue'
@@ -157,6 +158,11 @@ describe('mountSuspended', () => {
     const comp = await mountSuspended(ComponentWithReservedState)
     const span = comp.find('span')
     expect(span.text()).toBe('false')
+  })
+
+  it('should define $attrs', async () => {
+    const component = await mountSuspended(ComponentWithAttrs, { attrs: { foo: 'bar' } })
+    expect(component.find('[foo="bar"]').exists()).toBe(true)
   })
 
   describe('Options API', () => {
