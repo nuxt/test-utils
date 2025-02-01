@@ -182,6 +182,7 @@ export async function mountSuspended<T>(
           _options,
           {
             slots,
+            attrs,
             global: {
               config: {
                 globalProperties: vueApp.config.globalProperties,
