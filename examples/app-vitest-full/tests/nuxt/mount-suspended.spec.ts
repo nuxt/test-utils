@@ -22,6 +22,7 @@ import ComponentWithImports from '~/components/ComponentWithImports.vue'
 import { BoundAttrs } from '#components'
 import DirectiveComponent from '~/components/DirectiveComponent.vue'
 import CustomComponent from '~/components/CustomComponent.vue'
+import WrapperElement from '~/components/WrapperElement.vue'
 
 const formats = {
   ExportDefaultComponent,
@@ -302,4 +303,14 @@ it('renders links correctly', async () => {
   const component = await mountSuspended(LinkTests)
 
   expect(component.html()).toMatchInlineSnapshot(`"<div><a href="/test"> Link with string to prop </a><a href="/test"> Link with object to prop </a></div>"`)
+})
+
+it('element should be changed', async () => {
+  const component = await mountSuspended(WrapperElement, { props: { as: 'div' } })
+
+  expect(component.element.tagName).toBe('DIV')
+
+  await component.setProps({ as: 'span' })
+
+  expect(component.element.tagName).toBe('SPAN')
 })
