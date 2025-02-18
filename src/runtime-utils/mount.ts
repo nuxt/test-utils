@@ -96,13 +96,7 @@ export async function mountSuspended<T>(
                     (vm as unknown as AugmentedVueInstance).__setProps = (props: Record<string, unknown>) => {
                       Object.assign(setProps, props)
                     }
-                    vm.props = new Proxy(vm.props, {
-                      apply: (target, thisValue, args) => {
-                        const component = thisValue.findComponent({ name: 'MountSuspendedComponent' })
-                        return component.props(...args)
-                      },
-                    })
-                    resolve(vm as ReturnType<typeof mount<T>> & { setupState: Record<string, unknown> })
+                    resolve(wrappedMountedWrapper(vm as ReturnType<typeof mount<T>> & { setupState: Record<string, unknown> }))
                   }),
               },
               {
@@ -214,4 +208,29 @@ function cloneProps(props: Record<string, unknown>) {
     newProps[key] = props[key]
   }
   return newProps
+}
+
+function wrappedMountedWrapper<T>(wrapper: ReturnType<typeof mount<T>> & { setupState: Record<string, unknown> }) {
+  const proxy = new Proxy(wrapper, {
+    get: (target, prop, receiver) => {
+      if (prop === 'element') {
+        const component = target.findComponent({ name: 'MountSuspendedComponent' })
+        return component[prop]
+      }
+      else {
+        return Reflect.get(target, prop, receiver)
+      }
+    },
+  })
+
+  for (const key of ['props'] as const) {
+    proxy[key] = new Proxy(wrapper[key], {
+      apply: (target, thisArg, args) => {
+        const component = thisArg.findComponent({ name: 'MountSuspendedComponent' })
+        return component[key](...args)
+      },
+    })
+  }
+
+  return proxy
 }
