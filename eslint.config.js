@@ -13,6 +13,7 @@ export default createConfigForNuxt({
       './examples/app-playwright',
       './examples/app-vitest',
       './examples/app-vitest-full',
+      './examples/app-vitest-3-full',
       './examples/content',
       './examples/i18n',
       './examples/module',
@@ -21,5 +22,6 @@ export default createConfigForNuxt({
 }).append({
   rules: {
     '@typescript-eslint/no-invalid-void-type': 'off',
+    'vue/multi-word-component-names': 'off',
   },
 })
