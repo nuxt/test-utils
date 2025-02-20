@@ -49,11 +49,13 @@ describe('mocking', () => {
         })
       `)).toMatchInlineSnapshot(`
         "import {vi} from "vitest";
+
         vi.hoisted(() => { 
                 if(!globalThis.__NUXT_VITEST_MOCKS){
                   vi.stubGlobal("__NUXT_VITEST_MOCKS", {})
                 }
               });
+
         vi.mock("bob", async (importOriginal) => {
           const mocks = globalThis.__NUXT_VITEST_MOCKS
           if (!mocks["bob"]) {
@@ -77,8 +79,38 @@ describe('mocking', () => {
         from: 'bob',
       }]
       const code = await getResult(`
-        import { expect, vi } from 'vitest'
+        import { expect, vi, it } from 'vitest'
         mockNuxtImport('useSomeExport', () => 'bob')
+        
+        it('test', () => {
+          const a = vi.fn()
+        })
+      `)
+      expect(code).toMatchInlineSnapshot(`
+        "
+                import { expect, vi, it } from 'vitest'
+        vi.hoisted(() => { 
+                if(!globalThis.__NUXT_VITEST_MOCKS){
+                  vi.stubGlobal("__NUXT_VITEST_MOCKS", {})
+                }
+              });
+
+        vi.mock("bob", async (importOriginal) => {
+          const mocks = globalThis.__NUXT_VITEST_MOCKS
+          if (!mocks["bob"]) {
+            mocks["bob"] = { ...await importOriginal("bob") }
+          }
+          mocks["bob"]["useSomeExport"] = await (() => 'bob')();
+          return mocks["bob"] 
+        });
+
+                
+                
+                it('test', () => {
+                  const a = vi.fn()
+                })
+              
+         import "bob";"
       `)
       expect(code).not.toContain('import {vi} from "vitest";')
     })
@@ -101,11 +133,13 @@ describe('mocking', () => {
         mockComponent('MyComponent', () => import('./MockComponent.vue'))
       `)).toMatchInlineSnapshot(`
         "import {vi} from "vitest";
+
         vi.hoisted(() => { 
                 if(!globalThis.__NUXT_VITEST_MOCKS){
                   vi.stubGlobal("__NUXT_VITEST_MOCKS", {})
                 }
               });
+
         vi.mock("MyComponent", async () => {
           const factory = (() => import('./MockComponent.vue'));
           const result = typeof factory === 'function' ? await factory() : await factory
