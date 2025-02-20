@@ -36,7 +36,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test:examples": "pnpm -r test --filter !example-app-cucumber --filter !example-app-jest && pnpm -r test --filter example-app-cucumber",
+    "test:examples": "pnpm --filter '!example-app-cucumber' --filter '!example-app-jest' -r test && pnpm --filter example-app-cucumber -r test",
     "test:types": "vue-tsc --noEmit",
     "test:unit": "vitest test/unit --run",
     "prepack": "unbuild",
