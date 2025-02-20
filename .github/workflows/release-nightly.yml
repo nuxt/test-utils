@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 # Remove default permissions of GITHUB_TOKEN for security
 # https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs
@@ -12,7 +15,7 @@ permissions: {}
 jobs:
   nightly:
     runs-on: ubuntu-latest
-    if: ${{ github.repository_owner == 'nuxt' && github.event_name == 'push' }}
+    if: ${{ github.repository_owner == 'nuxt' }}
     permissions:
       id-token: write
     steps:
@@ -20,7 +23,7 @@ jobs:
       - run: npm i -g --force corepack && corepack enable
       - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
         with:
-          node-version: 22
+          node-version: lts/*
           registry-url: "https://registry.npmjs.org/"
           cache: "pnpm"
 
@@ -30,7 +33,12 @@ jobs:
       - name: Prepare build environment
         run: pnpm dev:prepare
 
-      - name: nightly release
+      - name: 📦 release pkg.pr.new
+        if: github.event_name != 'push'
+        run: pnpm pkg-pr-new publish --compact
+
+      - name: 📦 release nightly
+        if: github.event_name == 'push'
         run: pnpm changelogen --canary nightly --publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
