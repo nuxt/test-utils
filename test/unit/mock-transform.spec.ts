@@ -112,6 +112,7 @@ describe('mocking', () => {
               
          import "bob";"
       `)
+      expect(code).not.toContain('import {vi} from "vitest";')
     })
   })
 
