@@ -228,15 +228,15 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
 
     if (!mockLines.length) return
 
-    s.prepend(`vi.hoisted(() => { 
+    s.appendLeft(insertionPoint, `\nvi.hoisted(() => { 
         if(!globalThis.${HELPER_MOCK_HOIST}){
           vi.stubGlobal(${JSON.stringify(HELPER_MOCK_HOIST)}, {})
         }
       });\n`)
 
-    s.prepend(`import {vi} from "vitest";\n`)
+    if (!hasViImport) s.prepend(`import {vi} from "vitest";\n`)
 
-    s.appendLeft(insertionPoint, mockLines.join('\n') + '\n')
+    s.appendLeft(insertionPoint, '\n' + mockLines.join('\n') + '\n')
 
     // do an import to trick vite to keep it
     // if not, the module won't be mocked

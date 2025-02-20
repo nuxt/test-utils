@@ -49,11 +49,13 @@ describe('mocking', () => {
         })
       `)).toMatchInlineSnapshot(`
         "import {vi} from "vitest";
+
         vi.hoisted(() => { 
                 if(!globalThis.__NUXT_VITEST_MOCKS){
                   vi.stubGlobal("__NUXT_VITEST_MOCKS", {})
                 }
               });
+
         vi.mock("bob", async (importOriginal) => {
           const mocks = globalThis.__NUXT_VITEST_MOCKS
           if (!mocks["bob"]) {
@@ -85,14 +87,15 @@ describe('mocking', () => {
         })
       `)
       expect(code).toMatchInlineSnapshot(`
-        "import {vi} from "vitest";
+        "
+                import { expect, vi, it } from 'vitest'
         vi.hoisted(() => { 
                 if(!globalThis.__NUXT_VITEST_MOCKS){
                   vi.stubGlobal("__NUXT_VITEST_MOCKS", {})
                 }
               });
 
-                import { expect, vi, it } from 'vitest'vi.mock("bob", async (importOriginal) => {
+        vi.mock("bob", async (importOriginal) => {
           const mocks = globalThis.__NUXT_VITEST_MOCKS
           if (!mocks["bob"]) {
             mocks["bob"] = { ...await importOriginal("bob") }
@@ -129,11 +132,13 @@ describe('mocking', () => {
         mockComponent('MyComponent', () => import('./MockComponent.vue'))
       `)).toMatchInlineSnapshot(`
         "import {vi} from "vitest";
+
         vi.hoisted(() => { 
                 if(!globalThis.__NUXT_VITEST_MOCKS){
                   vi.stubGlobal("__NUXT_VITEST_MOCKS", {})
                 }
               });
+
         vi.mock("MyComponent", async () => {
           const factory = (() => import('./MockComponent.vue'));
           const result = typeof factory === 'function' ? await factory() : await factory
