@@ -138,16 +138,22 @@ export async function loadWorkspace(dir: string) {
 
   const packages: Package[] = []
 
+  async function addWorkspace(dir: string) {
+    const pkg = await loadPackage(dir)
+    if (!pkg.data.name || pkg.data.private || ignoredPackages.includes(pkg.data.name)) {
+      return
+    }
+    console.log(pkg.data.name)
+    packages.push(pkg)
+  }
+
+  await addWorkspace(dir)
+
   for await (const pkgDir of fsp.glob(['packages/*'], { withFileTypes: true })) {
     if (!pkgDir.isDirectory()) {
       continue
     }
-    const pkg = await loadPackage(join(pkgDir.parentPath, pkgDir.name))
-    if (!pkg.data.name || ignoredPackages.includes(pkg.data.name)) {
-      continue
-    }
-    console.log(pkg.data.name)
-    packages.push(pkg)
+    await addWorkspace(join(pkgDir.parentPath, pkgDir.name))
   }
 
   const find = (name: string) => {
