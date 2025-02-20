@@ -122,9 +122,10 @@ export async function getVitestConfigFromNuxt(
         },
         workspace: [
           {
-            extends: true,
             test: {
-              environment: 'jsdom',
+              environment: 'nuxt',
+              name: 'nuxt',
+              include: ['**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', '{test,tests}/nuxt/**.*'],
             },
           },
         ],
