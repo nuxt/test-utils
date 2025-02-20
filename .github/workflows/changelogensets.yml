@@ -1,4 +1,4 @@
-name: changelog
+name: release
 
 on:
   push:
@@ -14,8 +14,8 @@ concurrency:
   cancel-in-progress: ${{ github.event_name != 'push' }}
 
 jobs:
-  update:
-    if: github.repository_owner == 'nuxt' && !contains(github.event.head_commit.message, 'v3.')
+  update-changelog:
+    if: github.repository_owner == 'nuxt' && !startsWith(github.event.head_commit.message, 'v')
     runs-on: ubuntu-latest
 
     steps:
@@ -25,12 +25,13 @@ jobs:
       - run: npm i -g --force corepack && corepack enable
       - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
         with:
-          node-version: 22
-          cache: "pnpm"
+          node-version: lts/*
+          cache: pnpm
 
-      - name: Install dependencies
+      - name: 📦 Install dependencies
         run: pnpm install
 
-      - run: pnpm jiti ./scripts/update-changelog.ts
+      - name: 🚧 Update changelog
+        run: node --experimental-strip-types ./scripts/update-changelog.ts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
