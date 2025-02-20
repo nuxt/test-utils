@@ -234,7 +234,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
         }
       });\n`)
 
-    if (!hasViImport) s.prepend(`import {vi} from "vitest";\n`)
+    s.prepend(`import {vi} from "vitest";\n`)
 
     s.appendLeft(insertionPoint, mockLines.join('\n') + '\n')
 
