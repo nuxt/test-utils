@@ -8,7 +8,6 @@
   "description": "Test utilities for Nuxt",
   "license": "MIT",
   "type": "module",
-  "types": "./dist/e2e.d.ts",
   "exports": {
     ".": "./dist/e2e.mjs",
     "./config": "./dist/config.mjs",
@@ -22,16 +21,37 @@
   "imports": {
     "#dirs": "./dirs.js"
   },
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/e2e.d.mts"
+      ],
+      "config": [
+        "./dist/config.d.mts"
+      ],
+      "e2e": [
+        "./dist/e2e.d.mts"
+      ],
+      "playwright": [
+        "./dist/playwright.d.mts"
+      ],
+      "experimental": [
+        "./dist/experimental.d.mts"
+      ],
+      "module": [
+        "./dist/module.d.mts"
+      ],
+      "runtime": [
+        "./dist/runtime-utils/index.d.mts"
+      ],
+      "vitest-environment": [
+        "./dist/vitest-environment.d.mts"
+      ]
+    }
+  },
   "files": [
     "dist",
-    "dirs.js",
-    "config.d.ts",
-    "e2e.d.ts",
-    "experimental.d.ts",
-    "module.d.ts",
-    "playwright.d.ts",
-    "runtime.d.ts",
-    "vitest-environment.d.ts"
+    "dirs.js"
   ],
   "scripts": {
     "lint": "eslint .",

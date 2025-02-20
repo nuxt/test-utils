@@ -3,7 +3,7 @@ import { defineBuildConfig } from 'unbuild'
 const isStub = process.argv.includes('--stub')
 
 export default defineBuildConfig({
-  declaration: true,
+  declaration: 'node16',
   entries: [
     'src/e2e',
     'src/playwright',
