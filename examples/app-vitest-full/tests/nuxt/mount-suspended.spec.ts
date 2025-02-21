@@ -123,6 +123,19 @@ describe('mountSuspended', () => {
     expect(component.emitted()).toHaveProperty('update:modelValue')
   })
 
+  it('can pass onUpdate event to components using defineModel', async () => {
+    const component = await mountSuspended(WrapperTests, {
+      props: {
+        'onUpdate:modelValue': async e => component.setProps({ modelValue: e }),
+      },
+    })
+
+    component.find('button#changeModelValue').trigger('click')
+    expect(component.emitted()).toHaveProperty('update:modelValue')
+    await nextTick()
+    expect(component.props('modelValue')).toBe(true)
+  })
+
   it('can access exposed methods/refs from components mounted within nuxt suspense', async () => {
     const component = await mountSuspended(WrapperTests)
     expect(component.vm.testExpose?.()).toBe('expose was successful')
