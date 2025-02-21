@@ -21,7 +21,7 @@ describe('server mocks and data fetching', () => {
     await server.close()
   })
 
-  it('can mock fetch requests', async () => {
+  it('can mock fetch requests within components', async () => {
     registerEndpoint('https://jsonplaceholder.typicode.com/todos/1', () => ({
       title: 'title from mocked api',
     }))
@@ -31,7 +31,7 @@ describe('server mocks and data fetching', () => {
     )
   })
 
-  it('can mock fetch requests', async () => {
+  it('can mock fetch requests made directly', async () => {
     registerEndpoint('/with-query', () => ({
       title: 'mocked',
     }))
@@ -40,6 +40,20 @@ describe('server mocks and data fetching', () => {
     ).toMatchObject({
       title: 'mocked',
     })
+  })
+
+  it('can override and remove request mocks', async () => {
+    const unsubFirst = registerEndpoint('/overrides', () => ({ title: 'first' }))
+    expect(await $fetch<unknown>('/overrides')).toStrictEqual({ title: 'first' })
+
+    const unsubSecond = registerEndpoint('/overrides', () => ({ title: 'second' }))
+    expect(await $fetch<unknown>('/overrides')).toStrictEqual({ title: 'second' })
+
+    unsubSecond()
+    expect(await $fetch<unknown>('/overrides')).toStrictEqual({ title: 'first' })
+
+    unsubFirst()
+    expect($fetch<unknown>('/overrides')).rejects.toMatchInlineSnapshot(`[FetchError: [GET] "/overrides": 404 Cannot find any path matching /_/overrides.]`)
   })
 
   it('can mock fetch requests with explicit methods', async () => {

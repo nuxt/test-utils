@@ -32,36 +32,45 @@ type OptionalFunction<T> = T | (() => Awaitable<T>)
  * ```
  * @see https://nuxt.com/docs/getting-started/testing#registerendpoint
  */
-export function registerEndpoint(
-  url: string,
-  options:
-    | EventHandler
-    | {
-      handler: EventHandler
-      method: HTTPMethod
-    },
-) {
+const endpointRegistry: Record<string, Array<{ handler: EventHandler, method?: HTTPMethod }>> = {}
+export function registerEndpoint(url: string, options: EventHandler | { handler: EventHandler, method: HTTPMethod }) {
   // @ts-expect-error private property
   const app: App = window.__app
 
-  if (!app) return
+  if (!app) {
+    throw new Error('registerEndpoint() can only be used in a `@nuxt/test-utils` runtime environment')
+  }
 
-  const config
-    = typeof options === 'function'
-      ? {
-          handler: options,
-          method: undefined,
-        }
-      : options
-
-  app.use('/_' + url, defineEventHandler(config.handler), {
-    match(_, event) {
-      return config.method ? event?.method === config.method : true
-    },
-  })
+  const config = typeof options === 'function' ? { handler: options, method: undefined } : options
+  config.handler = defineEventHandler(config.handler)
 
   // @ts-expect-error private property
-  window.__registry.add(url)
+  const hasBeenRegistered: boolean = window.__registry.has(url)
+
+  endpointRegistry[url] ||= []
+  endpointRegistry[url].push(config)
+
+  if (!hasBeenRegistered) {
+    // @ts-expect-error private property
+    window.__registry.add(url)
+
+    app.use('/_' + url, defineEventHandler((event) => {
+      const latestHandler = [...endpointRegistry[url]].reverse().find(config => config.method ? event.method === config.method : true)
+      return latestHandler?.handler(event)
+    }), {
+      match(_, event) {
+        return endpointRegistry[url]?.some(config => config.method ? event?.method === config.method : true)
+      },
+    })
+  }
+
+  return () => {
+    endpointRegistry[url].splice(endpointRegistry[url].indexOf(config), 1)
+    if (endpointRegistry[url].length === 0) {
+      // @ts-expect-error private property
+      window.__registry.delete(url)
+    }
+  }
 }
 
 /**
