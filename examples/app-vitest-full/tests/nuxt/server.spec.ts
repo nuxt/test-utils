@@ -53,7 +53,7 @@ describe('server mocks and data fetching', () => {
     expect(await $fetch<unknown>('/overrides')).toStrictEqual({ title: 'first' })
 
     unsubFirst()
-    expect($fetch<unknown>('/overrides')).rejects.toMatchInlineSnapshot(`[FetchError: [GET] "/overrides": 404 Cannot find any path matching /_/overrides.]`)
+    expect($fetch<unknown>('/overrides')).rejects.toMatchInlineSnapshot(`[FetchError: [GET] "/overrides": 404 Cannot find any path matching /overrides.]`)
   })
 
   it('can mock fetch requests with explicit methods', async () => {
