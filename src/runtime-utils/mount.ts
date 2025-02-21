@@ -116,7 +116,11 @@ export async function mountSuspended<T>(
                             // When using defineModel, getCurrentInstance().emit is executed internally. it needs to override.
                             const currentInstance = getCurrentInstance()
                             if (currentInstance) {
-                              currentInstance.emit = setupContext.emit
+                              const oldEmit = currentInstance.emit
+                              currentInstance.emit = (event: string, ...args: unknown[]) => {
+                                oldEmit(event, ...args)
+                                setupContext.emit(event, ...args)
+                              }
                             }
                             // Set before setupState set to allow asyncData to overwrite data
                             if (data && typeof data === 'function') {
