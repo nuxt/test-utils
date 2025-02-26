@@ -139,8 +139,8 @@ importers:
         specifier: 2.4.6
         version: 2.4.6
       changelogen:
-        specifier: 0.5.7
-        version: 0.5.7(magicast@0.3.5)
+        specifier: 0.6.0
+        version: 0.6.0(magicast@0.3.5)
       compatx:
         specifier: 0.1.8
         version: 0.1.8
@@ -176,7 +176,7 @@ importers:
         version: 5.7.3
       unbuild:
         specifier: latest
-        version: 3.3.1(typescript@5.7.3)(vue-tsc@2.2.4(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))
+        version: 3.4.1(typescript@5.7.3)(vue-tsc@2.2.4(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))
       unimport:
         specifier: 4.1.2
         version: 4.1.2
@@ -2906,14 +2906,6 @@ packages:
     resolution: {integrity: sha512-tjwM5exMg6BGRI+kNmTntNsvdZS1X8BFYS6tnJ2hdH0kVxM6/eVZ2xy+FqStSWvYmtfFMDLIxurorHwDKfDz5Q==}
     engines: {node: '>=18'}
 
-  c12@1.11.2:
-    resolution: {integrity: sha512-oBs8a4uvSDO9dm8b7OCFW7+dgtVrwmwnrVXYzLm43ta7ep2jCn/0MhoUFygIWtxhyy6+/MG7/agvpY0U1Iemew==}
-    peerDependencies:
-      magicast: ^0.3.4
-    peerDependenciesMeta:
-      magicast:
-        optional: true
-
   c12@2.0.1:
     resolution: {integrity: sha512-Z4JgsKXHG37C6PYUtIxCfLJZvo6FyhHJoClwwb9ftUkLpPSkuYqn6Tr+vnaN8hymm0kIbcg6Ey3kv/Q71k5w/A==}
     peerDependencies:
@@ -2994,8 +2986,8 @@ packages:
   change-case@5.4.4:
     resolution: {integrity: sha512-HRQyTk2/YPEkt9TnUPbOpr64Uw3KOicFWPVBb+xiHvd6eBx/qPr9xqfBFDT8P2vWsvvz4jbEkfDe71W3VyNu2w==}
 
-  changelogen@0.5.7:
-    resolution: {integrity: sha512-cTZXBcJMl3pudE40WENOakXkcVtrbBpbkmSkM20NdRiUqa4+VYRdXdEsgQ0BNQ6JBE2YymTNWtPKVF7UCTN5+g==}
+  changelogen@0.6.0:
+    resolution: {integrity: sha512-bw9NbPIpPxZbjbIxvXqs39qKwPIV3VsFbRdXPCphWsEp84mBCAEszBj67AqBXN719zPs/x5ABFFRoLoANMJSeQ==}
     hasBin: true
 
   char-regex@1.0.2:
@@ -3105,9 +3097,6 @@ packages:
 
   colorette@1.4.0:
     resolution: {integrity: sha512-Y2oEozpomLn7Q3HFP7dpww7AtMJplbM9lGZP6RDfHqmbeRjiwRg4n6VM6j4KLmRke85uWEI7JqF17f3pqdRA0g==}
-
-  colorette@2.0.20:
-    resolution: {integrity: sha512-IfEDxwoWIjkeXL1eXcDiow4UbKjhLdq6/EuSVR9GMN7KVH3r9gQ83e73hsz1Nd1T3ijd5xv1wcWRYO+D6kCI2w==}
 
   combined-stream@1.0.8:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
@@ -6805,6 +6794,10 @@ packages:
     resolution: {integrity: sha512-32TmKeeKUahv0Go8WmQgiEp9Y21NuxjwjqiRC1nrUB51YacfSwuB44xgXD+HdIppmMRgjQNPdrHyA6vIybYZ+g==}
     engines: {node: '>=12.0.0'}
 
+  tinyglobby@0.2.12:
+    resolution: {integrity: sha512-qkf4trmKSIiMTs/E63cxH+ojC2unam7rJ0WrauAzpT3ECNTxGRMlaXxVbfxMUC/w0LaYk6jQ4y/nGR9uBO3tww==}
+    engines: {node: '>=12.0.0'}
+
   tinypool@1.0.2:
     resolution: {integrity: sha512-al6n+QEANGFOMf/dmUMsuS5/r9B06uwlyNjZZql/zv8J7ybHCgoihBNORZCY2mzUuAnomQa2JdhyHKzZxPCrFA==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -6984,8 +6977,8 @@ packages:
       typescript:
         optional: true
 
-  unbuild@3.3.1:
-    resolution: {integrity: sha512-/5OeeHmW1JlWEyQw3SPkB9BV16lzr6C5i8D+O17NLx6ETgvCZ3ZlyXfWkVVfG2YCsv8xAVQCqJNJtbEAGwHg7A==}
+  unbuild@3.4.1:
+    resolution: {integrity: sha512-kSndFOB0knmsBUlRRuy3oEhibF0KgLDb+vS1VRQBfOv2WVx1fu4+xGY80j1ER4BlnsX5ly26fvXgwp76R6lggg==}
     hasBin: true
     peerDependencies:
       typescript: ^5.7.3
@@ -10729,23 +10722,6 @@ snapshots:
     dependencies:
       run-applescript: 7.0.0
 
-  c12@1.11.2(magicast@0.3.5):
-    dependencies:
-      chokidar: 3.6.0
-      confbox: 0.1.8
-      defu: 6.1.4
-      dotenv: 16.4.7
-      giget: 1.2.3
-      jiti: 1.21.7
-      mlly: 1.7.4
-      ohash: 1.1.4
-      pathe: 1.1.2
-      perfect-debounce: 1.0.0
-      pkg-types: 1.3.1
-      rc9: 2.1.2
-    optionalDependencies:
-      magicast: 0.3.5
-
   c12@2.0.1(magicast@0.3.5):
     dependencies:
       chokidar: 4.0.3
@@ -10864,22 +10840,21 @@ snapshots:
 
   change-case@5.4.4: {}
 
-  changelogen@0.5.7(magicast@0.3.5):
+  changelogen@0.6.0(magicast@0.3.5):
     dependencies:
-      c12: 1.11.2(magicast@0.3.5)
-      colorette: 2.0.20
+      c12: 3.0.1(magicast@0.3.5)
+      confbox: 0.1.8
       consola: 3.4.0
       convert-gitmoji: 0.1.5
       mri: 1.2.0
-      node-fetch-native: 1.6.5
+      node-fetch-native: 1.6.6
       ofetch: 1.4.1
       open: 10.1.0
-      pathe: 1.1.2
-      pkg-types: 1.3.0
+      pathe: 2.0.3
+      pkg-types: 2.0.0
       scule: 1.3.0
       semver: 7.7.1
       std-env: 3.8.0
-      yaml: 2.6.1
     transitivePeerDependencies:
       - magicast
 
@@ -10973,8 +10948,6 @@ snapshots:
   colord@2.9.3: {}
 
   colorette@1.4.0: {}
-
-  colorette@2.0.20: {}
 
   combined-stream@1.0.8:
     dependencies:
@@ -12080,7 +12053,7 @@ snapshots:
       citty: 0.1.6
       consola: 3.4.0
       defu: 6.1.4
-      node-fetch-native: 1.6.5
+      node-fetch-native: 1.6.6
       nypm: 0.3.12
       ohash: 1.1.4
       pathe: 1.1.2
@@ -13895,7 +13868,7 @@ snapshots:
       postcss: 8.5.2
       postcss-nested: 7.0.2(postcss@8.5.2)
       semver: 7.7.1
-      tinyglobby: 0.2.11
+      tinyglobby: 0.2.12
     optionalDependencies:
       typescript: 5.7.3
       vue: 3.5.13(typescript@5.7.3)
@@ -16024,6 +15997,11 @@ snapshots:
       fdir: 6.4.3(picomatch@4.0.2)
       picomatch: 4.0.2
 
+  tinyglobby@0.2.12:
+    dependencies:
+      fdir: 6.4.3(picomatch@4.0.2)
+      picomatch: 4.0.2
+
   tinypool@1.0.2: {}
 
   tinyrainbow@2.0.0: {}
@@ -16184,7 +16162,7 @@ snapshots:
       - supports-color
       - vue-tsc
 
-  unbuild@3.3.1(typescript@5.7.3)(vue-tsc@2.2.4(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3)):
+  unbuild@3.4.1(typescript@5.7.3)(vue-tsc@2.2.4(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3)):
     dependencies:
       '@rollup/plugin-alias': 5.1.1(rollup@4.34.8)
       '@rollup/plugin-commonjs': 28.0.2(rollup@4.34.8)
@@ -16195,19 +16173,19 @@ snapshots:
       citty: 0.1.6
       consola: 3.4.0
       defu: 6.1.4
-      esbuild: 0.24.2
+      esbuild: 0.25.0
       hookable: 5.5.3
       jiti: 2.4.2
       magic-string: 0.30.17
       mkdist: 2.2.0(typescript@5.7.3)(vue-tsc@2.2.4(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))
       mlly: 1.7.4
       pathe: 2.0.3
-      pkg-types: 1.3.0
+      pkg-types: 2.0.0
       pretty-bytes: 6.1.1
       rollup: 4.34.8
       rollup-plugin-dts: 6.1.1(rollup@4.34.8)(typescript@5.7.3)
       scule: 1.3.0
-      tinyglobby: 0.2.10
+      tinyglobby: 0.2.12
       untyped: 1.5.2
     optionalDependencies:
       typescript: 5.7.3
