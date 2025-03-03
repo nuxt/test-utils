@@ -112,8 +112,8 @@ importers:
         specifier: 29.7.0
         version: 29.7.0
       '@nuxt/devtools-kit':
-        specifier: 2.1.1
-        version: 2.1.1(magicast@0.3.5)(rollup@4.34.9)(vite@6.2.0(@types/node@22.13.8)(jiti@2.4.2)(terser@5.24.0)(yaml@2.7.0))
+        specifier: 2.1.3
+        version: 2.1.3(magicast@0.3.5)(rollup@4.34.9)(vite@6.2.0(@types/node@22.13.8)(jiti@2.4.2)(terser@5.24.0)(yaml@2.7.0))
       '@nuxt/eslint-config':
         specifier: 1.1.0
         version: 1.1.0(@vue/compiler-sfc@3.5.13)(eslint@9.21.0(jiti@2.4.2))(typescript@5.8.2)
@@ -139,8 +139,8 @@ importers:
         specifier: 2.4.6
         version: 2.4.6
       changelogen:
-        specifier: 0.6.0
-        version: 0.6.0(magicast@0.3.5)
+        specifier: 0.6.1
+        version: 0.6.1(magicast@0.3.5)
       compatx:
         specifier: 0.1.8
         version: 0.1.8
@@ -1697,8 +1697,8 @@ packages:
       nuxt: ^3.9.0
       vite: ^6.2.0
 
-  '@nuxt/devtools-kit@2.1.1':
-    resolution: {integrity: sha512-N3+qI41d4vdwZ8LdpxppWQ5GS3oDtRp7yTbW91osj7helkPLdLvsXUNVI2pJ2OZG0zdY8UNE1TbJe3DbgZL7wQ==}
+  '@nuxt/devtools-kit@2.1.3':
+    resolution: {integrity: sha512-OlLo8LZTp71Wi9q0ooE1bYeS5P7P1sU3JUb+zqJRX6/jMQa2QP06hc6TOz/5AIsEOq8YPQTum4oJ9gpHx53B0g==}
     peerDependencies:
       vite: ^6.2.0
 
@@ -2922,14 +2922,6 @@ packages:
       magicast:
         optional: true
 
-  c12@3.0.1:
-    resolution: {integrity: sha512-xuYi2qvu3ne8+5KchFjNLeK/j7Antw/18JCJyMI7lPoBeZ2aF1wK6rILCBkCoD+H2zG2SfjlanfLUNQ6v1bbNQ==}
-    peerDependencies:
-      magicast: ^0.3.5
-    peerDependenciesMeta:
-      magicast:
-        optional: true
-
   c12@3.0.2:
     resolution: {integrity: sha512-6Tzk1/TNeI3WBPpK0j/Ss4+gPj3PUJYbWl/MWDJBThFvwNGNkXtd7Cz8BJtD4aRwoGHtzQD0SnxamgUiBH0/Nw==}
     peerDependencies:
@@ -2994,8 +2986,8 @@ packages:
   change-case@5.4.4:
     resolution: {integrity: sha512-HRQyTk2/YPEkt9TnUPbOpr64Uw3KOicFWPVBb+xiHvd6eBx/qPr9xqfBFDT8P2vWsvvz4jbEkfDe71W3VyNu2w==}
 
-  changelogen@0.6.0:
-    resolution: {integrity: sha512-bw9NbPIpPxZbjbIxvXqs39qKwPIV3VsFbRdXPCphWsEp84mBCAEszBj67AqBXN719zPs/x5ABFFRoLoANMJSeQ==}
+  changelogen@0.6.1:
+    resolution: {integrity: sha512-rTw2bZgiEHMgyYzWFMH+qTMFOSpCf4qwmd8LyxLDUKCtL4T/7O7978tPPtKYpjiFbPoHG64y4ugdF0Mt/l+lQg==}
     hasBin: true
 
   char-regex@1.0.2:
@@ -3159,6 +3151,9 @@ packages:
 
   confbox@0.1.8:
     resolution: {integrity: sha512-RMtmw0iFkeR4YV+fUOSucriAQNb9g8zFR52MWCtl+cCZOFRNL6zeB395vPzFhEjjn4fMxXudmELnl/KF/WrK6w==}
+
+  confbox@0.2.1:
+    resolution: {integrity: sha512-hkT3yDPFbs95mNCy1+7qNKC6Pro+/ibzYxtM2iqEigpf0sVw+bg4Zh9/snjsBcf990vfIsg5+1U7VyiyBb3etg==}
 
   config-chain@1.1.13:
     resolution: {integrity: sha512-qj+f8APARXHrM0hraqXYb2/bOVSV4PvJQlNZ/DVj0QrmNM2q2euizkeuVckQ57J+W0mRH6Hvi+k50M4Jul2VRQ==}
@@ -3835,9 +3830,6 @@ packages:
 
   exponential-backoff@3.1.1:
     resolution: {integrity: sha512-dX7e/LHVJ6W3DE1MHWi9S1EYzDESENfLrYohG2G++ovZrYOkm4Knwa0mc1cn84xJOR4KEU0WSchhLbd0UklbHw==}
-
-  exsolve@0.4.2:
-    resolution: {integrity: sha512-sLGq+3R6ISovHNxuENnZ69paPIQm8h2bfeSefXIKvBLNCgh4pc+luHtgTLC4ij2zN6KFm1aMG8efQXcjyNy3lw==}
 
   exsolve@1.0.1:
     resolution: {integrity: sha512-Smf0iQtkQVJLaph8r/qS8C8SWfQkaq9Q/dFcD44MLbJj6DNhlWefVuaS21SjfqOsBbjVlKtbCj6L9ekXK6EZUg==}
@@ -5811,6 +5803,9 @@ packages:
 
   pkg-types@2.0.1:
     resolution: {integrity: sha512-LdDk/hlFeVBoEZqlkJ2bsxwq5fjKQg7i422zu78IC16CSR2XBe7kYxxBx0mkU8kLX6nh50Zp80lZHveKnsHTpQ==}
+
+  pkg-types@2.1.0:
+    resolution: {integrity: sha512-wmJwA+8ihJixSoHKxZJRBQG1oY8Yr9pGLzRmSsNms0iNWyHHAlZCa7mmKiFR10YPZuz/2k169JiS/inOjBCZ2A==}
 
   playwright-core@1.50.1:
     resolution: {integrity: sha512-ra9fsNWayuYumt+NiM069M6OkcRb1FZSK8bgi66AtpFoWkg2+y0bJSNmkFrWhMbEBbVKC/EruAHH3g0zmtwGmQ==}
@@ -9069,7 +9064,7 @@ snapshots:
       - rollup
       - supports-color
 
-  '@nuxt/devtools-kit@2.1.1(magicast@0.3.5)(rollup@4.34.9)(vite@6.2.0(@types/node@22.13.8)(jiti@2.4.2)(terser@5.24.0)(yaml@2.7.0))':
+  '@nuxt/devtools-kit@2.1.3(magicast@0.3.5)(rollup@4.34.9)(vite@6.2.0(@types/node@22.13.8)(jiti@2.4.2)(terser@5.24.0)(yaml@2.7.0))':
     dependencies:
       '@nuxt/kit': 3.15.4(magicast@0.3.5)(rollup@4.34.9)
       '@nuxt/schema': 3.15.4
@@ -10783,23 +10778,6 @@ snapshots:
     optionalDependencies:
       magicast: 0.3.5
 
-  c12@3.0.1(magicast@0.3.5):
-    dependencies:
-      chokidar: 4.0.3
-      confbox: 0.1.8
-      defu: 6.1.4
-      dotenv: 16.4.7
-      exsolve: 0.4.2
-      giget: 2.0.0
-      jiti: 2.4.2
-      ohash: 2.0.5
-      pathe: 2.0.3
-      perfect-debounce: 1.0.0
-      pkg-types: 2.0.0
-      rc9: 2.1.2
-    optionalDependencies:
-      magicast: 0.3.5
-
   c12@3.0.2(magicast@0.3.5):
     dependencies:
       chokidar: 4.0.3
@@ -10884,10 +10862,10 @@ snapshots:
 
   change-case@5.4.4: {}
 
-  changelogen@0.6.0(magicast@0.3.5):
+  changelogen@0.6.1(magicast@0.3.5):
     dependencies:
-      c12: 3.0.1(magicast@0.3.5)
-      confbox: 0.1.8
+      c12: 3.0.2(magicast@0.3.5)
+      confbox: 0.2.1
       consola: 3.4.0
       convert-gitmoji: 0.1.5
       mri: 1.2.0
@@ -10895,7 +10873,7 @@ snapshots:
       ofetch: 1.4.1
       open: 10.1.0
       pathe: 2.0.3
-      pkg-types: 2.0.0
+      pkg-types: 2.1.0
       scule: 1.3.0
       semver: 7.7.1
       std-env: 3.8.1
@@ -11030,6 +11008,8 @@ snapshots:
   concat-map@0.0.1: {}
 
   confbox@0.1.8: {}
+
+  confbox@0.2.1: {}
 
   config-chain@1.1.13:
     dependencies:
@@ -11912,8 +11892,6 @@ snapshots:
       jest-util: 29.7.0
 
   exponential-backoff@3.1.1: {}
-
-  exsolve@0.4.2: {}
 
   exsolve@1.0.1: {}
 
@@ -14491,7 +14469,7 @@ snapshots:
       citty: 0.1.6
       consola: 3.4.0
       pathe: 2.0.3
-      pkg-types: 2.0.0
+      pkg-types: 2.0.1
       tinyexec: 0.3.2
 
   object-assign@4.1.1: {}
@@ -14770,6 +14748,12 @@ snapshots:
   pkg-types@2.0.1:
     dependencies:
       confbox: 0.1.8
+      exsolve: 1.0.1
+      pathe: 2.0.3
+
+  pkg-types@2.1.0:
+    dependencies:
+      confbox: 0.2.1
       exsolve: 1.0.1
       pathe: 2.0.3
 
