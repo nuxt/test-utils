@@ -85,7 +85,7 @@ export default <Environment>{
 
     const registry = new Set<string>()
 
-    const localFetch: typeof fetch = async (url, init) => {
+    win.fetch = async (url, init) => {
       if (typeof url === 'string') {
         const base = url.split('?')[0]
         if (registry.has(base) || registry.has(url)) {
@@ -96,11 +96,11 @@ export default <Environment>{
           return normalizeFetchResponse(response)
         }
       }
-      return win.fetch(url, init)
+      return fetch(url, init)
     }
 
     // @ts-expect-error fetch types differ slightly
-    win.$fetch = createFetch({ fetch: localFetch, Headers: win.Headers })
+    win.$fetch = createFetch({ fetch: win.fetch, Headers: win.Headers })
 
     win.__registry = registry
     win.__app = h3App
