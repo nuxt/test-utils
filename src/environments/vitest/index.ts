@@ -2,11 +2,11 @@ import type { Environment } from 'vitest/environments'
 import { createFetch } from 'ofetch'
 import { indexedDB } from 'fake-indexeddb'
 import { joinURL } from 'ufo'
-import { createApp, defineEventHandler, toNodeListener } from 'h3'
+import { createApp, defineEventHandler, toNodeListener, splitCookiesString } from 'h3'
 import defu from 'defu'
 import { createRouter as createRadixRouter, exportMatcher, toRouteMatcher } from 'radix3'
 import { populateGlobal } from 'vitest/environments'
-import { createCall, createFetch as createLocalFetch } from 'unenv/runtime/fetch/index'
+import { fetchNodeRequestHandler } from 'node-mock-http'
 
 import type { NuxtBuiltinEnvironment } from './types'
 import happyDom from './env/happy-dom'
@@ -81,27 +81,26 @@ export default <Environment>{
       win.URLSearchParams = globalThis.URLSearchParams
     }
 
-    // @ts-expect-error TODO: fix in h3
-    const localCall = createCall(toNodeListener(h3App))
-    const localFetch = createLocalFetch(localCall, win.fetch)
+    const nodeHandler = toNodeListener(h3App)
 
     const registry = new Set<string>()
 
-    win.fetch = (init, options) => {
-      if (typeof init === 'string') {
-        const base = init.split('?')[0]
-        if (registry.has(base) || registry.has(init)) {
-          init = '/_' + init
+    const localFetch: typeof fetch = async (url, init) => {
+      if (typeof url === 'string') {
+        const base = url.split('?')[0]
+        if (registry.has(base) || registry.has(url)) {
+          url = '/_' + url
+        }
+        if (url.startsWith('/')) {
+          const response = await fetchNodeRequestHandler(nodeHandler, url, init)
+          return normalizeFetchResponse(response)
         }
       }
-      return localFetch(init.toString(), {
-        ...options,
-        headers: Array.isArray(options?.headers) ? new Headers(options?.headers) : options?.headers,
-      })
+      return win.fetch(url, init)
     }
 
     // @ts-expect-error fetch types differ slightly
-    win.$fetch = createFetch({ fetch: win.fetch, Headers: win.Headers })
+    win.$fetch = createFetch({ fetch: localFetch, Headers: win.Headers })
 
     win.__registry = registry
     win.__app = h3App
@@ -157,4 +156,40 @@ export default <Environment>{
       },
     }
   },
+}
+
+/** utils from nitro */
+
+function normalizeFetchResponse(response: Response) {
+  if (!response.headers.has('set-cookie')) {
+    return response
+  }
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: normalizeCookieHeaders(response.headers),
+  })
+}
+
+function normalizeCookieHeader(header: number | string | string[] = '') {
+  return splitCookiesString(joinHeaders(header))
+}
+
+function normalizeCookieHeaders(headers: Headers) {
+  const outgoingHeaders = new Headers()
+  for (const [name, header] of headers) {
+    if (name === 'set-cookie') {
+      for (const cookie of normalizeCookieHeader(header)) {
+        outgoingHeaders.append('set-cookie', cookie)
+      }
+    }
+    else {
+      outgoingHeaders.set(name, joinHeaders(header))
+    }
+  }
+  return outgoingHeaders
+}
+
+function joinHeaders(value: number | string | string[]) {
+  return Array.isArray(value) ? value.join(', ') : String(value)
 }
