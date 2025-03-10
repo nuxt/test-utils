@@ -120,9 +120,14 @@ export async function getVitestConfigFromNuxt(
             options.nuxt.options.nitro?.routeRules,
           ),
         },
-        environmentMatchGlobs: [
-          ['**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', 'nuxt'],
-          ['{test,tests}/nuxt/**.*', 'nuxt'],
+        workspace: [
+          {
+            test: {
+              environment: 'nuxt',
+              name: 'nuxt',
+              include: ['**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', '{test,tests}/nuxt/**.*'],
+            },
+          },
         ],
         server: {
           deps: {
