@@ -116,7 +116,7 @@ export default <Environment>{
     )
     const matcher = exportMatcher(routeRulesMatcher)
     const manifestOutputPath = joinURL(
-      '/',
+      environmentOptions?.nuxtRuntimeConfig.app?.baseURL || '/',
       environmentOptions?.nuxtRuntimeConfig.app?.buildAssetsDir || '_nuxt',
       'builds',
     )
