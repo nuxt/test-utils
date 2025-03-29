@@ -90,6 +90,6 @@ export interface TestHooks {
   beforeEach: () => void
   afterEach: () => void
   afterAll: () => Promise<void>
-  setup: () => Promise<void>
+  beforeAll: () => Promise<void>
   ctx: TestContext
 }
