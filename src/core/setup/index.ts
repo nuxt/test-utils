@@ -40,7 +40,7 @@ export function createTest(options: Partial<TestOptions>): TestHooks {
     await Promise.all(!ctx.teardown ? [] : ctx.teardown.map(fn => fn()))
   }
 
-  const setup = async () => {
+  const beforeAll = async () => {
     if (ctx.options.fixture) {
       await loadFixture()
     }
@@ -66,7 +66,7 @@ export function createTest(options: Partial<TestOptions>): TestHooks {
     beforeEach,
     afterEach,
     afterAll,
-    setup,
+    beforeAll,
     ctx,
   }
 }

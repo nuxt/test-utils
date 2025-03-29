@@ -6,7 +6,7 @@ export default async function setupVitest(hooks: TestHooks) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hooks.ctx.mockFn = vitest.vi.fn as any
 
-  vitest.beforeAll(hooks.setup, hooks.ctx.options.setupTimeout)
+  vitest.beforeAll(hooks.beforeAll, hooks.ctx.options.setupTimeout)
   vitest.beforeEach(hooks.beforeEach)
   vitest.afterEach(hooks.afterEach)
   vitest.afterAll(hooks.afterAll, hooks.ctx.options.teardownTimeout)

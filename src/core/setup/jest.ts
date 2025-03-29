@@ -5,7 +5,7 @@ export default async function setupJest(hooks: TestHooks) {
 
   hooks.ctx.mockFn = jest.fn as (...args: unknown[]) => unknown
 
-  test('setup', hooks.setup, hooks.ctx.options.setupTimeout)
+  test('setup', hooks.beforeAll, hooks.ctx.options.setupTimeout)
   beforeEach(hooks.beforeEach)
   afterEach(hooks.afterEach)
   afterAll(hooks.afterAll, hooks.ctx.options.teardownTimeout)
