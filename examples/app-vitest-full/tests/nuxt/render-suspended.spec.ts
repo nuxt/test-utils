@@ -195,7 +195,8 @@ it('renders links correctly', async () => {
   const component = await renderSuspended(LinkTests)
 
   expect(component.html()).toMatchInlineSnapshot(`
-  "<div id="test-wrapper">
-    <div><a href="/test"> Link with string to prop </a><a href="/test"> Link with object to prop </a></div>
-  </div>"`)
+    "<div id="test-wrapper">
+      <div><a href="/test"> Link with string to prop </a><a href="/test"> Link with object to prop </a></div>
+    </div>"
+  `)
 })
