@@ -90,6 +90,10 @@ export interface TestHooks {
   beforeEach: () => void
   afterEach: () => void
   afterAll: () => Promise<void>
+  beforeAll: () => Promise<void>
+  /**
+   * @deprecated use `beforeAll` intead
+   */
   setup: () => Promise<void>
   ctx: TestContext
 }

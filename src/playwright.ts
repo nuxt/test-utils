@@ -41,7 +41,7 @@ export const test = base.extend<TestOptions, WorkerOptions & ConfigOptions>({
   _nuxtHooks: [
     async ({ nuxt, defaults }, use) => {
       const hooks = createTest(defu(nuxt || {}, defaults.nuxt || {}))
-      await hooks.setup()
+      await hooks.beforeAll()
       await use(hooks)
       await hooks.afterAll()
     }, { scope: 'worker' },
