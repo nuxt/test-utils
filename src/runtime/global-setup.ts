@@ -9,7 +9,7 @@ const hooks = createTest(options)
 
 export const setup = async () => {
   kit.logger.info('Building Nuxt app...')
-  await hooks.setup()
+  await hooks.beforeAll()
   exposeContextToEnv()
   kit.logger.info('Running tests...')
 }
