@@ -330,8 +330,8 @@ importers:
         specifier: workspace:*
         version: link:../..
       '@nuxtjs/i18n':
-        specifier: 9.4.0
-        version: 9.4.0(@vue/compiler-dom@3.5.13)(eslint@9.24.0(jiti@2.4.2))(magicast@0.3.5)(rollup@4.39.0)(vue@3.5.13(typescript@5.8.2))
+        specifier: 9.5.1
+        version: 9.5.1(@vue/compiler-dom@3.5.13)(eslint@9.24.0(jiti@2.4.2))(magicast@0.3.5)(rollup@4.39.0)(vue@3.5.13(typescript@5.8.2))
       nuxt:
         specifier: 3.16.2
         version: 3.16.2(@parcel/watcher@2.4.1)(@types/node@22.14.0)(better-sqlite3@11.9.1)(db0@0.3.1(better-sqlite3@11.9.1))(encoding@0.1.13)(eslint@9.24.0(jiti@2.4.2))(idb-keyval@6.2.1)(ioredis@5.6.0)(magicast@0.3.5)(rollup@4.39.0)(terser@5.24.0)(typescript@5.8.2)(vite@6.2.5(@types/node@22.14.0)(jiti@2.4.2)(terser@5.24.0)(yaml@2.7.0))(vue-tsc@2.2.8(typescript@5.8.2))(yaml@2.7.0)
@@ -1753,8 +1753,8 @@ packages:
     peerDependencies:
       vue: ^3.5.13
 
-  '@nuxtjs/i18n@9.4.0':
-    resolution: {integrity: sha512-WREUig3PIdlcd3WbfRtmPx9HoLTUB7vUnbUvPS48O/qebntvAtlJKWjxaaBKpFof1RfbGmvPwtmEt+sYdJ6N3w==}
+  '@nuxtjs/i18n@9.5.1':
+    resolution: {integrity: sha512-1SXPISxMJ89sp2EfyXAyC1pmkAsSACPzBP0PBIveXBE1VvEE0ErFGuL70zgBXGETkT4tDq6OzZoWySO32ndkcw==}
     engines: {node: '>=18.12.0'}
 
   '@nuxtjs/mdc@0.16.1':
@@ -4473,9 +4473,6 @@ packages:
 
   is-hexadecimal@2.0.1:
     resolution: {integrity: sha512-DgZQp241c8oO6cA1SbTEWiXeoxV42vlcJxgH+B3hi1AiqqKruZR3ZGF8In3fj4+/y/7rHvlOZLZtgJ/4ttYGZg==}
-
-  is-https@4.0.0:
-    resolution: {integrity: sha512-FeMLiqf8E5g6SdiVJsPcNZX8k4h2fBs1wp5Bb6uaNxn58ufK1axBqQZdmAQsqh0t9BuwFObybrdVJh6MKyPlyg==}
 
   is-inside-container@1.0.0:
     resolution: {integrity: sha512-KIYLCCJghfHZxqjYBE7rEy0OBuTd5xCHS7tHVgvCLkx7StIoaxwNW3hCALgEUjFfeRk+MG/Qxmp/vtETEF3tRA==}
@@ -9091,7 +9088,7 @@ snapshots:
       - vue-tsc
       - yaml
 
-  '@nuxtjs/i18n@9.4.0(@vue/compiler-dom@3.5.13)(eslint@9.24.0(jiti@2.4.2))(magicast@0.3.5)(rollup@4.39.0)(vue@3.5.13(typescript@5.8.2))':
+  '@nuxtjs/i18n@9.5.1(@vue/compiler-dom@3.5.13)(eslint@9.24.0(jiti@2.4.2))(magicast@0.3.5)(rollup@4.39.0)(vue@3.5.13(typescript@5.8.2))':
     dependencies:
       '@intlify/h3': 0.6.1
       '@intlify/shared': 10.0.6
@@ -9106,7 +9103,7 @@ snapshots:
       defu: 6.1.4
       esbuild: 0.25.2
       estree-walker: 3.0.3
-      is-https: 4.0.0
+      h3: 1.15.1
       knitwork: 1.2.0
       magic-string: 0.30.17
       mlly: 1.7.4
@@ -12134,8 +12131,6 @@ snapshots:
       is-extglob: 2.1.1
 
   is-hexadecimal@2.0.1: {}
-
-  is-https@4.0.0: {}
 
   is-inside-container@1.0.0:
     dependencies:
