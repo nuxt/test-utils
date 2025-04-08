@@ -115,82 +115,85 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
           // because there's no root element while Suspense is resolving
           h(
             WrapperComponent,
-            h(
-              Suspense,
-              {
-                onResolve: () =>
-                  nextTick().then(() => {
-                    (utils as unknown as AugmentedVueInstance).setupState = setupState
-                    resolve(utils as ReturnType<typeof renderFromTestingLibrary> & { setupState: SetupState })
-                  }),
-              },
-              {
-                default: () =>
-                  h({
-                    name: 'RenderHelper',
-                    async setup() {
-                      const router = useRouter()
-                      await router.replace(route)
+            {},
+            {
+              default: () => h(
+                Suspense,
+                {
+                  onResolve: () =>
+                    nextTick().then(() => {
+                      (utils as unknown as AugmentedVueInstance).setupState = setupState
+                      resolve(utils as ReturnType<typeof renderFromTestingLibrary> & { setupState: SetupState })
+                    }),
+                },
+                {
+                  default: () =>
+                    h({
+                      name: 'RenderHelper',
+                      async setup() {
+                        const router = useRouter()
+                        await router.replace(route)
 
-                      // Proxy top-level setup/render context so test wrapper resolves child component
-                      const clonedComponent = {
-                        name: 'RenderSuspendedComponent',
-                        ...component,
-                        render: render
-                          ? function (this: unknown, _ctx: Record<string, unknown>, ...args: unknown[]) {
-                            // Set before setupState set to allow asyncData to overwrite data
-                            if (data && typeof data === 'function') {
-                              // @ts-expect-error error TS2554: Expected 1 arguments, but got 0
-                              const dataObject: Record<string, unknown> = data()
-                              for (const key in dataObject) {
-                                renderContext[key] = dataObject[key]
+                        // Proxy top-level setup/render context so test wrapper resolves child component
+                        const clonedComponent = {
+                          name: 'RenderSuspendedComponent',
+                          ...component,
+                          render: render
+                            ? function (this: unknown, _ctx: Record<string, unknown>, ...args: unknown[]) {
+                              // Set before setupState set to allow asyncData to overwrite data
+                              if (data && typeof data === 'function') {
+                                // @ts-expect-error error TS2554: Expected 1 arguments, but got 0
+                                const dataObject: Record<string, unknown> = data()
+                                for (const key in dataObject) {
+                                  renderContext[key] = dataObject[key]
+                                }
                               }
+                              for (const key in setupState || {}) {
+                                const warn = console.warn
+                                console.warn = () => { }
+                                try {
+                                  renderContext[key] = isReadonly(setupState[key]) ? unref(setupState[key]) : setupState[key]
+                                }
+                                catch {
+                                  // ignore errors setting properties that are not exposed to template
+                                }
+                                finally {
+                                  console.warn = warn
+                                }
+                                if (key === 'props') {
+                                  renderContext[key] = cloneProps(renderContext[key] as Record<string, unknown>)
+                                }
+                              }
+                              const propsContext = 'props' in renderContext ? renderContext.props as Record<string, unknown> : renderContext
+                              for (const key in props || {}) {
+                                propsContext[key] = _ctx[key]
+                              }
+                              for (const key in passedProps || {}) {
+                                propsContext[key] = passedProps[key]
+                              }
+                              if (methods && typeof methods === 'object') {
+                                for (const key in methods) {
+                                  renderContext[key] = methods[key].bind(renderContext)
+                                }
+                              }
+                              if (computed && typeof computed === 'object') {
+                                for (const key in computed) {
+                                  // @ts-expect-error error TS2339: Property 'call' does not exist on type 'ComputedGetter<any> | WritableComputedOptions<any, any>'
+                                  renderContext[key] = computed[key].call(renderContext)
+                                }
+                              }
+                              return render.call(this, renderContext, ...args)
                             }
-                            for (const key in setupState || {}) {
-                              const warn = console.warn
-                              console.warn = () => {}
-                              try {
-                                renderContext[key] = isReadonly(setupState[key]) ? unref(setupState[key]) : setupState[key]
-                              }
-                              catch {
-                                // ignore errors setting properties that are not exposed to template
-                              }
-                              finally {
-                                console.warn = warn
-                              }
-                              if (key === 'props') {
-                                renderContext[key] = cloneProps(renderContext[key] as Record<string, unknown>)
-                              }
-                            }
-                            const propsContext = 'props' in renderContext ? renderContext.props as Record<string, unknown> : renderContext
-                            for (const key in props || {}) {
-                              propsContext[key] = _ctx[key]
-                            }
-                            for (const key in passedProps || {}) {
-                              propsContext[key] = passedProps[key]
-                            }
-                            if (methods && typeof methods === 'object') {
-                              for (const key in methods) {
-                                renderContext[key] = methods[key].bind(renderContext)
-                              }
-                            }
-                            if (computed && typeof computed === 'object') {
-                              for (const key in computed) {
-                                // @ts-expect-error error TS2339: Property 'call' does not exist on type 'ComputedGetter<any> | WritableComputedOptions<any, any>'
-                                renderContext[key] = computed[key].call(renderContext)
-                              }
-                            }
-                            return render.call(this, renderContext, ...args)
-                          }
-                          : undefined,
-                        setup: setup ? (props: Record<string, unknown>) => wrappedSetup(props, setupContext) : undefined,
-                      }
+                            : undefined,
+                          setup: setup ? (props: Record<string, unknown>) => wrappedSetup(props, setupContext) : undefined,
+                        }
 
-                      return () => h(clonedComponent, { ...(props && typeof props === 'object' ? props : {}), ...attrs }, slots)
-                    },
-                  }),
-              },
-            ),
+                        return () => h(clonedComponent, { ...(props && typeof props === 'object' ? props : {}), ...attrs }, slots)
+                      },
+                    }),
+                },
+              ),
+            },
           ),
       },
       defu(_options, {
