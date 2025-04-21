@@ -13,7 +13,7 @@ describe('ssr', async () => {
     expect(html).toContain('<div>basic <span>original value</span></div>')
   })
 
-  it('changes runtime config and restarts', async () => {
+  it('changes runtime config and restarts', { timeout: 120000 }, async () => {
     await startServer({ env: { NUXT_PUBLIC_MY_VALUE: 'overwritten by test!' } })
 
     const html = await $fetch('/')
@@ -22,5 +22,5 @@ describe('ssr', async () => {
     await startServer()
     const htmlRestored = await $fetch('/')
     expect(htmlRestored).toContain('<div>basic <span>original value</span></div>')
-  }, { timeout: 120000 })
+  })
 })
