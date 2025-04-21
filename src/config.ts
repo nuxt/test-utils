@@ -1,5 +1,6 @@
 import type { Nuxt, NuxtConfig } from '@nuxt/schema'
 import type { InlineConfig as VitestConfig } from 'vitest/node'
+import { defaultExclude, defaultInclude } from 'vitest/config'
 import { defineConfig } from 'vite'
 import { setupDotenv } from 'c12'
 import type { DotenvOptions } from 'c12'
@@ -120,10 +121,6 @@ export async function getVitestConfigFromNuxt(
             options.nuxt.options.nitro?.routeRules,
           ),
         },
-        environmentMatchGlobs: [
-          ['**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', 'nuxt'],
-          ['{test,tests}/nuxt/**.*', 'nuxt'],
-        ],
         server: {
           deps: {
             inline: [
@@ -215,13 +212,51 @@ export function defineVitestConfig(config: InlineConfig & { test?: VitestConfig 
       config.test.setupFiles = [config.test.setupFiles].filter(Boolean) as string[]
     }
 
-    return defu(
+    const resolvedConfig = defu(
       config,
       await getVitestConfigFromNuxt(undefined, {
         dotenv: config.test?.environmentOptions?.nuxt?.dotenv,
         overrides: structuredClone(overrides),
       }),
     )
+
+    const defaultEnvironment = resolvedConfig.test.environment || 'node'
+    if (defaultEnvironment !== 'nuxt') {
+      if (!resolvedConfig.test.workspace) {
+        resolvedConfig.test.workspace = []
+        resolvedConfig.test.workspace.push({
+          extends: true,
+          test: {
+            name: 'nuxt',
+            environment: 'nuxt',
+            include: [
+              '**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+              '{test,tests}/nuxt/**.*',
+            ],
+          },
+        })
+      }
+
+      if (typeof resolvedConfig.test.workspace !== 'string') {
+        resolvedConfig.test.workspace ||= []
+        resolvedConfig.test.workspace.push(
+          {
+            test: {
+              name: defaultEnvironment,
+              environment: defaultEnvironment,
+              include: defaultInclude,
+              exclude: [
+                ...defaultExclude,
+                '**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+                '{test,tests}/nuxt/**.*',
+              ],
+            },
+          },
+        )
+      }
+    }
+
+    return resolvedConfig
   })
 }
 
