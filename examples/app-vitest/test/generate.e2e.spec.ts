@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { resolve } from 'pathe'
-import { globby } from 'globby'
+import { glob } from 'tinyglobby'
 import { setup, useTestContext } from '@nuxt/test-utils/e2e'
 import { describe, expect, it } from 'vitest'
 
@@ -19,7 +19,7 @@ describe('generate test', () => {
   it('can assert files are prerendered', async () => {
     const ctx = useTestContext()
     const outputDir = resolve(ctx.nuxt!.options.nitro.output?.dir || '', 'public')
-    const files = await globby(outputDir)
-    expect(files).toContain(resolve(outputDir, 'test/index.html'))
+    const files = await glob('**/*.html', { cwd: outputDir })
+    expect(files).toContain('test/index.html')
   })
 })
