@@ -1,0 +1,22 @@
+{
+  "name": "example-app-jest",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "nuxt": "^3.17.0"
+  },
+  "devDependencies": {
+    "@nuxt/test-utils": "latest",
+    "@types/bun": "1.2.10",
+    "playwright-core": "1.52.0",
+    "typescript": "5.8.3"
+  }
+}
