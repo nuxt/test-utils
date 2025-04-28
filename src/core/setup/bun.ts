@@ -1,6 +1,7 @@
 import type { TestHooks } from '../types'
 
 export default async function setupBun(hooks: TestHooks) {
+  // @ts-expect-error we do not want bun types present in global context
   const bunTest = await import('bun:test')
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
