@@ -123,6 +123,9 @@ importers:
       '@testing-library/vue':
         specifier: 8.1.0
         version: 8.1.0(@vue/compiler-sfc@3.5.13)(vue@3.5.13(typescript@5.8.3))
+      '@types/bun':
+        specifier: 1.2.10
+        version: 1.2.10
       '@types/estree':
         specifier: 1.0.7
         version: 1.0.7
@@ -189,6 +192,25 @@ importers:
       vue-tsc:
         specifier: 2.2.10
         version: 2.2.10(typescript@5.8.3)
+
+  examples/app-bun:
+    dependencies:
+      nuxt:
+        specifier: ^3.17.0
+        version: 3.17.0(@netlify/blobs@8.2.0)(@parcel/watcher@2.4.1)(@types/node@22.15.3)(better-sqlite3@11.9.1)(db0@0.3.2(better-sqlite3@11.9.1))(encoding@0.1.13)(eslint@9.25.1(jiti@2.4.2))(idb-keyval@6.2.1)(ioredis@5.6.1)(magicast@0.3.5)(rollup@4.40.1)(terser@5.24.0)(typescript@5.8.3)(vite@6.3.3(@types/node@22.15.3)(jiti@2.4.2)(terser@5.24.0)(yaml@2.7.1))(vue-tsc@2.2.10(typescript@5.8.3))(yaml@2.7.1)
+    devDependencies:
+      '@nuxt/test-utils':
+        specifier: workspace:*
+        version: link:../..
+      '@types/bun':
+        specifier: 1.2.10
+        version: 1.2.10
+      playwright-core:
+        specifier: 1.52.0
+        version: 1.52.0
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
 
   examples/app-cucumber:
     dependencies:
@@ -2453,6 +2475,9 @@ packages:
   '@types/babel__traverse@7.20.3':
     resolution: {integrity: sha512-Lsh766rGEFbaxMIDH7Qa+Yha8cMVI3qAK6CHt3OR0YfxOIn5Z54iHiyDRycHrBqeIiqGa20Kpsv1cavfBKkRSw==}
 
+  '@types/bun@1.2.10':
+    resolution: {integrity: sha512-eilv6WFM3M0c9ztJt7/g80BDusK98z/FrFwseZgT4bXCq2vPhXD4z8R3oddmAn+R/Nmz9vBn4kweJKmGTZj+lg==}
+
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
 
@@ -3121,6 +3146,9 @@ packages:
   builtin-modules@5.0.0:
     resolution: {integrity: sha512-bkXY9WsVpY7CvMhKSR6pZilZu9Ln5WDrKVBUXf2S443etkmEO4V58heTecXcUIsNsi4Rx8JUO4NfX1IcQl4deg==}
     engines: {node: '>=18.20'}
+
+  bun-types@1.2.10:
+    resolution: {integrity: sha512-b5ITZMnVdf3m1gMvJHG+gIfeJHiQPJak0f7925Hxu6ZN5VKA8AGy4GZ4lM+Xkn6jtWxg5S3ldWvfmXdvnkp3GQ==}
 
   bundle-name@4.1.0:
     resolution: {integrity: sha512-tjwM5exMg6BGRI+kNmTntNsvdZS1X8BFYS6tnJ2hdH0kVxM6/eVZ2xy+FqStSWvYmtfFMDLIxurorHwDKfDz5Q==}
@@ -10391,6 +10419,10 @@ snapshots:
     dependencies:
       '@babel/types': 7.27.0
 
+  '@types/bun@1.2.10':
+    dependencies:
+      bun-types: 1.2.10
+
   '@types/debug@4.1.12':
     dependencies:
       '@types/ms': 0.7.34
@@ -11182,6 +11214,10 @@ snapshots:
   builtin-modules@3.3.0: {}
 
   builtin-modules@5.0.0: {}
+
+  bun-types@1.2.10:
+    dependencies:
+      '@types/node': 22.15.3
 
   bundle-name@4.1.0:
     dependencies:

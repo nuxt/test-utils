@@ -16,6 +16,7 @@ export default defineBuildConfig({
   ],
   externals: [
     '#dirs',
+    'bun:test',
     '#app/entry',
     '#build/root-component.mjs',
     '#imports',
