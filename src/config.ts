@@ -6,7 +6,7 @@ import type { DotenvOptions } from 'c12'
 import type { InlineConfig } from 'vite'
 import type { DateString } from 'compatx'
 import { defu } from 'defu'
-import { createResolver } from '@nuxt/kit'
+import { createResolver, findPath } from '@nuxt/kit'
 
 import { applyEnv } from './utils'
 
@@ -202,7 +202,8 @@ export async function getVitestConfigFromNuxt(
   }
 
   const resolver = createResolver(import.meta.url)
-  resolvedConfig.test.setupFiles.unshift(resolver.resolve('./runtime/entry.ts'))
+  const entryPath = resolver.resolve('./runtime/entry')
+  resolvedConfig.test.setupFiles.unshift(await findPath(entryPath) ?? entryPath)
 
   return resolvedConfig
 }
