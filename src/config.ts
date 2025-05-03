@@ -101,9 +101,9 @@ export async function getVitestConfigFromNuxt(
   const resolvedConfig = defu(
     // overrides
     {
-      define: options.viteConfig.test?.browser?.enabled
-        ? {}
-        : { ['process.env.NODE_ENV']: 'process.env.NODE_ENV' },
+      define: {
+        'process.env.NODE_ENV': '"test"',
+      },
       test: {
         dir: process.cwd(),
         environmentOptions: {
