@@ -101,14 +101,9 @@ export async function getVitestConfigFromNuxt(
   const resolvedConfig = defu(
     // overrides
     {
-      define: {
-        // Commenting out this line allows Vitest Browser mode tests to run.
-        // Re-enabling this line causes the following errors:
-        // * ReferenceError: process is not defined
-        // * TypeError: Only orchestrator can create testers.
-
-        // ['process.env.NODE_ENV']: 'process.env.NODE_ENV',
-      },
+      define: options.viteConfig.test?.browser?.enabled
+        ? {}
+        : { ['process.env.NODE_ENV']: 'process.env.NODE_ENV' },
       test: {
         dir: process.cwd(),
         environmentOptions: {
