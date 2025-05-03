@@ -306,7 +306,7 @@ importers:
         specifier: 3.1.2
         version: 3.1.2(msw@2.7.5(@types/node@22.15.3)(typescript@5.8.3))(playwright@1.52.0)(vite@6.3.4(@types/node@22.15.3)(jiti@2.4.2)(terser@5.24.0)(yaml@2.7.1))(vitest@3.1.2)
       '@vue/test-utils':
-        specifier: ^2.4.6
+        specifier: 2.4.6
         version: 2.4.6
       nuxt:
         specifier: 3.17.1
@@ -318,7 +318,7 @@ importers:
         specifier: 3.1.2
         version: 3.1.2(@types/debug@4.1.12)(@types/node@22.15.3)(@vitest/browser@3.1.2)(happy-dom@17.4.6)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.15.3)(typescript@5.8.3))(terser@5.24.0)(yaml@2.7.1)
       vitest-browser-vue:
-        specifier: ^0.2.0
+        specifier: 0.2.0
         version: 0.2.0(@vitest/browser@3.1.2)(vitest@3.1.2)(vue@3.5.13(typescript@5.8.3))
 
   examples/app-vitest-full:
@@ -8016,9 +8016,6 @@ packages:
   vue-component-type-helpers@2.2.10:
     resolution: {integrity: sha512-iDUO7uQK+Sab2tYuiP9D1oLujCWlhHELHMgV/cB13cuGbG4qwkLHvtfWb6FzvxrIOPDnU0oHsz2MlQjhYDeaHA==}
 
-  vue-component-type-helpers@2.2.2:
-    resolution: {integrity: sha512-6lLY+n2xz2kCYshl59mL6gy8OUUTmkscmDFMO8i7Lj+QKwgnIFUZmM1i/iTYObtrczZVdw7UakPqDTGwVSGaRg==}
-
   vue-devtools-stub@0.1.0:
     resolution: {integrity: sha512-RutnB7X8c5hjq39NceArgXg28WZtZpGc3+J16ljMiYnFhKvd8hITxSWQSQ5bvldxMDU6gG5mkxl1MTQLXckVSQ==}
 
@@ -11240,7 +11237,7 @@ snapshots:
   '@vue/test-utils@2.4.6':
     dependencies:
       js-beautify: 1.14.9
-      vue-component-type-helpers: 2.2.2
+      vue-component-type-helpers: 2.2.10
 
   '@webcontainer/env@1.1.1': {}
 
@@ -17472,8 +17469,6 @@ snapshots:
       typescript: 5.8.3
 
   vue-component-type-helpers@2.2.10: {}
-
-  vue-component-type-helpers@2.2.2: {}
 
   vue-devtools-stub@0.1.0: {}
 
