@@ -2,6 +2,7 @@ import process from 'node:process'
 import type { Nuxt, NuxtConfig } from '@nuxt/schema'
 import type { UserWorkspaceConfig, InlineConfig as VitestConfig } from 'vitest/node'
 import { defineConfig } from 'vitest/config'
+import type { TestProjectInlineConfiguration } from 'vitest/config'
 import { setupDotenv } from 'c12'
 import type { DotenvOptions } from 'c12'
 import type { UserConfig as ViteUserConfig } from 'vite'
@@ -208,11 +209,15 @@ export async function getVitestConfigFromNuxt(
   return resolvedConfig
 }
 
-export async function defineVitestProject(config: UserWorkspaceConfig) {
+export async function defineVitestProject(config: TestProjectInlineConfiguration) {
   // When Nuxt module calls `startVitest`, we don't need to call `getVitestConfigFromNuxt` again
   if (process.env.__NUXT_VITEST_RESOLVED__) return config
 
-  return resolveConfig(config)
+  const resolvedConfig = await resolveConfig(config)
+
+  resolvedConfig.test.environment = 'nuxt'
+
+  return resolvedConfig
 }
 
 export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfig } = {}) {
