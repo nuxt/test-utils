@@ -7,6 +7,7 @@ export default defineVitestConfig({
       provider: 'playwright',
       instances: [{ browser: 'chromium' }],
     },
+    environment: 'nuxt',
     setupFiles: ['vitest-browser-vue'],
   },
 })
