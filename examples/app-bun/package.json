@@ -1,5 +1,5 @@
 {
-  "name": "example-app-playwright",
+  "name": "example-app-jest",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,14 +8,15 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "test": "playwright test"
+    "test": "bun test"
   },
   "dependencies": {
     "nuxt": "^3.17.2"
   },
   "devDependencies": {
     "@nuxt/test-utils": "latest",
-    "@playwright/test": "1.52.0",
-    "std-env": "3.9.0"
+    "@types/bun": "1.2.12",
+    "playwright-core": "1.52.0",
+    "typescript": "5.8.3"
   }
 }

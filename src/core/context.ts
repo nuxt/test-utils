@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import { defu } from 'defu'
 import { withTrailingSlash } from 'ufo'
 import type { DateString } from 'compatx'
-import { isWindows } from 'std-env'
+import { isBun, isWindows } from 'std-env'
 import type { TestContext, TestOptions } from './types'
 
 let currentContext: TestContext | undefined
@@ -43,6 +43,9 @@ export function createTestContext(options: Partial<TestOptions>): TestContext {
   }
   else if (process.env.JEST_WORKER_ID) {
     _options.runner ||= 'jest'
+  }
+  else if (isBun) {
+    _options.runner ||= 'bun'
   }
 
   return setTestContext({

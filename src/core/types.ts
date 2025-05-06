@@ -3,7 +3,7 @@ import type { Browser, LaunchOptions } from 'playwright-core'
 import type { exec } from 'tinyexec'
 import type { StartServerOptions } from './server'
 
-export type TestRunner = 'vitest' | 'jest' | 'cucumber'
+export type TestRunner = 'vitest' | 'jest' | 'cucumber' | 'bun'
 
 export interface TestOptions {
   testDir: string
@@ -43,7 +43,7 @@ export interface TestOptions {
    */
   browser: boolean
   /**
-   * Specify the runner for the test suite. One of `'vitest' | 'jest' | 'cucumber'`.
+   * Specify the runner for the test suite. One of `'vitest' | 'jest' | 'cucumber' | 'bun'`.
    * @default `vitest`
    */
   runner: TestRunner
