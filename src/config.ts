@@ -1,9 +1,10 @@
+import process from 'node:process'
 import type { Nuxt, NuxtConfig } from '@nuxt/schema'
 import type { InlineConfig as VitestConfig } from 'vitest/node'
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import { setupDotenv } from 'c12'
 import type { DotenvOptions } from 'c12'
-import type { InlineConfig } from 'vite'
+import type { UserConfig as ViteUserConfig } from 'vite'
 import type { DateString } from 'compatx'
 import { defu } from 'defu'
 import { createResolver, findPath } from '@nuxt/kit'
@@ -12,7 +13,7 @@ import { applyEnv } from './utils'
 
 interface GetVitestConfigOptions {
   nuxt: Nuxt
-  viteConfig: InlineConfig
+  viteConfig: ViteUserConfig
 }
 
 interface LoadNuxtOptions {
@@ -83,7 +84,7 @@ const excludedPlugins = [
 export async function getVitestConfigFromNuxt(
   options?: GetVitestConfigOptions,
   loadNuxtOptions: LoadNuxtOptions = {},
-): Promise<InlineConfig & { test: VitestConfig }> {
+): Promise<ViteUserConfig & { test: VitestConfig }> {
   const { rootDir = process.cwd(), ..._overrides } = loadNuxtOptions.overrides || {}
 
   if (!options) {
@@ -166,7 +167,7 @@ export async function getVitestConfigFromNuxt(
           },
         },
       ],
-    } satisfies InlineConfig,
+    } satisfies ViteUserConfig,
     // resolved vite config
     options.viteConfig,
     // (overrideable) defaults
@@ -183,7 +184,7 @@ export async function getVitestConfigFromNuxt(
         },
       } satisfies VitestConfig,
     },
-  ) as InlineConfig & { test: VitestConfig }
+  ) as ViteUserConfig & { test: VitestConfig }
 
   // TODO: fix this by separating nuxt/node vitest configs
   // typescript currently checks this to determine if it can access the filesystem: https://github.com/microsoft/TypeScript/blob/d4fbc9b57d9aa7d02faac9b1e9bb7b37c687f6e9/src/compiler/core.ts#L2738-L2749
@@ -203,8 +204,7 @@ export async function getVitestConfigFromNuxt(
   return resolvedConfig
 }
 
-export function defineVitestConfig(config: InlineConfig & { test?: VitestConfig } = {}) {
-  // @ts-expect-error TODO: investigate type mismatch
+export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfig } = {}) {
   return defineConfig(async () => {
     // When Nuxt module calls `startVitest`, we don't need to call `getVitestConfigFromNuxt` again
     if (process.env.__NUXT_VITEST_RESOLVED__) return config
@@ -217,12 +217,12 @@ export function defineVitestConfig(config: InlineConfig & { test?: VitestConfig 
     }
 
     return defu(
-      config,
+      config satisfies ViteUserConfig & { test?: VitestConfig },
       await getVitestConfigFromNuxt(undefined, {
         dotenv: config.test?.environmentOptions?.nuxt?.dotenv,
         overrides: structuredClone(overrides),
-      }),
-    )
+      }) satisfies ViteUserConfig & { test: VitestConfig },
+    ) as ViteUserConfig & { test: VitestConfig }
   })
 }
 
