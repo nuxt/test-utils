@@ -1,13 +1,14 @@
 import process from 'node:process'
 import type { Nuxt, NuxtConfig } from '@nuxt/schema'
-import type { InlineConfig as VitestConfig } from 'vitest/node'
+import type { UserWorkspaceConfig, InlineConfig as VitestConfig } from 'vitest/node'
 import { defineConfig } from 'vitest/config'
+import type { TestProjectInlineConfiguration } from 'vitest/config'
 import { setupDotenv } from 'c12'
 import type { DotenvOptions } from 'c12'
 import type { UserConfig as ViteUserConfig } from 'vite'
 import type { DateString } from 'compatx'
 import { defu } from 'defu'
-import { createResolver, findPath } from '@nuxt/kit'
+import { loadNuxt, buildNuxt, createResolver, findPath } from '@nuxt/kit'
 
 import { applyEnv } from './utils'
 
@@ -22,11 +23,7 @@ interface LoadNuxtOptions {
 }
 
 // https://github.com/nuxt/framework/issues/6496
-async function startNuxtAndGetViteConfig(
-  rootDir = process.cwd(),
-  options: LoadNuxtOptions = {},
-) {
-  const { loadNuxt, buildNuxt } = await import('@nuxt/kit')
+async function startNuxtAndGetViteConfig(rootDir = process.cwd(), options: LoadNuxtOptions = {}) {
   const nuxt = await loadNuxt({
     cwd: rootDir,
     dev: false,
@@ -121,10 +118,6 @@ export async function getVitestConfigFromNuxt(
             options.nuxt.options.nitro?.routeRules,
           ),
         },
-        environmentMatchGlobs: [
-          ['**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', 'nuxt'],
-          ['{test,tests}/nuxt/**.*', 'nuxt'],
-        ],
         server: {
           deps: {
             inline: [
@@ -155,6 +148,7 @@ export async function getVitestConfigFromNuxt(
       server: { middlewareMode: false },
       plugins: [
         {
+          // TODO: prefix with 'nuxt:test-utils:' in next major version
           name: 'disable-auto-execute',
           enforce: 'pre',
           transform(code, id) {
@@ -163,6 +157,17 @@ export async function getVitestConfigFromNuxt(
                 /(?<!vueAppPromise = )entry\(\)/,
                 'Promise.resolve()',
               )
+            }
+          },
+        },
+        {
+          name: 'nuxt:test-utils:browser-conditions',
+          enforce: 'pre',
+          config() {
+            return {
+              resolve: {
+                conditions: ['web', 'import', 'module', 'default'],
+              },
             }
           },
         },
@@ -204,26 +209,69 @@ export async function getVitestConfigFromNuxt(
   return resolvedConfig
 }
 
+export async function defineVitestProject(config: TestProjectInlineConfiguration) {
+  // When Nuxt module calls `startVitest`, we don't need to call `getVitestConfigFromNuxt` again
+  if (process.env.__NUXT_VITEST_RESOLVED__) return config
+
+  const resolvedConfig = await resolveConfig(config)
+
+  resolvedConfig.test.environment = 'nuxt'
+
+  return resolvedConfig
+}
+
 export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfig } = {}) {
   return defineConfig(async () => {
     // When Nuxt module calls `startVitest`, we don't need to call `getVitestConfigFromNuxt` again
     if (process.env.__NUXT_VITEST_RESOLVED__) return config
 
-    const overrides = config.test?.environmentOptions?.nuxt?.overrides || {}
-    overrides.rootDir = config.test?.environmentOptions?.nuxt?.rootDir
+    const resolvedConfig = await resolveConfig(config)
 
-    if (config.test?.setupFiles && !Array.isArray(config.test.setupFiles)) {
-      config.test.setupFiles = [config.test.setupFiles].filter(Boolean) as string[]
+    if (resolvedConfig.test.browser?.enabled) {
+      return resolvedConfig
     }
 
-    return defu(
-      config satisfies ViteUserConfig & { test?: VitestConfig },
-      await getVitestConfigFromNuxt(undefined, {
-        dotenv: config.test?.environmentOptions?.nuxt?.dotenv,
-        overrides: structuredClone(overrides),
-      }) satisfies ViteUserConfig & { test: VitestConfig },
-    ) as ViteUserConfig & { test: VitestConfig }
+    if ('workspace' in resolvedConfig.test) {
+      throw new Error(
+        'The `workspace` option is not supported with `defineVitestConfig`. Instead, use `defineVitestProject` to define each workspace project that uses the Nuxt environment.',
+      )
+    }
+
+    const defaultEnvironment = resolvedConfig.test.environment || 'node'
+    if (defaultEnvironment !== 'nuxt') {
+      resolvedConfig.test.workspace = []
+      resolvedConfig.test.workspace.push({
+        extends: true,
+        test: {
+          name: 'nuxt',
+          environment: 'nuxt',
+          include: [
+            '**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+            '{test,tests}/nuxt/**.*',
+          ],
+        },
+      })
+    }
+
+    return resolvedConfig
   })
+}
+
+async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } | UserWorkspaceConfig>(config: T) {
+  const overrides = config.test?.environmentOptions?.nuxt?.overrides || {}
+  overrides.rootDir = config.test?.environmentOptions?.nuxt?.rootDir
+
+  if (config.test?.setupFiles && !Array.isArray(config.test.setupFiles)) {
+    config.test.setupFiles = [config.test.setupFiles].filter(Boolean) as string[]
+  }
+
+  return defu(
+    config satisfies T,
+    await getVitestConfigFromNuxt(undefined, {
+      dotenv: config.test?.environmentOptions?.nuxt?.dotenv,
+      overrides: structuredClone(overrides),
+    }) satisfies ViteUserConfig & { test: NonNullable<T['test']> },
+  ) as T & { test: NonNullable<T['test']> }
 }
 
 interface NuxtEnvironmentOptions {
