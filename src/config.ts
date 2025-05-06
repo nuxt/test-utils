@@ -243,9 +243,7 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
       resolvedConfig.test.workspace.push({
         extends: true,
         test: {
-          browser: {
-            enabled: false,
-          },
+          browser: undefined,
           name: 'nuxt',
           environment: 'nuxt',
           include: [
