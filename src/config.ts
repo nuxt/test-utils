@@ -102,6 +102,9 @@ export async function getVitestConfigFromNuxt(
       define: {
         'process.env.NODE_ENV': '"test"',
       },
+      optimizeDeps: {
+        noDiscovery: true,
+      },
       test: {
         dir: process.cwd(),
         environmentOptions: {
