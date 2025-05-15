@@ -21,4 +21,9 @@ describe('Component (MyCounter)', () => {
     await decrementButton.click()
     expect(getByText('Count: -1')).toBeInTheDocument()
   })
+
+  it('can use Nuxt-specific composables', () => {
+    const { getByText } = render(MyCounter)
+    expect(getByText('"buildAssetsDir": "/_nuxt/"')).toBeInTheDocument()
+  })
 })

@@ -93,6 +93,13 @@ export default defineNuxtModule<NuxtVitestOptions>({
         return !p || !('name' in p) || !vitePluginBlocklist.includes(p.name)
       })
 
+      // TODO: investigate why this is needed
+      viteConfig.test.environmentMatchGlobs ||= []
+      viteConfig.test.environmentMatchGlobs.push(
+        ['**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', 'nuxt'],
+        ['{test,tests}/nuxt/**.*', 'nuxt'],
+      )
+
       process.env.__NUXT_VITEST_RESOLVED__ = 'true'
       const { startVitest } = (await import(pathToFileURL(await resolvePath('vitest/node')).href)) as typeof import('vitest/node')
 
