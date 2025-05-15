@@ -13,13 +13,17 @@ mockNuxtImport('queryCollection', () => (_id: string) => ({
 }))
 
 describe('App', () => {
-  it.skip('works with mountSuspended', async () => {
+  it('works with mountSuspended', async () => {
     const component = await mountSuspended(App)
-    expect(component.html()).toMatchInlineSnapshot(`"<div>Index page</div><div>title: My page</div>"`)
+    expect(component.html()).toMatchInlineSnapshot(`
+      "<div>Index page</div>
+      <div>title: My page</div>"
+    `)
   })
 
-  it.skip('works with vitest-browser-vue', async () => {
-    const { getByText } = await render(App)
+  // TODO: render does not currently support <Suspense>
+  it.skip('works with vitest-browser-vue', () => {
+    const { getByText } = render(App)
     expect(getByText('Index page')).toBeInTheDocument()
     expect(getByText('title: My page')).toBeInTheDocument()
   })
