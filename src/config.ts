@@ -75,7 +75,11 @@ async function startNuxtAndGetViteConfig(rootDir = process.cwd(), options: LoadN
 const excludedPlugins = [
   'nuxt:import-protection',
   'nuxt:import-conditions',
+  'nuxt:devtools:rpc',
+  'nuxt:devtools:config-retriever',
   'vite-plugin-checker',
+  'vite-plugin-inspect',
+  'vite-plugin-vue-tracer',
 ]
 
 export async function getVitestConfigFromNuxt(
@@ -96,11 +100,18 @@ export async function getVitestConfigFromNuxt(
 
   options.viteConfig.plugins = (options.viteConfig.plugins || []).filter(p => !p || !('name' in p) || !excludedPlugins.includes(p.name))
 
+  const resolver = createResolver(import.meta.url)
   const resolvedConfig = defu(
     // overrides
     {
       define: {
         'process.env.NODE_ENV': '"test"',
+      },
+      resolve: {
+        alias: {
+          '@vue/devtools-kit': resolver.resolve('./runtime/mocks/vue-devtools'),
+          '@vue/devtools-core': resolver.resolve('./runtime/mocks/vue-devtools'),
+        },
       },
       optimizeDeps: {
         noDiscovery: true,
@@ -205,7 +216,6 @@ export async function getVitestConfigFromNuxt(
     resolvedConfig.test.setupFiles = [resolvedConfig.test.setupFiles].filter(Boolean) as string[]
   }
 
-  const resolver = createResolver(import.meta.url)
   const entryPath = resolver.resolve('./runtime/entry')
   resolvedConfig.test.setupFiles.unshift(await findPath(entryPath) ?? entryPath)
 
