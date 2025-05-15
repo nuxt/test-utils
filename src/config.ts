@@ -105,6 +105,10 @@ export async function getVitestConfigFromNuxt(
       test: {
         dir: process.cwd(),
         environmentOptions: {
+          // @ts-expect-error will be available from nuxt@3.12.0
+          appId: options.nuxt.options.appId,
+          experimental: defu({}, options.nuxt.options.experimental),
+          future: defu({}, options.nuxt.options.future),
           nuxtRuntimeConfig: applyEnv(structuredClone(options.nuxt.options.runtimeConfig), {
             prefix: 'NUXT_',
             env: await setupDotenv(defu(loadNuxtOptions.dotenv, {
