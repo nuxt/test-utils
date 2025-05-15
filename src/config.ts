@@ -102,6 +102,9 @@ export async function getVitestConfigFromNuxt(
       define: {
         'process.env.NODE_ENV': '"test"',
       },
+      optimizeDeps: {
+        noDiscovery: true,
+      },
       test: {
         dir: process.cwd(),
         environmentOptions: {
@@ -265,16 +268,46 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
     config.test.setupFiles = [config.test.setupFiles].filter(Boolean) as string[]
   }
 
-  return defu(
+  const resolvedConfig = defu(
     config satisfies T,
     await getVitestConfigFromNuxt(undefined, {
       dotenv: config.test?.environmentOptions?.nuxt?.dotenv,
       overrides: structuredClone(overrides),
     }) satisfies ViteUserConfig & { test: NonNullable<T['test']> },
   ) as T & { test: NonNullable<T['test']> }
+
+  const PLUGIN_NAME = 'nuxt:vitest:nuxt-environment-options'
+  const STUB_ID = 'nuxt-vitest-environment-options'
+  resolvedConfig.plugins!.push({
+    name: PLUGIN_NAME,
+    enforce: 'pre',
+    resolveId(id) {
+      if (id.endsWith(STUB_ID)) {
+        return STUB_ID
+      }
+    },
+    load(id) {
+      if (id.endsWith(STUB_ID)) {
+        return `export default ${JSON.stringify(resolvedConfig.test.environmentOptions || {})}`
+      }
+    },
+  })
+
+  if (resolvedConfig.test.browser?.enabled) {
+    if (resolvedConfig.test.environment === 'nuxt') {
+      resolvedConfig.test.setupFiles = Array.isArray(resolvedConfig.test.setupFiles)
+        ? resolvedConfig.test.setupFiles
+        : [resolvedConfig.test.setupFiles].filter(Boolean) as string[]
+      const resolver = createResolver(import.meta.url)
+      const browserEntry = await findPath(resolver.resolve('./runtime/browser-entry')) || resolver.resolve('./runtime/browser-entry')
+      resolvedConfig.test.setupFiles.unshift(browserEntry)
+    }
+  }
+
+  return resolvedConfig
 }
 
-interface NuxtEnvironmentOptions {
+export interface NuxtEnvironmentOptions {
   rootDir?: string
   /**
    * The starting URL for your Nuxt window environment

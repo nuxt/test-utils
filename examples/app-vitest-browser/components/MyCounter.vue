@@ -1,6 +1,7 @@
 <template>
   <div>
     <p>Count: {{ count }}</p>
+    <p>Runtime Config: {{ config }}</p>
     <button @click="increment">
       Increment
     </button>
@@ -12,6 +13,7 @@
 
 <script setup lang="ts">
 const count = ref(0)
+const config = useRuntimeConfig()
 
 const increment = () => {
   count.value++
