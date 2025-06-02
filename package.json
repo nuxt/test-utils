@@ -60,7 +60,7 @@
     "test:types": "vue-tsc --noEmit",
     "test:unit": "vitest test/unit --run",
     "prepack": "unbuild",
-    "dev:prepare": "nuxi prepare && unbuild --stub && pnpm -r dev:prepare"
+    "dev:prepare": "nuxt prepare && unbuild --stub && pnpm -r dev:prepare"
   },
   "dependencies": {
     "@nuxt/kit": "^3.17.4",
