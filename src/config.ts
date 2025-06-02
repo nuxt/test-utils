@@ -1,6 +1,7 @@
 import process from 'node:process'
 import type { Nuxt, NuxtConfig } from '@nuxt/schema'
 import type { UserWorkspaceConfig, InlineConfig as VitestConfig } from 'vitest/node'
+// this is deliberately the vite config function so the module runs if vitest is not installed
 import { defineConfig, defaultExclude } from 'vitest/config'
 import type { TestProjectInlineConfiguration } from 'vitest/config'
 import { setupDotenv } from 'c12'
