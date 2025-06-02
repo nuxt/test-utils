@@ -1,7 +1,7 @@
 import process from 'node:process'
 import type { Nuxt, NuxtConfig } from '@nuxt/schema'
 import type { UserWorkspaceConfig, InlineConfig as VitestConfig } from 'vitest/node'
-import { defineConfig } from 'vitest/config'
+import { defineConfig, defaultExclude } from 'vitest/config'
 import type { TestProjectInlineConfiguration } from 'vitest/config'
 import { setupDotenv } from 'c12'
 import type { DotenvOptions } from 'c12'
@@ -261,6 +261,18 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
           include: [
             '**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
             '{test,tests}/nuxt/**.*',
+          ],
+        },
+      })
+      resolvedConfig.test.workspace.push({
+        extends: true,
+        test: {
+          name: defaultEnvironment,
+          environment: defaultEnvironment,
+          exclude: [
+            ...defaultExclude,
+            './**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+            './{test,tests}/nuxt/**.*',
           ],
         },
       })
