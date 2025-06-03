@@ -9,4 +9,14 @@ describe('InjectedValueComponent', () => {
     const component = await mountSuspended(InjectedValueComponent)
     expect(component.text()).toContain(VUE_INJECTED_VALUE)
   })
+  it('can stub injected values', async () => {
+    const component = await mountSuspended(InjectedValueComponent, {
+      global: {
+        provide: {
+          [VUE_INJECTED_VALUE]: 'stubbed value',
+        },
+      },
+    })
+    expect(component.text()).toContain('stubbed value')
+  })
 })
