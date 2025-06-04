@@ -2,7 +2,7 @@ import process from 'node:process'
 import type { Nuxt, NuxtConfig } from '@nuxt/schema'
 import type { UserWorkspaceConfig, InlineConfig as VitestConfig } from 'vitest/node'
 // this is deliberately the vite config function so the module runs if vitest is not installed
-import { defineConfig, defaultExclude } from 'vitest/config'
+import { defineConfig } from 'vite'
 import type { TestProjectInlineConfiguration } from 'vitest/config'
 import { setupDotenv } from 'c12'
 import type { DotenvOptions } from 'c12'
@@ -271,7 +271,11 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
           name: defaultEnvironment,
           environment: defaultEnvironment,
           exclude: [
-            ...defaultExclude,
+            '**/node_modules/**',
+            '**/dist/**',
+            '**/cypress/**',
+            '**/.{idea,git,cache,output,temp}/**',
+            '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
             './**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
             './{test,tests}/nuxt/**.*',
           ],
