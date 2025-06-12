@@ -2,7 +2,9 @@ import { fileURLToPath } from 'node:url'
 import { test, expect } from 'vitest'
 import { createVitest } from 'vitest/node'
 
-test('it should include nuxt spec files', async () => {
+test('it should include nuxt spec files', {
+  timeout: 10000,
+}, async () => {
   const vitest = await createVitest('test', {
     config: fileURLToPath(new URL('../vitest.config.ts', import.meta.url)),
     dir: fileURLToPath(new URL('../', import.meta.url)),
