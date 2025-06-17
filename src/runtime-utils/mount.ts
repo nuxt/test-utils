@@ -107,6 +107,8 @@ export async function mountSuspended<T>(
                       const router = useRouter()
                       await router.replace(route)
 
+                      let interceptedEmit: ((event: string, ...args: unknown[]) => void) | null = null
+
                       // Proxy top-level setup/render context so test wrapper resolves child component
                       const clonedComponent = {
                         name: 'MountSuspendedComponent',
@@ -115,12 +117,17 @@ export async function mountSuspended<T>(
                           ? function (this: unknown, _ctx: Record<string, unknown>, ...args: unknown[]) {
                             // When using defineModel, getCurrentInstance().emit is executed internally. it needs to override.
                             const currentInstance = getCurrentInstance()
-                            if (currentInstance) {
+                            if (
+                              currentInstance
+                              // Intercept the emit only once. Otherwise the events would be duplicated for every rerender.
+                              && currentInstance.emit !== interceptedEmit
+                            ) {
                               const oldEmit = currentInstance.emit
-                              currentInstance.emit = (event: string, ...args: unknown[]) => {
+                              interceptedEmit = (event, ...args) => {
                                 oldEmit(event, ...args)
                                 setupContext.emit(event, ...args)
                               }
+                              currentInstance.emit = interceptedEmit
                             }
                             // Set before setupState set to allow asyncData to overwrite data
                             if (data && typeof data === 'function') {
