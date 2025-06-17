@@ -1,8 +1,9 @@
-import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 import { $fetch, setup } from '@nuxt/test-utils/e2e'
 
 await setup({
-  rootDir: fileURLToPath(new URL('../', import.meta.url)),
+  rootDir: resolve('../', import.meta.dirname),
+  server: true,
 })
 
 describe('app', () => {
