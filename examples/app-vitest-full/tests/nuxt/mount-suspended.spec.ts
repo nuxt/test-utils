@@ -123,6 +123,50 @@ describe('mountSuspended', () => {
     expect(component.emitted()).toHaveProperty('update:modelValue')
   })
 
+  it('can receive emitted events from components mounted within nuxt suspense using defineModel after prop changes and multiple interactions', async () => {
+    const component = await mountSuspended(WrapperTests)
+
+    component.find('button#changeModelValue').trigger('click')
+    expect(component.emitted()).toMatchInlineSnapshot(`
+      {
+        "update:modelValue": [
+          [
+            true,
+          ],
+        ],
+      }
+    `)
+
+    await component.setProps({ modelValue: true })
+
+    component.find('button#changeModelValue').trigger('click')
+    expect(component.emitted()).toMatchInlineSnapshot(`
+      {
+        "update:modelValue": [
+          [
+            true,
+          ],
+        ],
+      }
+    `)
+
+    await component.setProps({ modelValue: false })
+
+    component.find('button#changeModelValue').trigger('click')
+    expect(component.emitted()).toMatchInlineSnapshot(`
+      {
+        "update:modelValue": [
+          [
+            true,
+          ],
+          [
+            true,
+          ],
+        ],
+      }
+    `)
+  })
+
   it('can pass onUpdate event to components using defineModel', async () => {
     const component = await mountSuspended(WrapperTests, {
       props: {
