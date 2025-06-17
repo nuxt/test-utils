@@ -1,11 +1,10 @@
-import { fileURLToPath } from 'node:url'
-import { resolve } from 'pathe'
+import { resolve } from 'node:path'
 import { glob } from 'tinyglobby'
 import { setup, useTestContext } from '@nuxt/test-utils/e2e'
 import { describe, expect, it } from 'vitest'
 
 await setup({
-  rootDir: fileURLToPath(new URL('../', import.meta.url)),
+  rootDir: resolve('../', import.meta.dirname),
   nuxtConfig: {
     nitro: {
       prerender: {

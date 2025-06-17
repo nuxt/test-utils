@@ -1,10 +1,10 @@
-import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 import { describe, it, expect } from 'bun:test'
 import { createPage, setup } from '@nuxt/test-utils/e2e'
 import { isWindows } from 'std-env'
 
 await setup({
-  rootDir: fileURLToPath(new URL('../', import.meta.url)),
+  rootDir: resolve('../', import.meta.dirname),
   browser: true,
 })
 
