@@ -1,0 +1,26 @@
+{
+  "name": "example-app-vitest-layers",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "nuxt": "catalog:"
+  },
+  "devDependencies": {
+    "my-nuxt-layer": "workspace:*",
+    "@nuxt/test-utils": "latest",
+    "happy-dom": "18.0.1",
+    "playwright-core": "1.52.0",
+    "tinyglobby": "0.2.14",
+    "typescript": "5.8.3",
+    "vitest": "3.2.3"
+  }
+}
