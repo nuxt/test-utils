@@ -14,7 +14,8 @@ describe('server mocks and data fetching', () => {
       eventHandler(() => ({ id: 1 })),
     )
     const server = await listen(toNodeListener(app))
-    const [{ url }] = await server.getURLs()
+    const urls = await server.getURLs()
+    const { url } = urls[0]!
     expect(await $fetch<unknown>('/todos/1', { baseURL: url })).toMatchObject({
       id: 1,
     })
