@@ -1,6 +1,8 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 
 import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { satisfies } from 'semver'
+import { version as nuxtVersion } from 'nuxt/package.json'
 
 import type { VueWrapper } from '@vue/test-utils'
 import { mount } from '@vue/test-utils'
@@ -57,9 +59,10 @@ describe('mountSuspended', () => {
 
   it('should work with shallow mounting within suspense', async () => {
     const component = await mountSuspended(App, { shallow: true })
+    const stubName = satisfies(nuxtVersion, '^3') ? 'anonymous-stub' : 'global-component-stub'
     expect(component.html()).toMatchInlineSnapshot(`
       "<async-component-wrapper-stub></async-component-wrapper-stub>
-      <anonymous-stub></anonymous-stub>
+      <${stubName}></${stubName}>
       <nuxt-page-stub></nuxt-page-stub>
       <nuxt-link-stub to="/test"></nuxt-link-stub>"
     `)
