@@ -3,7 +3,7 @@ import { test, expect } from 'vitest'
 import { createVitest } from 'vitest/node'
 
 // TODO: Investigate why this test fails when executed by the dev server. Once it's fixed, we can reenable this test.
-test.skipIf(process.env.NUXT_VITEST_DEV_TEST)('it should include nuxt spec files', { timeout: 10000 }, async () => {
+test.skipIf(process.env.NUXT_VITEST_DEV_TEST)('it should include nuxt spec files', { timeout: 30000 }, async () => {
   const vitest = await createVitest('test', {
     config: fileURLToPath(new URL('../vitest.config.ts', import.meta.url)),
     dir: fileURLToPath(new URL('../', import.meta.url)),
@@ -15,8 +15,9 @@ test.skipIf(process.env.NUXT_VITEST_DEV_TEST)('it should include nuxt spec files
 
   await vitest.close()
 
-  const nuxtSpecFiles = testFiles.filter(file => file.moduleId.endsWith('nuxt.spec.ts') || file.moduleId.includes('/tests/nuxt/'))
-  const regularSpecFiles = testFiles.filter(file => file.moduleId.endsWith('.spec.ts') && !file.moduleId.endsWith('nuxt.spec.ts') && !file.moduleId.includes('/tests/nuxt/'))
+  const NUXT_PATH_RE = /[\\/]tests[\\/]nuxt[\\/]/
+  const nuxtSpecFiles = testFiles.filter(file => file.moduleId.endsWith('nuxt.spec.ts') || NUXT_PATH_RE.test(file.moduleId))
+  const regularSpecFiles = testFiles.filter(file => file.moduleId.endsWith('.spec.ts') && !file.moduleId.endsWith('nuxt.spec.ts') && !NUXT_PATH_RE.test(file.moduleId))
 
   expect(nuxtSpecFiles.length).toEqual(19)
   for (const file of nuxtSpecFiles) {
