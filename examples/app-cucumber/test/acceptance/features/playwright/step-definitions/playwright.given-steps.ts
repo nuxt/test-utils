@@ -6,8 +6,8 @@ Given(/^the user goes on the home page$/u, { timeout: 10000 }, async function ()
   // Browser test
   const page = await createPage('/')
   // nuxt v3 or nuxt v4 welcome page text
-  const text = await page.getByRole('heading', { name: /Welcome to Nuxt!|Get started/ }).textContent()
-  assert.match(text!, /Welcome to Nuxt!|Get started/)
+  const text = await page.getByRole('heading', { name: 'Get started' }).textContent()
+  assert.match(text!, /Get started/)
   await page.close()
 
   // SSR test
