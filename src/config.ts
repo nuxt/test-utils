@@ -265,6 +265,22 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
           ],
         },
       })
+      resolvedConfig.test.workspace.push({
+        extends: true,
+        test: {
+          name: defaultEnvironment,
+          environment: defaultEnvironment,
+          exclude: [
+            '**/node_modules/**',
+            '**/dist/**',
+            '**/cypress/**',
+            '**/.{idea,git,cache,output,temp}/**',
+            '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
+            './**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+            './{test,tests}/nuxt/**.*',
+          ],
+        },
+      })
     }
 
     return resolvedConfig
