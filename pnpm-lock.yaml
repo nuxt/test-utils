@@ -318,8 +318,8 @@ importers:
         specifier: 3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.21)(@vitest/browser@3.2.4)(happy-dom@18.0.1)(jiti@2.4.2)(jsdom@26.1.0)(terser@5.40.0)(yaml@2.8.0)
       vitest-browser-vue:
-        specifier: 0.2.0
-        version: 0.2.0(@vitest/browser@3.2.4)(vitest@3.2.4)(vue@3.5.17(typescript@5.8.3))
+        specifier: 1.0.0
+        version: 1.0.0(@vitest/browser@3.2.4)(vitest@3.2.4)(vue@3.5.17(typescript@5.8.3))
 
   examples/app-vitest-full:
     dependencies:
@@ -398,8 +398,8 @@ importers:
         specifier: 3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.21)(@vitest/browser@3.2.4)(happy-dom@18.0.1)(jiti@2.4.2)(jsdom@26.1.0)(terser@5.40.0)(yaml@2.8.0)
       vitest-browser-vue:
-        specifier: 0.2.0
-        version: 0.2.0(@vitest/browser@3.2.4)(vitest@3.2.4)(vue@3.5.17(typescript@5.8.3))
+        specifier: 1.0.0
+        version: 1.0.0(@vitest/browser@3.2.4)(vitest@3.2.4)(vue@3.5.17(typescript@5.8.3))
 
   examples/i18n:
     devDependencies:
@@ -7286,11 +7286,11 @@ packages:
       yaml:
         optional: true
 
-  vitest-browser-vue@0.2.0:
-    resolution: {integrity: sha512-18v3uUQebbtSba2jbqcRvqfUCebd3f0nFA3BLKFZF9P0vnj7QgOm2JAxlcCA1ytNSnyzV3OtnNeNpThRaW6AfA==}
+  vitest-browser-vue@1.0.0:
+    resolution: {integrity: sha512-zAIPkxcOL6gPlLVLm/sfVTqYDQD2LBh7VTRxjy3Eef9qBRXMdPTsq/B5ZfxGno4u4gZNljLzCe4iXJVudfNZJA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
-      '@vitest/browser': ^2.1.0 || ^3.0.0-0
+      '@vitest/browser': ^2.1.0 || ^3.0.0 || ^4.0.0-0
       vitest: 3.2.4
       vue: ^3.5.17
 
@@ -16228,7 +16228,7 @@ snapshots:
       terser: 5.40.0
       yaml: 2.8.0
 
-  vitest-browser-vue@0.2.0(@vitest/browser@3.2.4)(vitest@3.2.4)(vue@3.5.17(typescript@5.8.3)):
+  vitest-browser-vue@1.0.0(@vitest/browser@3.2.4)(vitest@3.2.4)(vue@3.5.17(typescript@5.8.3)):
     dependencies:
       '@vitest/browser': 3.2.4(playwright@1.53.1)(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(terser@5.40.0)(yaml@2.8.0))(vitest@3.2.4)
       '@vue/test-utils': 2.4.6
