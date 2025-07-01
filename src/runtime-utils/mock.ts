@@ -55,18 +55,18 @@ export function registerEndpoint(url: string, options: EventHandler | { handler:
     window.__registry.add(url)
 
     app.use('/_' + url, defineEventHandler((event) => {
-      const latestHandler = [...endpointRegistry[url]].reverse().find(config => config.method ? event.method === config.method : true)
+      const latestHandler = [...endpointRegistry[url] || []].reverse().find(config => config.method ? event.method === config.method : true)
       return latestHandler?.handler(event)
     }), {
       match(_, event) {
-        return endpointRegistry[url]?.some(config => config.method ? event?.method === config.method : true)
+        return endpointRegistry[url]?.some(config => config.method ? event?.method === config.method : true) ?? false
       },
     })
   }
 
   return () => {
-    endpointRegistry[url].splice(endpointRegistry[url].indexOf(config), 1)
-    if (endpointRegistry[url].length === 0) {
+    endpointRegistry[url]?.splice(endpointRegistry[url].indexOf(config), 1)
+    if (endpointRegistry[url]?.length === 0) {
       // @ts-expect-error private property
       window.__registry.delete(url)
     }

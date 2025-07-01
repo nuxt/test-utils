@@ -172,17 +172,17 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
                                 propsContext[key] = passedProps[key]
                               }
                               if (methods && typeof methods === 'object') {
-                                for (const key in methods) {
-                                  renderContext[key] = methods[key].bind(renderContext)
+                                for (const [key, value] of Object.entries(methods)) {
+                                  renderContext[key] = value.bind(renderContext)
                                 }
                               }
                               if (computed && typeof computed === 'object') {
-                                for (const key in computed) {
-                                  if ('get' in computed[key]) {
-                                    renderContext[key] = computed[key].get.call(renderContext)
+                                for (const [key, value] of Object.entries(computed)) {
+                                  if ('get' in value) {
+                                    renderContext[key] = value.get.call(renderContext)
                                   }
                                   else {
-                                    renderContext[key] = computed[key].call(renderContext)
+                                    renderContext[key] = value.call(renderContext)
                                   }
                                 }
                               }

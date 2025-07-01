@@ -59,7 +59,7 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
 
   win.fetch = async (url, init) => {
     if (typeof url === 'string') {
-      const base = url.split('?')[0]
+      const base = url.split('?')[0]!
       if (registry.has(base) || registry.has(url)) {
         url = '/_' + url
       }

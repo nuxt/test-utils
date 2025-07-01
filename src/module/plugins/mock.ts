@@ -87,7 +87,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
               startOf(node),
             )
           }
-          const importName = node.arguments[0]
+          const importName = node.arguments[0]!
           if (!isLiteral(importName) || typeof importName.value !== 'string') {
             return this.error(
               new Error(
@@ -106,18 +106,18 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
           s.overwrite(
             isExpressionStatement(parent)
               ? startOf(parent)
-              : startOf(node.arguments[0]),
+              : startOf(node.arguments[0]!),
             isExpressionStatement(parent)
               ? endOf(parent)
-              : endOf(node.arguments[1]),
+              : endOf(node.arguments[1]!),
             '',
           )
           mocksImport.push({
             name,
             import: importItem,
             factory: code.slice(
-              startOf(node.arguments[1]),
-              endOf(node.arguments[1]),
+              startOf(node.arguments[1]!),
+              endOf(node.arguments[1]!),
             ),
           })
         }
@@ -134,7 +134,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
               startOf(node),
             )
           }
-          const componentName = node.arguments[0]
+          const componentName = node.arguments[0]!
           if (!isLiteral(componentName) || typeof componentName.value !== 'string') {
             return this.error(
               new Error(
@@ -152,17 +152,17 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
           s.overwrite(
             isExpressionStatement(parent)
               ? startOf(parent)
-              : startOf(node.arguments[1]),
+              : startOf(node.arguments[1]!),
             isExpressionStatement(parent)
               ? endOf(parent)
-              : endOf(node.arguments[1]),
+              : endOf(node.arguments[1]!),
             '',
           )
           mocksComponent.push({
             path: path,
             factory: code.slice(
-              startOf(node.arguments[1]),
-              endOf(node.arguments[1]),
+              startOf(node.arguments[1]!),
+              endOf(node.arguments[1]!),
             ),
           })
         }
@@ -263,7 +263,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
         const vitestPlugins = plugins.filter(p => (p.name === 'vite:mocks' || p.name.startsWith('vitest:')) && (p.enforce || ('order' in p && p.order)) === 'post')
         const lastNuxt = findLastIndex(
           plugins,
-          i => i.name?.startsWith('nuxt:'),
+          i => !!i?.name?.startsWith('nuxt:'),
         )
         if (lastNuxt === -1) return
         for (const plugin of vitestPlugins) {
@@ -279,7 +279,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
 })
 
 // Polyfill Array.prototype.findLastIndex for legacy Node.js
-function findLastIndex<T>(arr: T[], predicate: (item: T) => boolean) {
+function findLastIndex<T>(arr: T[], predicate: (item?: T) => boolean) {
   for (let i = arr.length - 1; i >= 0; i--) {
     if (predicate(arr[i])) return i
   }
