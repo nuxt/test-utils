@@ -258,7 +258,7 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
         : 'workspace' in resolvedConfig.test
           ? 'workspace'
           : await import('vitest/package.json', { with: { type: 'json' } }).then((r) => {
-            const [major, minor] = r.version.split('.')
+            const [major, minor] = (r.default || r).version.split('.')
             return Number.parseInt(major, 10) > 3 || (Number.parseInt(major, 10) === 3 && Number.parseInt(minor, 10) >= 2)
           })
             ? 'projects'
