@@ -1,11 +1,10 @@
 /// <reference types="@nuxt/devtools-kit" />
 
 import { pathToFileURL } from 'node:url'
-import { addVitePlugin, createResolver, defineNuxtModule, logger, resolvePath } from '@nuxt/kit'
+import { addVitePlugin, createResolver, defineNuxtModule, logger, resolvePath, importModule } from '@nuxt/kit'
 import type { Vitest, UserConfig as VitestConfig } from 'vitest/node'
 import type { Reporter } from 'vitest/reporters'
 import type { RunnerTestFile } from 'vitest'
-import { mergeConfig } from 'vite'
 import type { InlineConfig as ViteConfig } from 'vite'
 import { getPort } from 'get-port-please'
 import { h } from 'vue'
@@ -85,6 +84,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
     let URL: string
 
     async function start() {
+      const { mergeConfig } = await importModule<typeof import('vite')>('vite', { paths: nuxt.options.modulesDir })
       const rawViteConfig = mergeConfig({}, await rawViteConfigPromise)
 
       const viteConfig = await getVitestConfigFromNuxt({ nuxt, viteConfig: defu({ test: options.vitestConfig }, rawViteConfig) })
