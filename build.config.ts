@@ -20,6 +20,7 @@ export default defineBuildConfig({
     '#app/entry',
     '#build/root-component.mjs',
     '#imports',
+    '@nuxt/schema',
     'vue-router',
     'nitropack',
   ],

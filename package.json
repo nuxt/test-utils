@@ -59,12 +59,12 @@
     "test:examples": "pnpm --filter '!example-app-cucumber' --filter '!example-app-jest' -r test && pnpm --filter example-app-cucumber -r test",
     "test:types": "vue-tsc --noEmit",
     "test:unit": "vitest test/unit --run",
+    "build": "unbuild",
     "prepack": "unbuild",
     "dev:prepare": "nuxt prepare && unbuild --stub && pnpm -r dev:prepare"
   },
   "dependencies": {
     "@nuxt/kit": "^3.17.5",
-    "@nuxt/schema": "^3.17.5",
     "c12": "^3.0.4",
     "consola": "^3.4.2",
     "defu": "^6.1.4",
@@ -95,6 +95,7 @@
     "@jest/globals": "30.0.3",
     "@nuxt/devtools-kit": "2.6.0",
     "@nuxt/eslint-config": "1.4.1",
+    "@nuxt/schema": "3.17.5",
     "@playwright/test": "1.53.1",
     "@testing-library/vue": "8.1.0",
     "@types/bun": "1.2.17",
