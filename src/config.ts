@@ -245,16 +245,16 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
       return resolvedConfig
     }
 
-    if ('workspace' in resolvedConfig.test) {
+    if ('workspace' in resolvedConfig.test || 'projects' in resolvedConfig.test) {
       throw new Error(
-        'The `workspace` option is not supported with `defineVitestConfig`. Instead, use `defineVitestProject` to define each workspace project that uses the Nuxt environment.',
+        'The `projects` option is not supported with `defineVitestConfig`. Instead, use `defineVitestProject` to define each workspace project that uses the Nuxt environment.',
       )
     }
 
     const defaultEnvironment = resolvedConfig.test.environment || 'node'
     if (defaultEnvironment !== 'nuxt') {
-      resolvedConfig.test.workspace = []
-      resolvedConfig.test.workspace.push({
+      resolvedConfig.test.projects = []
+      resolvedConfig.test.projects.push({
         extends: true,
         test: {
           name: 'nuxt',
@@ -265,7 +265,7 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
           ],
         },
       })
-      resolvedConfig.test.workspace.push({
+      resolvedConfig.test.projects.push({
         extends: true,
         test: {
           name: defaultEnvironment,
