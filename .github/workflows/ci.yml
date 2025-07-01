@@ -50,7 +50,7 @@ jobs:
         run: pnpm knip
 
       - name: Check engine ranges, peer dependency ranges and installed versions
-        run: pnpm installed-check --no-workspaces
+        run: pnpm test:engines
 
   test:
     strategy:

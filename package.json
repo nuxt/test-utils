@@ -58,6 +58,7 @@
     "lint:fix": "eslint . --fix",
     "test:examples": "pnpm --filter '!example-app-cucumber' --filter '!example-app-jest' -r test && pnpm --filter example-app-cucumber -r test",
     "test:knip": "knip",
+    "test:engines": "pnpm installed-check --no-workspaces --engine-no-dev",
     "test:types": "vue-tsc --noEmit",
     "test:unit": "vitest test/unit --run",
     "build": "unbuild",
@@ -179,7 +180,7 @@
     "vue": "^3.5.17"
   },
   "engines": {
-    "node": "^18.20.5 || ^20.9.0 || ^22.0.0 || >=24.0.0"
+    "node": "^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0"
   },
   "packageManager": "pnpm@10.12.4",
   "pnpm": {
