@@ -16,6 +16,7 @@ import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
 import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
 import OptionsApiPage from '~/pages/other/options-api.vue'
+import OptionsApiComputed from '~/components/OptionsApiComputed.vue'
 import ComponentWithAttrs from '~/components/ComponentWithAttrs.vue'
 import ComponentWithReservedProp from '~/components/ComponentWithReservedProp.vue'
 import ComponentWithReservedState from '~/components/ComponentWithReservedState.vue'
@@ -259,6 +260,14 @@ describe('mountSuspended', () => {
     it('should not output error when button in component is clicked', async () => {
       const component = await mountSuspended(OptionsApiPage)
       await component.find('[data-testid="test-button"]').trigger('click')
+      expect(console.error).not.toHaveBeenCalled()
+    })
+
+    it('should handle computed defined as functions and as objects', async () => {
+      const component = await mountSuspended(OptionsApiComputed)
+      expect(component.find('[data-testid="simple-function"]').text()).toBe('simple-function')
+      expect(component.find('[data-testid="object-with-get"]').text()).toBe('object-with-get')
+      expect(component.find('[data-testid="object-with-get-and-set"]').text()).toBe('object-with-get-and-set')
       expect(console.error).not.toHaveBeenCalled()
     })
   })
