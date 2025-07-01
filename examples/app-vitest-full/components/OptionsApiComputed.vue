@@ -1,8 +1,14 @@
 <template>
   <ul>
-    <li data-testid="simple-function">{{ simpleFunction }}</li>
-    <li data-testid="object-with-get">{{ objectWithGet }}</li>
-    <li data-testid="object-with-get-and-set">{{ objectWithGetAndSet }}</li>
+    <li data-testid="simple-function">
+      {{ simpleFunction }}
+    </li>
+    <li data-testid="object-with-get">
+      {{ objectWithGet }}
+    </li>
+    <li data-testid="object-with-get-and-set">
+      {{ objectWithGetAndSet }}
+    </li>
   </ul>
 </template>
 
