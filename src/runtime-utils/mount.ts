@@ -167,8 +167,12 @@ export async function mountSuspended<T>(
                             }
                             if (computed && typeof computed === 'object') {
                               for (const key in computed) {
-                                // @ts-expect-error error TS2339: Property 'call' does not exist on type 'ComputedGetter<any> | WritableComputedOptions<any, any>'
-                                renderContext[key] = computed[key].call(renderContext)
+                                if ('get' in computed[key]) {
+                                  renderContext[key] = computed[key].get.call(renderContext)
+                                }
+                                else {
+                                  renderContext[key] = computed[key].call(renderContext)
+                                }
                               }
                             }
                             return render.call(this, renderContext, ...args)
