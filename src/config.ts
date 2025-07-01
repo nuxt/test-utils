@@ -253,8 +253,18 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
 
     const defaultEnvironment = resolvedConfig.test.environment || 'node'
     if (defaultEnvironment !== 'nuxt') {
-      resolvedConfig.test.projects = []
-      resolvedConfig.test.projects.push({
+      const key = 'projects' in resolvedConfig.test
+        ? 'projects'
+        : 'workspace' in resolvedConfig.test
+          ? 'workspace'
+          : await import('vitest/package.json').then((r) => {
+            const [major, minor] = r.version.split('.')
+            return Number.parseInt(major, 10) > 3 || (Number.parseInt(major, 10) === 3 && Number.parseInt(minor, 10) >= 2)
+          })
+            ? 'projects'
+            : 'workspace'
+      resolvedConfig.test[key] = []
+      resolvedConfig.test[key].push({
         extends: true,
         test: {
           name: 'nuxt',
@@ -265,7 +275,7 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
           ],
         },
       })
-      resolvedConfig.test.projects.push({
+      resolvedConfig.test[key].push({
         extends: true,
         test: {
           name: defaultEnvironment,
