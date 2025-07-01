@@ -2,26 +2,34 @@
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "workspaces": {
     ".": {
-      "ignore": [
-        "config.d.ts",
-        "e2e.d.ts",
-        "experimental.d.ts",
-        "module.d.ts",
-        "playwright.d.ts",
-        "runtime.d.ts",
-        "vitest-environment.d.ts"
-      ],
       "entry": [
         "src/config.ts",
         "src/e2e.ts",
         "src/playwright.ts",
-        "src/experimental.ts",
-        "src/module.ts",
-        "src/runtime-utils/index.mjs",
-        "src/vitest-environment.ts",
         "src/runtime/**/*.{js,ts,mjs,vue}",
-        "scripts/update-changelog.ts"
+        "src/experimental.ts",
+        "src/vitest-environment.ts"
+      ],
+      "ignoreUnresolved": [
+        "#build/root-component.mjs",
+        "#app/nuxt-vitest-app-entry"
+      ],
+      "ignoreDependencies": [
+        "nuxt-vitest-environment-options",
+        "vitest-environment-nuxt",
+        "@cucumber/cucumber",
+        "@jest/globals",
+        "@playwright/test",
+        "@testing-library/vue",
+        "@vue/test-utils",
+        "happy-dom",
+        "jsdom",
+        "playwright-core",
+        "vitest"
       ]
     }
-  }
+  },
+  "ignoreWorkspaces": [
+    "examples/**"
+  ]
 }

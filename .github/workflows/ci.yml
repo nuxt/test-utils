@@ -43,6 +43,9 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Knip
+        run: pnpm knip
+
       - name: Check engine ranges, peer dependency ranges and installed versions
         run: pnpm installed-check --no-workspaces
 

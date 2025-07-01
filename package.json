@@ -57,6 +57,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test:examples": "pnpm --filter '!example-app-cucumber' --filter '!example-app-jest' -r test && pnpm --filter example-app-cucumber -r test",
+    "test:knip": "knip",
     "test:types": "vue-tsc --noEmit",
     "test:unit": "vitest test/unit --run",
     "build": "unbuild",
