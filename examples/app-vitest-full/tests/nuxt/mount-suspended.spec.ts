@@ -15,6 +15,7 @@ import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
 import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
 import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
+import ScriptSetupEmits from '~/components/ScriptSetupEmits.vue'
 import OptionsApiPage from '~/pages/other/options-api.vue'
 import OptionsApiComputed from '~/components/OptionsApiComputed.vue'
 import ComponentWithAttrs from '~/components/ComponentWithAttrs.vue'
@@ -225,6 +226,15 @@ describe('mountSuspended', () => {
   it('should define $attrs', async () => {
     const component = await mountSuspended(ComponentWithAttrs, { attrs: { foo: 'bar' } })
     expect(component.find('[foo="bar"]').exists()).toBe(true)
+  })
+
+  it('should capture emits from script setup and early hooks', async () => {
+    const component = await mountSuspended(ScriptSetupEmits)
+    await expect.poll(() => component.emitted()).toEqual({
+      'event-from-setup': [[1], [2]],
+      'event-from-before-mount': [[1], [2]],
+      'event-from-mounted': [[1], [2]],
+    })
   })
 
   describe('Options API', () => {
