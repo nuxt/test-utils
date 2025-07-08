@@ -20,6 +20,7 @@ import ScriptSetupWatch from '~/components/ScriptSetupWatch.vue'
 import OptionsApiPage from '~/pages/other/options-api.vue'
 import OptionsApiComputed from '~/components/OptionsApiComputed.vue'
 import OptionsApiEmits from '~/components/OptionsApiEmits.vue'
+import OptionsApiWatch from '~/components/OptionsApiWatch.vue'
 import ComponentWithAttrs from '~/components/ComponentWithAttrs.vue'
 import ComponentWithReservedProp from '~/components/ComponentWithReservedProp.vue'
 import ComponentWithReservedState from '~/components/ComponentWithReservedState.vue'
@@ -316,6 +317,27 @@ describe('mountSuspended', () => {
         'event-from-setup': [[1], [2]],
         'event-from-before-mount': [[1], [2]],
         'event-from-mounted': [[1], [2]],
+      })
+      expect(console.error).not.toHaveBeenCalled()
+    })
+
+    it('should handle data set from immediate watches', async () => {
+      const component = await mountSuspended(OptionsApiWatch)
+      await expect.poll(
+        () =>
+          JSON.parse(component.find('[data-testid="set-by-watches"]').text()),
+      ).toEqual({
+        dataFromInternalDataObject: 'data-from-internal-data-object',
+        dataMappedFromExternalReactiveStore: 'data-from-external-reactive-store',
+      })
+      expect(console.error).not.toHaveBeenCalled()
+    })
+
+    it('should handle events emitted from immediate watches', async () => {
+      const component = await mountSuspended(OptionsApiWatch)
+      await expect.poll(() => component.emitted()).toEqual({
+        'event-from-internal-data-object': [[1]],
+        'event-mapped-from-external-reactive-store': [[1]],
       })
       expect(console.error).not.toHaveBeenCalled()
     })
