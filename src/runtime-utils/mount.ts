@@ -59,15 +59,55 @@ export async function mountSuspended<T>(
   const vueApp = tryUseNuxtApp()?.vueApp
     // @ts-expect-error untyped global __unctx__
     || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
-  const { render, setup, data, computed, methods } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
+  const {
+    computed,
+    data,
+    methods,
+    render,
+    setup,
+  } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
 
   let setupContext: SetupContext
   let setupState: Record<string, unknown>
   const setProps = reactive<Record<string, unknown>>({})
 
+  let interceptedEmit: ((event: string, ...args: unknown[]) => void) | null = null
+  /**
+   * Intercept the emit for testing purposes.
+   *
+   * @remarks
+   * Using this function ensures that the emit is not intercepted multiple times
+   * and doesn't duplicate events.
+   *
+   * @param emit - The original emit from the component's context.
+   *
+   * @returns An intercepted emit that will both emit from the component itself
+   * and from the top level wrapper for assertions via
+   * {@link import('@vue/test-utils').VueWrapper.emitted()}.
+   */
+  function getInterceptedEmitFunction(
+    emit: ((event: string, ...args: unknown[]) => void),
+  ): ((event: string, ...args: unknown[]) => void) {
+    if (emit !== interceptedEmit) {
+      interceptedEmit = interceptedEmit ?? ((event, ...args) => {
+        emit(event, ...args)
+        setupContext.emit(event, ...args)
+      })
+    }
+
+    return interceptedEmit
+  }
+
   let passedProps: Record<string, unknown>
-  const wrappedSetup = async (props: Record<string, unknown>, setupContext: SetupContext) => {
+  const wrappedSetup = async (props: Record<string, unknown>, setupContext: SetupContext): Promise<unknown> => {
+    // Intercept emit for assertions in populate wrapper emitted.
+    const currentInstance = getCurrentInstance()
+    if (currentInstance != null) {
+      currentInstance.emit = getInterceptedEmitFunction(currentInstance.emit)
+    }
+
     passedProps = props
+
     if (setup) {
       const result = await setup(props, setupContext)
       setupState = result && typeof result === 'object' ? result : {}
@@ -107,28 +147,12 @@ export async function mountSuspended<T>(
                       const router = useRouter()
                       await router.replace(route)
 
-                      let interceptedEmit: ((event: string, ...args: unknown[]) => void) | null = null
-
                       // Proxy top-level setup/render context so test wrapper resolves child component
                       const clonedComponent = {
                         name: 'MountSuspendedComponent',
                         ...component,
                         render: render
                           ? function (this: unknown, _ctx: Record<string, unknown>, ...args: unknown[]) {
-                            // When using defineModel, getCurrentInstance().emit is executed internally. it needs to override.
-                            const currentInstance = getCurrentInstance()
-                            if (
-                              currentInstance
-                              // Intercept the emit only once. Otherwise the events would be duplicated for every rerender.
-                              && currentInstance.emit !== interceptedEmit
-                            ) {
-                              const oldEmit = currentInstance.emit
-                              interceptedEmit = (event, ...args) => {
-                                oldEmit(event, ...args)
-                                setupContext.emit(event, ...args)
-                              }
-                              currentInstance.emit = interceptedEmit
-                            }
                             // Set before setupState set to allow asyncData to overwrite data
                             if (data && typeof data === 'function') {
                               // @ts-expect-error error TS2554: Expected 1 arguments, but got 0
@@ -178,7 +202,7 @@ export async function mountSuspended<T>(
                             return render.call(this, renderContext, ...args)
                           }
                           : undefined,
-                        setup: setup ? (props: Record<string, unknown>) => wrappedSetup(props, setupContext) : undefined,
+                        setup: (props: Record<string, unknown>) => wrappedSetup(props, setupContext),
                       }
 
                       return () => h(clonedComponent, { ...props, ...setProps, ...attrs }, slots)
