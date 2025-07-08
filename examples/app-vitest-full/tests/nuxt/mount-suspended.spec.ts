@@ -16,6 +16,7 @@ import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
 import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
 import ScriptSetupEmits from '~/components/ScriptSetupEmits.vue'
+import ScriptSetupWatch from '~/components/ScriptSetupWatch.vue'
 import OptionsApiPage from '~/pages/other/options-api.vue'
 import OptionsApiComputed from '~/components/OptionsApiComputed.vue'
 import ComponentWithAttrs from '~/components/ComponentWithAttrs.vue'
@@ -234,6 +235,33 @@ describe('mountSuspended', () => {
       'event-from-setup': [[1], [2]],
       'event-from-before-mount': [[1], [2]],
       'event-from-mounted': [[1], [2]],
+    })
+  })
+
+  it('should handle data set from immediate watches', async () => {
+    const component = await mountSuspended(ScriptSetupWatch)
+    await expect.poll(
+      () =>
+        JSON.parse(component.find('[data-testid="set-by-watches"]').text()),
+    ).toEqual({
+      dataFromWatchEffectOnComputedFromReactiveObject: 'data-from-reactive-object',
+      dataFromWatchEffectOnReactiveObject: 'data-from-reactive-object',
+      dataFromWatchEffectOnReactiveString: 'data-from-reactive-string',
+      dataFromWatchOnComputedFromReactiveObject: 'data-from-reactive-object',
+      dataFromWatchOnReactiveObject: 'data-from-reactive-object',
+      dataFromWatchOnReactiveString: 'data-from-reactive-string',
+    })
+  })
+
+  it('should handle events emitted from immediate watches', async () => {
+    const component = await mountSuspended(ScriptSetupWatch)
+    await expect.poll(() => component.emitted()).toEqual({
+      'event-from-watch-effect-on-computed-from-reactive-object': [[1]],
+      'event-from-watch-effect-on-reactive-object': [[1]],
+      'event-from-watch-effect-on-reactive-string': [[1]],
+      'event-from-watch-on-computed-from-reactive-object': [[1]],
+      'event-from-watch-on-reactive-object': [[1]],
+      'event-from-watch-on-reactive-string': [[1]],
     })
   })
 
