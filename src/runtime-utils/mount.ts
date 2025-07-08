@@ -98,13 +98,21 @@ export async function mountSuspended<T>(
     return interceptedEmit
   }
 
+  /**
+   * Intercept emit for assertions in populate wrapper emitted.
+   */
+  function interceptEmitOnCurrentInstance(): void {
+    const currentInstance = getCurrentInstance()
+    if (currentInstance == null) {
+      return
+    }
+
+    currentInstance.emit = getInterceptedEmitFunction(currentInstance.emit)
+  }
+
   let passedProps: Record<string, unknown>
   const wrappedSetup = async (props: Record<string, unknown>, setupContext: SetupContext): Promise<unknown> => {
-    // Intercept emit for assertions in populate wrapper emitted.
-    const currentInstance = getCurrentInstance()
-    if (currentInstance != null) {
-      currentInstance.emit = getInterceptedEmitFunction(currentInstance.emit)
-    }
+    interceptEmitOnCurrentInstance()
 
     passedProps = props
 
@@ -153,6 +161,8 @@ export async function mountSuspended<T>(
                         ...component,
                         render: render
                           ? function (this: unknown, _ctx: Record<string, unknown>, ...args: unknown[]) {
+                            interceptEmitOnCurrentInstance()
+
                             // Set before setupState set to allow asyncData to overwrite data
                             if (data && typeof data === 'function') {
                               // @ts-expect-error error TS2554: Expected 1 arguments, but got 0
