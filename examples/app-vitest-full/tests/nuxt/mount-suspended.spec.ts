@@ -19,6 +19,7 @@ import ScriptSetupEmits from '~/components/ScriptSetupEmits.vue'
 import ScriptSetupWatch from '~/components/ScriptSetupWatch.vue'
 import OptionsApiPage from '~/pages/other/options-api.vue'
 import OptionsApiComputed from '~/components/OptionsApiComputed.vue'
+import OptionsApiEmits from '~/components/OptionsApiEmits.vue'
 import ComponentWithAttrs from '~/components/ComponentWithAttrs.vue'
 import ComponentWithReservedProp from '~/components/ComponentWithReservedProp.vue'
 import ComponentWithReservedState from '~/components/ComponentWithReservedState.vue'
@@ -306,6 +307,16 @@ describe('mountSuspended', () => {
       expect(component.find('[data-testid="simple-function"]').text()).toBe('simple-function')
       expect(component.find('[data-testid="object-with-get"]').text()).toBe('object-with-get')
       expect(component.find('[data-testid="object-with-get-and-set"]').text()).toBe('object-with-get-and-set')
+      expect(console.error).not.toHaveBeenCalled()
+    })
+
+    it('should capture emits from setup and early hooks', async () => {
+      const component = await mountSuspended(OptionsApiEmits)
+      await expect.poll(() => component.emitted()).toEqual({
+        'event-from-setup': [[1], [2]],
+        'event-from-before-mount': [[1], [2]],
+        'event-from-mounted': [[1], [2]],
+      })
       expect(console.error).not.toHaveBeenCalled()
     })
   })
