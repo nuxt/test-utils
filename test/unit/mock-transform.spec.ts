@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { rollup } from 'rollup'
-import { type MockPluginContext, createMockPlugin } from '../../src/module/plugins/mock'
+import { createMockPlugin } from '../../src/module/plugins/mock'
+import type { MockPluginContext } from '../../src/module/plugins/mock'
 
 describe('mocking', () => {
   const pluginContext: MockPluginContext = { imports: [], components: [] }
