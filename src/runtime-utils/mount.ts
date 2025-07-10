@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import type { ComponentMountingOptions } from '@vue/test-utils'
 import { Suspense, h, isReadonly, nextTick, reactive, unref, getCurrentInstance } from 'vue'
-import type { DefineComponent, SetupContext } from 'vue'
+import type { ComponentInternalInstance, DefineComponent, SetupContext } from 'vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
 
@@ -17,6 +17,7 @@ type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
 // TODO: improve return types
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SetupState = Record<string, any>
+type Emit = ComponentInternalInstance['emit']
 
 /**
  * `mountSuspended` allows you to mount any vue component within the Nuxt environment, allowing async setup and access to injections from your Nuxt plugins. For example:
@@ -59,19 +60,13 @@ export async function mountSuspended<T>(
   const vueApp = tryUseNuxtApp()?.vueApp
     // @ts-expect-error untyped global __unctx__
     || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
-  const {
-    computed,
-    data,
-    methods,
-    render,
-    setup,
-  } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
+  const { render, setup, data, computed, methods } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
 
   let setupContext: SetupContext
   let setupState: Record<string, unknown>
   const setProps = reactive<Record<string, unknown>>({})
 
-  let interceptedEmit: ((event: string, ...args: unknown[]) => void) | null = null
+  let interceptedEmit: Emit | null = null
   /**
    * Intercept the emit for testing purposes.
    *
@@ -85,9 +80,7 @@ export async function mountSuspended<T>(
    * and from the top level wrapper for assertions via
    * {@link import('@vue/test-utils').VueWrapper.emitted()}.
    */
-  function getInterceptedEmitFunction(
-    emit: ((event: string, ...args: unknown[]) => void),
-  ): ((event: string, ...args: unknown[]) => void) {
+  function getInterceptedEmitFunction(emit: Emit): Emit {
     if (emit !== interceptedEmit) {
       interceptedEmit = interceptedEmit ?? ((event, ...args) => {
         emit(event, ...args)
@@ -103,7 +96,7 @@ export async function mountSuspended<T>(
    */
   function interceptEmitOnCurrentInstance(): void {
     const currentInstance = getCurrentInstance()
-    if (currentInstance == null) {
+    if (!currentInstance) {
       return
     }
 

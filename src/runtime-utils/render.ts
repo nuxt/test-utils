@@ -1,5 +1,5 @@
 import { Suspense, effectScope, h, nextTick, isReadonly, reactive, unref, defineComponent } from 'vue'
-import type { DefineComponent, SetupContext } from 'vue'
+import type { ComponentInternalInstance, DefineComponent, SetupContext } from 'vue'
 import type { RenderOptions as TestingLibraryRenderOptions } from '@testing-library/vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
@@ -17,6 +17,7 @@ const WRAPPER_EL_ID = 'test-wrapper'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SetupState = Record<string, any>
+type Emit = ComponentInternalInstance['emit']
 /**
  * `renderSuspended` allows you to mount any vue component within the Nuxt environment, allowing async setup and access to injections from your Nuxt plugins.
  *
@@ -61,18 +62,12 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
   const vueApp = tryUseNuxtApp()?.vueApp
     // @ts-expect-error untyped global __unctx__
     || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
-  const {
-    computed,
-    data,
-    methods,
-    render,
-    setup,
-  } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
+  const { render, setup, data, computed, methods } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
 
   let setupContext: SetupContext
   let setupState: SetupState
 
-  let interceptedEmit: ((event: string, ...args: unknown[]) => void) | null = null
+  let interceptedEmit: Emit | null = null
   /**
    * Intercept the emit for testing purposes.
    *
@@ -86,9 +81,7 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
    * and from the top level wrapper for assertions via
    * {@link import('@vue/test-utils').VueWrapper.emitted()}.
    */
-  function getInterceptedEmitFunction(
-    emit: ((event: string, ...args: unknown[]) => void),
-  ): ((event: string, ...args: unknown[]) => void) {
+  function getInterceptedEmitFunction(emit: Emit): Emit {
     if (emit !== interceptedEmit) {
       interceptedEmit = interceptedEmit ?? ((event, ...args) => {
         emit(event, ...args)
@@ -104,7 +97,7 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
    */
   function interceptEmitOnCurrentInstance(): void {
     const currentInstance = getCurrentInstance()
-    if (currentInstance == null) {
+    if (!currentInstance) {
       return
     }
 
@@ -118,13 +111,11 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
   document.querySelector(`#${WRAPPER_EL_ID}`)?.remove()
 
   let passedProps: Record<string, unknown>
-  const wrappedSetup = async (
-    props: Record<string, unknown>,
-    setupContext: SetupContext,
-  ) => {
+  const wrappedSetup = async (props: Record<string, unknown>, setupContext: SetupContext): Promise<unknown> => {
     interceptEmitOnCurrentInstance()
 
     passedProps = props
+
     if (setup) {
       const result = await setup(props, setupContext)
       setupState = result && typeof result === 'object' ? result : {}
