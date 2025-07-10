@@ -238,7 +238,7 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
                               return render.call(this, renderContext, ...args)
                             }
                             : undefined,
-                          setup: setup ? (props: Record<string, unknown>) => wrappedSetup(props, setupContext) : undefined,
+                          setup: (props: Record<string, unknown>) => wrappedSetup(props, setupContext),
                         }
 
                         return () => h(clonedComponent, { ...(props && typeof props === 'object' ? props : {}), ...attrs }, slots)
