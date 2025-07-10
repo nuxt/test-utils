@@ -16,7 +16,7 @@ import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRend
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
 import OptionsApiPage from '~/pages/other/options-api.vue'
 
-import { BoundAttrs } from '#components'
+import { BoundAttrs, OptionsApiEmits, OptionsApiWatch, ScriptSetupEmits, ScriptSetupWatch } from '#components'
 
 const formats = {
   ExportDefaultComponent,
@@ -134,6 +134,42 @@ describe('renderSuspended', () => {
     `)
   })
 
+  it('should capture emits from script setup and early hooks', async () => {
+    const { emitted } = await renderSuspended(ScriptSetupEmits)
+    await expect.poll(() => emitted()).toEqual({
+      'event-from-setup': [[1], [2]],
+      'event-from-before-mount': [[1], [2]],
+      'event-from-mounted': [[1], [2]],
+    })
+  })
+
+  it('should handle data set from immediate watches', async () => {
+    const { getByTestId } = await renderSuspended(ScriptSetupWatch)
+    await expect.poll(
+      () =>
+        JSON.parse(getByTestId('set-by-watches').textContent || '{}'),
+    ).toEqual({
+      dataFromWatchEffectOnComputedFromReactiveObject: 'data-from-reactive-object',
+      dataFromWatchEffectOnReactiveObject: 'data-from-reactive-object',
+      dataFromWatchEffectOnReactiveString: 'data-from-reactive-string',
+      dataFromWatchOnComputedFromReactiveObject: 'data-from-reactive-object',
+      dataFromWatchOnReactiveObject: 'data-from-reactive-object',
+      dataFromWatchOnReactiveString: 'data-from-reactive-string',
+    })
+  })
+
+  it('should handle events emitted from immediate watches', async () => {
+    const { emitted } = await renderSuspended(ScriptSetupWatch)
+    await expect.poll(() => emitted()).toEqual({
+      'event-from-watch-effect-on-computed-from-reactive-object': [[1]],
+      'event-from-watch-effect-on-reactive-object': [[1]],
+      'event-from-watch-effect-on-reactive-string': [[1]],
+      'event-from-watch-on-computed-from-reactive-object': [[1]],
+      'event-from-watch-on-reactive-object': [[1]],
+      'event-from-watch-on-reactive-string': [[1]],
+    })
+  })
+
   describe('Options API', () => {
     beforeEach(() => {
       vi.spyOn(console, 'error').mockImplementation((message) => {
@@ -167,6 +203,37 @@ describe('renderSuspended', () => {
     it('should not output error when button in component is clicked', async () => {
       const { getByTestId } = await renderSuspended(OptionsApiPage)
       await fireEvent.click(getByTestId('test-button'))
+      expect(console.error).not.toHaveBeenCalled()
+    })
+
+    it('should capture emits from setup and early hooks', async () => {
+      const { emitted } = await renderSuspended(OptionsApiEmits)
+      await expect.poll(() => emitted()).toEqual({
+        'event-from-setup': [[1], [2]],
+        'event-from-before-mount': [[1], [2]],
+        'event-from-mounted': [[1], [2]],
+      })
+      expect(console.error).not.toHaveBeenCalled()
+    })
+
+    it('should handle data set from immediate watches', async () => {
+      const { getByTestId } = await renderSuspended(OptionsApiWatch)
+      await expect.poll(
+        () =>
+          JSON.parse(getByTestId('set-by-watches').textContent || '{}'),
+      ).toEqual({
+        dataFromInternalDataObject: 'data-from-internal-data-object',
+        dataMappedFromExternalReactiveStore: 'data-from-external-reactive-store',
+      })
+      expect(console.error).not.toHaveBeenCalled()
+    })
+
+    it('should handle events emitted from immediate watches', async () => {
+      const { emitted } = await renderSuspended(OptionsApiWatch)
+      await expect.poll(() => emitted()).toEqual({
+        'event-from-internal-data-object': [[1]],
+        'event-mapped-from-external-reactive-store': [[1]],
+      })
       expect(console.error).not.toHaveBeenCalled()
     })
   })
