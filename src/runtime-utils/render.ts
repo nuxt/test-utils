@@ -1,5 +1,5 @@
 import { Suspense, effectScope, h, nextTick, isReadonly, reactive, unref, defineComponent } from 'vue'
-import type { DefineComponent, SetupContext } from 'vue'
+import type { ComponentInternalInstance, DefineComponent, SetupContext } from 'vue'
 import type { RenderOptions as TestingLibraryRenderOptions } from '@testing-library/vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
@@ -17,6 +17,7 @@ const WRAPPER_EL_ID = 'test-wrapper'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SetupState = Record<string, any>
+type Emit = ComponentInternalInstance['emit']
 /**
  * `renderSuspended` allows you to mount any vue component within the Nuxt environment, allowing async setup and access to injections from your Nuxt plugins.
  *
@@ -66,6 +67,43 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
   let setupContext: SetupContext
   let setupState: SetupState
 
+  let interceptedEmit: Emit | null = null
+  /**
+   * Intercept the emit for testing purposes.
+   *
+   * @remarks
+   * Using this function ensures that the emit is not intercepted multiple times
+   * and doesn't duplicate events.
+   *
+   * @param emit - The original emit from the component's context.
+   *
+   * @returns An intercepted emit that will both emit from the component itself
+   * and from the top level wrapper for assertions via
+   * {@link import('@vue/test-utils').VueWrapper.emitted()}.
+   */
+  function getInterceptedEmitFunction(emit: Emit): Emit {
+    if (emit !== interceptedEmit) {
+      interceptedEmit = interceptedEmit ?? ((event, ...args) => {
+        emit(event, ...args)
+        setupContext.emit(event, ...args)
+      })
+    }
+
+    return interceptedEmit
+  }
+
+  /**
+   * Intercept emit for assertions in populate wrapper emitted.
+   */
+  function interceptEmitOnCurrentInstance(): void {
+    const currentInstance = getCurrentInstance()
+    if (!currentInstance) {
+      return
+    }
+
+    currentInstance.emit = getInterceptedEmitFunction(currentInstance.emit)
+  }
+
   // cleanup previously mounted test wrappers
   for (const fn of window.__cleanup || []) {
     fn()
@@ -73,11 +111,11 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
   document.querySelector(`#${WRAPPER_EL_ID}`)?.remove()
 
   let passedProps: Record<string, unknown>
-  const wrappedSetup = async (
-    props: Record<string, unknown>,
-    setupContext: SetupContext,
-  ) => {
+  const wrappedSetup = async (props: Record<string, unknown>, setupContext: SetupContext): Promise<unknown> => {
+    interceptEmitOnCurrentInstance()
+
     passedProps = props
+
     if (setup) {
       const result = await setup(props, setupContext)
       setupState = result && typeof result === 'object' ? result : {}
@@ -140,6 +178,8 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
                           ...component,
                           render: render
                             ? function (this: unknown, _ctx: Record<string, unknown>, ...args: unknown[]) {
+                              interceptEmitOnCurrentInstance()
+
                               // Set before setupState set to allow asyncData to overwrite data
                               if (data && typeof data === 'function') {
                                 // @ts-expect-error error TS2554: Expected 1 arguments, but got 0
@@ -189,7 +229,7 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
                               return render.call(this, renderContext, ...args)
                             }
                             : undefined,
-                          setup: setup ? (props: Record<string, unknown>) => wrappedSetup(props, setupContext) : undefined,
+                          setup: (props: Record<string, unknown>) => wrappedSetup(props, setupContext),
                         }
 
                         return () => h(clonedComponent, { ...(props && typeof props === 'object' ? props : {}), ...attrs }, slots)

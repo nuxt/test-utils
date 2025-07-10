@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import type { ComponentMountingOptions } from '@vue/test-utils'
 import { Suspense, h, isReadonly, nextTick, reactive, unref, getCurrentInstance } from 'vue'
-import type { DefineComponent, SetupContext } from 'vue'
+import type { ComponentInternalInstance, DefineComponent, SetupContext } from 'vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
 
@@ -17,6 +17,7 @@ type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
 // TODO: improve return types
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SetupState = Record<string, any>
+type Emit = ComponentInternalInstance['emit']
 
 /**
  * `mountSuspended` allows you to mount any vue component within the Nuxt environment, allowing async setup and access to injections from your Nuxt plugins. For example:
@@ -65,9 +66,49 @@ export async function mountSuspended<T>(
   let setupState: Record<string, unknown>
   const setProps = reactive<Record<string, unknown>>({})
 
+  let interceptedEmit: Emit | null = null
+  /**
+   * Intercept the emit for testing purposes.
+   *
+   * @remarks
+   * Using this function ensures that the emit is not intercepted multiple times
+   * and doesn't duplicate events.
+   *
+   * @param emit - The original emit from the component's context.
+   *
+   * @returns An intercepted emit that will both emit from the component itself
+   * and from the top level wrapper for assertions via
+   * {@link import('@vue/test-utils').VueWrapper.emitted()}.
+   */
+  function getInterceptedEmitFunction(emit: Emit): Emit {
+    if (emit !== interceptedEmit) {
+      interceptedEmit = interceptedEmit ?? ((event, ...args) => {
+        emit(event, ...args)
+        setupContext.emit(event, ...args)
+      })
+    }
+
+    return interceptedEmit
+  }
+
+  /**
+   * Intercept emit for assertions in populate wrapper emitted.
+   */
+  function interceptEmitOnCurrentInstance(): void {
+    const currentInstance = getCurrentInstance()
+    if (!currentInstance) {
+      return
+    }
+
+    currentInstance.emit = getInterceptedEmitFunction(currentInstance.emit)
+  }
+
   let passedProps: Record<string, unknown>
-  const wrappedSetup = async (props: Record<string, unknown>, setupContext: SetupContext) => {
+  const wrappedSetup = async (props: Record<string, unknown>, setupContext: SetupContext): Promise<unknown> => {
+    interceptEmitOnCurrentInstance()
+
     passedProps = props
+
     if (setup) {
       const result = await setup(props, setupContext)
       setupState = result && typeof result === 'object' ? result : {}
@@ -107,28 +148,14 @@ export async function mountSuspended<T>(
                       const router = useRouter()
                       await router.replace(route)
 
-                      let interceptedEmit: ((event: string, ...args: unknown[]) => void) | null = null
-
                       // Proxy top-level setup/render context so test wrapper resolves child component
                       const clonedComponent = {
                         name: 'MountSuspendedComponent',
                         ...component,
                         render: render
                           ? function (this: unknown, _ctx: Record<string, unknown>, ...args: unknown[]) {
-                            // When using defineModel, getCurrentInstance().emit is executed internally. it needs to override.
-                            const currentInstance = getCurrentInstance()
-                            if (
-                              currentInstance
-                              // Intercept the emit only once. Otherwise the events would be duplicated for every rerender.
-                              && currentInstance.emit !== interceptedEmit
-                            ) {
-                              const oldEmit = currentInstance.emit
-                              interceptedEmit = (event, ...args) => {
-                                oldEmit(event, ...args)
-                                setupContext.emit(event, ...args)
-                              }
-                              currentInstance.emit = interceptedEmit
-                            }
+                            interceptEmitOnCurrentInstance()
+
                             // Set before setupState set to allow asyncData to overwrite data
                             if (data && typeof data === 'function') {
                               // @ts-expect-error error TS2554: Expected 1 arguments, but got 0
@@ -178,7 +205,7 @@ export async function mountSuspended<T>(
                             return render.call(this, renderContext, ...args)
                           }
                           : undefined,
-                        setup: setup ? (props: Record<string, unknown>) => wrappedSetup(props, setupContext) : undefined,
+                        setup: (props: Record<string, unknown>) => wrappedSetup(props, setupContext),
                       }
 
                       return () => h(clonedComponent, { ...props, ...setProps, ...attrs }, slots)
