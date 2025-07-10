@@ -212,7 +212,7 @@ export async function mountSuspended<T>(
                             return render.call(this, renderContext, ...args)
                           }
                           : undefined,
-                        setup: (props: Record<string, unknown>) => wrappedSetup(props, setupContext),
+                        setup: setup ? (props: Record<string, unknown>) => wrappedSetup(props, setupContext) : undefined,
                       }
 
                       return () => h(clonedComponent, { ...props, ...setProps, ...attrs }, slots)
