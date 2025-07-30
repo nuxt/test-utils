@@ -1,4 +1,4 @@
-import { Suspense, effectScope, h, nextTick, isReadonly, reactive, unref, defineComponent } from 'vue'
+import { Suspense, effectScope, h, nextTick, isReadonly, reactive, unref, defineComponent, getCurrentInstance } from 'vue'
 import type { ComponentInternalInstance, DefineComponent, SetupContext } from 'vue'
 import type { RenderOptions as TestingLibraryRenderOptions } from '@testing-library/vue'
 import { defu } from 'defu'
