@@ -348,7 +348,7 @@ export interface NuxtEnvironmentOptions {
   rootDir?: string
   /**
    * The starting URL for your Nuxt window environment
-   * @default {http://localhost:3000}
+   * @default 'http://localhost:3000'
    */
   url?: string
   /**
@@ -361,14 +361,14 @@ export interface NuxtEnvironmentOptions {
   overrides?: NuxtConfig
   /**
    * The id of the root div to which the app should be mounted. You should also set `app.rootId` to the same value.
-   * @default {nuxt-test}
+   * @default 'nuxt-test'
    */
   rootId?: string
   /**
    * The name of the DOM environment to use.
    *
    * It also needs to be installed as a dev dependency in your project.
-   * @default {happy-dom}
+   * @default 'happy-dom'
    */
   domEnvironment?: 'happy-dom' | 'jsdom'
 
