@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import type { ComponentMountingOptions } from '@vue/test-utils'
-import { Suspense, h, isReadonly, nextTick, reactive, unref, getCurrentInstance } from 'vue'
+import { Suspense, h, isReadonly, nextTick, reactive, unref, getCurrentInstance, effectScope } from 'vue'
 import type { ComponentInternalInstance, DefineComponent, SetupContext } from 'vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
@@ -57,6 +57,11 @@ export async function mountSuspended<T>(
     ..._options
   } = options || {}
 
+  // cleanup previously mounted test wrappers
+  for (const fn of globalThis.__cleanup || []) {
+    fn()
+  }
+
   const vueApp = tryUseNuxtApp()?.vueApp
     // @ts-expect-error untyped global __unctx__
     || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
@@ -104,13 +109,26 @@ export async function mountSuspended<T>(
   }
 
   let passedProps: Record<string, unknown>
+  let componentScope: ReturnType<typeof effectScope> | null = null
+
   const wrappedSetup = async (props: Record<string, unknown>, setupContext: SetupContext): Promise<unknown> => {
     interceptEmitOnCurrentInstance()
 
     passedProps = props
 
     if (setup) {
-      const result = await setup(props, setupContext)
+      // Create a new effect scope for the component's setup
+      componentScope = effectScope()
+
+      // Add component scope cleanup to global cleanup
+      globalThis.__cleanup ||= []
+      globalThis.__cleanup.push(() => {
+        componentScope?.stop()
+      })
+
+      const result = await componentScope.run(async () => {
+        return await setup(props, setupContext)
+      })
       setupState = result && typeof result === 'object' ? result : {}
       return result
     }
@@ -122,10 +140,18 @@ export async function mountSuspended<T>(
         {
           setup: (props: Record<string, unknown>, ctx: SetupContext) => {
             setupContext = ctx
-            return NuxtRoot.setup(props, {
+
+            const scope = effectScope()
+
+            globalThis.__cleanup ||= []
+            globalThis.__cleanup.push(() => {
+              scope.stop()
+            })
+
+            return scope.run(() => NuxtRoot.setup(props, {
               ...ctx,
               expose: () => {},
-            })
+            }))
           },
           render: (renderContext: Record<string, unknown>) =>
             h(
@@ -275,4 +301,8 @@ function wrappedMountedWrapper<T>(wrapper: ReturnType<typeof mount<T>> & { setup
   }
 
   return proxy
+}
+
+declare global {
+  var __cleanup: Array<() => void> | undefined
 }
