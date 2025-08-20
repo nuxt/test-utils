@@ -39,9 +39,6 @@ jobs:
 
       - name: 📦 Release
         run: pnpm changelogen --publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.RELEASE_NODE_AUTH_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
 
       - name: 🏷️ Create tag
         run: |

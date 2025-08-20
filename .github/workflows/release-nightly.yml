@@ -40,6 +40,3 @@ jobs:
       - name: 📦 release nightly
         if: github.event_name == 'push'
         run: pnpm changelogen --canary nightly --publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
