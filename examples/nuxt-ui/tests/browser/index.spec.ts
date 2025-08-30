@@ -6,15 +6,15 @@ import App from '~/app.vue'
 describe('App', () => {
   it('works with mountSuspended', async () => {
     const component = await mountSuspended(App)
-    // expect(component.html()).toMatchInlineSnapshot(`
-    //   "<div>Index page</div>
-    //   <div>title: My page</div>"
-    // `)
+    expect(component.html()).toMatchInlineSnapshot(`
+      "<div data-testid="page-content"> This is within a UApp component. </div>
+      <!--teleport start-->
+      <!--teleport end-->"
+    `)
   })
 
   it('works with vitest-browser-vue', () => {
     const { getByText } = render(App)
-    // expect(getByText('Index page')).toBeInTheDocument()
-    // expect(getByText('title: My page')).toBeInTheDocument()
+    expect(getByText('This is within a UApp component')).toBeInTheDocument()
   })
 })
