@@ -13,7 +13,7 @@ export function createTestContext(options: Partial<TestOptions>): TestContext {
     fixture: 'fixture',
     configFile: 'nuxt.config',
     setupTimeout: isWindows ? 240_000 : 120_000,
-    teardownTimeout: 30_000,
+    teardownTimeout: isWindows ? 60_000 : 30_000,
     dev: !!JSON.parse(process.env.NUXT_TEST_DEV || 'false'),
     logLevel: 1,
     server: true,
