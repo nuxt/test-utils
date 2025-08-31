@@ -1,0 +1,25 @@
+{
+  "name": "example-app-vitest-nuxt-ui",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "dev:prepare": "nuxt prepare",
+    "generate": "nuxt generate",
+    "test": "pnpm test:nuxt-environment && pnpm test:browser",
+    "test:browser": "VITEST_BROWSER_ENABLED=true vitest run",
+    "test:browser:dev": "VITEST_BROWSER_ENABLED=true vitest",
+    "test:nuxt-environment": "vitest run",
+    "preview": "nuxt preview"
+  },
+  "devDependencies": {
+    "@nuxt/test-utils": "latest",
+    "@nuxt/ui": "3.3.2",
+    "@vitest/browser": "3.2.4",
+    "nuxt": "4.0.3",
+    "tailwindcss": "^4.1.12",
+    "vitest": "3.2.4",
+    "vitest-browser-vue": "1.1.0"
+  }
+}

@@ -185,10 +185,14 @@
   "packageManager": "pnpm@10.15.0",
   "pnpm": {
     "onlyBuiltDependencies": [
+      "@tailwindcss/oxide",
       "better-sqlite3"
     ],
     "ignoredBuiltDependencies": [
-      "esbuild"
+      "esbuild",
+      "oxc-resolver",
+      "unrs-resolver",
+      "vue-demi"
     ]
   }
 }
