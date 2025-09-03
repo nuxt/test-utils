@@ -473,7 +473,7 @@ describe('composable state isolation', () => {
   })
 
   it('shows zero or negative state by default', async () => {
-    const component = await mountSuspended(GenericStateComponent)
+    const component = await mountSuspended(GenericStateComponent, { scoped: true })
     expect(component.text()).toMatchInlineSnapshot('"Zero or negative count"')
   })
 
@@ -482,7 +482,7 @@ describe('composable state isolation', () => {
     useCounterMock.mockImplementation(() => ({
       isPositive: () => true,
     }))
-    const component = await mountSuspended(GenericStateComponent)
+    const component = await mountSuspended(GenericStateComponent, { scoped: true })
     expect(component.text()).toMatchInlineSnapshot('"Positive count"')
   })
 })
@@ -508,9 +508,10 @@ describe('watcher cleanup validation', () => {
       props: {
         title: 'Component 1',
       },
+      scoped: true,
     })
 
-    expect(watcherCallCount).toBe(0) // No state changes yet
+    expect(watcherCallCount).toBe(0)
   })
 
   it('mounts component in test 2 and validates watcher cleanup', async () => {
@@ -518,19 +519,16 @@ describe('watcher cleanup validation', () => {
       props: {
         title: 'Component 2',
       },
+      scoped: true,
     })
 
-    // Reset counter after mounting
     watcherCallCount = 0
 
-    // Change the state - this should only trigger Component 2's watcher
     const state = useState('testState')
     state.value = 'new state'
 
     await nextTick()
 
-    // Before the fix: would see 2 watcher calls (Component 1 and Component 2)
-    // After the fix: should only see 1 watcher call (Component 2 only)
     expect(watcherCallCount).toBe(1)
   })
 })

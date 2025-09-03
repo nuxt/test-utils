@@ -12,6 +12,7 @@ import { tryUseNuxtApp, useRouter } from '#imports'
 
 type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
   route?: RouteLocationRaw
+  scoped?: boolean
 }
 
 // TODO: improve return types
@@ -58,8 +59,8 @@ export async function mountSuspended<T>(
   } = options || {}
 
   // cleanup previously mounted test wrappers
-  for (const fn of globalThis.__cleanup || []) {
-    fn()
+  for (const cleanupFunction of globalThis.__cleanup || []) {
+    cleanupFunction()
   }
 
   const vueApp = tryUseNuxtApp()?.vueApp
@@ -117,18 +118,23 @@ export async function mountSuspended<T>(
     passedProps = props
 
     if (setup) {
-      // Create a new effect scope for the component's setup
-      componentScope = effectScope()
+      let result
+      if (options?.scoped) {
+        componentScope = effectScope()
 
-      // Add component scope cleanup to global cleanup
-      globalThis.__cleanup ||= []
-      globalThis.__cleanup.push(() => {
-        componentScope?.stop()
-      })
+        // Add component scope cleanup to global cleanup
+        globalThis.__cleanup ||= []
+        globalThis.__cleanup.push(() => {
+          componentScope?.stop()
+        })
+        result = await componentScope?.run(async () => {
+          return await setup(props, setupContext)
+        })
+      }
+      else {
+        result = await setup(props, setupContext)
+      }
 
-      const result = await componentScope.run(async () => {
-        return await setup(props, setupContext)
-      })
       setupState = result && typeof result === 'object' ? result : {}
       return result
     }
@@ -141,17 +147,24 @@ export async function mountSuspended<T>(
           setup: (props: Record<string, unknown>, ctx: SetupContext) => {
             setupContext = ctx
 
-            const scope = effectScope()
+            if (options?.scoped) {
+              const scope = effectScope()
 
-            globalThis.__cleanup ||= []
-            globalThis.__cleanup.push(() => {
-              scope.stop()
-            })
-
-            return scope.run(() => NuxtRoot.setup(props, {
-              ...ctx,
-              expose: () => {},
-            }))
+              globalThis.__cleanup ||= []
+              globalThis.__cleanup.push(() => {
+                scope.stop()
+              })
+              return scope.run(() => NuxtRoot.setup(props, {
+                ...ctx,
+                expose: () => {},
+              }))
+            }
+            else {
+              return NuxtRoot.setup(props, {
+                ...ctx,
+                expose: () => {},
+              })
+            }
           },
           render: (renderContext: Record<string, unknown>) =>
             h(
