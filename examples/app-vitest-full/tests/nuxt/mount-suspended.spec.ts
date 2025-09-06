@@ -191,8 +191,14 @@ describe('mountSuspended', () => {
   it('can access exposed methods/refs from components mounted within nuxt suspense', async () => {
     const component = await mountSuspended(WrapperTests)
     expect(component.vm.testExpose?.()).toBe('expose was successful')
-    // @ts-expect-error FIXME: someRef is typed as unwrapped
-    expect(component.vm.someRef.value).toBe('thing')
+    expect(component.vm.someRef).toBe('thing')
+  })
+
+  it('can modify exposed refs from components', async () => {
+    const component = await mountSuspended(WrapperTests)
+    expect(component.vm.someRef).toBe('thing')
+    component.vm.someRef = 'modified thing'
+    expect(component.vm.someRef).toBe('modified thing')
   })
 
   it('respects directives registered in nuxt plugins', async () => {
