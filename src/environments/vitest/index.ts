@@ -48,6 +48,7 @@ export default <Environment>{
     const teardownWindow = await setupWindow(win, environmentOptions as any)
     const { keys, originals } = populateGlobal(global, win, {
       bindFunctions: true,
+      additionalKeys: ['fetch', 'Request'],
     })
 
     return {

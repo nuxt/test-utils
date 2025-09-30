@@ -47,28 +47,55 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
 
   const h3App = createApp()
 
-  if (!win.fetch) {
+  if (!win.fetch || !('Request' in win)) {
     await import('node-fetch-native/polyfill')
     // @ts-expect-error fetch polyfill
     win.URLSearchParams = globalThis.URLSearchParams
+    // @ts-expect-error fetch polyfill
+    win.Request ??= class Request extends globalThis.Request {
+      constructor(input: RequestInfo, init?: RequestInit) {
+        if (typeof input === 'string') {
+          super(new URL(input, win.location.origin), init)
+        }
+        else {
+          super(input, init)
+        }
+      }
+    }
   }
 
   const nodeHandler = toNodeListener(h3App)
 
   const registry = new Set<string>()
 
-  win.fetch = async (url, init) => {
-    if (typeof url === 'string') {
-      const base = url.split('?')[0]!
-      if (registry.has(base) || registry.has(url)) {
-        url = '/_' + url
-      }
-      if (url.startsWith('/')) {
-        const response = await fetchNodeRequestHandler(nodeHandler, url, init)
-        return normalizeFetchResponse(response)
+  const _fetch = fetch
+  win.fetch = async (input, _init) => {
+    let url: string
+    let init = _init
+    if (typeof input === 'string') {
+      url = input
+    }
+    else if (input instanceof URL) {
+      url = input.toString()
+    }
+    else {
+      url = input.url
+      init = {
+        method: init?.method ?? input.method,
+        body: init?.body ?? input.body,
+        headers: init?.headers ?? input.headers,
       }
     }
-    return fetch(url, init)
+
+    const base = url.split('?')[0]!
+    if (registry.has(base) || registry.has(url)) {
+      url = '/_' + url
+    }
+    if (url.startsWith('/')) {
+      const response = await fetchNodeRequestHandler(nodeHandler, url, init)
+      return normalizeFetchResponse(response)
+    }
+    return _fetch(input, _init)
   }
 
   // @ts-expect-error fetch types differ slightly
