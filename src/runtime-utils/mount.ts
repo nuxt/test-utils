@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import type { ComponentMountingOptions } from '@vue/test-utils'
 import { Suspense, h, isReadonly, nextTick, reactive, unref, getCurrentInstance, effectScope } from 'vue'
+import { Suspense, h, isReadonly, nextTick, reactive, unref, getCurrentInstance, isRef } from 'vue'
 import type { ComponentInternalInstance, DefineComponent, SetupContext } from 'vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
@@ -298,6 +299,10 @@ function wrappedMountedWrapper<T>(wrapper: ReturnType<typeof mount<T>> & { setup
         const component = target.findComponent({ name: 'MountSuspendedComponent' })
         return component[prop]
       }
+      else if (prop === 'vm') {
+        const vm = Reflect.get(target, prop, receiver)
+        return createVMProxy(vm as unknown as ComponentPublicInstance, wrapper.setupState)
+      }
       else {
         return Reflect.get(target, prop, receiver)
       }
@@ -314,6 +319,33 @@ function wrappedMountedWrapper<T>(wrapper: ReturnType<typeof mount<T>> & { setup
   }
 
   return proxy
+}
+
+function createVMProxy<T extends ComponentPublicInstance>(vm: T, setupState: Record<string, unknown>): T {
+  return new Proxy(vm, {
+    get(target, key, receiver) {
+      const value = Reflect.get(target, key, receiver)
+
+      if (setupState && typeof setupState === 'object' && key in setupState) {
+        return unref(setupState[key as keyof typeof setupState])
+      }
+
+      return value
+    },
+    set(target, key, value, receiver) {
+      if (setupState && typeof setupState === 'object' && key in setupState) {
+        const setupValue = setupState[key as keyof typeof setupState]
+        if (setupValue && isRef(setupValue)) {
+          setupValue.value = value
+          return true
+        }
+
+        return Reflect.set(setupState, key, value, receiver)
+      }
+
+      return Reflect.set(target, key, value, receiver)
+    },
+  })
 }
 
 declare global {
