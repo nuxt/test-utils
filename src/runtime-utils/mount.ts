@@ -1,7 +1,6 @@
 import { mount } from '@vue/test-utils'
 import type { ComponentMountingOptions } from '@vue/test-utils'
-import { Suspense, h, isReadonly, nextTick, reactive, unref, getCurrentInstance, effectScope } from 'vue'
-import { Suspense, h, isReadonly, nextTick, reactive, unref, getCurrentInstance, isRef } from 'vue'
+import { Suspense, h, isReadonly, nextTick, reactive, unref, getCurrentInstance, effectScope, isRef } from 'vue'
 import type { ComponentInternalInstance, DefineComponent, SetupContext } from 'vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
