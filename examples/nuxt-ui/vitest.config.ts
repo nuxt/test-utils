@@ -1,10 +1,11 @@
 import { defineVitestConfig } from '@nuxt/test-utils/config'
+import { playwright } from '@vitest/browser-playwright'
 
 const browserConfig = {
   browser: {
     enabled: true,
-    provider: 'playwright',
-    instances: [{ browser: 'chromium' }],
+    provider: playwright(),
+    instances: [{ browser: 'chromium' as const }],
   },
   environment: 'nuxt',
   include: ['tests/browser/**/*.spec.ts'],
