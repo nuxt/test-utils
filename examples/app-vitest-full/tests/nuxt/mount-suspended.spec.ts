@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { satisfies } from 'semver'
 import { version as nuxtVersion } from 'nuxt/package.json'
 
@@ -25,11 +25,13 @@ import ComponentWithAttrs from '~/components/ComponentWithAttrs.vue'
 import ComponentWithReservedProp from '~/components/ComponentWithReservedProp.vue'
 import ComponentWithReservedState from '~/components/ComponentWithReservedState.vue'
 import ComponentWithImports from '~/components/ComponentWithImports.vue'
+import GenericStateComponent from '~/components/GenericStateComponent.vue'
 
 import { BoundAttrs } from '#components'
 import DirectiveComponent from '~/components/DirectiveComponent.vue'
 import CustomComponent from '~/components/CustomComponent.vue'
 import WrapperElement from '~/components/WrapperElement.vue'
+import WatcherComponent from '~/components/WatcherComponent.vue'
 
 const formats = {
   ExportDefaultComponent,
@@ -459,4 +461,80 @@ it('element should be changed', async () => {
   await component.setProps({ as: 'span' })
 
   expect(component.element.tagName).toBe('SPAN')
+})
+
+describe('composable state isolation', () => {
+  const { useCounterMock } = vi.hoisted(() => {
+    return {
+      useCounterMock: vi.fn(() => {
+        return {
+          isPositive: (): boolean => false,
+        }
+      }),
+    }
+  })
+
+  mockNuxtImport('useCounter', () => {
+    return useCounterMock
+  })
+
+  it('shows zero or negative state by default', async () => {
+    const component = await mountSuspended(GenericStateComponent, { scoped: true })
+    expect(component.text()).toMatchInlineSnapshot('"Zero or negative count"')
+  })
+
+  it('shows positive state when counter is positive', async () => {
+    useCounterMock.mockRestore()
+    useCounterMock.mockImplementation(() => ({
+      isPositive: () => true,
+    }))
+    const component = await mountSuspended(GenericStateComponent, { scoped: true })
+    expect(component.text()).toMatchInlineSnapshot('"Positive count"')
+  })
+})
+
+describe('watcher cleanup validation', () => {
+  let watcherCallCount = 0
+  beforeEach(() => {
+    watcherCallCount = 0
+    // Mock console.log to count watcher calls
+    vi.spyOn(console, 'log').mockImplementation((message) => {
+      if (typeof message === 'string' && message.includes('Test state has changed')) {
+        watcherCallCount++
+      }
+    })
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('mounts component in test 1', async () => {
+    await mountSuspended(WatcherComponent, {
+      props: {
+        title: 'Component 1',
+      },
+      scoped: true,
+    })
+
+    expect(watcherCallCount).toBe(0)
+  })
+
+  it('mounts component in test 2 and validates watcher cleanup', async () => {
+    await mountSuspended(WatcherComponent, {
+      props: {
+        title: 'Component 2',
+      },
+      scoped: true,
+    })
+
+    watcherCallCount = 0
+
+    const state = useState('testState')
+    state.value = 'new state'
+
+    await nextTick()
+
+    expect(watcherCallCount).toBe(1)
+  })
 })

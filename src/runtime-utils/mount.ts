@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import type { ComponentMountingOptions } from '@vue/test-utils'
-import { Suspense, h, isReadonly, nextTick, reactive, unref, getCurrentInstance, isRef } from 'vue'
+import { Suspense, h, isReadonly, nextTick, reactive, unref, getCurrentInstance, effectScope, isRef } from 'vue'
 import type { ComponentInternalInstance, DefineComponent, SetupContext } from 'vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
@@ -12,6 +12,7 @@ import { tryUseNuxtApp, useRouter } from '#imports'
 
 type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
   route?: RouteLocationRaw
+  scoped?: boolean
 }
 
 // TODO: improve return types
@@ -56,6 +57,11 @@ export async function mountSuspended<T>(
     route = '/',
     ..._options
   } = options || {}
+
+  // cleanup previously mounted test wrappers
+  for (const cleanupFunction of globalThis.__cleanup || []) {
+    cleanupFunction()
+  }
 
   const vueApp = tryUseNuxtApp()?.vueApp
     // @ts-expect-error untyped global __unctx__
@@ -104,13 +110,31 @@ export async function mountSuspended<T>(
   }
 
   let passedProps: Record<string, unknown>
+  let componentScope: ReturnType<typeof effectScope> | null = null
+
   const wrappedSetup = async (props: Record<string, unknown>, setupContext: SetupContext): Promise<unknown> => {
     interceptEmitOnCurrentInstance()
 
     passedProps = props
 
     if (setup) {
-      const result = await setup(props, setupContext)
+      let result
+      if (options?.scoped) {
+        componentScope = effectScope()
+
+        // Add component scope cleanup to global cleanup
+        globalThis.__cleanup ||= []
+        globalThis.__cleanup.push(() => {
+          componentScope?.stop()
+        })
+        result = await componentScope?.run(async () => {
+          return await setup(props, setupContext)
+        })
+      }
+      else {
+        result = await setup(props, setupContext)
+      }
+
       setupState = result && typeof result === 'object' ? result : {}
       return result
     }
@@ -122,10 +146,25 @@ export async function mountSuspended<T>(
         {
           setup: (props: Record<string, unknown>, ctx: SetupContext) => {
             setupContext = ctx
-            return NuxtRoot.setup(props, {
-              ...ctx,
-              expose: () => {},
-            })
+
+            if (options?.scoped) {
+              const scope = effectScope()
+
+              globalThis.__cleanup ||= []
+              globalThis.__cleanup.push(() => {
+                scope.stop()
+              })
+              return scope.run(() => NuxtRoot.setup(props, {
+                ...ctx,
+                expose: () => {},
+              }))
+            }
+            else {
+              return NuxtRoot.setup(props, {
+                ...ctx,
+                expose: () => {},
+              })
+            }
           },
           render: (renderContext: Record<string, unknown>) =>
             h(
@@ -306,4 +345,8 @@ function createVMProxy<T extends ComponentPublicInstance>(vm: T, setupState: Rec
       return Reflect.set(target, key, value, receiver)
     },
   })
+}
+
+declare global {
+  var __cleanup: Array<() => void> | undefined
 }
