@@ -30,12 +30,7 @@ export default <Environment>{
     }))
 
     if (environmentOptions?.nuxt?.mock?.intersectionObserver) {
-      win.IntersectionObserver ||= class IntersectionObserver {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-        takeRecords() { return [] }
-      }
+      win.IntersectionObserver ||= IntersectionObserver
     }
 
     if (environmentOptions?.nuxt?.mock?.indexedDb) {
@@ -57,8 +52,21 @@ export default <Environment>{
         keys.forEach(key => delete global[key])
         teardownWindow()
         originals.forEach((v, k) => (global[k] = v))
+
+        // Stub to prevent errors from delayed callbacks
+        if (!global.IntersectionObserver) {
+          global.IntersectionObserver = IntersectionObserver
+        }
+
         teardown()
       },
     }
   },
+}
+
+class IntersectionObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() { return [] }
 }
