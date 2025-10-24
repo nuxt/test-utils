@@ -39,6 +39,8 @@ export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
 
   return {
     window,
-    teardown() {},
+    teardown() {
+      window.close()
+    },
   }
 }
