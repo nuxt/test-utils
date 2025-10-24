@@ -27,9 +27,11 @@ jobs:
       - run: corepack enable
       - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
-          node-version: current
-          registry-url: "https://registry.npmjs.org/"
-          cache: pnpm
+          node-version: latest
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Update npm for trusted publishing
+        run: npm install -g npm@latest
 
       - name: 📦 Install dependencies
         run: pnpm install
@@ -38,7 +40,7 @@ jobs:
         run: pnpm dev:prepare
 
       - name: 📦 Release
-        run: pnpm publish --access public
+        run: npm publish
 
       - name: 🏷️ Create tag
         run: |
