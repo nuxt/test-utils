@@ -28,7 +28,6 @@ jobs:
       - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
           node-version: latest
-          registry-url: 'https://registry.npmjs.org/'
           cache: pnpm
 
       - name: 📦 Install dependencies
@@ -38,7 +37,7 @@ jobs:
         run: pnpm dev:prepare
 
       - name: 📦 Release
-        run: pnpm changelogen --publish
+        run: pnpm publish
 
       - name: 🏷️ Create tag
         run: |
