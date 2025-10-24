@@ -17,10 +17,19 @@ export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
     cookieJar: false,
   } satisfies JSDOMOptions) as JSDOMOptions & { contentType: SupportedContentTypes }
 
+  const virtualConsole = jsdomOptions.console && global.console
+    ? new VirtualConsole()
+    : undefined
+
   const window = new JSDOM(jsdomOptions.html, {
     ...jsdomOptions,
     resources: jsdomOptions.resources ?? (jsdomOptions.userAgent ? new ResourceLoader({ userAgent: jsdomOptions.userAgent }) : undefined),
-    virtualConsole: jsdomOptions.console && global.console ? new VirtualConsole().sendTo(global.console) : undefined,
+    virtualConsole: virtualConsole
+      ? 'sendTo' in virtualConsole
+        ? virtualConsole.sendTo(global.console)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        : (virtualConsole as any).forwardTo(global.console)
+      : undefined,
     cookieJar: jsdomOptions.cookieJar ? new CookieJar() : undefined,
   }).window as DOMWindow & NuxtWindow
 
