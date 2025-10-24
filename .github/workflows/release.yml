@@ -38,7 +38,7 @@ jobs:
         run: pnpm dev:prepare
 
       - name: 📦 Release
-        run: pnpm publish
+        run: npm publish
 
       - name: 🏷️ Create tag
         run: |
