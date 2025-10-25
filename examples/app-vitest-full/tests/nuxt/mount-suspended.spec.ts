@@ -25,6 +25,7 @@ import ComponentWithAttrs from '~/components/ComponentWithAttrs.vue'
 import ComponentWithReservedProp from '~/components/ComponentWithReservedProp.vue'
 import ComponentWithReservedState from '~/components/ComponentWithReservedState.vue'
 import ComponentWithImports from '~/components/ComponentWithImports.vue'
+import ComponentWithCssVar from '~/components/ComponentWithCssVar.vue'
 import GenericStateComponent from '~/components/GenericStateComponent.vue'
 
 import { BoundAttrs } from '#components'
@@ -273,6 +274,14 @@ describe('mountSuspended', () => {
       'event-from-watch-on-reactive-object': [[1]],
       'event-from-watch-on-reactive-string': [[1]],
     })
+  })
+
+  it('can mount components with use css modules', async () => {
+    const component = await mountSuspended(ComponentWithCssVar)
+    expect(component.text()).toBe('Css Module')
+    expect(component.find('#s1').classes()).toHaveLength(1)
+    expect(component.find('#s2').classes()).toHaveLength(1)
+    expect(component.find('#s3').classes()).toHaveLength(0)
   })
 
   describe('Options API', () => {
