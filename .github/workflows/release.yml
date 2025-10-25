@@ -31,7 +31,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Update npm for trusted publishing
-        run: npm install -g npm@latest
+        run: npm install -g npm@11.6.0
 
       - name: 📦 Install dependencies
         run: pnpm install
