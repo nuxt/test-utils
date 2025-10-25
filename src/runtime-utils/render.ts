@@ -62,7 +62,7 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
   const vueApp = tryUseNuxtApp()?.vueApp
     // @ts-expect-error untyped global __unctx__
     || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
-  const { render, setup, data, computed, methods } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
+  const { render, setup, data, computed, methods, ...componentRest } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
 
   let setupContext: SetupContext
   let setupState: SetupState
@@ -132,6 +132,7 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
   return new Promise<ReturnType<typeof renderFromTestingLibrary> & { setupState: SetupState }>((resolve) => {
     const utils = renderFromTestingLibrary(
       {
+        __cssModules: componentRest.__cssModules,
         setup: (props: Record<string, unknown>, ctx: SetupContext) => {
           setupContext = ctx
 
