@@ -21,9 +21,9 @@ describe('registerEndpoint tests', () => {
     registerEndpoint('/test2/', () => endpoint())
     const component = await mountSuspended(TestFetchComponent)
 
-    component
+    await component
       .find<HTMLButtonElement>('#custom-fetcher')
-      .element.click()
+      .trigger('click')
 
     expect(endpoint).toHaveBeenCalled()
     component.unmount()
