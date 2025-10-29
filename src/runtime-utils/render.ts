@@ -66,6 +66,7 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
 
   let setupContext: SetupContext
   let setupState: SetupState
+  const setProps = reactive<Record<string, unknown>>({})
 
   let interceptedEmit: Emit | null = null
   /**
@@ -162,6 +163,10 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
                   onResolve: () =>
                     nextTick().then(() => {
                       (utils as unknown as AugmentedVueInstance).setupState = setupState
+                      utils.rerender = async (props) => {
+                        Object.assign(setProps, props)
+                        await nextTick()
+                      }
                       resolve(utils as ReturnType<typeof renderFromTestingLibrary> & { setupState: SetupState })
                     }),
                 },
@@ -233,7 +238,7 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
                           setup: (props: Record<string, unknown>) => wrappedSetup(props, setupContext),
                         }
 
-                        return () => h(clonedComponent, { ...(props && typeof props === 'object' ? props : {}), ...attrs }, slots)
+                        return () => h(clonedComponent, { ...(props && typeof props === 'object' ? props : {}), ...setProps, ...attrs }, slots)
                       },
                     }),
                 },

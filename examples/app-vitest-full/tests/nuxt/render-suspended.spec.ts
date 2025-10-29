@@ -265,6 +265,24 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
 </div>
     `.trim())
   })
+
+  it('rerender props', async () => {
+    const wrapper = await renderSuspended(component, {
+      props: {
+        myProp: 'init',
+      },
+    })
+
+    await wrapper.rerender({ myProp: 'change' })
+
+    expect(wrapper.html()).toEqual(`
+<div id="test-wrapper">
+  <div>
+    <h1>${name}</h1><pre>change</pre><pre>Xinit</pre><span>myObjProp: {}</span>
+  </div>
+</div>
+    `.trim())
+  })
 })
 
 it('renders links correctly', async () => {
