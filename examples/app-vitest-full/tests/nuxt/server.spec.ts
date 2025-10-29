@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 
@@ -175,5 +175,54 @@ describe('server mocks and data fetching', () => {
 
     expect(await fetch(new URL('http://localhost:3000/with-url')).then(res => res.json())).toMatchObject({ title: 'with-url', data: {} })
     expect(await fetch(new URL('http://localhost:3000/with-url?q=1')).then(res => res.json())).toMatchObject({ title: 'with-url', data: { q: '1' } })
+  })
+
+  it('can mock fetch requests with fetch.create', async () => {
+    registerEndpoint('/fetch-create/1', event => ({
+      title: 'title from mocked api1',
+      headers: getHeaders(event),
+    }))
+    registerEndpoint('/fetch-create/2', event => ({
+      title: 'title from mocked api2',
+      headers: getHeaders(event),
+    }))
+    registerEndpoint('/fetch-create/error', () =>
+      new Response(undefined, { status: 500, statusText: 'Mock Server Error' }),
+    )
+
+    const onRequest = vi.fn()
+    const onResponse = vi.fn()
+    const onRequestError = vi.fn()
+    const onResponseError = vi.fn()
+
+    const fetch = $fetch.create({
+      baseURL: '/fetch-create',
+      retry: false,
+      onRequest,
+      onResponse,
+      onRequestError,
+      onResponseError,
+      headers: {
+        authorization: 'Bearer <access_token>',
+      },
+    })
+
+    expect(await fetch<unknown>('/1')).toMatchObject({
+      title: 'title from mocked api1',
+      headers: { authorization: 'Bearer <access_token>' },
+    })
+
+    expect(await fetch<unknown>('/2')).toMatchObject({
+      title: 'title from mocked api2',
+      headers: { authorization: 'Bearer <access_token>' },
+    })
+
+    await expect(fetch<unknown>('/error')).rejects.toMatchObject({ status: 500, statusText: 'Mock Server Error' })
+    await expect(fetch<unknown>('/error', { baseURL: '"INVALID"' })).rejects.toThrowError()
+
+    expect(onRequest).toBeCalledTimes(4)
+    expect(onResponse).toBeCalledTimes(3)
+    expect(onRequestError).toBeCalledTimes(1)
+    expect(onResponseError).toBeCalledTimes(1)
   })
 })
