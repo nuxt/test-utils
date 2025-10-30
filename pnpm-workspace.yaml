@@ -4,3 +4,14 @@ packages:
   - "stubs/*"
 
 shellEmulator: true
+
+onlyBuiltDependencies:
+  - better-sqlite3
+  - '@tailwindcss/oxide'
+
+ignoredBuiltDependencies:
+  - '@parcel/watcher'
+  - esbuild
+  - oxc-resolver
+  - unrs-resolver
+  - vue-demi
