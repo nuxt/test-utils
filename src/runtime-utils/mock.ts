@@ -18,22 +18,31 @@ import type {
 type Awaitable<T> = T | Promise<T>
 type OptionalFunction<T> = T | (() => Awaitable<T>)
 
+const endpointRegistry: Record<string, Array<{ handler: EventHandler, method?: HTTPMethod, once?: boolean }>> = {}
 /**
  * `registerEndpoint` allows you create Nitro endpoint that returns mocked data. It can come in handy if you want to test a component that makes requests to API to display some data.
  * @param url - endpoint name (e.g. `/test/`).
- * @param options - factory function that returns the mocked data or an object containing both the `handler` and the `method` properties.
+ * @param options - factory function that returns the mocked data or an object containing the `handler`, `method`, and `once` properties.
+ * - `handler`: the event handler function
+ * - `method`: (optional) HTTP method to match (e.g., 'GET', 'POST')
+ * - `once`: (optional) if true, the handler will only be used for the first matching request and then automatically removed
  * @example
  * ```ts
  * import { registerEndpoint } from '@nuxt/test-utils/runtime'
  *
- * registerEndpoint("/test/", () => {
+ * registerEndpoint("/test/", () => ({
  *  test: "test-field"
+ * }))
+ *
+ * // With once option
+ * registerEndpoint("/api/user", {
+ *   handler: () => ({ name: "Alice" }),
+ *   once: true
  * })
  * ```
  * @see https://nuxt.com/docs/getting-started/testing#registerendpoint
  */
-const endpointRegistry: Record<string, Array<{ handler: EventHandler, method?: HTTPMethod }>> = {}
-export function registerEndpoint(url: string, options: EventHandler | { handler: EventHandler, method: HTTPMethod }) {
+export function registerEndpoint(url: string, options: EventHandler | { handler: EventHandler, method?: HTTPMethod, once?: boolean }) {
   // @ts-expect-error private property
   const app: App = window.__app
 
@@ -41,7 +50,7 @@ export function registerEndpoint(url: string, options: EventHandler | { handler:
     throw new Error('registerEndpoint() can only be used in a `@nuxt/test-utils` runtime environment')
   }
 
-  const config = typeof options === 'function' ? { handler: options, method: undefined } : options
+  const config = typeof options === 'function' ? { handler: options, method: undefined, once: false } : options
   config.handler = defineEventHandler(config.handler)
 
   // @ts-expect-error private property
@@ -54,9 +63,24 @@ export function registerEndpoint(url: string, options: EventHandler | { handler:
     // @ts-expect-error private property
     window.__registry.add(url)
 
-    app.use('/_' + url, defineEventHandler((event) => {
+    app.use('/_' + url, defineEventHandler(async (event) => {
       const latestHandler = [...endpointRegistry[url] || []].reverse().find(config => config.method ? event.method === config.method : true)
-      return latestHandler?.handler(event)
+      if (!latestHandler) return
+
+      const result = await latestHandler.handler(event)
+
+      if (!latestHandler.once) return result
+
+      const index = endpointRegistry[url]?.indexOf(latestHandler)
+      if (index === undefined || index === -1) return result
+
+      endpointRegistry[url]?.splice(index, 1)
+      if (endpointRegistry[url]?.length === 0) {
+        // @ts-expect-error private property
+        window.__registry.delete(url)
+      }
+
+      return result
     }), {
       match(_, event) {
         return endpointRegistry[url]?.some(config => config.method ? event?.method === config.method : true) ?? false
