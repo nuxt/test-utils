@@ -158,7 +158,7 @@ export function mockComponent<Props, RawBindings = object>(
   path: string,
   setup: OptionalFunction<
     (props: Readonly<Props>, ctx: SetupContext) => RawBindings | RenderFunction
-  >
+  >,
 ): void
 export function mockComponent<
   Props = {},
@@ -188,7 +188,7 @@ export function mockComponent<
       I,
       II
     >
-  >
+  >,
 ): void
 export function mockComponent<
   PropNames extends string,
@@ -218,7 +218,7 @@ export function mockComponent<
       I,
       II
     >
-  >
+  >,
 ): void
 export function mockComponent<
   PropsOptions extends Readonly<ComponentPropsOptions>,
@@ -248,7 +248,7 @@ export function mockComponent<
       I,
       II
     >
-  >
+  >,
 ): void
 export function mockComponent(_path: string, _component: unknown): void {
   throw new Error(
