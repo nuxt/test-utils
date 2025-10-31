@@ -12,6 +12,7 @@ import DirectiveComponent from '~/components/DirectiveComponent.vue'
 import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
 import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
 import ComponentWithAttrs from '~/components/ComponentWithAttrs.vue'
+import ComponentWithCssVar from '~/components/ComponentWithCssVar.vue'
 import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
 import OptionsApiPage from '~/pages/other/options-api.vue'
@@ -168,6 +169,14 @@ describe('renderSuspended', () => {
       'event-from-watch-on-reactive-object': [[1]],
       'event-from-watch-on-reactive-string': [[1]],
     })
+  })
+
+  it('can render components with use css modules', async () => {
+    const { container, html } = await renderSuspended(ComponentWithCssVar)
+    expect(html()).toContain('Css Module')
+    expect(container.querySelector('#s1')?.classList).toHaveLength(1)
+    expect(container.querySelector('#s2')?.classList).toHaveLength(1)
+    expect(container.querySelector('#s3')?.classList).toHaveLength(0)
   })
 
   describe('Options API', () => {
