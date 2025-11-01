@@ -1,5 +1,5 @@
 import { Suspense, effectScope, h, nextTick, isReadonly, reactive, unref, defineComponent, getCurrentInstance } from 'vue'
-import type { ComponentInternalInstance, DefineComponent, SetupContext } from 'vue'
+import type { App, ComponentInternalInstance, DefineComponent, SetupContext } from 'vue'
 import type { RenderOptions as TestingLibraryRenderOptions } from '@testing-library/vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
@@ -59,7 +59,7 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
 
   const { render: renderFromTestingLibrary } = await import('@testing-library/vue')
 
-  const vueApp = tryUseNuxtApp()?.vueApp
+  const vueApp: App<Element> & Record<string, unknown> = tryUseNuxtApp()?.vueApp
     // @ts-expect-error untyped global __unctx__
     || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
   const { render, setup, data, computed, methods, ...componentRest } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
@@ -251,7 +251,14 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
         attrs,
         global: {
           config: {
-            globalProperties: vueApp.config.globalProperties,
+            globalProperties: {
+              ...vueApp.config.globalProperties,
+              // make all properties/keys enumerable.
+              ...Object.fromEntries(
+                Object.getOwnPropertyNames(vueApp.config.globalProperties)
+                  .map(key => [key, vueApp.config.globalProperties[key]]),
+              ),
+            },
           },
           directives: vueApp._context.directives,
           provide: vueApp._context.provides,

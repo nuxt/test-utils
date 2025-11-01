@@ -26,6 +26,7 @@ import ComponentWithReservedProp from '~/components/ComponentWithReservedProp.vu
 import ComponentWithReservedState from '~/components/ComponentWithReservedState.vue'
 import ComponentWithImports from '~/components/ComponentWithImports.vue'
 import ComponentWithCssVar from '~/components/ComponentWithCssVar.vue'
+import ComponentWithPluginProvidedValue from '~/components/ComponentWithPluginProvidedValue.vue'
 import GenericStateComponent from '~/components/GenericStateComponent.vue'
 
 import { BoundAttrs } from '#components'
@@ -282,6 +283,13 @@ describe('mountSuspended', () => {
     expect(component.find('#s1').classes()).toHaveLength(1)
     expect(component.find('#s2').classes()).toHaveLength(1)
     expect(component.find('#s3').classes()).toHaveLength(0)
+  })
+
+  it('can mount components with use plugin provided value in template', async () => {
+    const component = await mountSuspended(ComponentWithPluginProvidedValue)
+    expect(component.find('#s1').text()).toBe('pluginProvided.value')
+    expect(component.find('#s2').text()).toBe('pluginProvided.func(value)')
+    expect(component.find('#s3').text()).toBe('pluginProvided.object.value')
   })
 
   describe('Options API', () => {

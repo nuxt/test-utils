@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import type { ComponentMountingOptions } from '@vue/test-utils'
 import { Suspense, h, isReadonly, nextTick, reactive, unref, getCurrentInstance, effectScope, isRef } from 'vue'
-import type { ComponentInternalInstance, DefineComponent, SetupContext } from 'vue'
+import type { App, ComponentInternalInstance, DefineComponent, SetupContext } from 'vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
 
@@ -63,7 +63,7 @@ export async function mountSuspended<T>(
     cleanupFunction()
   }
 
-  const vueApp = tryUseNuxtApp()?.vueApp
+  const vueApp: App<Element> & Record<string, unknown> = tryUseNuxtApp()?.vueApp
     // @ts-expect-error untyped global __unctx__
     || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
   const { render, setup, data, computed, methods, ...componentRest } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
@@ -261,7 +261,14 @@ export async function mountSuspended<T>(
             attrs,
             global: {
               config: {
-                globalProperties: vueApp.config.globalProperties,
+                globalProperties: {
+                  ...vueApp.config.globalProperties,
+                  // make all properties/keys enumerable.
+                  ...Object.fromEntries(
+                    Object.getOwnPropertyNames(vueApp.config.globalProperties)
+                      .map(key => [key, vueApp.config.globalProperties[key]]),
+                  ),
+                },
               },
               directives: vueApp._context.directives,
               provide: vueApp._context.provides,
