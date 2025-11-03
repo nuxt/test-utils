@@ -1,5 +1,5 @@
 import { Suspense, effectScope, h, nextTick, isReadonly, reactive, unref, defineComponent, getCurrentInstance } from 'vue'
-import type { ComponentInternalInstance, DefineComponent, SetupContext } from 'vue'
+import type { App, ComponentInternalInstance, DefineComponent, SetupContext } from 'vue'
 import type { RenderOptions as TestingLibraryRenderOptions } from '@testing-library/vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
@@ -59,7 +59,7 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
 
   const { render: renderFromTestingLibrary } = await import('@testing-library/vue')
 
-  const vueApp = tryUseNuxtApp()?.vueApp
+  const vueApp: App<Element> & Record<string, unknown> = tryUseNuxtApp()?.vueApp
     // @ts-expect-error untyped global __unctx__
     || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
   const { render, setup, data, computed, methods, ...componentRest } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
@@ -105,6 +105,16 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
     currentInstance.emit = getInterceptedEmitFunction(currentInstance.emit)
   }
 
+  function patchInstanceAppContext() {
+    const app = getCurrentInstance()?.appContext.app as typeof vueApp
+    if (!app) return
+
+    for (const [key, value] of Object.entries(vueApp)) {
+      if (key in app) continue
+      app[key] = value
+    }
+  }
+
   // cleanup previously mounted test wrappers
   for (const fn of window.__cleanup || []) {
     fn()
@@ -135,6 +145,8 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
       {
         __cssModules: componentRest.__cssModules,
         setup: (props: Record<string, unknown>, ctx: SetupContext) => {
+          patchInstanceAppContext()
+
           setupContext = ctx
 
           const scope = effectScope()
