@@ -263,7 +263,14 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
         attrs,
         global: {
           config: {
-            globalProperties: vueApp.config.globalProperties,
+            globalProperties: {
+              ...vueApp.config.globalProperties,
+              // make all properties/keys enumerable.
+              ...Object.fromEntries(
+                Object.getOwnPropertyNames(vueApp.config.globalProperties)
+                  .map(key => [key, vueApp.config.globalProperties[key]]),
+              ),
+            },
           },
           directives: vueApp._context.directives,
           provide: vueApp._context.provides,

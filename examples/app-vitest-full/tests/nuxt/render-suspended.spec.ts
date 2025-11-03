@@ -13,6 +13,7 @@ import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
 import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
 import ComponentWithAttrs from '~/components/ComponentWithAttrs.vue'
 import ComponentWithCssVar from '~/components/ComponentWithCssVar.vue'
+import ComponentWithPluginProvidedValue from '~/components/ComponentWithPluginProvidedValue.vue'
 import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
 import OptionsApiPage from '~/pages/other/options-api.vue'
@@ -177,6 +178,13 @@ describe('renderSuspended', () => {
     expect(container.querySelector('#s1')?.classList).toHaveLength(1)
     expect(container.querySelector('#s2')?.classList).toHaveLength(1)
     expect(container.querySelector('#s3')?.classList).toHaveLength(0)
+  })
+
+  it('can render components with use plugin provided value in template', async () => {
+    const { container } = await renderSuspended(ComponentWithPluginProvidedValue)
+    expect(container.querySelector('#s1')?.textContent).toBe('pluginProvided.value')
+    expect(container.querySelector('#s2')?.textContent).toBe('pluginProvided.func(value)')
+    expect(container.querySelector('#s3')?.textContent).toBe('pluginProvided.object.value')
   })
 
   describe('Options API', () => {
