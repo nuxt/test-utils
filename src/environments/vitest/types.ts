@@ -1,6 +1,6 @@
 import type { App } from 'h3'
 import type { $Fetch } from 'nitropack'
-import type { JSDOMOptions, HappyDOMOptions } from 'vitest/node'
+import type { EnvironmentOptions } from 'vitest/node'
 
 export type NuxtBuiltinEnvironment = 'happy-dom' | 'jsdom'
 export interface NuxtWindow extends Window {
@@ -14,8 +14,8 @@ export interface NuxtWindow extends Window {
   Headers: typeof Headers
 }
 export interface EnvironmentNuxtOptions {
-  jsdom?: JSDOMOptions
-  happyDom?: HappyDOMOptions
+  jsdom?: EnvironmentOptions['jsdom']
+  happyDom?: EnvironmentOptions['happyDOM']
 }
 export type EnvironmentNuxt = (global: typeof globalThis, options: EnvironmentNuxtOptions) => Promise<{
   window: NuxtWindow

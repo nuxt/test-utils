@@ -16,13 +16,14 @@ const environmentMap = {
 
 export default <Environment>{
   name: 'nuxt',
-  transformMode: 'web',
+  viteEnvironment: 'client',
   async setup(global, environmentOptions) {
-    const url = joinURL(environmentOptions?.nuxt.url ?? 'http://localhost:3000',
-      environmentOptions?.nuxtRuntimeConfig.app?.baseURL || '/',
+    const url = joinURL(
+      environmentOptions?.nuxt?.url ?? 'http://localhost:3000',
+      environmentOptions?.nuxtRuntimeConfig?.app?.baseURL || '/',
     )
 
-    const environmentName = environmentOptions.nuxt.domEnvironment as NuxtBuiltinEnvironment
+    const environmentName = environmentOptions?.nuxt?.domEnvironment as NuxtBuiltinEnvironment
     const environment = environmentMap[environmentName] || environmentMap['happy-dom']
     const { window: win, teardown } = await environment(global, defu(environmentOptions, {
       happyDom: { url },

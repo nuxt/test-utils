@@ -1,7 +1,7 @@
 import { importModule } from 'local-pkg'
 import type { DOMWindow, SupportedContentTypes } from 'jsdom'
 import defu from 'defu'
-import type { JSDOMOptions } from 'vitest/node'
+import type { EnvironmentOptions } from 'vitest/node'
 import type { EnvironmentNuxt, NuxtWindow } from '../types'
 
 export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
@@ -15,7 +15,7 @@ export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
     runScripts: 'dangerously',
     console: false,
     cookieJar: false,
-  } satisfies JSDOMOptions) as JSDOMOptions & { contentType: SupportedContentTypes }
+  } satisfies EnvironmentOptions['jsdom']) as EnvironmentOptions['jsdom'] & { contentType: SupportedContentTypes }
 
   const virtualConsole = jsdomOptions.console && global.console
     ? new VirtualConsole()

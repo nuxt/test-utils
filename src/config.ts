@@ -12,6 +12,7 @@ import { defu } from 'defu'
 import { loadNuxt, buildNuxt, createResolver, findPath } from '@nuxt/kit'
 
 import { applyEnv } from './utils'
+import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options'
 
 interface GetVitestConfigOptions {
   nuxt: Nuxt
@@ -253,18 +254,8 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
 
     const defaultEnvironment = resolvedConfig.test.environment || 'node'
     if (defaultEnvironment !== 'nuxt') {
-      const key = 'projects' in resolvedConfig.test
-        ? 'projects'
-        : 'workspace' in resolvedConfig.test
-          ? 'workspace'
-          : await import('vitest/package.json', { with: { type: 'json' } }).then((r) => {
-            const [major, minor] = (r.default || r).version.split('.')
-            return Number.parseInt(major!, 10) > 3 || (Number.parseInt(major!, 10) === 3 && Number.parseInt(minor!, 10) >= 2)
-          })
-            ? 'projects'
-            : 'workspace'
-      resolvedConfig.test[key] = []
-      resolvedConfig.test[key].push({
+      resolvedConfig.test.projects = []
+      resolvedConfig.test.projects.push({
         extends: true,
         test: {
           name: 'nuxt',
@@ -275,7 +266,7 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
           ],
         },
       })
-      resolvedConfig.test[key].push({
+      resolvedConfig.test.projects.push({
         extends: true,
         test: {
           name: defaultEnvironment,
@@ -313,22 +304,7 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
     }) satisfies ViteUserConfig & { test: NonNullable<T['test']> },
   ) as T & { test: NonNullable<T['test']> }
 
-  const PLUGIN_NAME = 'nuxt:vitest:nuxt-environment-options'
-  const STUB_ID = 'nuxt-vitest-environment-options'
-  resolvedConfig.plugins!.push({
-    name: PLUGIN_NAME,
-    enforce: 'pre',
-    resolveId(id) {
-      if (id.endsWith(STUB_ID)) {
-        return STUB_ID
-      }
-    },
-    load(id) {
-      if (id.endsWith(STUB_ID)) {
-        return `export default ${JSON.stringify(resolvedConfig.test.environmentOptions || {})}`
-      }
-    },
-  })
+  resolvedConfig.plugins!.push(NuxtVitestEnvironmentOptionsPlugin(resolvedConfig.test.environmentOptions?.nuxt))
 
   if (resolvedConfig.test.browser?.enabled) {
     if (resolvedConfig.test.environment === 'nuxt') {
@@ -379,13 +355,6 @@ export interface NuxtEnvironmentOptions {
 }
 
 declare module 'vitest/node' {
-  interface EnvironmentOptions {
-    nuxt?: NuxtEnvironmentOptions
-  }
-}
-
-declare module 'vitest' {
-  // @ts-expect-error Duplicate augmentation for backwards-compatibility
   interface EnvironmentOptions {
     nuxt?: NuxtEnvironmentOptions
   }
