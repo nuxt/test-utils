@@ -2,7 +2,8 @@
 
 import { pathToFileURL } from 'node:url'
 import { addVitePlugin, createResolver, defineNuxtModule, logger, resolvePath, importModule } from '@nuxt/kit'
-import type { Vitest, UserConfig as VitestConfig } from 'vitest/node'
+import type { TestUserConfig as VitestConfig } from 'vitest/config'
+import type { Vitest } from 'vitest/node'
 import type { Reporter } from 'vitest/reporters'
 import type { RunnerTestFile } from 'vitest'
 import type { InlineConfig as ViteConfig } from 'vite'
@@ -93,25 +94,58 @@ export default defineNuxtModule<NuxtVitestOptions>({
         return !p || !('name' in p) || !vitePluginBlocklist.includes(p.name)
       })
 
-      // TODO: investigate why this is needed
-      viteConfig.test.environmentMatchGlobs ||= []
-      viteConfig.test.environmentMatchGlobs.push(
-        ['**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', 'nuxt'],
-        ['{test,tests}/nuxt/**.*', 'nuxt'],
-      )
+      const defaultEnvironment = viteConfig.test.environment || 'node'
+      if (defaultEnvironment !== 'nuxt') {
+        viteConfig.test.projects = []
+        viteConfig.test.projects.push({
+          extends: true,
+          test: {
+            name: 'nuxt',
+            environment: 'nuxt',
+            include: [
+              '**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+              '{test,tests}/nuxt/**.*',
+            ],
+          },
+        })
+        viteConfig.test.projects.push({
+          extends: true,
+          test: {
+            name: defaultEnvironment,
+            environment: defaultEnvironment,
+            exclude: [
+              '**/node_modules/**',
+              '**/dist/**',
+              '**/cypress/**',
+              '**/.{idea,git,cache,output,temp}/**',
+              '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
+              './**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+              './{test,tests}/nuxt/**.*',
+            ],
+          },
+        })
+      }
 
       process.env.__NUXT_VITEST_RESOLVED__ = 'true'
-      const { startVitest } = (await import(pathToFileURL(await resolvePath('vitest/node')).href)) as typeof import('vitest/node')
+      const { startVitest } = await import(pathToFileURL(await resolvePath('vitest/node')).href) as typeof import('vitest/node')
 
       const customReporter: Reporter = {
         onInit(_ctx) {
           ctx = _ctx
         },
-        onTaskUpdate() {
+        onTestModuleCollected() {
           testFiles = ctx.state.getFiles()
           updateTabs()
         },
-        onFinished() {
+        onTestCaseResult() {
+          testFiles = ctx.state.getFiles()
+          updateTabs()
+        },
+        onTestModuleEnd() {
+          testFiles = ctx.state.getFiles()
+          updateTabs()
+        },
+        onTestRunEnd() {
           testFiles = ctx.state.getFiles()
           updateTabs()
         },
