@@ -9,6 +9,14 @@
     <li data-testid="object-with-get-and-set">
       {{ objectWithGetAndSet }}
     </li>
+    <li>
+      <button
+        data-testid="hanlde-change-object-with-get-and-set"
+        @click="hanldeChangeObjectWithGetAndSet"
+      >
+        Change
+      </button>
+    </li>
   </ul>
 </template>
 
@@ -35,6 +43,11 @@ export default {
       set(localStateForObjectWithGetAndSet) {
         this.localStateForObjectWithGetAndSet = localStateForObjectWithGetAndSet
       },
+    },
+  },
+  methods: {
+    hanldeChangeObjectWithGetAndSet() {
+      this.objectWithGetAndSet = `${this.objectWithGetAndSet} (changed)`
     },
   },
 }

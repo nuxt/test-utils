@@ -1,6 +1,6 @@
-import { Suspense, effectScope, h, nextTick, isReadonly, reactive, unref, defineComponent, getCurrentInstance } from 'vue'
+import { Suspense, effectScope, h, nextTick, reactive, defineComponent, getCurrentInstance } from 'vue'
 import type { App, ComponentInternalInstance, DefineComponent, SetupContext } from 'vue'
-import type { RenderOptions as TestingLibraryRenderOptions } from '@testing-library/vue'
+import type { RenderResult, RenderOptions as TestingLibraryRenderOptions } from '@testing-library/vue'
 import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
 
@@ -9,15 +9,17 @@ import { RouterLink } from './components/RouterLink'
 import NuxtRoot from '#build/root-component.mjs'
 import { tryUseNuxtApp, useRouter } from '#imports'
 
-type RenderOptions<C = unknown> = TestingLibraryRenderOptions<C> & {
+type RenderSuspendeOptions<T> = TestingLibraryRenderOptions<T> & {
   route?: RouteLocationRaw
 }
+
+type RenderSuspendeResult = RenderResult & { setupState: SetupState }
 
 const WRAPPER_EL_ID = 'test-wrapper'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SetupState = Record<string, any>
-type Emit = ComponentInternalInstance['emit']
+
 /**
  * `renderSuspended` allows you to mount any vue component within the Nuxt environment, allowing async setup and access to injections from your Nuxt plugins.
  *
@@ -48,7 +50,7 @@ type Emit = ComponentInternalInstance['emit']
  * @param component the component to be tested
  * @param options optional options to set up your component
  */
-export async function renderSuspended<T>(component: T, options?: RenderOptions<T>) {
+export async function renderSuspended<T>(component: T, options?: RenderSuspendeOptions<T>) {
   const {
     props = {},
     attrs = {},
@@ -62,48 +64,13 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
   const vueApp: App<Element> & Record<string, unknown> = tryUseNuxtApp()?.vueApp
     // @ts-expect-error untyped global __unctx__
     || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
-  const { render, setup, data, computed, methods, ...componentRest } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
+  const { render, setup, ...componentRest } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
 
+  let wrappedInstance: ComponentInternalInstance | null = null
   let setupContext: SetupContext
   let setupState: SetupState
+
   const setProps = reactive<Record<string, unknown>>({})
-
-  let interceptedEmit: Emit | null = null
-  /**
-   * Intercept the emit for testing purposes.
-   *
-   * @remarks
-   * Using this function ensures that the emit is not intercepted multiple times
-   * and doesn't duplicate events.
-   *
-   * @param emit - The original emit from the component's context.
-   *
-   * @returns An intercepted emit that will both emit from the component itself
-   * and from the top level wrapper for assertions via
-   * {@link import('@vue/test-utils').VueWrapper.emitted()}.
-   */
-  function getInterceptedEmitFunction(emit: Emit): Emit {
-    if (emit !== interceptedEmit) {
-      interceptedEmit = interceptedEmit ?? ((event, ...args) => {
-        emit(event, ...args)
-        setupContext.emit(event, ...args)
-      })
-    }
-
-    return interceptedEmit
-  }
-
-  /**
-   * Intercept emit for assertions in populate wrapper emitted.
-   */
-  function interceptEmitOnCurrentInstance(): void {
-    const currentInstance = getCurrentInstance()
-    if (!currentInstance) {
-      return
-    }
-
-    currentInstance.emit = getInterceptedEmitFunction(currentInstance.emit)
-  }
 
   function patchInstanceAppContext() {
     const app = getCurrentInstance()?.appContext.app as typeof vueApp
@@ -121,15 +88,24 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
   }
   document.querySelector(`#${WRAPPER_EL_ID}`)?.remove()
 
-  let passedProps: Record<string, unknown>
-  const wrappedSetup = async (props: Record<string, unknown>, setupContext: SetupContext): Promise<unknown> => {
-    interceptEmitOnCurrentInstance()
-
-    passedProps = props
+  const wrappedSetup = async (
+    props: Record<string, unknown>,
+    setupContext: SetupContext,
+    instanceContext: SetupContext,
+  ): Promise<unknown> => {
+    const currentInstance = getCurrentInstance()
+    if (currentInstance) {
+      currentInstance.emit = (event, ...args) => {
+        setupContext.emit(event, ...args)
+      }
+    }
 
     if (setup) {
       const result = await setup(props, setupContext)
       setupState = result && typeof result === 'object' ? result : {}
+      if (wrappedInstance?.exposed) {
+        instanceContext.expose(wrappedInstance.exposed)
+      }
       return result
     }
   }
@@ -140,13 +116,15 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
       return h('div', { id: WRAPPER_EL_ID }, this.$slots.default?.())
     },
   })
-  return new Promise<ReturnType<typeof renderFromTestingLibrary> & { setupState: SetupState }>((resolve) => {
+  return new Promise<RenderSuspendeResult>((resolve) => {
     const utils = renderFromTestingLibrary(
       {
         __cssModules: componentRest.__cssModules,
+        inheritAttrs: false,
         setup: (props: Record<string, unknown>, ctx: SetupContext) => {
           patchInstanceAppContext()
 
+          wrappedInstance = getCurrentInstance()
           setupContext = ctx
 
           const scope = effectScope()
@@ -161,7 +139,7 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
             expose: () => ({}),
           }))
         },
-        render: (renderContext: Record<string, unknown>) =>
+        render: () =>
           // See discussions in https://github.com/testing-library/vue-testing-library/issues/230
           // we add this additional root element because otherwise testing-library breaks
           // because there's no root element while Suspense is resolving
@@ -179,7 +157,7 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
                         Object.assign(setProps, props)
                         await nextTick()
                       }
-                      resolve(utils as ReturnType<typeof renderFromTestingLibrary> & { setupState: SetupState })
+                      resolve(utils as RenderSuspendeResult)
                     }),
                 },
                 {
@@ -192,65 +170,15 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
 
                         // Proxy top-level setup/render context so test wrapper resolves child component
                         const clonedComponent = {
-                          name: 'RenderSuspendedComponent',
+                          components: {},
                           ...component,
-                          render: render
-                            ? function (this: unknown, _ctx: Record<string, unknown>, ...args: unknown[]) {
-                              interceptEmitOnCurrentInstance()
-
-                              // Set before setupState set to allow asyncData to overwrite data
-                              if (data && typeof data === 'function') {
-                                // @ts-expect-error error TS2554: Expected 1 arguments, but got 0
-                                const dataObject: Record<string, unknown> = data()
-                                for (const key in dataObject) {
-                                  renderContext[key] = dataObject[key]
-                                }
-                              }
-                              for (const key in setupState || {}) {
-                                const warn = console.warn
-                                console.warn = () => { }
-                                try {
-                                  renderContext[key] = isReadonly(setupState[key]) ? unref(setupState[key]) : setupState[key]
-                                }
-                                catch {
-                                  // ignore errors setting properties that are not exposed to template
-                                }
-                                finally {
-                                  console.warn = warn
-                                }
-                                if (key === 'props') {
-                                  renderContext[key] = cloneProps(renderContext[key] as Record<string, unknown>)
-                                }
-                              }
-                              const propsContext = 'props' in renderContext ? renderContext.props as Record<string, unknown> : renderContext
-                              for (const key in props || {}) {
-                                propsContext[key] = _ctx[key]
-                              }
-                              for (const key in passedProps || {}) {
-                                propsContext[key] = passedProps[key]
-                              }
-                              if (methods && typeof methods === 'object') {
-                                for (const [key, value] of Object.entries(methods)) {
-                                  renderContext[key] = value.bind(renderContext)
-                                }
-                              }
-                              if (computed && typeof computed === 'object') {
-                                for (const [key, value] of Object.entries(computed)) {
-                                  if ('get' in value) {
-                                    renderContext[key] = value.get.call(renderContext)
-                                  }
-                                  else {
-                                    renderContext[key] = value.call(renderContext)
-                                  }
-                                }
-                              }
-                              return render.call(this, renderContext, ...args)
-                            }
-                            : undefined,
-                          setup: (props: Record<string, unknown>) => wrappedSetup(props, setupContext),
+                          name: 'RenderSuspendedComponent',
+                          render: render,
+                          setup: (props: Record<string, unknown>, ctx: SetupContext) =>
+                            wrappedSetup(props, setupContext, ctx),
                         }
 
-                        return () => h(clonedComponent, { ...(props && typeof props === 'object' ? props : {}), ...setProps, ...attrs }, slots)
+                        return () => h(clonedComponent, { ...(props && typeof props === 'object' ? props : {}), ...setProps, ...attrs }, setupContext.slots)
                       },
                     }),
                 },
@@ -259,6 +187,7 @@ export async function renderSuspended<T>(component: T, options?: RenderOptions<T
           ),
       },
       defu(_options, {
+        props: props as object,
         slots,
         attrs,
         global: {
@@ -289,12 +218,4 @@ declare global {
 
 interface AugmentedVueInstance {
   setupState?: SetupState
-}
-
-function cloneProps(props: Record<string, unknown>) {
-  const newProps = reactive<Record<string, unknown>>({})
-  for (const key in props) {
-    newProps[key] = props[key]
-  }
-  return newProps
 }
