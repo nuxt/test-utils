@@ -1,12 +1,12 @@
 import { expect, it, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
-mockNuxtImport<typeof useAutoImportedTarget>('useAutoImportedTarget', () => {
+mockNuxtImport(useAutoImportedTarget, () => {
   return () => 'mocked!'
 })
 
 mockNuxtImport<typeof useCustomModuleAutoImportedTarget>(
-  'useCustomModuleAutoImportedTarget',
+  useCustomModuleAutoImportedTarget,
   () => {
     return () => 'mocked!'
   },

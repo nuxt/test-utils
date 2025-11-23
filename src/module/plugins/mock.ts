@@ -87,16 +87,19 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
               startOf(node),
             )
           }
-          const importName = node.arguments[0]!
-          if (!isLiteral(importName) || typeof importName.value !== 'string') {
+
+          const importTarget = node.arguments[0]!
+          const name = isLiteral(importTarget)
+            ? importTarget.value
+            : isIdentifier(importTarget) ? importTarget.name : undefined
+          if (typeof name !== 'string') {
             return this.error(
               new Error(
-                `The first argument of ${HELPER_MOCK_IMPORT}() must be a string literal`,
+                `The first argument of ${HELPER_MOCK_IMPORT}() must be a string literal or mocked target`,
               ),
-              startOf(importName),
+              startOf(importTarget),
             )
           }
-          const name = importName.value
           const importItem = ctx.imports.find(_ => name === (_.as || _.name))
           if (!importItem) {
             console.log({ imports: ctx.imports })
