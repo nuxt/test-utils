@@ -1,13 +1,7 @@
 packages:
-  - "examples/*"
-  - "examples/module/playground"
-  - "stubs/*"
-
-shellEmulator: true
-
-onlyBuiltDependencies:
-  - better-sqlite3
-  - '@tailwindcss/oxide'
+  - examples/*
+  - examples/module/playground
+  - stubs/*
 
 ignoredBuiltDependencies:
   - '@parcel/watcher'
@@ -16,3 +10,11 @@ ignoredBuiltDependencies:
   - unrs-resolver
   - vue-demi
 
+onlyBuiltDependencies:
+  - better-sqlite3
+  - '@tailwindcss/oxide'
+
+patchedDependencies:
+  node-mock-http: patches/node-mock-http.patch
+
+shellEmulator: true
