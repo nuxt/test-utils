@@ -1,5 +1,6 @@
+import type { Nuxt } from '@nuxt/schema'
 import type { Unimport } from 'unimport'
-import { addVitePlugin, resolveIgnorePatterns, useNuxt } from '@nuxt/kit'
+import { addVitePlugin, resolveIgnorePatterns } from '@nuxt/kit'
 
 import { createMockPlugin } from './plugins/mock'
 import type { MockPluginContext } from './plugins/mock'
@@ -8,9 +9,7 @@ import type { MockPluginContext } from './plugins/mock'
  * This module is a macro that transforms `mockNuxtImport()` to `vi.mock()`,
  * which make it possible to mock Nuxt imports.
  */
-export function setupImportMocking() {
-  const nuxt = useNuxt()
-
+export function setupImportMocking(nuxt: Nuxt) {
   const ctx: MockPluginContext = {
     components: [],
     imports: [],

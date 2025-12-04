@@ -40,7 +40,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
   },
   async setup(options, nuxt) {
     if (nuxt.options.test || nuxt.options.dev) {
-      setupImportMocking()
+      setupImportMocking(nuxt)
     }
 
     const resolver = createResolver(import.meta.url)
