@@ -80,7 +80,7 @@ export async function loadKit(rootDir: string): Promise<typeof import('@nuxt/kit
   }
 }
 
-export function tryResolveNuxt(rootDir: string) {
+function tryResolveNuxt(rootDir: string) {
   for (const pkg of ['nuxt-nightly', 'nuxt', 'nuxt3', 'nuxt-edge']) {
     const path = resolveModulePath(pkg, { from: rootDir, try: true })
     if (path) {
