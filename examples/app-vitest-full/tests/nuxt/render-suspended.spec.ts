@@ -18,7 +18,11 @@ import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRend
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
 import OptionsApiPage from '~/pages/other/options-api.vue'
 
-import { BoundAttrs, OptionsApiEmits, OptionsApiWatch, ScriptSetupEmits, ScriptSetupWatch } from '#components'
+import CompostionApi from '~/components/TestComponentWithCompostionApi.vue'
+import OptionsApiWithData from '~/components/TestComponentWithOptionsApiWithData.vue'
+import OptionsApiWithSetup from '~/components/TestComponentWithOptionsApiWithSetup.vue'
+
+import { BoundAttrs, OptionsApiComputed, OptionsApiEmits, OptionsApiWatch, ScriptSetupEmits, ScriptSetupWatch } from '#components'
 
 const formats = {
   ExportDefaultComponent,
@@ -102,7 +106,10 @@ describe('renderSuspended', () => {
   })
 
   it('can receive emitted events from components rendered within nuxt suspense', async () => {
-    const { emitted } = await renderSuspended(WrapperTests)
+    const onCustomEvent = vi.fn()
+    const { emitted } = await renderSuspended(WrapperTests, {
+      props: { onCustomEvent },
+    })
     const button = screen.getByRole('button', { name: 'Click me!' })
     await fireEvent.click(button)
 
@@ -127,6 +134,22 @@ describe('renderSuspended', () => {
         ],
       }
     `)
+    expect(onCustomEvent).toBeCalledTimes(1)
+    expect(onCustomEvent).toBeCalledWith('foo')
+  })
+
+  it('can receive emitted events from components rendered within nuxt suspense using defineModel', async () => {
+    const onUpdateModelValue = vi.fn()
+    const { emitted } = await renderSuspended(WrapperTests, {
+      props: { 'onUpdate:modelValue': onUpdateModelValue },
+    })
+    const button = screen.getByRole('button', { name: 'Change model!' })
+    await fireEvent.click(button)
+
+    const emittedEvents = emitted()
+    expect(emittedEvents['update:modelValue']).toEqual([[true]])
+    expect(onUpdateModelValue).toBeCalledTimes(1)
+    expect(onUpdateModelValue).toBeCalledWith(true)
   })
 
   it('should define $attrs', async () => {
@@ -137,12 +160,24 @@ describe('renderSuspended', () => {
   })
 
   it('should capture emits from script setup and early hooks', async () => {
-    const { emitted } = await renderSuspended(ScriptSetupEmits)
+    const onEventFromSetup = vi.fn()
+    const onEventBeforeMount = vi.fn()
+    const onEventFromMounted = vi.fn()
+    const { emitted } = await renderSuspended(ScriptSetupEmits, {
+      props: {
+        'onEvent-from-setup': onEventFromSetup,
+        'onEvent-from-before-mount': onEventBeforeMount,
+        'onEvent-from-mounted': onEventFromMounted,
+      },
+    })
     await expect.poll(() => emitted()).toEqual({
       'event-from-setup': [[1], [2]],
       'event-from-before-mount': [[1], [2]],
       'event-from-mounted': [[1], [2]],
     })
+    expect(onEventFromSetup.mock.calls).toEqual([[1], [2]])
+    expect(onEventBeforeMount.mock.calls).toEqual([[1], [2]])
+    expect(onEventFromMounted.mock.calls).toEqual([[1], [2]])
   })
 
   it('should handle data set from immediate watches', async () => {
@@ -203,12 +238,21 @@ describe('renderSuspended', () => {
       expect(getByTestId('greeting-in-setup').textContent).toBe('Hello, setup')
       expect(getByTestId('greeting-in-data1').textContent).toBe('Hello, data1')
       expect(getByTestId('greeting-in-data2').textContent).toBe('Hello, overwritten by asyncData')
+      expect(getByTestId('greeting-in-data3').textContent).toBe('Hello, world')
+      expect(getByTestId('greeting-in-data4').textContent).toBe('Hello, default')
       expect(getByTestId('greeting-in-computed').textContent).toBe('Hello, computed property')
       expect(getByTestId('computed-data1').textContent).toBe('Hello, data1')
-      expect(getByTestId('computed-greeting-in-methods').textContent).toBe('Hello, method')
+      expect(getByTestId('computed-data2').textContent).toBe('Hello')
+      expect(getByTestId('computed-with-methods').textContent).toBe('Hello, method')
+      expect(getByTestId('computed-with-config').textContent).toBe('Hello, world')
+      expect(getByTestId('computed-with-setup-ref').textContent).toBe('Hello')
       expect(getByTestId('greeting-in-methods').textContent).toBe('Hello, method')
       expect(getByTestId('return-data1').textContent).toBe('Hello, data1')
       expect(getByTestId('return-computed-data1').textContent).toBe('Hello, data1')
+      expect(getByTestId('return-computed-data2').textContent).toBe('Hello')
+      expect(getByTestId('return-config-data').textContent).toBe('Hello, world')
+      expect(getByTestId('return-ref-in-setup-data').textContent).toBe('Hello')
+      expect(getByTestId('return-props-data').textContent).toBe('Hello')
     })
 
     it('should not output error when button in page is clicked', async () => {
@@ -223,14 +267,41 @@ describe('renderSuspended', () => {
       expect(console.error).not.toHaveBeenCalled()
     })
 
+    it('should handle computed defined as functions and as objects', async () => {
+      const { getByTestId } = await renderSuspended(OptionsApiComputed)
+      expect(getByTestId('simple-function').textContent).toBe('simple-function')
+      expect(getByTestId('object-with-get').textContent).toBe('object-with-get')
+      expect(getByTestId('object-with-get-and-set').textContent).toBe('object-with-get-and-set')
+      expect(console.error).not.toHaveBeenCalled()
+    })
+
+    it('should handle computed defined with setter can set value', async () => {
+      const { getByTestId } = await renderSuspended(OptionsApiComputed)
+      await fireEvent.click(getByTestId('hanlde-change-object-with-get-and-set'))
+      expect(getByTestId('object-with-get-and-set').textContent).toBe('object-with-get-and-set (changed)')
+      expect(console.error).not.toHaveBeenCalled()
+    })
+
     it('should capture emits from setup and early hooks', async () => {
-      const { emitted } = await renderSuspended(OptionsApiEmits)
+      const onEventFromSetup = vi.fn()
+      const onEventBeforeMount = vi.fn()
+      const onEventFromMounted = vi.fn()
+      const { emitted } = await renderSuspended(OptionsApiEmits, {
+        props: {
+          'onEvent-from-setup': onEventFromSetup,
+          'onEvent-from-before-mount': onEventBeforeMount,
+          'onEvent-from-mounted': onEventFromMounted,
+        },
+      })
       await expect.poll(() => emitted()).toEqual({
         'event-from-setup': [[1], [2]],
         'event-from-before-mount': [[1], [2]],
         'event-from-mounted': [[1], [2]],
       })
       expect(console.error).not.toHaveBeenCalled()
+      expect(onEventFromSetup.mock.calls).toEqual([[1], [2]])
+      expect(onEventBeforeMount.mock.calls).toEqual([[1], [2]])
+      expect(onEventFromMounted.mock.calls).toEqual([[1], [2]])
     })
 
     it('should handle data set from immediate watches', async () => {
@@ -246,12 +317,21 @@ describe('renderSuspended', () => {
     })
 
     it('should handle events emitted from immediate watches', async () => {
-      const { emitted } = await renderSuspended(OptionsApiWatch)
+      const onEventfromInternalDataObject = vi.fn()
+      const onEventMappedFromExternalReactiveStore = vi.fn()
+      const { emitted } = await renderSuspended(OptionsApiWatch, {
+        props: {
+          'onEvent-from-internal-data-object': onEventfromInternalDataObject,
+          'onEvent-mapped-from-external-reactive-store': onEventMappedFromExternalReactiveStore,
+        },
+      })
       await expect.poll(() => emitted()).toEqual({
         'event-from-internal-data-object': [[1]],
         'event-mapped-from-external-reactive-store': [[1]],
       })
       expect(console.error).not.toHaveBeenCalled()
+      expect(onEventfromInternalDataObject.mock.calls).toEqual([[1]])
+      expect(onEventMappedFromExternalReactiveStore.mock.calls).toEqual([[1]])
     })
   })
 })
@@ -290,6 +370,20 @@ describe.each(Object.entries(formats))(`%s`, (name, component) => {
   </div>
 </div>
     `.trim())
+  })
+})
+
+describe.each([
+  { Component: CompostionApi, type: 'CompostionApi', description: '<script setup>' } as const,
+  { Component: OptionsApiWithData, type: 'OptionsApi', description: '<script> defineComponent with data' } as const,
+  { Component: OptionsApiWithSetup, type: 'OptionsApi', description: '<script> defineComponent with setup' } as const,
+])('$description', ({ Component }) => {
+  it('rerender with v-show', async () => {
+    const wrapper = await renderSuspended(Component, { props: { show: false } })
+    const container = await wrapper.findByTestId('container')
+    expect(container.style.display).toBe('none')
+    await wrapper.rerender({ show: true })
+    expect(container.style.display).toBe('')
   })
 })
 

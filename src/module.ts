@@ -15,6 +15,7 @@ import { defu } from 'defu'
 import { getVitestConfigFromNuxt } from './config'
 import { setupImportMocking } from './module/mock'
 import { NuxtRootStubPlugin } from './module/plugins/entry'
+import { join, relative } from 'pathe'
 
 export interface NuxtVitestOptions {
   startOnBoot?: boolean
@@ -54,8 +55,15 @@ export default defineNuxtModule<NuxtVitestOptions>({
       nuxt.options.vite.define['import.meta.vitest'] = 'undefined'
     }
 
-    nuxt.hook('prepare:types', ({ references }) => {
-      references.push({ types: 'vitest/import-meta' })
+    nuxt.hook('prepare:types', (ctx) => {
+      ctx.references.push({ types: 'vitest/import-meta' })
+      if (ctx.nodeTsConfig) {
+        ctx.nodeTsConfig.include ||= []
+        ctx.nodeTsConfig.include.push(relative(nuxt.options.buildDir, join(nuxt.options.rootDir, 'vitest.config.*')))
+        if (nuxt.options.workspaceDir !== nuxt.options.rootDir) {
+          ctx.nodeTsConfig.include.push(relative(nuxt.options.buildDir, join(nuxt.options.workspaceDir, 'vitest.config.*')))
+        }
+      }
     })
 
     if (!nuxt.options.dev) return
