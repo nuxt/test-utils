@@ -1,7 +1,7 @@
 /// <reference types="@nuxt/devtools-kit" />
 
 import { pathToFileURL } from 'node:url'
-import { addVitePlugin, createResolver, defineNuxtModule, logger, resolvePath, importModule } from '@nuxt/kit'
+import { createResolver, defineNuxtModule, logger, resolvePath, importModule } from '@nuxt/kit'
 import type { Vitest, UserConfig as VitestConfig } from 'vitest/node'
 import type { Reporter } from 'vitest/reporters'
 import type { RunnerTestFile } from 'vitest'
@@ -11,11 +11,12 @@ import { h } from 'vue'
 import { debounce } from 'perfect-debounce'
 import { isCI } from 'std-env'
 import { defu } from 'defu'
+import { join, relative } from 'pathe'
 
 import { getVitestConfigFromNuxt } from './config'
 import { setupImportMocking } from './module/mock'
 import { NuxtRootStubPlugin } from './module/plugins/entry'
-import { join, relative } from 'pathe'
+import { loadKit } from './utils'
 
 export interface NuxtVitestOptions {
   startOnBoot?: boolean
@@ -40,8 +41,10 @@ export default defineNuxtModule<NuxtVitestOptions>({
   },
   async setup(options, nuxt) {
     if (nuxt.options.test || nuxt.options.dev) {
-      setupImportMocking(nuxt)
+      await setupImportMocking(nuxt)
     }
+
+    const { addVitePlugin } = await loadKit(nuxt.options.rootDir)
 
     const resolver = createResolver(import.meta.url)
     addVitePlugin(NuxtRootStubPlugin.vite({
