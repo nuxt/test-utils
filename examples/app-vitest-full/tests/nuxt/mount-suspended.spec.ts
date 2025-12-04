@@ -107,7 +107,10 @@ describe('mountSuspended', () => {
   })
 
   it('can receive emitted events from components mounted within nuxt suspense', async () => {
-    const component = await mountSuspended(WrapperTests)
+    const onCustomEvent = vi.fn()
+    const component = await mountSuspended(WrapperTests, {
+      props: { onCustomEvent },
+    })
     component.find('button#emitCustomEvent').trigger('click')
     expect(component.emitted()).toMatchInlineSnapshot(`
       {
@@ -121,24 +124,39 @@ describe('mountSuspended', () => {
         ],
       }
     `)
+    expect(onCustomEvent).toBeCalledTimes(1)
+    expect(onCustomEvent).toBeCalledWith('foo')
   })
 
   it('can receive emitted events from components using defineModel', () => {
-    const component = mount(WrapperTests)
+    const onUpdateModelValue = vi.fn()
+    const component = mount(WrapperTests, {
+      props: { 'onUpdate:modelValue': onUpdateModelValue },
+    })
     component.find('button#changeModelValue').trigger('click')
     expect(component.emitted()).toHaveProperty('update:modelValue')
+    expect(onUpdateModelValue).toBeCalledTimes(1)
+    expect(onUpdateModelValue).toBeCalledWith(true)
   })
 
   it('can receive emitted events from components mounted within nuxt suspense using defineModel', async () => {
-    const component = await mountSuspended(WrapperTests)
-    component.find('button#changeModelValue').trigger('click')
+    const onUpdateModelValue = vi.fn()
+    const component = await mountSuspended(WrapperTests, {
+      props: { 'onUpdate:modelValue': onUpdateModelValue },
+    })
+    await component.find('button#changeModelValue').trigger('click')
     expect(component.emitted()).toHaveProperty('update:modelValue')
+    expect(onUpdateModelValue).toBeCalledTimes(1)
+    expect(onUpdateModelValue).toBeCalledWith(true)
   })
 
   it('can receive emitted events from components mounted within nuxt suspense using defineModel after prop changes and multiple interactions', async () => {
-    const component = await mountSuspended(WrapperTests)
+    const onUpdateModelValue = vi.fn()
+    const component = await mountSuspended(WrapperTests, {
+      props: { 'onUpdate:modelValue': onUpdateModelValue },
+    })
 
-    component.find('button#changeModelValue').trigger('click')
+    await component.find('button#changeModelValue').trigger('click')
     expect(component.emitted()).toMatchInlineSnapshot(`
       {
         "update:modelValue": [
@@ -148,10 +166,12 @@ describe('mountSuspended', () => {
         ],
       }
     `)
+    expect(onUpdateModelValue).toBeCalledTimes(1)
+    expect(onUpdateModelValue).toBeCalledWith(true)
 
     await component.setProps({ modelValue: true })
 
-    component.find('button#changeModelValue').trigger('click')
+    await component.find('button#changeModelValue').trigger('click')
     expect(component.emitted()).toMatchInlineSnapshot(`
       {
         "update:modelValue": [
@@ -161,10 +181,11 @@ describe('mountSuspended', () => {
         ],
       }
     `)
+    expect(onUpdateModelValue).toBeCalledTimes(1)
 
     await component.setProps({ modelValue: false })
 
-    component.find('button#changeModelValue').trigger('click')
+    await component.find('button#changeModelValue').trigger('click')
     expect(component.emitted()).toMatchInlineSnapshot(`
       {
         "update:modelValue": [
@@ -177,6 +198,8 @@ describe('mountSuspended', () => {
         ],
       }
     `)
+    expect(onUpdateModelValue).toBeCalledTimes(2)
+    expect(onUpdateModelValue).toBeCalledWith(true)
   })
 
   it('can pass onUpdate event to components using defineModel', async () => {
@@ -242,12 +265,24 @@ describe('mountSuspended', () => {
   })
 
   it('should capture emits from script setup and early hooks', async () => {
-    const component = await mountSuspended(ScriptSetupEmits)
+    const onEventFromSetup = vi.fn()
+    const onEventBeforeMount = vi.fn()
+    const onEventFromMounted = vi.fn()
+    const component = await mountSuspended(ScriptSetupEmits, {
+      props: {
+        'onEvent-from-setup': onEventFromSetup,
+        'onEvent-from-before-mount': onEventBeforeMount,
+        'onEvent-from-mounted': onEventFromMounted,
+      },
+    })
     await expect.poll(() => component.emitted()).toEqual({
       'event-from-setup': [[1], [2]],
       'event-from-before-mount': [[1], [2]],
       'event-from-mounted': [[1], [2]],
     })
+    expect(onEventFromSetup.mock.calls).toEqual([[1], [2]])
+    expect(onEventBeforeMount.mock.calls).toEqual([[1], [2]])
+    expect(onEventFromMounted.mock.calls).toEqual([[1], [2]])
   })
 
   it('should handle data set from immediate watches', async () => {
@@ -308,12 +343,21 @@ describe('mountSuspended', () => {
       expect(component.find('[data-testid="greeting-in-setup"]').text()).toBe('Hello, setup')
       expect(component.find('[data-testid="greeting-in-data1"]').text()).toBe('Hello, data1')
       expect(component.find('[data-testid="greeting-in-data2"]').text()).toBe('Hello, overwritten by asyncData')
+      expect(component.find('[data-testid="greeting-in-data3"]').text()).toBe('Hello, world')
+      expect(component.find('[data-testid="greeting-in-data4"]').text()).toBe('Hello, default')
       expect(component.find('[data-testid="greeting-in-computed"]').text()).toBe('Hello, computed property')
       expect(component.find('[data-testid="computed-data1"]').text()).toBe('Hello, data1')
-      expect(component.find('[data-testid="computed-greeting-in-methods"]').text()).toBe('Hello, method')
+      expect(component.find('[data-testid="computed-data2"]').text()).toBe('Hello')
+      expect(component.find('[data-testid="computed-with-methods"]').text()).toBe('Hello, method')
+      expect(component.find('[data-testid="computed-with-config"]').text()).toBe('Hello, world')
+      expect(component.find('[data-testid="computed-with-setup-ref"]').text()).toBe('Hello')
       expect(component.find('[data-testid="greeting-in-methods"]').text()).toBe('Hello, method')
       expect(component.find('[data-testid="return-data1"]').text()).toBe('Hello, data1')
       expect(component.find('[data-testid="return-computed-data1"]').text()).toBe('Hello, data1')
+      expect(component.find('[data-testid="return-computed-data2"]').text()).toBe('Hello')
+      expect(component.find('[data-testid="return-config-data"]').text()).toBe('Hello, world')
+      expect(component.find('[data-testid="return-ref-in-setup-data"]').text()).toBe('Hello')
+      expect(component.find('[data-testid="return-props-data"]').text()).toBe('Hello')
     })
 
     it('should not output error when button in page is clicked', async () => {
@@ -336,14 +380,33 @@ describe('mountSuspended', () => {
       expect(console.error).not.toHaveBeenCalled()
     })
 
+    it('should handle computed defined with setter can set value', async () => {
+      const component = await mountSuspended(OptionsApiComputed)
+      await component.find('[data-testid="hanlde-change-object-with-get-and-set"]').trigger('click')
+      expect(component.find('[data-testid="object-with-get-and-set"]').text()).toBe('object-with-get-and-set (changed)')
+      expect(console.error).not.toHaveBeenCalled()
+    })
+
     it('should capture emits from setup and early hooks', async () => {
-      const component = await mountSuspended(OptionsApiEmits)
+      const onEventFromSetup = vi.fn()
+      const onEventBeforeMount = vi.fn()
+      const onEventFromMounted = vi.fn()
+      const component = await mountSuspended(OptionsApiEmits, {
+        props: {
+          'onEvent-from-setup': onEventFromSetup,
+          'onEvent-from-before-mount': onEventBeforeMount,
+          'onEvent-from-mounted': onEventFromMounted,
+        },
+      })
       await expect.poll(() => component.emitted()).toEqual({
         'event-from-setup': [[1], [2]],
         'event-from-before-mount': [[1], [2]],
         'event-from-mounted': [[1], [2]],
       })
       expect(console.error).not.toHaveBeenCalled()
+      expect(onEventFromSetup.mock.calls).toEqual([[1], [2]])
+      expect(onEventBeforeMount.mock.calls).toEqual([[1], [2]])
+      expect(onEventFromMounted.mock.calls).toEqual([[1], [2]])
     })
 
     it('should handle data set from immediate watches', async () => {
@@ -359,12 +422,21 @@ describe('mountSuspended', () => {
     })
 
     it('should handle events emitted from immediate watches', async () => {
-      const component = await mountSuspended(OptionsApiWatch)
+      const onEventfromInternalDataObject = vi.fn()
+      const onEventMappedFromExternalReactiveStore = vi.fn()
+      const component = await mountSuspended(OptionsApiWatch, {
+        props: {
+          'onEvent-from-internal-data-object': onEventfromInternalDataObject,
+          'onEvent-mapped-from-external-reactive-store': onEventMappedFromExternalReactiveStore,
+        },
+      })
       await expect.poll(() => component.emitted()).toEqual({
         'event-from-internal-data-object': [[1]],
         'event-mapped-from-external-reactive-store': [[1]],
       })
       expect(console.error).not.toHaveBeenCalled()
+      expect(onEventfromInternalDataObject.mock.calls).toEqual([[1]])
+      expect(onEventMappedFromExternalReactiveStore.mock.calls).toEqual([[1]])
     })
   })
 })
