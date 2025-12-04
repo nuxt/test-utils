@@ -67,12 +67,13 @@
     "dev:prepare": "nuxt prepare && unbuild --stub && pnpm -r dev:prepare"
   },
   "dependencies": {
-    "@nuxt/kit": "^4.2.1",
+    "@nuxt/kit": "^3.20.1",
     "c12": "^3.3.2",
     "consola": "^3.4.2",
     "defu": "^6.1.4",
     "destr": "^2.0.5",
     "estree-walker": "^3.0.3",
+    "exsolve": "^1.0.8",
     "fake-indexeddb": "^6.2.5",
     "get-port-please": "^3.2.0",
     "h3": "^1.15.4",
@@ -128,6 +129,7 @@
   "peerDependencies": {
     "@cucumber/cucumber": "^10.3.1 || >=11.0.0",
     "@jest/globals": "^29.5.0 || >=30.0.0",
+    "@nuxt/kit": ">=3.20.1",
     "@playwright/test": "^1.43.1",
     "@testing-library/vue": "^7.0.0 || ^8.0.1",
     "@vue/test-utils": "^2.4.2",
@@ -141,6 +143,9 @@
       "optional": true
     },
     "@jest/globals": {
+      "optional": true
+    },
+    "@nuxt/kit": {
       "optional": true
     },
     "@playwright/test": {
@@ -170,7 +175,6 @@
   },
   "resolutions": {
     "@cucumber/cucumber": "12.3.0",
-    "@nuxt/kit": "^4.2.1",
     "@nuxt/schema": "4.2.1",
     "@nuxt/test-utils": "workspace:*",
     "@types/node": "24.10.1",

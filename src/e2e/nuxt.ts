@@ -1,11 +1,8 @@
 import { existsSync, promises as fsp } from 'node:fs'
 import { resolve } from 'node:path'
 import { defu } from 'defu'
-import * as _kit from '@nuxt/kit'
 import { useTestContext } from './context'
-
-// @ts-expect-error type cast kit default export
-const kit: typeof _kit = _kit.default || _kit
+import { loadKit } from '../utils'
 
 const isNuxtApp = (dir: string) => {
   return existsSync(dir) && (
@@ -59,7 +56,8 @@ export async function loadFixture() {
 
   // TODO: share Nuxt instance with running Nuxt if possible
   if (ctx.options.build) {
-    ctx.nuxt = await kit.loadNuxt({
+    const { loadNuxt } = await loadKit(ctx.options.rootDir)
+    ctx.nuxt = await loadNuxt({
       cwd: ctx.options.rootDir,
       dev: ctx.options.dev,
       overrides: ctx.options.nuxtConfig,
@@ -78,9 +76,11 @@ export async function loadFixture() {
 
 export async function buildFixture() {
   const ctx = useTestContext()
+  const { buildNuxt, logger } = await loadKit(ctx.options.rootDir)
+
   // Hide build info for test
-  const prevLevel = kit.logger.level
-  kit.logger.level = ctx.options.logLevel
-  await kit.buildNuxt(ctx.nuxt!)
-  kit.logger.level = prevLevel
+  const prevLevel = logger.level
+  logger.level = ctx.options.logLevel
+  await buildNuxt(ctx.nuxt!)
+  logger.level = prevLevel
 }

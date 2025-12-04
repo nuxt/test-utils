@@ -9,9 +9,9 @@ import type { DotenvOptions } from 'c12'
 import type { UserConfig as ViteUserConfig } from 'vite'
 import type { DateString } from 'compatx'
 import { defu } from 'defu'
-import { loadNuxt, buildNuxt, createResolver, findPath } from '@nuxt/kit'
+import { createResolver, findPath } from '@nuxt/kit'
 
-import { applyEnv } from './utils'
+import { applyEnv, loadKit } from './utils'
 
 interface GetVitestConfigOptions {
   nuxt: Nuxt
@@ -25,6 +25,7 @@ interface LoadNuxtOptions {
 
 // https://github.com/nuxt/framework/issues/6496
 async function startNuxtAndGetViteConfig(rootDir = process.cwd(), options: LoadNuxtOptions = {}) {
+  const { buildNuxt, loadNuxt } = await loadKit(rootDir)
   const nuxt = await loadNuxt({
     cwd: rootDir,
     dev: false,
