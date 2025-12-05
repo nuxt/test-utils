@@ -5,7 +5,7 @@ import type { MockPluginContext } from '../../src/module/plugins/mock'
 
 describe('mocking', () => {
   const pluginContext: MockPluginContext = { imports: [], components: [] }
-  const plugin = createMockPlugin(pluginContext)
+  const plugin = createMockPlugin(pluginContext, Promise.resolve())
   const getResult = (code: string) => new Promise<string>((resolve) => {
     const input = '/some/file.ts'
     rollup({
