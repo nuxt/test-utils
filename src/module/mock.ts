@@ -17,17 +17,29 @@ export async function setupImportMocking(nuxt: Nuxt) {
     imports: [],
   }
 
+  const instanceId = Math.random().toString(36).substring(7)
+  console.log(`[setupImportMocking] Creating instance ${instanceId}`)
+
+  let importsCtx: Unimport
   let resolveImportsReady: () => void
   const importsReady = new Promise<void>((resolve) => {
     resolveImportsReady = resolve
   })
 
-  let importsCtx: Unimport
-  nuxt.hook('imports:context', async (ctx) => {
-    importsCtx = ctx
+  nuxt.hook('imports:context', async (_ctx) => {
+    importsCtx = _ctx
+    console.log(`[setupImportMocking:${instanceId}] Got imports:context`)
   })
+
+  // Ensure imports are populated before transforms can use them
   nuxt.hook('ready', async () => {
-    ctx.imports = await importsCtx.getImports()
+    if (importsCtx) {
+      ctx.imports = await importsCtx.getImports()
+      console.log(`[setupImportMocking:${instanceId}] Populated ${ctx.imports.length} imports in ready hook`)
+    }
+    else {
+      console.error(`[setupImportMocking:${instanceId}] importsCtx is undefined in ready hook!`)
+    }
     resolveImportsReady()
   })
 
