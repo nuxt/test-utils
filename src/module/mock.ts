@@ -17,12 +17,18 @@ export async function setupImportMocking(nuxt: Nuxt) {
     imports: [],
   }
 
+  let resolveImportsReady: () => void
+  const importsReady = new Promise<void>((resolve) => {
+    resolveImportsReady = resolve
+  })
+
   let importsCtx: Unimport
   nuxt.hook('imports:context', async (ctx) => {
     importsCtx = ctx
   })
   nuxt.hook('ready', async () => {
     ctx.imports = await importsCtx.getImports()
+    resolveImportsReady()
   })
 
   nuxt.hook('components:extend', (_) => {
@@ -45,5 +51,5 @@ export async function setupImportMocking(nuxt: Nuxt) {
     }
   }
 
-  addVitePlugin(createMockPlugin(ctx).vite())
+  addVitePlugin(createMockPlugin(ctx, importsReady).vite())
 }

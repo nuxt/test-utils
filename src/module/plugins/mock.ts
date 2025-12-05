@@ -31,10 +31,13 @@ interface MockComponentInfo {
   factory: string
 }
 
-export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() => {
-  function transform(this: TransformPluginContext, code: string, id: string): TransformResult | Promise<TransformResult> {
+export const createMockPlugin = (ctx: MockPluginContext, importsReady: Promise<void>) => createUnplugin(() => {
+  async function transform(this: TransformPluginContext, code: string, id: string): Promise<TransformResult | undefined> {
     if (!HELPERS_NAME.some(n => code.includes(n))) return
     if (id.includes('/node_modules/')) return
+
+    // Wait for imports to be collected before transforming
+    await importsReady
 
     let ast: AstNode
     try {
