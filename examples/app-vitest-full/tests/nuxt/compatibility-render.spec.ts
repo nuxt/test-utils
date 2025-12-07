@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { render } from '@testing-library/vue'
+import { afterEach, describe, expect, it } from 'vitest'
+import { render, cleanup } from '@testing-library/vue'
 import { renderSuspended } from '@nuxt/test-utils/runtime'
 
 import CompostionApi from '~/components/TestComponentWithCompostionApi.vue'
@@ -17,6 +17,10 @@ function testWrapHtml(html: string) {
 }
 
 describe('renderSuspended() compatible to render()', () => {
+  afterEach(() => {
+    cleanup()
+  })
+
   describe.each([
     { Component: CompostionApi, type: 'CompostionApi', description: '<script setup>' } as const,
     { Component: OptionsApiWithData, type: 'OptionsApi', description: '<script> defineComponent with data' } as const,
