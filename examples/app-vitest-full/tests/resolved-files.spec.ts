@@ -19,7 +19,7 @@ test.skipIf(process.env.NUXT_VITEST_DEV_TEST)('it should include nuxt spec files
   const nuxtSpecFiles = testFiles.filter(file => file.moduleId.endsWith('nuxt.spec.ts') || NUXT_PATH_RE.test(file.moduleId))
   const regularSpecFiles = testFiles.filter(file => file.moduleId.endsWith('.spec.ts') && !file.moduleId.endsWith('nuxt.spec.ts') && !NUXT_PATH_RE.test(file.moduleId))
 
-  expect(nuxtSpecFiles.length).toEqual(21)
+  expect(nuxtSpecFiles.length).toEqual(23)
   for (const file of nuxtSpecFiles) {
     expect(file.project.name).toEqual('nuxt')
   }
