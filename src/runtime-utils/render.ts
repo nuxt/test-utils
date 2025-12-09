@@ -7,7 +7,7 @@ import type { RouteLocationRaw } from 'vue-router'
 import { RouterLink } from './components/RouterLink'
 
 import NuxtRoot from '#build/root-component.mjs'
-import { tryUseNuxtApp, useRouter } from '#imports'
+import { tryUseNuxtApp, useRouter, onErrorCaptured } from '#imports'
 
 type RenderSuspendeOptions<T> = TestingLibraryRenderOptions<T> & {
   route?: RouteLocationRaw
@@ -116,7 +116,8 @@ export async function renderSuspended<T>(component: T, options?: RenderSuspendeO
       return h('div', { id: WRAPPER_EL_ID }, this.$slots.default?.())
     },
   })
-  return new Promise<RenderSuspendeResult>((resolve) => {
+  return new Promise<RenderSuspendeResult>((resolve, reject) => {
+    let isMountSettled = false
     const utils = renderFromTestingLibrary(
       {
         __cssModules: componentRest.__cssModules,
@@ -134,10 +135,25 @@ export async function renderSuspended<T>(component: T, options?: RenderSuspendeO
             scope.stop()
           })
 
-          return scope.run(() => NuxtRoot.setup(props, {
+          const nuxtRootSetupResult = scope.run(() => NuxtRoot.setup(props, {
             ...ctx,
             expose: () => ({}),
           }))
+
+          onErrorCaptured((error, ...args) => {
+            if (isMountSettled) return
+            isMountSettled = true
+            try {
+              wrappedInstance?.appContext.config.errorHandler?.(error, ...args)
+              reject(error)
+            }
+            catch (error) {
+              reject(error)
+            }
+            return false
+          })
+
+          return nuxtRootSetupResult
         },
         render: () =>
           // See discussions in https://github.com/testing-library/vue-testing-library/issues/230
@@ -152,6 +168,7 @@ export async function renderSuspended<T>(component: T, options?: RenderSuspendeO
                 {
                   onResolve: () =>
                     nextTick().then(() => {
+                      isMountSettled = true;
                       (utils as unknown as AugmentedVueInstance).setupState = setupState
                       utils.rerender = async (props) => {
                         Object.assign(setProps, props)

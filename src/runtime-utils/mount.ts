@@ -8,7 +8,7 @@ import type { RouteLocationRaw } from 'vue-router'
 import { RouterLink } from './components/RouterLink'
 
 import NuxtRoot from '#build/root-component.mjs'
-import { tryUseNuxtApp, useRouter } from '#imports'
+import { tryUseNuxtApp, useRouter, onErrorCaptured } from '#imports'
 
 type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
   route?: RouteLocationRaw
@@ -127,7 +127,8 @@ export async function mountSuspended<T>(
   }
 
   return new Promise<MountSuspendedResult<T>>(
-    (resolve) => {
+    (resolve, reject) => {
+      let isMountSettled = false
       const vm = mount(
         {
           __cssModules: componentRest.__cssModules,
@@ -138,6 +139,7 @@ export async function mountSuspended<T>(
             wrappedInstance = getCurrentInstance()
             setupContext = ctx
 
+            let nuxtRootSetupResult
             if (options?.scoped) {
               const scope = effectScope()
 
@@ -145,17 +147,32 @@ export async function mountSuspended<T>(
               globalThis.__cleanup.push(() => {
                 scope.stop()
               })
-              return scope.run(() => NuxtRoot.setup(props, {
+              nuxtRootSetupResult = scope.run(() => NuxtRoot.setup(props, {
                 ...ctx,
                 expose: () => {},
               }))
             }
             else {
-              return NuxtRoot.setup(props, {
+              nuxtRootSetupResult = NuxtRoot.setup(props, {
                 ...ctx,
                 expose: () => {},
               })
             }
+
+            onErrorCaptured((error, ...args) => {
+              if (isMountSettled) return
+              isMountSettled = true
+              try {
+                wrappedInstance?.appContext.config.errorHandler?.(error, ...args)
+                reject(error)
+              }
+              catch (error) {
+                reject(error)
+              }
+              return false
+            })
+
+            return nuxtRootSetupResult
           },
           render: () =>
             h(
@@ -163,6 +180,7 @@ export async function mountSuspended<T>(
               {
                 onResolve: () =>
                   nextTick().then(() => {
+                    isMountSettled = true;
                     (vm as unknown as AugmentedVueInstance).setupState = setupState;
                     (vm as unknown as AugmentedVueInstance).__setProps = (props: Record<string, unknown>) => {
                       Object.assign(setProps, props)
