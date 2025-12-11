@@ -47,10 +47,12 @@ export default defineNuxtModule<NuxtVitestOptions>({
     const { addVitePlugin } = await loadKit(nuxt.options.rootDir)
 
     const resolver = createResolver(import.meta.url)
-    addVitePlugin(NuxtRootStubPlugin.vite({
-      entry: await resolvePath('#app/entry', { alias: nuxt.options.alias }),
-      rootStubPath: await resolvePath(resolver.resolve('./runtime/nuxt-root')),
-    }))
+    if (nuxt.options.test || nuxt.options.dev) {
+      addVitePlugin(NuxtRootStubPlugin({
+        entry: await resolvePath('#app/entry', { alias: nuxt.options.alias }),
+        rootStubPath: await resolvePath(resolver.resolve('./runtime/nuxt-root')),
+      }))
+    }
 
     // Support for in-source testing
     if (!nuxt.options.test && !nuxt.options.dev) {

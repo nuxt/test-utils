@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { dirname, extname, join } from 'pathe'
-import { createUnplugin } from 'unplugin'
+import type { Plugin } from 'vite'
 
 const PLUGIN_NAME = 'nuxt:vitest:nuxt-root-stub'
 
@@ -11,24 +11,31 @@ interface NuxtRootStubPluginOptions {
 
 const STUB_ID = 'nuxt-vitest-app-entry'
 
-export const NuxtRootStubPlugin = createUnplugin((options: NuxtRootStubPluginOptions) => {
-  const STUB_ID_WITH_EXT = STUB_ID + extname(options.entry)
+export const NuxtRootStubPlugin = (options: NuxtRootStubPluginOptions): Plugin => {
+  const extension = extname(options.entry)
+  const escapedExt = extension.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const entryPath = join(dirname(options.entry), STUB_ID + extension)
+  const idFilter = new RegExp(`${STUB_ID}(?:${escapedExt})?$`)
 
   return {
     name: PLUGIN_NAME,
     enforce: 'pre',
-    vite: {
-      async resolveId(id, importer) {
-        if (id.endsWith(STUB_ID) || id.endsWith(STUB_ID_WITH_EXT)) {
-          return importer?.endsWith('index.html') ? id : join(dirname(options.entry), STUB_ID_WITH_EXT)
-        }
+    resolveId: {
+      filter: {
+        id: idFilter,
       },
-      async load(id) {
-        if (id.endsWith(STUB_ID) || id.endsWith(STUB_ID_WITH_EXT)) {
-          const entryContents = readFileSync(options.entry, 'utf-8')
-          return entryContents.replace('#build/root-component.mjs', options.rootStubPath)
-        }
+      async handler(id, importer) {
+        return importer?.endsWith('index.html') ? id : entryPath
+      },
+    },
+    load: {
+      filter: {
+        id: idFilter,
+      },
+      async handler() {
+        const entryContents = readFileSync(options.entry, 'utf-8')
+        return entryContents.replace('#build/root-component.mjs', options.rootStubPath)
       },
     },
   }
-})
+}
