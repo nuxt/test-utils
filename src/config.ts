@@ -349,9 +349,17 @@ export interface NuxtEnvironmentOptions {
   rootDir?: string
   /**
    * The starting URL for your Nuxt window environment
+   * This option supports docblock or comment
    * @default 'http://localhost:3000'
    */
   url?: string
+  /**
+   * When to start the NuxtApp.
+   * Set to `beforeAll` if you need to mock Composables used during NuxtApp startup (e.g. plugins, global middlewares).
+   * This option supports docblock comments.
+   * @default 'setupFile'
+   */
+  startOn?: 'setupFile' | 'beforeAll'
   /**
    * You can define how environment options are read when loading the Nuxt configuration.
    */
@@ -369,6 +377,7 @@ export interface NuxtEnvironmentOptions {
    * The name of the DOM environment to use.
    *
    * It also needs to be installed as a dev dependency in your project.
+   * This option supports docblock or comment.
    * @default 'happy-dom'
    */
   domEnvironment?: 'happy-dom' | 'jsdom'

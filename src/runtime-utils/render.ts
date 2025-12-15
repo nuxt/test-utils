@@ -222,7 +222,7 @@ export async function renderSuspended<T>(component: T, options?: RenderSuspendeO
           },
           directives: vueApp._context.directives,
           provide: vueApp._context.provides,
-          components: { RouterLink },
+          components: { ...vueApp._context.components, RouterLink },
         },
       }),
     )

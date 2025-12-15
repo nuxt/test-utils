@@ -7,6 +7,11 @@ export default defineConfig({
       await defineVitestProject({
         test: {
           name: 'nuxt',
+          environmentOptions: {
+            nuxt: {
+              domEnvironment: 'jsdom',
+            },
+          },
           include: ['**/*.nuxt.spec.ts'],
         },
       }),

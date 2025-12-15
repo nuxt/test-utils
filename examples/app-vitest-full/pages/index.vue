@@ -5,6 +5,7 @@
 <script lang="ts">
 definePageMeta({
   value: 'set in index',
+  middleware: ['test-named-middleware'],
 })
 if (import.meta.vitest) {
   const { it, expect } = import.meta.vitest
