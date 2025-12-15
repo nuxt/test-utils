@@ -1,6 +1,6 @@
 import { createFetch } from 'ofetch'
 import { joinURL } from 'ufo'
-import { H3, defineEventHandler } from 'h3-next'
+import { H3, defineEventHandler } from 'h3-next/generic'
 import { createRouter as createRadixRouter, exportMatcher, toRouteMatcher } from 'radix3'
 import type { NuxtWindow } from '../../vitest-environment'
 import type { NuxtEnvironmentOptions } from '../../config'
