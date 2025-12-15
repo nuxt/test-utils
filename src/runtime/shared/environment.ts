@@ -1,8 +1,7 @@
 import { createFetch } from 'ofetch'
 import { joinURL } from 'ufo'
-import { createApp, defineEventHandler, toNodeListener } from 'h3'
+import { H3, defineEventHandler } from 'h3-next'
 import { createRouter as createRadixRouter, exportMatcher, toRouteMatcher } from 'radix3'
-import { fetchNodeRequestHandler } from 'node-mock-http'
 import type { NuxtWindow } from '../../vitest-environment'
 import type { NuxtEnvironmentOptions } from '../../config'
 
@@ -45,7 +44,7 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
   app.id = rootId
   win.document.body.appendChild(app)
 
-  const h3App = createApp()
+  const h3App = new H3()
 
   if (!win.fetch || !('Request' in win)) {
     await import('node-fetch-native/polyfill')
@@ -63,8 +62,6 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
       }
     }
   }
-
-  const nodeHandler = toNodeListener(h3App)
 
   const registry = new Set<string>()
 
@@ -92,7 +89,7 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
       url = '/_' + url
     }
     if (url.startsWith('/')) {
-      const response = await fetchNodeRequestHandler(nodeHandler, url, init)
+      const response = await h3App.fetch(new Request(url, init))
       return normalizeFetchResponse(response)
     }
     return _fetch(input, _init)

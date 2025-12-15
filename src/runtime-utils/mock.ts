@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import { defineEventHandler } from 'h3'
-import type { App, EventHandler, HTTPMethod } from 'h3'
+import { defineEventHandler } from 'h3-next'
+import type { H3, EventHandler, HTTPMethod } from 'h3-next'
 import type {
   ComponentInjectOptions,
   ComponentOptionsMixin,
@@ -44,7 +44,7 @@ const endpointRegistry: Record<string, Array<{ handler: EventHandler, method?: H
  */
 export function registerEndpoint(url: string, options: EventHandler | { handler: EventHandler, method?: HTTPMethod, once?: boolean }) {
   // @ts-expect-error private property
-  const app: App = window.__app
+  const app: H3 = window.__app
 
   if (!app) {
     throw new Error('registerEndpoint() can only be used in a `@nuxt/test-utils` runtime environment')
@@ -82,7 +82,7 @@ export function registerEndpoint(url: string, options: EventHandler | { handler:
 
       return result
     }), {
-      match(_, event) {
+      match(event) {
         return endpointRegistry[url]?.some(config => config.method ? event?.method === config.method : true) ?? false
       },
     })
