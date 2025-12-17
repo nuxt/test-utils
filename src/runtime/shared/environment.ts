@@ -89,8 +89,7 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
       url = '/_' + url
     }
     if (url.startsWith('/')) {
-      const response = await h3App.fetch(new Request(url, init))
-      return normalizeFetchResponse(response)
+      return h3App.fetch(new Request(url, init))
     }
     return _fetch(input, _init)
   }
@@ -140,40 +139,4 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
   return () => {
     console.info = consoleInfo
   }
-}
-
-/** utils from nitro */
-
-function normalizeFetchResponse(response: Response) {
-  if (!response.headers.has('set-cookie')) {
-    return response
-  }
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: normalizeCookieHeaders(response.headers),
-  })
-}
-
-function normalizeCookieHeader(header: number | string | string[] = '') {
-  return splitCookiesString(joinHeaders(header))
-}
-
-function normalizeCookieHeaders(headers: Headers) {
-  const outgoingHeaders = new Headers()
-  for (const [name, header] of headers) {
-    if (name === 'set-cookie') {
-      for (const cookie of normalizeCookieHeader(header)) {
-        outgoingHeaders.append('set-cookie', cookie)
-      }
-    }
-    else {
-      outgoingHeaders.set(name, joinHeaders(header))
-    }
-  }
-  return outgoingHeaders
-}
-
-function joinHeaders(value: number | string | string[]) {
-  return Array.isArray(value) ? value.join(', ') : String(value)
 }
