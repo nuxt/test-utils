@@ -171,7 +171,7 @@ describe('server mocks and data fetching', () => {
     })
 
     expect(await fetch(new URL('http://localhost:3000/with-url')).then(res => res.json())).toMatchObject({ title: 'with-url', data: {} })
-    // expect(await fetch(new URL('http://localhost:3000/with-url?q=1'))).toBeDefined() // .then(res => res.json())).toMatchObject({ title: 'with-url', data: { q: '1' } })
+    expect(await fetch(new URL('http://localhost:3000/with-url?q=1')).then(res => res.json())).toMatchObject({ title: 'with-url', data: { q: '1' } })
   })
 
   it('can mock fetch requests with fetch.create', async () => {
