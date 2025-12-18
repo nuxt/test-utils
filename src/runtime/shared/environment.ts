@@ -86,10 +86,10 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
 
     const base = url.split('?')[0]!
     if (registry.has(base) || registry.has(url)) {
-      url = '/_' + url
+      return h3App.fetch(new Request('/_' + url, init))
     }
     if (url.startsWith('/')) {
-      return h3App.fetch(new Request(url, init))
+      return new Response('Not Found', { status: 404, statusText: 'Not Found' })
     }
     return _fetch(input, _init)
   }
