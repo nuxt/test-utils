@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { Suspense } from 'vue'
 import { mount } from '@vue/test-utils'
@@ -6,6 +6,10 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { NuxtErrorBoundary } from '#components'
 
 describe('mountSuspended handle error', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   describe('vue/test-utils compatibility', () => {
     it('throws on mounted', async () => {
       const TestComponent = defineComponent({
@@ -287,6 +291,34 @@ describe('mountSuspended handle error', () => {
       })
 
       expect((await mountSuspended(TestComponent)).text()).toBe('error')
+    })
+
+    it('throws on router', async () => {
+      const setupFn = vi.fn()
+      const consoleWarn = vi.spyOn(console, 'warn')
+
+      useRouter().addRoute({
+        path: '/throws-on-router',
+        component: h('div', 'hello'),
+        meta: {
+          middleware: [
+            () => abortNavigation({ message: 'throws on router' }),
+          ],
+        },
+      })
+
+      const TestComponent = defineComponent({
+        template: '<div></div>',
+        setup: setupFn,
+      })
+
+      await expect(() => mountSuspended(TestComponent, { route: 'throws-on-router' })).rejects.toThrow('throws on router')
+      await nextTick()
+
+      expect(setupFn).not.toBeCalled()
+      expect(
+        consoleWarn.mock.calls.flat().map(String).join('\n'),
+      ).not.toContain('[Vue warn]: Component is missing template or render function')
     })
   })
 })

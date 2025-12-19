@@ -180,6 +180,7 @@ export async function mountSuspended<T>(
               {
                 onResolve: () =>
                   nextTick().then(() => {
+                    if (isMountSettled) return
                     isMountSettled = true;
                     (vm as unknown as AugmentedVueInstance).setupState = setupState;
                     (vm as unknown as AugmentedVueInstance).__setProps = (props: Record<string, unknown>) => {
@@ -192,6 +193,7 @@ export async function mountSuspended<T>(
                 default: () =>
                   h({
                     name: 'MountSuspendedHelper',
+                    render: () => '',
                     async setup() {
                       const router = useRouter()
                       await router.replace(route)
