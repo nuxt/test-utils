@@ -168,6 +168,7 @@ export async function renderSuspended<T>(component: T, options?: RenderSuspendeO
                 {
                   onResolve: () =>
                     nextTick().then(() => {
+                      if (isMountSettled) return
                       isMountSettled = true;
                       (utils as unknown as AugmentedVueInstance).setupState = setupState
                       utils.rerender = async (props) => {
@@ -181,6 +182,7 @@ export async function renderSuspended<T>(component: T, options?: RenderSuspendeO
                   default: () =>
                     h({
                       name: 'RenderHelper',
+                      render: () => '',
                       async setup() {
                         const router = useRouter()
                         await router.replace(route)
