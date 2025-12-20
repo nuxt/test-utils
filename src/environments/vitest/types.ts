@@ -1,10 +1,10 @@
-import type { App } from 'h3'
+import type { H3 } from 'h3-next'
 import type { $Fetch } from 'nitropack'
 import type { JSDOMOptions, HappyDOMOptions } from 'vitest/node'
 
 export type NuxtBuiltinEnvironment = 'happy-dom' | 'jsdom'
 export interface NuxtWindow extends Window {
-  __app: App
+  __app: H3
   __registry: Set<string>
   __NUXT_VITEST_ENVIRONMENT__?: boolean
   __NUXT__: Record<string, unknown>

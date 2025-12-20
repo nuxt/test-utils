@@ -1,8 +1,7 @@
 import { createFetch } from 'ofetch'
 import { joinURL } from 'ufo'
-import { createApp, defineEventHandler, toNodeListener } from 'h3'
+import { H3, defineEventHandler } from 'h3-next/generic'
 import { createRouter as createRadixRouter, exportMatcher, toRouteMatcher } from 'radix3'
-import { fetchNodeRequestHandler } from 'node-mock-http'
 import type { NuxtWindow } from '../../vitest-environment'
 import type { NuxtEnvironmentOptions } from '../../config'
 
@@ -45,7 +44,7 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
   app.id = rootId
   win.document.body.appendChild(app)
 
-  const h3App = createApp()
+  const h3App = new H3()
 
   if (!win.fetch || !('Request' in win)) {
     await import('node-fetch-native/polyfill')
@@ -63,8 +62,6 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
       }
     }
   }
-
-  const nodeHandler = toNodeListener(h3App)
 
   const registry = new Set<string>()
 
@@ -89,11 +86,10 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
 
     const base = url.split('?')[0]!
     if (registry.has(base) || registry.has(url)) {
-      url = '/_' + url
+      return h3App.fetch(new Request('/_' + url, init))
     }
     if (url.startsWith('/')) {
-      const response = await fetchNodeRequestHandler(nodeHandler, url, init)
-      return normalizeFetchResponse(response)
+      return new Response('Not Found', { status: 404, statusText: 'Not Found' })
     }
     return _fetch(input, _init)
   }
@@ -143,40 +139,4 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
   return () => {
     console.info = consoleInfo
   }
-}
-
-/** utils from nitro */
-
-function normalizeFetchResponse(response: Response) {
-  if (!response.headers.has('set-cookie')) {
-    return response
-  }
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: normalizeCookieHeaders(response.headers),
-  })
-}
-
-function normalizeCookieHeader(header: number | string | string[] = '') {
-  return splitCookiesString(joinHeaders(header))
-}
-
-function normalizeCookieHeaders(headers: Headers) {
-  const outgoingHeaders = new Headers()
-  for (const [name, header] of headers) {
-    if (name === 'set-cookie') {
-      for (const cookie of normalizeCookieHeader(header)) {
-        outgoingHeaders.append('set-cookie', cookie)
-      }
-    }
-    else {
-      outgoingHeaders.set(name, joinHeaders(header))
-    }
-  }
-  return outgoingHeaders
-}
-
-function joinHeaders(value: number | string | string[]) {
-  return Array.isArray(value) ? value.join(', ') : String(value)
 }

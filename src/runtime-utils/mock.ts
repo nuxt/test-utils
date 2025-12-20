@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import { defineEventHandler } from 'h3'
-import type { App, EventHandler, HTTPMethod } from 'h3'
+import { defineEventHandler } from 'h3-next/generic'
+import type { H3, EventHandler, HTTPMethod } from 'h3-next'
 import type {
   ComponentInjectOptions,
   ComponentOptionsMixin,
@@ -44,7 +44,7 @@ const endpointRegistry: Record<string, Array<{ handler: EventHandler, method?: H
  */
 export function registerEndpoint(url: string, options: EventHandler | { handler: EventHandler, method?: HTTPMethod, once?: boolean }) {
   // @ts-expect-error private property
-  const app: App = window.__app
+  const app: H3 = window.__app
 
   if (!app) {
     throw new Error('registerEndpoint() can only be used in a `@nuxt/test-utils` runtime environment')
@@ -53,40 +53,15 @@ export function registerEndpoint(url: string, options: EventHandler | { handler:
   const config = typeof options === 'function' ? { handler: options, method: undefined, once: false } : options
   config.handler = defineEventHandler(config.handler)
 
-  // @ts-expect-error private property
-  const hasBeenRegistered: boolean = window.__registry.has(url)
-
   endpointRegistry[url] ||= []
   endpointRegistry[url].push(config)
 
-  if (!hasBeenRegistered) {
-    // @ts-expect-error private property
-    window.__registry.add(url)
+  // @ts-expect-error private property
+  window.__registry.add(url)
 
-    app.use('/_' + url, defineEventHandler(async (event) => {
-      const latestHandler = [...endpointRegistry[url] || []].reverse().find(config => config.method ? event.method === config.method : true)
-      if (!latestHandler) return
-
-      const result = await latestHandler.handler(event)
-
-      if (!latestHandler.once) return result
-
-      const index = endpointRegistry[url]?.indexOf(latestHandler)
-      if (index === undefined || index === -1) return result
-
-      endpointRegistry[url]?.splice(index, 1)
-      if (endpointRegistry[url]?.length === 0) {
-        // @ts-expect-error private property
-        window.__registry.delete(url)
-      }
-
-      return result
-    }), {
-      match(_, event) {
-        return endpointRegistry[url]?.some(config => config.method ? event?.method === config.method : true) ?? false
-      },
-    })
-  }
+  // @ts-expect-error private property
+  app._registered
+    ||= registerGlobalHandler(app)
 
   return () => {
     endpointRegistry[url]?.splice(endpointRegistry[url].indexOf(config), 1)
@@ -261,4 +236,34 @@ export function mockComponent(_path: string, _component: unknown): void {
   throw new Error(
     'mockComponent() is a macro and it did not get transpiled. This may be an internal bug of @nuxt/test-utils.',
   )
+}
+
+function registerGlobalHandler(app: H3) {
+  app.use(async (event) => {
+    const url = event.url.pathname.replace(/^\/_/, '')
+    const latestHandler = [...endpointRegistry[url] || []].reverse().find(config => config.method ? event.method === config.method : true)
+    if (!latestHandler) return
+
+    const result = await latestHandler.handler(event)
+
+    if (!latestHandler.once) return result
+
+    const index = endpointRegistry[url]?.indexOf(latestHandler)
+    if (index === undefined || index === -1) return result
+
+    endpointRegistry[url]?.splice(index, 1)
+    if (endpointRegistry[url]?.length === 0) {
+      // @ts-expect-error private property
+      window.__registry.delete(url)
+    }
+
+    return result
+  }, {
+    match: (event) => {
+      const url = event.url.pathname.replace(/^\/_/, '')
+      return endpointRegistry[url]?.some(config => config.method ? event?.method === config.method : true) ?? false
+    },
+  })
+
+  return true
 }
