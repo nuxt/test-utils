@@ -2,10 +2,13 @@
   <div>Index page</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 definePageMeta({
   value: 'set in index',
 })
+</script>
+
+<script lang="ts">
 if (import.meta.vitest) {
   const { it, expect } = import.meta.vitest
   it('add', () => {
