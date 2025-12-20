@@ -8,7 +8,7 @@
     "dev:prepare": "nuxt prepare",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "test:dev": "NUXT_VITEST_DEV_TEST=true nuxt dev --no-fork",
+    "test:dev": "nuxt dev --no-fork",
     "test:unit": "vitest",
     "test:types": "nuxi prepare && vue-tsc --noEmit",
     "test:jsdom": "VITEST_DOM_ENV=jsdom pnpm test:unit --run",

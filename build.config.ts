@@ -11,6 +11,7 @@ export default defineBuildConfig({
     'src/config',
     'src/module.ts',
     'src/vitest-environment',
+    'src/vitest-wrapper/cli.ts',
     isStub ? { input: 'src/runtime-utils/', outDir: 'dist/runtime-utils', format: 'esm' } : 'src/runtime-utils/index.mjs',
     { input: 'src/runtime/', outDir: 'dist/runtime', format: 'esm' },
   ],
