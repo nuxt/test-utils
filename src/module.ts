@@ -1,19 +1,16 @@
 /// <reference types="@nuxt/devtools-kit" />
 
 import { pathToFileURL } from 'node:url'
-import { createResolver, defineNuxtModule, logger, resolvePath, importModule } from '@nuxt/kit'
+import { createResolver, defineNuxtModule, logger, resolvePath } from '@nuxt/kit'
 import type { Vitest, UserConfig as VitestConfig } from 'vitest/node'
 import type { Reporter } from 'vitest/reporters'
 import type { RunnerTestFile } from 'vitest'
-import type { InlineConfig as ViteConfig } from 'vite'
 import { getPort } from 'get-port-please'
 import { h } from 'vue'
 import { debounce } from 'perfect-debounce'
 import { isCI } from 'std-env'
-import { defu } from 'defu'
 import { join, relative } from 'pathe'
 
-import { getVitestConfigFromNuxt } from './config'
 import { setupImportMocking } from './module/mock'
 import { NuxtRootStubPlugin } from './module/plugins/entry'
 import { loadKit } from './utils'
@@ -23,12 +20,6 @@ export interface NuxtVitestOptions {
   logToConsole?: boolean
   vitestConfig?: VitestConfig
 }
-
-/**
- * List of plugins that are not compatible with test env.
- * Hard-coded for now, should remove by PR to upstream.
- */
-const vitePluginBlocklist = ['vite-plugin-vue-inspector', 'vite-plugin-vue-inspector:post', 'vite-plugin-inspect', 'nuxt:type-check']
 
 export default defineNuxtModule<NuxtVitestOptions>({
   meta: {
@@ -44,7 +35,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
       await setupImportMocking(nuxt)
     }
 
-    const { addVitePlugin } = await loadKit(nuxt.options.rootDir)
+    const { addVitePlugin, loadNuxt } = await loadKit(nuxt.options.rootDir)
 
     const resolver = createResolver(import.meta.url)
     if (nuxt.options.test || nuxt.options.dev) {
@@ -76,15 +67,6 @@ export default defineNuxtModule<NuxtVitestOptions>({
     // the nuxt instance is used by a standalone Vitest env, we skip this module
     if (process.env.TEST || process.env.VITE_TEST) return
 
-    const rawViteConfigPromise = new Promise<ViteConfig>((resolve) => {
-      // Wrap with app:resolve to ensure we got the final vite config
-      nuxt.hook('app:resolve', () => {
-        nuxt.hook('vite:configResolved', (config, { isClient }) => {
-          if (isClient) resolve(config)
-        })
-      })
-    })
-
     let loaded = false
     let promise: Promise<void> | undefined
     let ctx: Vitest = undefined!
@@ -97,23 +79,6 @@ export default defineNuxtModule<NuxtVitestOptions>({
     let URL: string
 
     async function start() {
-      const { mergeConfig } = await importModule<typeof import('vite')>('vite', { paths: nuxt.options.modulesDir })
-      const rawViteConfig = mergeConfig({}, await rawViteConfigPromise)
-
-      const viteConfig = await getVitestConfigFromNuxt({ nuxt, viteConfig: defu({ test: options.vitestConfig }, rawViteConfig) })
-
-      viteConfig.plugins = (viteConfig.plugins || []).filter((p) => {
-        return !p || !('name' in p) || !vitePluginBlocklist.includes(p.name)
-      })
-
-      // TODO: investigate why this is needed
-      viteConfig.test.environmentMatchGlobs ||= []
-      viteConfig.test.environmentMatchGlobs.push(
-        ['**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', 'nuxt'],
-        ['{test,tests}/nuxt/**.*', 'nuxt'],
-      )
-
-      process.env.__NUXT_VITEST_RESOLVED__ = 'true'
       const { startVitest } = (await import(pathToFileURL(await resolvePath('vitest/node')).href)) as typeof import('vitest/node')
 
       const customReporter: Reporter = {
@@ -130,34 +95,32 @@ export default defineNuxtModule<NuxtVitestOptions>({
         },
       }
 
-      const watchMode = !process.env.NUXT_VITEST_DEV_TEST && !isCI
+      const watchMode = !isCI
 
       // We resolve the path here to ensure the dev server is already running with the correct protocol
       const PORT = await getPort({ port: 15555 })
       const PROTOCOL = nuxt.options.devServer.https ? 'https' : 'http'
       URL = `${PROTOCOL}://localhost:${PORT}/__vitest__/`
 
-      // For testing dev mode in CI, maybe expose an option to user later
-      const overrides: VitestConfig = watchMode
-        ? {
-            passWithNoTests: true,
-            reporters: options.logToConsole
-              ? [
-                  ...toArray(options.vitestConfig?.reporters ?? ['default']),
-                  customReporter,
-                ]
-              : [customReporter], // do not report to console
-            watch: true,
-            ui: true,
-            open: false,
-            api: {
-              port: PORT,
-            },
-          }
-        : { watch: false }
-
       // Start Vitest
-      const promise = startVitest('test', [], defu(overrides, viteConfig.test), viteConfig)
+      const promise = loadNuxt({ cwd: nuxt.options.rootDir }).then(nuxt => nuxt.runWithContext(
+        () => startVitest('test', [], { ...watchMode
+          ? {
+              passWithNoTests: true,
+              reporters: options.logToConsole
+                ? [
+                    ...toArray(options.vitestConfig?.reporters ?? ['default']),
+                    customReporter,
+                  ]
+                : [customReporter], // do not report to console
+              watch: true,
+              ui: true,
+              open: false,
+              api: {
+                port: PORT,
+              },
+            }
+          : { watch: false }, root: nuxt.options.rootDir })))
       promise.catch(() => process.exit(1))
 
       if (watchMode) {
