@@ -9,6 +9,11 @@ import type { NuxtEnvironmentOptions } from '../../config'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: NuxtEnvironmentOptions, nuxtRuntimeConfig?: Record<string, any>, nuxtRouteRules?: Record<string, any> }) {
   win.__NUXT_VITEST_ENVIRONMENT__ = true
+  win.__NUXT_VITEST_ENVIRONMENT_OPTIONS__ = {
+    url: environmentOptions.nuxt.url,
+    startOn: environmentOptions.nuxt.startOn,
+    domEnvironment: environmentOptions.nuxt.domEnvironment,
+  }
   win.__NUXT__ = {
     serverRendered: false,
     config: {

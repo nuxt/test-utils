@@ -5,6 +5,7 @@
 <script setup lang="ts">
 definePageMeta({
   value: 'set in index',
+  middleware: ['test-named-middleware'],
 })
 </script>
 

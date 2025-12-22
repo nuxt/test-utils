@@ -8,6 +8,9 @@ describe('routing', () => {
   it('defaults to index page', async () => {
     expect(useRoute().matched[0]!.meta).toMatchInlineSnapshot(`
       {
+        "middleware": [
+          "test-named-middleware",
+        ],
         "value": "set in index",
       }
     `)
