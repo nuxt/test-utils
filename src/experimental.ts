@@ -1,5 +1,4 @@
 import { $fetch as _$fetch, fetch as _fetch } from 'ofetch'
-import * as _kit from '@nuxt/kit'
 import { resolve } from 'pathe'
 import { stringifyQuery } from 'ufo'
 import { useTestContext } from './e2e/context'

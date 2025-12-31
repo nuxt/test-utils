@@ -99,7 +99,7 @@ export function registerEndpoint(url: string, options: EventHandler | { handler:
 
 /**
  * `mockNuxtImport` allows you to mock Nuxt's auto import functionality.
- * @param _name - name of an import to mock.
+ * @param _target - name of an import to mock or mocked target.
  * @param _factory - factory function that returns mocked import.
  * @example
  * ```ts
@@ -110,11 +110,18 @@ export function registerEndpoint(url: string, options: EventHandler | { handler:
  *    return { value: 'mocked storage' }
  *  }
  * })
+ *
+ * // With mocked target
+ * mockNuxtImport(useStorage, () => {
+ *  return () => {
+ *    return { value: 'mocked storage' }
+ *  }
+ * })
  * ```
  * @see https://nuxt.com/docs/getting-started/testing#mocknuxtimport
  */
 export function mockNuxtImport<T = unknown>(
-  _name: string,
+  _target: string | T,
   _factory: () => T | Promise<T>,
 ): void {
   throw new Error(
@@ -158,7 +165,7 @@ export function mockComponent<Props, RawBindings = object>(
   path: string,
   setup: OptionalFunction<
     (props: Readonly<Props>, ctx: SetupContext) => RawBindings | RenderFunction
-  >
+  >,
 ): void
 export function mockComponent<
   Props = {},
@@ -188,7 +195,7 @@ export function mockComponent<
       I,
       II
     >
-  >
+  >,
 ): void
 export function mockComponent<
   PropNames extends string,
@@ -218,7 +225,7 @@ export function mockComponent<
       I,
       II
     >
-  >
+  >,
 ): void
 export function mockComponent<
   PropsOptions extends Readonly<ComponentPropsOptions>,
@@ -248,7 +255,7 @@ export function mockComponent<
       I,
       II
     >
-  >
+  >,
 ): void
 export function mockComponent(_path: string, _component: unknown): void {
   throw new Error(

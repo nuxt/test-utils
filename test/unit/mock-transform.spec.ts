@@ -43,12 +43,7 @@ describe('mocking', () => {
         name: 'useSomeExport',
         from: 'bob',
       }]
-      expect(await getResult(`
-        import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-        mockNuxtImport('useSomeExport', () => {
-          return () => 'mocked'
-        })
-      `)).toMatchInlineSnapshot(`
+      const expected = `
         "import {vi} from "vitest";
 
         vi.hoisted(() => { 
@@ -72,8 +67,22 @@ describe('mocking', () => {
                 
               
          import "bob";"
-      `)
+      `
+      expect(await getResult(`
+        import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+        mockNuxtImport('useSomeExport', () => {
+          return () => 'mocked'
+        })
+      `)).toMatchInlineSnapshot(expected)
+
+      expect(await getResult(`
+        import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+        mockNuxtImport(useSomeExport, () => {
+          return () => 'mocked'
+        })
+      `)).toMatchInlineSnapshot(expected)
     })
+
     it('should not add `vi` import if it already exists', async () => {
       pluginContext.imports = [{
         name: 'useSomeExport',

@@ -2,8 +2,7 @@ import { fileURLToPath } from 'node:url'
 import { test, expect } from 'vitest'
 import { createVitest } from 'vitest/node'
 
-// TODO: Investigate why this test fails when executed by the dev server. Once it's fixed, we can reenable this test.
-test.skipIf(process.env.NUXT_VITEST_DEV_TEST)('it should include nuxt spec files', { timeout: 30000 }, async () => {
+test('it should include nuxt spec files', { timeout: 30000 }, async () => {
   const vitest = await createVitest('test', {
     config: fileURLToPath(new URL('../vitest.config.ts', import.meta.url)),
     dir: fileURLToPath(new URL('../', import.meta.url)),
@@ -19,7 +18,7 @@ test.skipIf(process.env.NUXT_VITEST_DEV_TEST)('it should include nuxt spec files
   const nuxtSpecFiles = testFiles.filter(file => file.moduleId.endsWith('nuxt.spec.ts') || NUXT_PATH_RE.test(file.moduleId))
   const regularSpecFiles = testFiles.filter(file => file.moduleId.endsWith('.spec.ts') && !file.moduleId.endsWith('nuxt.spec.ts') && !NUXT_PATH_RE.test(file.moduleId))
 
-  expect(nuxtSpecFiles.length).toEqual(19)
+  expect(nuxtSpecFiles.length).toEqual(23)
   for (const file of nuxtSpecFiles) {
     expect(file.project.name).toEqual('nuxt')
   }

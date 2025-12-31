@@ -6,6 +6,8 @@
 
 import destr from 'destr'
 import { snakeCase } from 'scule'
+import { pathToFileURL } from 'node:url'
+import { resolveModulePath } from 'exsolve'
 
 type EnvOptions = {
   env?: Record<string, any>
@@ -51,4 +53,39 @@ export function applyEnv(obj: Record<string, any>, opts: EnvOptions, parentKey =
     }
   }
   return obj
+}
+
+export async function loadKit(rootDir: string): Promise<typeof import('@nuxt/kit')> {
+  try {
+    const kitPath = resolveModulePath('@nuxt/kit', { from: tryResolveNuxt(rootDir) || rootDir })
+
+    let kit: typeof import('@nuxt/kit') = await import(pathToFileURL(kitPath).href)
+    if (!kit.writeTypes) {
+      kit = {
+        ...kit,
+        writeTypes: () => {
+          throw new Error('`writeTypes` is not available in this version of `@nuxt/kit`. Please upgrade to v3.7 or newer.')
+        },
+      }
+    }
+    return kit
+  }
+  catch (e: any) {
+    if (e.toString().includes('Cannot find module \'@nuxt/kit\'')) {
+      throw new Error(
+        '`@nuxt/test-utils` requires `@nuxt/kit` to be installed in your project. Try installing `nuxt` v3+ or `@nuxt/bridge` first.',
+      )
+    }
+    throw e
+  }
+}
+
+function tryResolveNuxt(rootDir: string) {
+  for (const pkg of ['nuxt-nightly', 'nuxt', 'nuxt3', 'nuxt-edge']) {
+    const path = resolveModulePath(pkg, { from: rootDir, try: true })
+    if (path) {
+      return path
+    }
+  }
+  return null
 }

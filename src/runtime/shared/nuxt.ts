@@ -6,5 +6,12 @@ export async function setupNuxt() {
   // as there is no `<NuxtPage>` instantiated by default.
   const nuxtApp = useNuxtApp()
   await nuxtApp.callHook('page:finish')
-  useRouter().afterEach(() => nuxtApp.callHook('page:finish'))
+  useRouter().afterEach(() => {
+    if ('sync' in nuxtApp._route) {
+      nuxtApp._route.sync?.()
+    }
+    else {
+      return nuxtApp.callHook('page:finish')
+    }
+  })
 }
