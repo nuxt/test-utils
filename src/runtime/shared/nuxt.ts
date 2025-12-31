@@ -8,7 +8,6 @@ export async function setupNuxt() {
   await nuxtApp.callHook('page:finish')
   useRouter().afterEach(() => {
     if ('sync' in nuxtApp._route) {
-      // @ts-expect-error sync is only defined in newer versions of nuxt
       nuxtApp._route.sync?.()
     }
     else {
