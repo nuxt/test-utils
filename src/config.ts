@@ -12,6 +12,7 @@ import { defu } from 'defu'
 import { createResolver, findPath } from '@nuxt/kit'
 
 import { applyEnv, loadKit } from './utils'
+import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options'
 
 interface GetVitestConfigOptions {
   nuxt: Nuxt
@@ -307,22 +308,7 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
     }) satisfies ViteUserConfig & { test: NonNullable<T['test']> },
   ) as T & { test: NonNullable<T['test']> }
 
-  const PLUGIN_NAME = 'nuxt:vitest:nuxt-environment-options'
-  const STUB_ID = 'nuxt-vitest-environment-options'
-  resolvedConfig.plugins!.push({
-    name: PLUGIN_NAME,
-    enforce: 'pre',
-    resolveId(id) {
-      if (id.endsWith(STUB_ID)) {
-        return STUB_ID
-      }
-    },
-    load(id) {
-      if (id.endsWith(STUB_ID)) {
-        return `export default ${JSON.stringify(resolvedConfig.test.environmentOptions || {})}`
-      }
-    },
-  })
+  resolvedConfig.plugins!.push(NuxtVitestEnvironmentOptionsPlugin(resolvedConfig.test.environmentOptions))
 
   if (resolvedConfig.test.browser?.enabled) {
     if (resolvedConfig.test.environment === 'nuxt') {
