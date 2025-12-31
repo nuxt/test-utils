@@ -298,7 +298,7 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
     }) satisfies ViteUserConfig & { test: NonNullable<T['test']> },
   ) as T & { test: NonNullable<T['test']> }
 
-  resolvedConfig.plugins!.push(NuxtVitestEnvironmentOptionsPlugin(resolvedConfig.test.environmentOptions?.nuxt))
+  resolvedConfig.plugins!.push(NuxtVitestEnvironmentOptionsPlugin(resolvedConfig.test.environmentOptions))
 
   if (resolvedConfig.test.browser?.enabled) {
     if (resolvedConfig.test.environment === 'nuxt') {

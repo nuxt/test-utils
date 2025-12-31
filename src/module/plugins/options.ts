@@ -1,10 +1,10 @@
 import type { Plugin } from 'vite'
-import type { NuxtEnvironmentOptions } from '../../config'
+import type { EnvironmentOptions } from 'vitest/node'
 
 const PLUGIN_NAME = 'nuxt:vitest:nuxt-environment-options'
 const STUB_ID = 'nuxt-vitest-environment-options'
 
-export function NuxtVitestEnvironmentOptionsPlugin(environmentOptions: NuxtEnvironmentOptions = {}): Plugin {
+export function NuxtVitestEnvironmentOptionsPlugin(environmentOptions: EnvironmentOptions = {}): Plugin {
   return {
     name: PLUGIN_NAME,
     enforce: 'pre',
