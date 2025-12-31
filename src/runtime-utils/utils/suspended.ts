@@ -35,7 +35,7 @@ export function cleanupAll() {
   }
 }
 
-export function addCleanup(fn: () => unknown) {
+function addCleanup(fn: () => unknown) {
   window.__cleanup ||= []
   window.__cleanup.push(fn)
 }
