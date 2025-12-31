@@ -10,7 +10,7 @@
     "preview": "nuxt preview",
     "test:dev": "nuxt dev --no-fork",
     "test:unit": "vitest",
-    "test:types": "nuxi prepare && vue-tsc --noEmit",
+    "test:types": "nuxt prepare && vue-tsc --noEmit",
     "test:jsdom": "VITEST_DOM_ENV=jsdom pnpm test:unit --run",
     "test:happy-dom": "VITEST_DOM_ENV=happy-dom pnpm test:unit --run",
     "test": "pnpm test:happy-dom && pnpm test:jsdom && pnpm test:dev && pnpm test:types"
