@@ -20,7 +20,7 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
     state: {},
   }
 
-  const rootId = environmentOptions?.nuxt?.rootId || 'nuxt-test'
+  const rootId = environmentOptions.nuxt.rootId || 'nuxt-test'
   let el
   try {
     el = win.document.querySelector(rootId)
