@@ -1,25 +1,11 @@
-import { mount } from '@vue/test-utils'
-import type { ComponentMountingOptions } from '@vue/test-utils'
-import { Suspense, h, nextTick, reactive, getCurrentInstance, effectScope } from 'vue'
-import type { App, ComponentInternalInstance, DefineComponent, SetupContext } from 'vue'
-import { defu } from 'defu'
-import type { RouteLocationRaw } from 'vue-router'
+import { mount as wrapperFn } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils'
+import { cleanupAll, wrapperSuspended } from './utils/suspended'
+import type { WrapperSuspendedOptions, WrapperSuspendedResult } from './utils/suspended'
 
-import { RouterLink } from './components/RouterLink'
-
-import NuxtRoot from '#build/root-component.mjs'
-import { tryUseNuxtApp, useRouter, onErrorCaptured } from '#imports'
-
-type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
-  route?: RouteLocationRaw
-  scoped?: boolean
-}
-
-type MountSuspendedResult<T> = ReturnType<typeof mount<T>> & { setupState: SetupState }
-
-// TODO: improve return types
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SetupState = Record<string, any>
+type WrapperFn<C> = typeof wrapperFn<C>
+type WrapperOptions<C> = WrapperSuspendedOptions<WrapperFn<C>>
+type WrapperResult<C> = WrapperSuspendedResult<WrapperFn<C>>
 
 /**
  * `mountSuspended` allows you to mount any vue component within the Nuxt environment, allowing async setup and access to injections from your Nuxt plugins. For example:
@@ -49,205 +35,27 @@ type SetupState = Record<string, any>
  */
 export async function mountSuspended<T>(
   component: T,
-  options?: MountSuspendedOptions<T>,
-): Promise<MountSuspendedResult<T>> {
-  const {
-    props = {},
-    attrs = {},
-    slots = {},
-    route = '/',
-    ..._options
-  } = options || {}
+  options: WrapperOptions<T> = {},
+): Promise<WrapperResult<T>> {
+  const suspendedHelperName = 'MountSuspendedHelper'
+  const clonedComponentName = 'MountSuspendedComponent'
 
-  // cleanup previously mounted test wrappers
-  for (const cleanupFunction of globalThis.__cleanup || []) {
-    cleanupFunction()
-  }
+  cleanupAll()
 
-  const vueApp: App<Element> & Record<string, unknown> = tryUseNuxtApp()?.vueApp
-    // @ts-expect-error untyped global __unctx__
-    || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
-  const { render, setup, ...componentRest } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
+  const { wrapper, setProps } = await wrapperSuspended(component, options, {
+    wrapperFn,
+    suspendedHelperName,
+    clonedComponentName,
+  })
 
-  let wrappedInstance: ComponentInternalInstance | null = null
-  let setupContext: SetupContext
-  let setupState: Record<string, unknown>
+  Object.assign(wrapper, { __setProps: setProps })
 
-  const setProps = reactive<Record<string, unknown>>({})
+  const clonedComponent = wrapper.findComponent({ name: clonedComponentName })
 
-  function patchInstanceAppContext() {
-    const app = getCurrentInstance()?.appContext.app as typeof vueApp
-    if (!app) return
-
-    for (const [key, value] of Object.entries(vueApp)) {
-      if (key in app) continue
-      app[key] = value
-    }
-  }
-
-  let componentScope: ReturnType<typeof effectScope> | null = null
-
-  const wrappedSetup = async (
-    props: Record<string, unknown>,
-    setupContext: SetupContext,
-    instanceContext: SetupContext,
-  ): Promise<unknown> => {
-    const currentInstance = getCurrentInstance()
-    if (currentInstance) {
-      currentInstance.emit = (event, ...args) => {
-        setupContext.emit(event, ...args)
-      }
-    }
-
-    if (setup) {
-      let result
-      if (options?.scoped) {
-        componentScope = effectScope()
-
-        // Add component scope cleanup to global cleanup
-        globalThis.__cleanup ||= []
-        globalThis.__cleanup.push(() => {
-          componentScope?.stop()
-        })
-        result = await componentScope?.run(async () => {
-          return await setup(props, setupContext)
-        })
-      }
-      else {
-        result = await setup(props, setupContext)
-      }
-
-      if (wrappedInstance?.exposed) {
-        instanceContext.expose(wrappedInstance.exposed)
-      }
-
-      setupState = result && typeof result === 'object' ? result : {}
-      return result
-    }
-  }
-
-  return new Promise<MountSuspendedResult<T>>(
-    (resolve, reject) => {
-      let isMountSettled = false
-      const vm = mount(
-        {
-          __cssModules: componentRest.__cssModules,
-          inheritAttrs: false,
-          setup: (props: Record<string, unknown>, ctx: SetupContext) => {
-            patchInstanceAppContext()
-
-            wrappedInstance = getCurrentInstance()
-            setupContext = ctx
-
-            let nuxtRootSetupResult
-            if (options?.scoped) {
-              const scope = effectScope()
-
-              globalThis.__cleanup ||= []
-              globalThis.__cleanup.push(() => {
-                scope.stop()
-              })
-              nuxtRootSetupResult = scope.run(() => NuxtRoot.setup(props, {
-                ...ctx,
-                expose: () => {},
-              }))
-            }
-            else {
-              nuxtRootSetupResult = NuxtRoot.setup(props, {
-                ...ctx,
-                expose: () => {},
-              })
-            }
-
-            onErrorCaptured((error, ...args) => {
-              if (isMountSettled) return
-              isMountSettled = true
-              try {
-                wrappedInstance?.appContext.config.errorHandler?.(error, ...args)
-                reject(error)
-              }
-              catch (error) {
-                reject(error)
-              }
-              return false
-            })
-
-            return nuxtRootSetupResult
-          },
-          render: () =>
-            h(
-              Suspense,
-              {
-                onResolve: () =>
-                  nextTick().then(() => {
-                    if (isMountSettled) return
-                    isMountSettled = true;
-                    (vm as unknown as AugmentedVueInstance).setupState = setupState;
-                    (vm as unknown as AugmentedVueInstance).__setProps = (props: Record<string, unknown>) => {
-                      Object.assign(setProps, props)
-                    }
-                    resolve(wrappedMountedWrapper(vm as MountSuspendedResult<T>))
-                  }),
-              },
-              {
-                default: () =>
-                  h({
-                    name: 'MountSuspendedHelper',
-                    render: () => '',
-                    async setup() {
-                      const router = useRouter()
-                      await router.replace(route)
-
-                      // Proxy top-level setup/render context so test wrapper resolves child component
-                      const clonedComponent = {
-                        components: {},
-                        ...component,
-                        name: 'MountSuspendedComponent',
-                        setup: (props: Record<string, unknown>, ctx: SetupContext) =>
-                          wrappedSetup(props, setupContext, ctx),
-                      }
-
-                      return () => h(clonedComponent, { ...props, ...setProps, ...attrs }, setupContext.slots)
-                    },
-                  }),
-              },
-            ),
-        },
-        defu(
-          _options,
-          {
-            props: props as ComponentMountingOptions<T>['props'],
-            slots: slots as ComponentMountingOptions<T>['slots'],
-            attrs,
-            global: {
-              config: {
-                globalProperties: {
-                  ...vueApp.config.globalProperties,
-                  // make all properties/keys enumerable.
-                  ...Object.fromEntries(
-                    Object.getOwnPropertyNames(vueApp.config.globalProperties)
-                      .map(key => [key, vueApp.config.globalProperties[key]]),
-                  ),
-                },
-              },
-              directives: vueApp._context.directives,
-              provide: vueApp._context.provides,
-              stubs: {
-                Suspense: false,
-                MountSuspendedHelper: false,
-                [component && typeof component === 'object' && 'name' in component && typeof component.name === 'string' ? component.name : 'MountSuspendedComponent']: false,
-              },
-              components: { ...vueApp._context.components, RouterLink },
-            },
-          } satisfies ComponentMountingOptions<T>,
-        ) as ComponentMountingOptions<T>,
-      )
-    },
-  )
+  return wrappedMountedWrapper(wrapper, clonedComponent)
 }
 
-function wrappedMountedWrapper<T>(wrapper: MountSuspendedResult<T>) {
-  const component = wrapper.findComponent({ name: 'MountSuspendedComponent' })
+function wrappedMountedWrapper<T>(wrapper: WrapperResult<T>, component: VueWrapper) {
   const wrapperProps: (string | symbol)[] = [
     'setProps', 'emitted', 'setupState', 'unmount',
   ] satisfies (keyof typeof wrapper)[]
@@ -288,13 +96,4 @@ function wrappedMountedWrapper<T>(wrapper: MountSuspendedResult<T>) {
       },
     })
   }
-}
-
-declare global {
-  var __cleanup: Array<() => void> | undefined
-}
-
-interface AugmentedVueInstance {
-  setupState?: Record<string, unknown>
-  __setProps?: (props: Record<string, unknown>) => void
 }
