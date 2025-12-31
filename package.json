@@ -57,7 +57,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "pnpm test:types && pnpm test:unit && pnpm test:examples",
-    "test:examples": "pnpm --filter '!example-app-cucumber' --filter '!example-app-jest' -r test && pnpm --filter example-app-cucumber -r test",
+    "test:examples": "pnpm --filter '!example-app-cucumber' --filter '!example-app-jest' --filter '!example-app-bun' -r test && pnpm --filter example-app-cucumber -r test",
     "test:knip": "knip",
     "test:engines": "pnpm installed-check --no-workspaces --ignore-dev",
     "test:types": "vue-tsc --noEmit",
