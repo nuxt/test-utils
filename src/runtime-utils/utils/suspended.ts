@@ -21,7 +21,7 @@ type WrapperFnOption<Fn> = Fn extends (c: WrapperFnComponent<Fn>, o: infer O) =>
 type WrapperFnResult<Fn> = Fn extends (c: WrapperFnComponent<Fn>, o: WrapperFnOption<Fn>) => infer R ? R : never
 
 export type WrapperSuspendedOptions<Fn> = WrapperFnOption<Fn> & {
-  route?: RouteLocationRaw
+  route?: RouteLocationRaw | false
   scoped?: boolean
 }
 
@@ -124,8 +124,10 @@ export function wrapperSuspended<C, Fn extends WrapperFn<C>>(
     name: suspendedHelperName,
     render: () => '',
     async setup() {
-      const router = useRouter()
-      await router.replace(route)
+      if (route) {
+        const router = useRouter()
+        await router.replace(route)
+      }
       return () => h(ClonedComponent, { ...props, ...setProps, ...attrs }, setupContext.slots)
     },
   }
