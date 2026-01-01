@@ -73,7 +73,7 @@ export async function loadKit(rootDir: string): Promise<typeof import('@nuxt/kit
   catch (e: any) {
     if (e.toString().includes('Cannot find module \'@nuxt/kit\'')) {
       throw new Error(
-        'nuxi requires `@nuxt/kit` to be installed in your project. Try installing `nuxt` v3+ or `@nuxt/bridge` first.',
+        '`@nuxt/test-utils` requires `@nuxt/kit` to be installed in your project. Try installing `nuxt` v3+ or `@nuxt/bridge` first.',
       )
     }
     throw e

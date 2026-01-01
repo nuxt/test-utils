@@ -8,6 +8,7 @@ import OptionsComponent from '~/components/OptionsComponent.vue'
 import WrapperTests from '~/components/WrapperTests.vue'
 import LinkTests from '~/components/LinkTests.vue'
 import DirectiveComponent from '~/components/DirectiveComponent.vue'
+import CustomComponent from '~/components/CustomComponent.vue'
 
 import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
 import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
@@ -33,13 +34,7 @@ const formats = {
 
 describe('renderSuspended', () => {
   afterEach(() => {
-    // since we're not running with Vitest globals when running the tests
-    // from inside the test server. This means testing-library cannot
-    // auto-attach the cleanup go testing globals, and we have to do
-    // it here manually.
-    if (process.env.NUXT_VITEST_DEV_TEST) {
-      cleanup()
-    }
+    cleanup()
   })
 
   it('can render components within nuxt suspense', async () => {
@@ -92,6 +87,13 @@ describe('renderSuspended', () => {
       "<div id="test-wrapper">
         <div data-directive="true"></div>
       </div>"
+    `)
+  })
+
+  it('respects custom component registered in nuxt plugins', async () => {
+    const component = await renderSuspended(CustomComponent)
+    expect(component.html()).toMatchInlineSnapshot(`
+    "<div id="test-wrapper"><button data-testid="test-button"> Button in TestButton component </button></div>"
     `)
   })
 

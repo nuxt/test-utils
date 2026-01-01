@@ -6,12 +6,13 @@ import { defineConfig } from 'vite'
 import type { TestProjectInlineConfiguration } from 'vitest/config'
 import { setupDotenv } from 'c12'
 import type { DotenvOptions } from 'c12'
-import type { UserConfig as ViteUserConfig } from 'vite'
+import type { UserConfigFnPromise, UserConfig as ViteUserConfig } from 'vite'
 import type { DateString } from 'compatx'
 import { defu } from 'defu'
 import { createResolver, findPath } from '@nuxt/kit'
 
 import { applyEnv, loadKit } from './utils'
+import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options'
 
 interface GetVitestConfigOptions {
   nuxt: Nuxt
@@ -119,7 +120,6 @@ export async function getVitestConfigFromNuxt(
         noDiscovery: true,
       },
       test: {
-        dir: process.cwd(),
         environmentOptions: {
           nuxtRuntimeConfig: applyEnv(structuredClone(options.nuxt.options.runtimeConfig), {
             prefix: 'NUXT_',
@@ -224,10 +224,7 @@ export async function getVitestConfigFromNuxt(
   return resolvedConfig
 }
 
-export async function defineVitestProject(config: TestProjectInlineConfiguration) {
-  // When Nuxt module calls `startVitest`, we don't need to call `getVitestConfigFromNuxt` again
-  if (process.env.__NUXT_VITEST_RESOLVED__) return config
-
+export async function defineVitestProject(config: TestProjectInlineConfiguration): Promise<TestProjectInlineConfiguration> {
   const resolvedConfig = await resolveConfig(config)
 
   resolvedConfig.test.environment = 'nuxt'
@@ -235,11 +232,8 @@ export async function defineVitestProject(config: TestProjectInlineConfiguration
   return resolvedConfig
 }
 
-export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfig } = {}) {
+export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfig } = {}): UserConfigFnPromise {
   return defineConfig(async () => {
-    // When Nuxt module calls `startVitest`, we don't need to call `getVitestConfigFromNuxt` again
-    if (process.env.__NUXT_VITEST_RESOLVED__) return config
-
     const resolvedConfig = await resolveConfig(config)
 
     if (resolvedConfig.test.browser?.enabled) {
@@ -314,22 +308,7 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
     }) satisfies ViteUserConfig & { test: NonNullable<T['test']> },
   ) as T & { test: NonNullable<T['test']> }
 
-  const PLUGIN_NAME = 'nuxt:vitest:nuxt-environment-options'
-  const STUB_ID = 'nuxt-vitest-environment-options'
-  resolvedConfig.plugins!.push({
-    name: PLUGIN_NAME,
-    enforce: 'pre',
-    resolveId(id) {
-      if (id.endsWith(STUB_ID)) {
-        return STUB_ID
-      }
-    },
-    load(id) {
-      if (id.endsWith(STUB_ID)) {
-        return `export default ${JSON.stringify(resolvedConfig.test.environmentOptions || {})}`
-      }
-    },
-  })
+  resolvedConfig.plugins!.push(NuxtVitestEnvironmentOptionsPlugin(resolvedConfig.test.environmentOptions))
 
   if (resolvedConfig.test.browser?.enabled) {
     if (resolvedConfig.test.environment === 'nuxt') {

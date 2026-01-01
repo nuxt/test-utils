@@ -16,6 +16,7 @@ function testWrapHtml(html: string) {
 describe('renderSuspended handle error', () => {
   afterEach(() => {
     cleanup()
+    vi.restoreAllMocks()
   })
 
   describe('@testing-library/vue compatibility', () => {
@@ -301,6 +302,34 @@ describe('renderSuspended handle error', () => {
       })
 
       expect((await renderSuspended(TestComponent)).container.textContent).toBe('error')
+    })
+
+    it('throws on router', async () => {
+      const setupFn = vi.fn()
+      const consoleWarn = vi.spyOn(console, 'warn')
+
+      useRouter().addRoute({
+        path: '/throws-on-router',
+        component: h('div', 'hello'),
+        meta: {
+          middleware: [
+            () => abortNavigation({ message: 'throws on router' }),
+          ],
+        },
+      })
+
+      const TestComponent = defineComponent({
+        template: '<div></div>',
+        setup: setupFn,
+      })
+
+      await expect(() => renderSuspended(TestComponent, { route: 'throws-on-router' })).rejects.toThrow('throws on router')
+      await nextTick()
+
+      expect(setupFn).not.toBeCalled()
+      expect(
+        consoleWarn.mock.calls.flat().map(String).join('\n'),
+      ).not.toContain('[Vue warn]: Component is missing template or render function')
     })
   })
 })
