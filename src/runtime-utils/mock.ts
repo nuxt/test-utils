@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import { defineEventHandler } from 'h3-next/generic'
 import type { H3, EventHandler, HTTPMethod } from 'h3-next'
 import type {
   ComponentInjectOptions,
@@ -51,7 +50,7 @@ export function registerEndpoint(url: string, options: EventHandler | { handler:
   }
 
   const config = typeof options === 'function' ? { handler: options, method: undefined, once: false } : options
-  config.handler = defineEventHandler(config.handler)
+  config.handler = Object.assign(config.handler, { __is_handler__: true as const })
 
   endpointRegistry[url] ||= []
   endpointRegistry[url].push(config)
