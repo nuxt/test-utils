@@ -26,6 +26,9 @@ jobs:
       - name: Lint (code)
         run: pnpm lint:fix
 
+      - name: Knip
+        run: pnpm knip --fix
+
       - name: Check engine ranges, peer dependency ranges and installed versions
         run: pnpm test:engines --fix
 
