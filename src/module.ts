@@ -63,13 +63,9 @@ export default defineNuxtModule<NuxtVitestOptions>({
 
     const vitestWrapper = createVitestWrapper(options, nuxt)
 
-    const isDevToolsEnabled = typeof nuxt.options.devtools === 'boolean'
-      ? nuxt.options.devtools
-      : nuxt.options.devtools.enabled
-
-    if (isDevToolsEnabled) {
+    nuxt.hook('devtools:before', async () => {
       await setupDevTools(vitestWrapper, nuxt)
-    }
+    })
 
     if (options.startOnBoot) {
       vitestWrapper.start()

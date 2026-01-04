@@ -1,6 +1,6 @@
 import type { ChildProcess } from 'node:child_process'
 
-export type VitestTestSummary = {
+type VitestTestSummary = {
   failedCount: number
   passedCount: number
   totalCount: number

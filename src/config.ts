@@ -101,6 +101,9 @@ export async function getVitestConfigFromNuxt(
     })
   }
 
+  // do not override vitest root
+  delete options.viteConfig.root
+
   options.viteConfig.plugins = (options.viteConfig.plugins || []).filter(p => !p || !('name' in p) || !excludedPlugins.includes(p.name))
 
   const resolver = createResolver(import.meta.url)

@@ -1,3 +1,5 @@
+import { getVueWrapperPlugin } from './vue-wrapper-plugin'
+
 export async function setupNuxt() {
   const { useRouter } = await import('#app/composables/router')
   // @ts-expect-error alias to allow us to transform the entrypoint
@@ -10,6 +12,10 @@ export async function setupNuxt() {
       ? nuxtApp._route.sync()
       : nuxtApp.callHook('page:finish')
   }
-  useRouter().afterEach(() => sync())
+  const { hasNuxtPage } = getVueWrapperPlugin()
+  useRouter().afterEach(() => {
+    if (hasNuxtPage()) return
+    return sync()
+  })
   return sync()
 }
