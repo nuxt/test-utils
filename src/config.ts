@@ -125,7 +125,7 @@ export async function getVitestConfigFromNuxt(
   const h3Version = getPackageInfoSync('h3', {
     paths: nitroPath ? [nitroPath] : options.nuxt.options.modulesDir,
   })
-  
+
   console.log(`Using h3 version: ${h3Version?.version} from ${h3Version?.rootPath} and nitro from ${nitroPath}`)
 
   const resolver = createResolver(import.meta.url)
