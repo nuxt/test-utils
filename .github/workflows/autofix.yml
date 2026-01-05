@@ -23,8 +23,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Prepare build environment
+        run: pnpm dev:prepare
+
       - name: Lint (code)
         run: pnpm lint:fix
+
+      - name: Knip
+        run: pnpm test:knip --fix
 
       - name: Check engine ranges, peer dependency ranges and installed versions
         run: pnpm test:engines --fix
