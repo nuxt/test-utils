@@ -102,7 +102,6 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
           }
           const importItem = ctx.imports.find(_ => name === (_.as || _.name))
           if (!importItem) {
-            console.log({ imports: ctx.imports })
             return this.error(`Cannot find import "${name}" to mock`)
           }
 
