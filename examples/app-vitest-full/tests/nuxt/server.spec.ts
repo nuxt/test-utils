@@ -3,13 +3,16 @@ import { describe, expect, it, vi } from 'vitest'
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 
 import { listen } from 'listhen'
-import { H3, eventHandler, toNodeListener, readBody, getHeaders, getQuery } from 'h3-next/generic'
+import { createApp, eventHandler, toNodeListener, readBody, getHeaders, getQuery } from 'h3'
 
 import FetchComponent from '~/components/FetchComponent.vue'
 
 describe('server mocks and data fetching', () => {
   it('can use $fetch', async () => {
-    const app = new H3().use('/todos/1', eventHandler(() => ({ id: 1 })))
+    const app = createApp().use(
+      '/todos/1',
+      eventHandler(() => ({ id: 1 })),
+    )
     const server = await listen(toNodeListener(app))
     const urls = await server.getURLs()
     const { url } = urls[0]!
@@ -51,7 +54,7 @@ describe('server mocks and data fetching', () => {
     expect(await $fetch<unknown>('/overrides')).toStrictEqual({ title: 'first' })
 
     unsubFirst()
-    await expect($fetch<unknown>('/overrides')).rejects.toMatchInlineSnapshot(`[FetchError: [GET] "/overrides": 404 Not Found]`)
+    await expect($fetch<unknown>('/overrides')).rejects.toMatchInlineSnapshot(`[FetchError: [GET] "/overrides": 404 Cannot find any path matching /overrides.]`)
   })
 
   it('can mock fetch requests with explicit methods', async () => {
