@@ -10,6 +10,8 @@ import type { UserConfigFnPromise, UserConfig as ViteUserConfig } from 'vite'
 import type { DateString } from 'compatx'
 import { defu } from 'defu'
 import { createResolver, findPath } from '@nuxt/kit'
+import { resolveModulePath } from 'exsolve'
+import { getPackageInfoSync } from 'local-pkg'
 
 import { applyEnv, loadKit } from './utils'
 import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options'
@@ -106,6 +108,26 @@ export async function getVitestConfigFromNuxt(
 
   options.viteConfig.plugins = (options.viteConfig.plugins || []).filter(p => !p || !('name' in p) || !excludedPlugins.includes(p.name))
 
+  // resolve nitro/h3 version (to support nitro v3)
+  let nitroPath: string | undefined
+  for (const nitroCandidate of [
+    'nitro',
+    'nitropack',
+    'nitro-nightly',
+    'nitropack-nightly',
+  ]) {
+    nitroPath = resolveModulePath(nitroCandidate, { from: options.nuxt.options.modulesDir, try: true })
+    if (nitroPath) {
+      break
+    }
+  }
+
+  const h3Version = getPackageInfoSync('h3', {
+    paths: nitroPath ? [nitroPath] : options.nuxt.options.modulesDir,
+  })
+  
+  console.log(`Using h3 version: ${h3Version?.version} from ${h3Version?.rootPath} and nitro from ${nitroPath}`)
+
   const resolver = createResolver(import.meta.url)
   const resolvedConfig = defu(
     // overrides
@@ -200,6 +222,7 @@ export async function getVitestConfigFromNuxt(
         environmentOptions: {
           nuxt: {
             rootId: options.nuxt.options.app.rootId || undefined,
+            h3Version: h3Version?.version?.startsWith('2.') ? 2 : 1,
             mock: {
               intersectionObserver: true,
               indexedDb: false,
@@ -354,6 +377,8 @@ export interface NuxtEnvironmentOptions {
    * @default 'happy-dom'
    */
   domEnvironment?: 'happy-dom' | 'jsdom'
+
+  h3Version?: 1 | 2
 
   mock?: {
     intersectionObserver?: boolean

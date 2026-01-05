@@ -1,9 +1,11 @@
 import { createFetch } from 'ofetch'
 import { joinURL } from 'ufo'
-import { H3, defineEventHandler } from 'h3-next/generic'
+import { defineEventHandler } from './h3'
 import { createRouter as createRadixRouter, exportMatcher, toRouteMatcher } from 'radix3'
 import type { NuxtWindow } from '../../vitest-environment'
 import type { NuxtEnvironmentOptions } from '../../config'
+import { createFetchForH3V1 } from './h3-v1'
+import { createFetchForH3V2 } from './h3-v2'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: NuxtEnvironmentOptions, nuxtRuntimeConfig?: Record<string, any>, nuxtRouteRules?: Record<string, any> }) {
@@ -44,8 +46,6 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
   app.id = rootId
   win.document.body.appendChild(app)
 
-  const h3App = new H3()
-
   if (!win.fetch || !('Request' in win)) {
     await import('node-fetch-native/polyfill')
     // @ts-expect-error fetch polyfill
@@ -63,42 +63,17 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
     }
   }
 
-  const registry = new Set<string>()
+  const res = environmentOptions.nuxt.h3Version === 2
+    ? await createFetchForH3V2()
+    : await createFetchForH3V1()
 
-  const _fetch = fetch
-  win.fetch = async (input, _init) => {
-    let url: string
-    let init = _init
-    if (typeof input === 'string') {
-      url = input
-    }
-    else if (input instanceof URL) {
-      url = input.toString()
-    }
-    else {
-      url = input.url
-      init = {
-        method: init?.method ?? input.method,
-        body: init?.body ?? input.body,
-        headers: init?.headers ?? input.headers,
-      }
-    }
-
-    const base = url.split('?')[0]!
-    if (registry.has(base) || registry.has(url)) {
-      return h3App.fetch(new Request('/_' + url, init))
-    }
-    if (url.startsWith('/')) {
-      return new Response('Not Found', { status: 404, statusText: 'Not Found' })
-    }
-    return _fetch(input, _init)
-  }
+  win.fetch = res.fetch
 
   // @ts-expect-error fetch types differ slightly
   win.$fetch = createFetch({ fetch: win.fetch, Headers: win.Headers })
 
-  win.__registry = registry
-  win.__app = h3App
+  win.__registry = res.registry
+  win.__app = res.h3App
 
   // App manifest support
   const timestamp = Date.now()
@@ -116,14 +91,14 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
   // @ts-expect-error untyped property
   const buildId = win.__NUXT__.config?.app.buildId || 'test'
 
-  h3App.use(
+  res.h3App.use(
     `${manifestBaseRoutePath}/latest.json`,
     defineEventHandler(() => ({
       id: buildId,
       timestamp,
     })),
   )
-  h3App.use(
+  res.h3App.use(
     `${manifestBaseRoutePath}/meta/${buildId}.json`,
     defineEventHandler(() => ({
       id: buildId,
@@ -133,8 +108,8 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
     })),
   )
 
-  registry.add(`${manifestOutputPath}/latest.json`)
-  registry.add(`${manifestOutputPath}/meta/${buildId}.json`)
+  res.registry.add(`${manifestOutputPath}/latest.json`)
+  res.registry.add(`${manifestOutputPath}/meta/${buildId}.json`)
 
   return () => {
     console.info = consoleInfo
