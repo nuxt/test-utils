@@ -109,22 +109,26 @@ export async function getVitestConfigFromNuxt(
   options.viteConfig.plugins = (options.viteConfig.plugins || []).filter(p => !p || !('name' in p) || !excludedPlugins.includes(p.name))
 
   // resolve nitro/h3 version (to support nitro v3)
+  const nuxtServerIntegration = getPackageInfoSync('@nuxt/nitro-server', {
+    paths: [options.nuxt.options.appDir],
+  })
+
   let nitroPath: string | undefined
   for (const nitroCandidate of [
-    'nitro',
-    'nitropack',
-    'nitro-nightly',
-    'nitropack-nightly',
+    ...nuxtServerIntegration?.packageJson.dependencies?.nitro
+      ? ['nitro', 'nitro-nightly']
+      : ['nitropack', 'nitropack-nightly'],
   ]) {
-    nitroPath = resolveModulePath(nitroCandidate, { from: options.nuxt.options.modulesDir, try: true })
+    nitroPath = resolveModulePath(nitroCandidate, { from: nuxtServerIntegration?.rootPath || options.nuxt.options.appDir, try: true })
     if (nitroPath) {
       break
     }
   }
 
-  const h3Version = getPackageInfoSync('h3', {
+  const h3Info = getPackageInfoSync('h3', {
     paths: nitroPath ? [nitroPath] : options.nuxt.options.modulesDir,
   })
+  console.log({ h3Version: h3Info, nitroPath })
 
   const resolver = createResolver(import.meta.url)
   const resolvedConfig = defu(
@@ -220,7 +224,7 @@ export async function getVitestConfigFromNuxt(
         environmentOptions: {
           nuxt: {
             rootId: options.nuxt.options.app.rootId || undefined,
-            h3Version: h3Version?.version?.startsWith('2.') ? 2 : 1,
+            h3Version: h3Info?.version?.startsWith('2.') ? 2 : 1,
             mock: {
               intersectionObserver: true,
               indexedDb: false,
