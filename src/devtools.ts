@@ -1,5 +1,4 @@
 import { h } from 'vue'
-import { defineEventHandler } from 'h3'
 import { provider } from 'std-env'
 import { debounce } from 'perfect-debounce'
 import { addDevServerHandler, useNuxt } from '@nuxt/kit'
@@ -30,9 +29,7 @@ export async function setupDevTools(
 
   addDevServerHandler({
     route: iframeSrc,
-    handler: defineEventHandler(
-      () => iframeContentHtml(vitestWrapper.uiUrl),
-    ),
+    handler: Object.assign(() => iframeContentHtml(vitestWrapper.uiUrl), { __is_handler__: true as const }),
   })
 
   vitestWrapper.ons({

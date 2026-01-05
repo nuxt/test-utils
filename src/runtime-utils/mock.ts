@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import { defineEventHandler } from 'h3'
-import type { App, EventHandler, HTTPMethod } from 'h3'
+import type { EventHandler as H3V1EventHandler, H3Event as H3V1Event } from 'h3'
+import type { EventHandler as H3V2EventHandler, H3Event as H3V2Event, HTTPMethod } from 'h3-next'
 import type {
   ComponentInjectOptions,
   ComponentOptionsMixin,
@@ -14,11 +14,13 @@ import type {
   RenderFunction,
   SetupContext,
 } from 'vue'
+import type { GenericApp } from '../vitest-environment'
 
 type Awaitable<T> = T | Promise<T>
 type OptionalFunction<T> = T | (() => Awaitable<T>)
 
-const endpointRegistry: Record<string, Array<{ handler: EventHandler, method?: HTTPMethod, once?: boolean }>> = {}
+type Handler = H3V1EventHandler | H3V2EventHandler
+const endpointRegistry: Record<string, Array<{ handler: Handler, method?: HTTPMethod, once?: boolean }>> = {}
 /**
  * `registerEndpoint` allows you create Nitro endpoint that returns mocked data. It can come in handy if you want to test a component that makes requests to API to display some data.
  * @param url - endpoint name (e.g. `/test/`).
@@ -42,51 +44,26 @@ const endpointRegistry: Record<string, Array<{ handler: EventHandler, method?: H
  * ```
  * @see https://nuxt.com/docs/getting-started/testing#registerendpoint
  */
-export function registerEndpoint(url: string, options: EventHandler | { handler: EventHandler, method?: HTTPMethod, once?: boolean }) {
+export function registerEndpoint(url: string, options: H3V1EventHandler | { handler: H3V1EventHandler, method?: HTTPMethod, once?: boolean }) {
   // @ts-expect-error private property
-  const app: App = window.__app
+  const app: GenericApp = window.__app
 
   if (!app) {
     throw new Error('registerEndpoint() can only be used in a `@nuxt/test-utils` runtime environment')
   }
 
   const config = typeof options === 'function' ? { handler: options, method: undefined, once: false } : options
-  config.handler = defineEventHandler(config.handler)
-
-  // @ts-expect-error private property
-  const hasBeenRegistered: boolean = window.__registry.has(url)
+  config.handler = Object.assign(config.handler, { __is_handler__: true as const })
 
   endpointRegistry[url] ||= []
   endpointRegistry[url].push(config)
 
-  if (!hasBeenRegistered) {
-    // @ts-expect-error private property
-    window.__registry.add(url)
+  // @ts-expect-error private property
+  window.__registry.add(url)
 
-    app.use('/_' + url, defineEventHandler(async (event) => {
-      const latestHandler = [...endpointRegistry[url] || []].reverse().find(config => config.method ? event.method === config.method : true)
-      if (!latestHandler) return
-
-      const result = await latestHandler.handler(event)
-
-      if (!latestHandler.once) return result
-
-      const index = endpointRegistry[url]?.indexOf(latestHandler)
-      if (index === undefined || index === -1) return result
-
-      endpointRegistry[url]?.splice(index, 1)
-      if (endpointRegistry[url]?.length === 0) {
-        // @ts-expect-error private property
-        window.__registry.delete(url)
-      }
-
-      return result
-    }), {
-      match(_, event) {
-        return endpointRegistry[url]?.some(config => config.method ? event?.method === config.method : true) ?? false
-      },
-    })
-  }
+  // @ts-expect-error private property
+  app._registered
+    ||= registerGlobalHandler(app)
 
   return () => {
     endpointRegistry[url]?.splice(endpointRegistry[url].indexOf(config), 1)
@@ -261,4 +238,43 @@ export function mockComponent(_path: string, _component: unknown): void {
   throw new Error(
     'mockComponent() is a macro and it did not get transpiled. This may be an internal bug of @nuxt/test-utils.',
   )
+}
+
+const handler = Object.assign(async (event: H3V1Event | H3V2Event) => {
+  const url = 'url' in event && event.url
+    ? event.url.pathname.replace(/^\/_/, '')
+    : event.path.replace(/[?#].*$/, '').replace(/^\/_/, '')
+  const latestHandler = [...endpointRegistry[url] || []].reverse().find(config => config.method ? event.method === config.method : true)
+  if (!latestHandler) return
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result = await latestHandler.handler(event as any)
+
+  if (!latestHandler.once) return result
+
+  const index = endpointRegistry[url]?.indexOf(latestHandler)
+  if (index === undefined || index === -1) return result
+
+  endpointRegistry[url]?.splice(index, 1)
+  if (endpointRegistry[url]?.length === 0) {
+    // @ts-expect-error private property
+    window.__registry.delete(url)
+  }
+
+  return result
+}, { __is_handler__: true as const })
+
+function registerGlobalHandler(app: GenericApp) {
+  app.use(handler, {
+    match: (...args) => {
+      const [eventOrPath, _event = eventOrPath] = args
+      const url = typeof eventOrPath === 'string'
+        ? eventOrPath.replace(/^\/_/, '').replace(/[?#].*$/, '')
+        : eventOrPath.url.pathname.replace(/^\/_/, '')
+      const event = _event as H3V1Event | H3V2Event | undefined
+      return endpointRegistry[url]?.some(config => config.method ? event?.method === config.method : true) ?? false
+    },
+  })
+
+  return true
 }
