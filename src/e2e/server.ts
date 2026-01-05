@@ -1,6 +1,6 @@
 import { x } from 'tinyexec'
 import { getRandomPort, waitForPort } from 'get-port-please'
-import type { FetchOptions } from 'ofetch'
+import type { $Fetch, FetchOptions } from 'ofetch'
 import { fetch as _fetch, createFetch } from 'ofetch'
 import { resolve } from 'pathe'
 import { joinURL } from 'ufo'
@@ -93,7 +93,7 @@ const _$fetch = createFetch({ fetch: globalFetch })
 
 export const $fetch = function $fetch(path: string, options?: FetchOptions) {
   return _$fetch(url(path), options)
-} as (typeof globalThis)['$fetch']
+} as '$fetch' extends keyof typeof globalThis ? typeof globalThis.$fetch : $Fetch
 
 export function url(path: string) {
   const ctx = useTestContext()
