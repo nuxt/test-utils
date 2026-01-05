@@ -128,7 +128,6 @@ export async function getVitestConfigFromNuxt(
   const h3Info = getPackageInfoSync('h3', {
     paths: nitroPath ? [nitroPath] : options.nuxt.options.modulesDir,
   })
-  console.log({ h3Version: h3Info, nitroPath })
 
   const resolver = createResolver(import.meta.url)
   const resolvedConfig = defu(
