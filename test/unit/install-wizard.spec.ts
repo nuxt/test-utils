@@ -16,7 +16,7 @@ describe('install wizard config generation', () => {
   describe('vitest config', () => {
     it('generates config for unit + components with happy-dom', () => {
       const answers: WizardAnswers = {
-        testingScope: ['unit', 'components'],
+        testingScope: ['unit', 'runtime'],
         domEnvironment: 'happy-dom',
         exampleTests: false,
       }
@@ -27,7 +27,7 @@ describe('install wizard config generation', () => {
 
     it('generates config for components with jsdom', () => {
       const answers: WizardAnswers = {
-        testingScope: ['components'],
+        testingScope: ['runtime'],
         domEnvironment: 'jsdom',
         exampleTests: false,
       }
@@ -38,7 +38,7 @@ describe('install wizard config generation', () => {
 
     it('generates config with browser mode', () => {
       const answers: WizardAnswers = {
-        testingScope: ['components'],
+        testingScope: ['runtime'],
         browserMode: true,
         exampleTests: false,
       }
@@ -49,7 +49,7 @@ describe('install wizard config generation', () => {
 
     it('generates config with coverage', () => {
       const answers: WizardAnswers = {
-        testingScope: ['components'],
+        testingScope: ['runtime'],
         domEnvironment: 'happy-dom',
         coverage: true,
         exampleTests: false,
@@ -61,7 +61,7 @@ describe('install wizard config generation', () => {
 
     it('generates config with e2e using vitest', () => {
       const answers: WizardAnswers = {
-        testingScope: ['unit', 'components', 'e2e'],
+        testingScope: ['unit', 'runtime', 'e2e'],
         domEnvironment: 'happy-dom',
         e2eRunner: 'vitest',
         exampleTests: false,
@@ -73,7 +73,7 @@ describe('install wizard config generation', () => {
 
     it('does not include e2e project when using playwright', () => {
       const answers: WizardAnswers = {
-        testingScope: ['unit', 'components', 'e2e'],
+        testingScope: ['unit', 'runtime', 'e2e'],
         domEnvironment: 'happy-dom',
         e2eRunner: 'playwright',
         exampleTests: false,
@@ -106,7 +106,7 @@ describe('install wizard config generation', () => {
 
     it('includes dom environment for components', () => {
       const answers: WizardAnswers = {
-        testingScope: ['components'],
+        testingScope: ['runtime'],
         domEnvironment: 'happy-dom',
         exampleTests: false,
       }
@@ -120,7 +120,7 @@ describe('install wizard config generation', () => {
 
     it('includes browser-playwright for browser mode', () => {
       const answers: WizardAnswers = {
-        testingScope: ['components'],
+        testingScope: ['runtime'],
         browserMode: true,
         exampleTests: false,
       }
@@ -213,7 +213,7 @@ describe('install wizard config generation', () => {
 
     it('adds project scripts', () => {
       const answers: WizardAnswers = {
-        testingScope: ['unit', 'components'],
+        testingScope: ['unit', 'runtime'],
         domEnvironment: 'happy-dom',
         exampleTests: false,
       }
@@ -292,13 +292,13 @@ describe('install wizard config generation', () => {
   describe('config syntax validation', () => {
     it('generates valid JavaScript for all vitest config permutations', () => {
       const permutations: WizardAnswers[] = [
-        { testingScope: ['unit', 'components'], domEnvironment: 'happy-dom', exampleTests: false },
-        { testingScope: ['unit', 'components'], domEnvironment: 'jsdom', exampleTests: false },
-        { testingScope: ['components'], browserMode: true, exampleTests: false },
-        { testingScope: ['unit', 'components', 'e2e'], domEnvironment: 'happy-dom', e2eRunner: 'vitest', exampleTests: false },
-        { testingScope: ['components'], domEnvironment: 'happy-dom', coverage: true, exampleTests: false },
+        { testingScope: ['unit', 'runtime'], domEnvironment: 'happy-dom', exampleTests: false },
+        { testingScope: ['unit', 'runtime'], domEnvironment: 'jsdom', exampleTests: false },
+        { testingScope: ['runtime'], browserMode: true, exampleTests: false },
+        { testingScope: ['unit', 'runtime', 'e2e'], domEnvironment: 'happy-dom', e2eRunner: 'vitest', exampleTests: false },
+        { testingScope: ['runtime'], domEnvironment: 'happy-dom', coverage: true, exampleTests: false },
         { testingScope: ['unit'], exampleTests: false },
-        { testingScope: ['components'], browserMode: true, coverage: true, exampleTests: false },
+        { testingScope: ['runtime'], browserMode: true, coverage: true, exampleTests: false },
       ]
 
       for (const answers of permutations) {

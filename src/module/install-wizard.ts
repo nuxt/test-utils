@@ -9,7 +9,7 @@ import { addDependency, detectPackageManager } from 'nypm'
 import { isCI, hasTTY } from 'std-env'
 
 export interface WizardAnswers {
-  testingScope: Array<'unit' | 'components' | 'e2e'>
+  testingScope: Array<'unit' | 'runtime' | 'e2e'>
   domEnvironment?: 'happy-dom' | 'jsdom'
   e2eRunner?: 'playwright' | 'vitest' | 'cucumber' | 'jest'
   browserMode?: boolean
@@ -114,7 +114,7 @@ export default defineConfig<ConfigOptions>({
 export function getDependencies(answers: WizardAnswers): string[] {
   const dependencies: string[] = []
 
-  if (answers.testingScope.includes('unit') || answers.testingScope.includes('components')) {
+  if (answers.testingScope.includes('unit') || answers.testingScope.includes('runtime')) {
     dependencies.push('vitest', '@vue/test-utils')
 
     if (answers.domEnvironment) {
@@ -146,7 +146,7 @@ export function getDependencies(answers: WizardAnswers): string[] {
 export function getPackageScripts(answers: WizardAnswers): Record<string, string> {
   const scripts: Record<string, string> = {}
 
-  if (answers.testingScope.includes('unit') || answers.testingScope.includes('components')) {
+  if (answers.testingScope.includes('unit') || answers.testingScope.includes('runtime')) {
     scripts.test = 'vitest'
     scripts['test:watch'] = 'vitest --watch'
 
@@ -219,14 +219,14 @@ export async function runInstallWizard(nuxt: Nuxt): Promise<void> {
     message: 'What kind of tests will you need?',
     options: [
       {
-        value: 'components' as const,
-        label: 'Components',
+        value: 'runtime' as const,
+        label: 'Runtime',
         hint: 'components or composables running in a Nuxt runtime environment',
       },
       {
         value: 'unit' as const,
         label: 'Unit tests',
-        hint: 'utilities that do not require a Nuxt runtime environment',
+        hint: 'pure functions or build-time/Node tests',
       },
       {
         value: 'e2e' as const,
@@ -244,13 +244,13 @@ export async function runInstallWizard(nuxt: Nuxt): Promise<void> {
 
   answers.testingScope = testingScope
 
-  const needsVitest = answers.testingScope.includes('unit') || answers.testingScope.includes('components')
+  const needsVitest = answers.testingScope.includes('unit') || answers.testingScope.includes('runtime')
   const needsE2E = answers.testingScope.includes('e2e')
 
   // Step 2: DOM environment (if components selected)
-  if (answers.testingScope.includes('components')) {
+  if (answers.testingScope.includes('runtime')) {
     const domEnvironment = await select({
-      message: 'Which DOM environment would you like to use for component tests?',
+      message: 'Which Vitest environment would you like to use for runtime tests?',
       options: [
         {
           value: 'happy-dom' as const,
@@ -264,7 +264,7 @@ export async function runInstallWizard(nuxt: Nuxt): Promise<void> {
         },
         {
           value: 'browser' as const,
-          label: 'Browser mode',
+          label: 'browser mode',
           hint: 'real browser with Playwright',
         },
       ],
@@ -380,7 +380,7 @@ async function performSetup(nuxt: Nuxt, answers: WizardAnswers): Promise<void> {
   }
 
   // Create config files
-  if (answers.testingScope.includes('unit') || answers.testingScope.includes('components')) {
+  if (answers.testingScope.includes('unit') || answers.testingScope.includes('runtime')) {
     await createVitestConfig(nuxt, answers)
   }
 
@@ -428,7 +428,7 @@ async function createTestDirectories(nuxt: Nuxt, answers: WizardAnswers): Promis
     logger.success(`Created ${colors.cyan(relative(process.cwd(), unitDir))}`)
   }
 
-  if (answers.testingScope.includes('components')) {
+  if (answers.testingScope.includes('runtime')) {
     const nuxtDir = join(rootDir, 'test/nuxt')
     await fsp.mkdir(nuxtDir, { recursive: true })
     logger.success(`Created ${colors.cyan(relative(process.cwd(), nuxtDir))}`)
@@ -462,7 +462,7 @@ describe('example unit test', () => {
   }
 
   // Component test example
-  if (answers.testingScope.includes('components')) {
+  if (answers.testingScope.includes('runtime')) {
     const componentTestPath = join(rootDir, 'test/nuxt/component.test.ts')
     const componentTest = `import { describe, expect, it } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
