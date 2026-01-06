@@ -15,6 +15,9 @@ export interface NuxtWindow extends Window {
   __app?: GenericApp
   __registry: Set<string>
   __NUXT_VITEST_ENVIRONMENT__?: boolean
+  __NUXT_VITEST_ENVIRONMENT_OPTIONS__?: {
+    startOn?: 'setupFile' | 'beforeAll'
+  }
   __NUXT__: Record<string, unknown>
   $fetch: $Fetch
   fetch: ((input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>)

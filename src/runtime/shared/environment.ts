@@ -10,6 +10,9 @@ import { createFetchForH3V2 } from './h3-v2'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: NuxtEnvironmentOptions, nuxtRuntimeConfig?: Record<string, any>, nuxtRouteRules?: Record<string, any> }) {
   win.__NUXT_VITEST_ENVIRONMENT__ = true
+  win.__NUXT_VITEST_ENVIRONMENT_OPTIONS__ = {
+    startOn: environmentOptions.nuxt.startOn,
+  }
   win.__NUXT__ = {
     serverRendered: false,
     config: {
