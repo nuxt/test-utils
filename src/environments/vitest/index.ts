@@ -16,24 +16,25 @@ const environmentMap = {
 
 export default <Environment>{
   name: 'nuxt',
-  transformMode: 'web',
+  viteEnvironment: 'client',
   async setup(global, environmentOptions) {
-    const url = joinURL(environmentOptions?.nuxt.url ?? 'http://localhost:3000',
-      environmentOptions?.nuxtRuntimeConfig.app?.baseURL || '/',
+    const url = joinURL(
+      environmentOptions.nuxt?.url ?? 'http://localhost:3000',
+      environmentOptions.nuxtRuntimeConfig?.app?.baseURL || '/',
     )
 
-    const environmentName = environmentOptions.nuxt.domEnvironment as NuxtBuiltinEnvironment
+    const environmentName = environmentOptions.nuxt?.domEnvironment as NuxtBuiltinEnvironment
     const environment = environmentMap[environmentName] || environmentMap['happy-dom']
     const { window: win, teardown } = await environment(global, defu(environmentOptions, {
       happyDom: { url },
       jsdom: { url },
     }))
 
-    if (environmentOptions?.nuxt?.mock?.intersectionObserver) {
+    if (environmentOptions.nuxt?.mock?.intersectionObserver) {
       win.IntersectionObserver ||= IntersectionObserver
     }
 
-    if (environmentOptions?.nuxt?.mock?.indexedDb) {
+    if (environmentOptions.nuxt?.mock?.indexedDb) {
       // @ts-expect-error win.indexedDB is read-only
       win.indexedDB = indexedDB
     }

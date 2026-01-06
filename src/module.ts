@@ -1,5 +1,5 @@
 import { createResolver, defineNuxtModule, logger, resolvePath, useNuxt } from '@nuxt/kit'
-import type { UserConfig as VitestConfig } from 'vitest/node'
+import type { TestUserConfig as VitestConfig } from 'vitest/config'
 import { join, relative } from 'pathe'
 import { isCI } from 'std-env'
 

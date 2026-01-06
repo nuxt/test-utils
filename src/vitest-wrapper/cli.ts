@@ -47,11 +47,19 @@ function createCustomReporter(onVitestInit: (ctx: Vitest) => unknown): Reporter 
       sendMessage('updated', toUpdatedResult())
     },
 
-    onTaskUpdate() {
+    onTestModuleCollected() {
       sendMessage('updated', toUpdatedResult())
     },
 
-    onFinished() {
+    onTestCaseResult() {
+      sendMessage('updated', toUpdatedResult())
+    },
+
+    onTestModuleEnd() {
+      sendMessage('updated', toUpdatedResult())
+    },
+
+    onTestRunEnd() {
       sendMessage('finished', toFinishedResult())
     },
   }

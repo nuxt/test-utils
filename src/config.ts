@@ -275,18 +275,8 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
 
     const defaultEnvironment = resolvedConfig.test.environment || 'node'
     if (defaultEnvironment !== 'nuxt') {
-      const key = 'projects' in resolvedConfig.test
-        ? 'projects'
-        : 'workspace' in resolvedConfig.test
-          ? 'workspace'
-          : await import('vitest/package.json', { with: { type: 'json' } }).then((r) => {
-            const [major, minor] = (r.default || r).version.split('.')
-            return Number.parseInt(major!, 10) > 3 || (Number.parseInt(major!, 10) === 3 && Number.parseInt(minor!, 10) >= 2)
-          })
-            ? 'projects'
-            : 'workspace'
-      resolvedConfig.test[key] = []
-      resolvedConfig.test[key].push({
+      resolvedConfig.test.projects = []
+      resolvedConfig.test.projects.push({
         extends: true,
         test: {
           name: 'nuxt',
@@ -297,7 +287,7 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
           ],
         },
       })
-      resolvedConfig.test[key].push({
+      resolvedConfig.test.projects.push({
         extends: true,
         test: {
           name: defaultEnvironment,
@@ -388,13 +378,6 @@ export interface NuxtEnvironmentOptions {
 }
 
 declare module 'vitest/node' {
-  interface EnvironmentOptions {
-    nuxt?: NuxtEnvironmentOptions
-  }
-}
-
-declare module 'vitest' {
-  // @ts-expect-error Duplicate augmentation for backwards-compatibility
   interface EnvironmentOptions {
     nuxt?: NuxtEnvironmentOptions
   }
