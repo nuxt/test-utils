@@ -23,8 +23,4 @@ export default createConfigForNuxt({
     '@typescript-eslint/no-invalid-void-type': 'off',
     'vue/multi-word-component-names': 'off',
   },
-}, {
-  ignores: [
-    'test/unit/__snapshots__',
-  ],
 })
