@@ -216,17 +216,17 @@ export async function runInstallWizard(nuxt: Nuxt): Promise<void> {
 
   // Step 1: Testing scope
   const testingScope = await multiselect({
-    message: 'What would you like to test?',
+    message: 'What kind of tests will you need?',
     options: [
-      {
-        value: 'unit' as const,
-        label: 'Unit tests',
-        hint: 'utilities, composables, business logic',
-      },
       {
         value: 'components' as const,
         label: 'Components',
-        hint: 'Vue components with Nuxt runtime',
+        hint: 'components or composables running in a Nuxt runtime environment',
+      },
+      {
+        value: 'unit' as const,
+        label: 'Unit tests',
+        hint: 'utilities that do not require a Nuxt runtime environment',
       },
       {
         value: 'e2e' as const,
@@ -287,7 +287,7 @@ export async function runInstallWizard(nuxt: Nuxt): Promise<void> {
   // Step 3: E2E runner (if e2e selected)
   if (needsE2E) {
     const e2eRunner = await select({
-      message: 'Which E2E test runner would you like to use?',
+      message: 'Which end-to-end test runner would you like to use?',
       options: [
         {
           value: 'playwright' as const,
@@ -307,7 +307,7 @@ export async function runInstallWizard(nuxt: Nuxt): Promise<void> {
         {
           value: 'jest' as const,
           label: 'Jest',
-          hint: 'traditional E2E testing',
+          hint: 'legacy test runner',
         },
       ],
       initialValue: 'playwright' as const,
