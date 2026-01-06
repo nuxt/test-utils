@@ -436,6 +436,25 @@ importers:
         specifier: 2.0.1
         version: 2.0.1(vitest@4.0.17)(vue@3.5.27(typescript@5.9.3))
 
+  examples/env-options:
+    dependencies:
+      nuxt:
+        specifier: ^4.2.2
+        version: 4.2.2(@parcel/watcher@2.5.1)(@types/node@24.10.9)(@vue/compiler-sfc@3.5.27)(better-sqlite3@12.6.2)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.6.2))(eslint@9.39.2(jiti@2.6.1))(idb-keyval@6.2.2)(ioredis@5.9.1)(lightningcss@1.30.2)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.55.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.1(@types/node@24.10.9)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))(vue-tsc@3.2.2(typescript@5.9.3))(yaml@2.8.2)
+    devDependencies:
+      '@nuxt/test-utils':
+        specifier: workspace:*
+        version: link:../..
+      happy-dom:
+        specifier: 20.3.3
+        version: 20.3.3
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: 4.0.17
+        version: 4.0.17(@types/node@24.10.9)(@vitest/browser-playwright@4.0.17)(@vitest/ui@4.0.17)(happy-dom@20.3.3)(jiti@2.6.1)(jsdom@27.4.0(postcss@8.5.6))(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2)
+
   examples/i18n:
     devDependencies:
       '@nuxt/test-utils':

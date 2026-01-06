@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 
@@ -293,17 +293,30 @@ describe('mountSuspended() compatible to mount()', () => {
     })
 
     describe('getCurrentComponent()', async () => {
-      const options: Options<typeof Component> = {
-        props: { label: 'p', modelValue: 'i', modelModifiers: {} },
-        attrs: { class: 'red' },
-        slots: { default: () => h('span', 'hello') },
-      }
+      let vWrapper: ReturnType<typeof mount<typeof Component>>
+      let nWrapper: Awaited<ReturnType<typeof mountSuspended<typeof Component>>>
 
-      const vWrapper = mount(Component, options)
-      const nWrapper = await mountSuspended(Component, options)
+      let vComponent: ReturnType<typeof vWrapper['getCurrentComponent']>
+      let nComponent: ReturnType<typeof nWrapper['getCurrentComponent']>
 
-      const vComponent = vWrapper.getCurrentComponent()
-      const nComponent = nWrapper.getCurrentComponent()
+      beforeAll(async () => {
+        const options: Options<typeof Component> = {
+          props: { label: 'p', modelValue: 'i', modelModifiers: {} },
+          attrs: { class: 'red' },
+          slots: { default: () => h('span', 'hello') },
+        }
+
+        vWrapper = mount(Component, options)
+        nWrapper = await mountSuspended(Component, options)
+
+        vComponent = vWrapper.getCurrentComponent()
+        nComponent = nWrapper.getCurrentComponent()
+      })
+
+      afterAll(() => {
+        vWrapper.unmount()
+        nWrapper.unmount()
+      })
 
       it('props', () => {
         expect(vComponent.props).toEqual(
@@ -320,10 +333,10 @@ describe('mountSuspended() compatible to mount()', () => {
       })
 
       describe('proxy', () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const [vproxy, nproxy] = [vComponent.proxy, nComponent.proxy] as any[]
-
         it('(props)', () => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const [vproxy, nproxy] = [vComponent.proxy, nComponent.proxy] as any[]
+
           expect(vproxy.label).toBe('p')
           expect(vproxy.modelValue).toBe('i')
           expect(vproxy.modelModifiers).toEqual({})
@@ -338,6 +351,9 @@ describe('mountSuspended() compatible to mount()', () => {
         })
 
         it.runIf(type === 'CompostionApi')('(not props)', () => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const [vproxy, nproxy] = [vComponent.proxy, nComponent.proxy] as any[]
+
           // cannot access setupState data via the proxy in original mount()
           expect(vproxy.getValue).toBeUndefined()
           expect(vproxy.setValue).toBeUndefined()
@@ -353,6 +369,9 @@ describe('mountSuspended() compatible to mount()', () => {
         })
 
         it.runIf(type === 'OptionsApi' && Component.setup)('(not props)', () => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const [vproxy, nproxy] = [vComponent.proxy, nComponent.proxy] as any[]
+
           expect(nproxy.modelValue).toBe(vproxy.modelValue)
           expect(nproxy.counter).toBe(vproxy.counter)
           expect(nproxy.getValue()).toBe(vproxy.getValue())
@@ -364,6 +383,9 @@ describe('mountSuspended() compatible to mount()', () => {
         })
 
         it.runIf(type === 'OptionsApi' && !Component.setup)('(not props)', () => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const [vproxy, nproxy] = [vComponent.proxy, nComponent.proxy] as any[]
+
           expect(nproxy.modelValue).toBe(vproxy.modelValue)
           expect(nproxy.counter).toBe(vproxy.counter)
           expect(nproxy.getValue()).toBe(vproxy.getValue())
