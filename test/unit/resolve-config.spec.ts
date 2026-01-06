@@ -1,5 +1,6 @@
-import { join, relative } from 'pathe'
+import { rm } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
+import { join, relative } from 'pathe'
 import { describe, expect, it } from 'vitest'
 
 import { createVitest } from 'vitest/node'
@@ -95,10 +96,12 @@ describe('resolve config', () => {
 
 async function globTestSpecifications(path: string, cliOptions?: VitestCliOptions) {
   const cwd = process.cwd()
+  const workdir = fileURLToPath(new URL(path, import.meta.url))
+
   let vitest: Vitest | undefined
 
   try {
-    process.chdir(fileURLToPath(new URL(path, import.meta.url)))
+    process.chdir(workdir)
 
     vitest = await createVitest('test', {
       ...cliOptions,
@@ -128,6 +131,7 @@ async function globTestSpecifications(path: string, cliOptions?: VitestCliOption
   finally {
     try {
       await vitest?.close()
+      await rm(join(workdir, '.nuxt'), { recursive: true, force: true })
     }
     finally {
       process.chdir(cwd)

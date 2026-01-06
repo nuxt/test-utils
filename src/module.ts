@@ -5,9 +5,12 @@ import { isCI } from 'std-env'
 
 import { setupImportMocking } from './module/mock'
 import { NuxtRootStubPlugin } from './module/plugins/entry'
+import { runInstallWizard } from './module/install-wizard'
 import { loadKit } from './utils'
 import { setupDevTools } from './devtools'
 import { vitestWrapper } from './vitest-wrapper/host'
+
+import pkg from '../package.json' assert { type: 'json' }
 
 export interface NuxtVitestOptions {
   startOnBoot?: boolean
@@ -19,10 +22,14 @@ export default defineNuxtModule<NuxtVitestOptions>({
   meta: {
     name: '@nuxt/test-utils',
     configKey: 'testUtils',
+    version: pkg.version,
   },
   defaults: {
     startOnBoot: false,
     logToConsole: false,
+  },
+  async onInstall(nuxt) {
+    await runInstallWizard(nuxt)
   },
   async setup(options, nuxt) {
     if (nuxt.options.test || nuxt.options.dev) {

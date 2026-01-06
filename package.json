@@ -1,6 +1,6 @@
 {
   "name": "@nuxt/test-utils",
-  "version": "3.22.0",
+  "version": "3.23.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nuxt/test-utils.git"
@@ -67,6 +67,7 @@
     "dev:prepare": "nuxt prepare && unbuild --stub && pnpm -r dev:prepare"
   },
   "dependencies": {
+    "@clack/prompts": "1.0.0-alpha.9",
     "@nuxt/kit": "^3.20.2",
     "c12": "^3.3.3",
     "consola": "^3.4.2",
@@ -82,6 +83,7 @@
     "magic-string": "^0.30.21",
     "node-fetch-native": "^1.6.7",
     "node-mock-http": "^1.0.4",
+    "nypm": "^0.6.2",
     "ofetch": "^1.5.1",
     "pathe": "^2.0.3",
     "perfect-debounce": "^2.0.0",
@@ -107,6 +109,7 @@
     "@types/jsdom": "27.0.0",
     "@types/node": "latest",
     "@types/semver": "7.7.1",
+    "@vitest/browser-playwright": "4.0.16",
     "@vue/test-utils": "2.4.6",
     "changelogen": "0.6.2",
     "compatx": "0.2.0",
@@ -115,6 +118,7 @@
     "knip": "5.80.0",
     "nitropack": "2.12.9",
     "nuxt": "4.2.2",
+    "oxc-parser": "^0.107.0",
     "pkg-pr-new": "0.0.62",
     "playwright-core": "1.57.0",
     "rollup": "4.55.1",
@@ -125,7 +129,7 @@
     "vite": "7.3.0",
     "vitest": "4.0.16",
     "vue-router": "4.6.4",
-    "vue-tsc": "3.2.1"
+    "vue-tsc": "3.2.2"
   },
   "peerDependencies": {
     "@cucumber/cucumber": "^10.3.1 || >=11.0.0",
