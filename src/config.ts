@@ -349,6 +349,12 @@ export interface NuxtEnvironmentOptions {
    */
   url?: string
   /**
+   * When to start the NuxtApp.
+   * Set to `beforeAll` if you need to mock composables used during NuxtApp startup (e.g. plugins, global middlewares).
+   * @default 'setupFile'
+   */
+  startOn?: 'setupFile' | 'beforeAll'
+  /**
    * You can define how environment options are read when loading the Nuxt configuration.
    */
   dotenv?: Partial<DotenvOptions>

@@ -1,0 +1,23 @@
+{
+  "name": "example-env-options",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "dev:prepare": "nuxt prepare",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "nuxt": "^4.2.2"
+  },
+  "devDependencies": {
+    "@nuxt/test-utils": "latest",
+    "happy-dom": "20.0.11",
+    "typescript": "5.9.3",
+    "vitest": "4.0.16"
+  }
+}
