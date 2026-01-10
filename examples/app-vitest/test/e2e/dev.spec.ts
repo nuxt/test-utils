@@ -3,12 +3,13 @@ import { $fetch, setup } from '@nuxt/test-utils/e2e'
 import { describe, expect, it } from 'vitest'
 
 await setup({
-  rootDir: fileURLToPath(new URL('../', import.meta.url)),
+  rootDir: fileURLToPath(new URL('../../', import.meta.url)),
+  dev: true,
 })
 
-describe('app', async () => {
+describe('server (dev)', () => {
   it('runs a test', async () => {
-    const html = await $fetch('/')
+    const html = await $fetch<string>('/')
     expect(html.slice(0, 15)).toMatchInlineSnapshot(`
       "<!DOCTYPE html>"
     `)

@@ -1,19 +1,22 @@
+import { it, expect, vi, describe, afterEach } from 'vitest'
+import { enableAutoUnmount } from '@vue/test-utils'
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
-import { it, expect, vi, describe } from 'vitest'
-import TestFetchComponent from '../components/TestFetchComponent.vue'
+
+import TestFetchComponent from '~/components/TestFetchComponent.vue'
 
 describe('registerEndpoint tests', () => {
+  enableAutoUnmount(afterEach)
+
   it('/test1/ called WITHOUT onRequest intercepted', async () => {
     const endpoint = vi.fn(() => '')
     registerEndpoint('/test1/', () => endpoint())
     const component = await mountSuspended(TestFetchComponent)
 
-    component
+    await component
       .find<HTMLButtonElement>('#normal-fetcher')
-      .element.click()
+      .trigger('click')
 
     expect(endpoint).toHaveBeenCalled()
-    component.unmount()
   })
 
   it('/test2/ called WITH onRequest intercepted', async () => {
@@ -26,7 +29,6 @@ describe('registerEndpoint tests', () => {
       .trigger('click')
 
     expect(endpoint).toHaveBeenCalled()
-    component.unmount()
   })
 
   describe('once option', () => {
@@ -44,8 +46,6 @@ describe('registerEndpoint tests', () => {
 
       await component.find<HTMLButtonElement>('#once-fetcher').trigger('click')
       expect(endpoint).toHaveBeenCalledTimes(1)
-
-      component.unmount()
     })
 
     it('should allow re-registering endpoint after once is consumed', async () => {
@@ -69,8 +69,6 @@ describe('registerEndpoint tests', () => {
 
       await component.find<HTMLButtonElement>('#once-reregister-fetcher').trigger('click')
       expect(endpoint2).toHaveBeenCalledTimes(1)
-
-      component.unmount()
     })
   })
 })

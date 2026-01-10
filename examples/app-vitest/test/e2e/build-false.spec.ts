@@ -4,7 +4,7 @@ import { $fetch, setup } from '@nuxt/test-utils/e2e'
 import { describe, expect, it } from 'vitest'
 import { loadNuxt, buildNuxt } from '@nuxt/kit'
 
-const rootDir = fileURLToPath(new URL('../', import.meta.url))
+const rootDir = fileURLToPath(new URL('../../', import.meta.url))
 const randomId = Math.random().toString(36).slice(2, 8)
 const buildDir = resolve(rootDir, '.nuxt', 'test', randomId)
 const buildOutput = resolve(buildDir, 'output')
@@ -35,7 +35,7 @@ await setup({
 
 describe('build: false', () => {
   it('runs a test', async () => {
-    const html = await $fetch('/')
+    const html = await $fetch<string>('/')
     expect(html.slice(0, 15)).toMatchInlineSnapshot(`
       "<!DOCTYPE html>"
     `)
