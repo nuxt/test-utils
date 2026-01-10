@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { isWindows } from 'std-env'
 
 await setup({
-  rootDir: fileURLToPath(new URL('../', import.meta.url)),
+  rootDir: fileURLToPath(new URL('../../', import.meta.url)),
   browser: true,
   setupTimeout: isWindows ? 240000 : 120000,
 })
