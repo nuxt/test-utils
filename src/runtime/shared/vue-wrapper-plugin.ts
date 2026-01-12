@@ -7,7 +7,7 @@ const PLUGIN_NAME = 'nuxt-test-utils'
 
 export function getVueWrapperPlugin(): Options {
   const installed = config.plugins.VueWrapper.installedPlugins
-    .find(({ options }) => options._name === PLUGIN_NAME)
+    .find(({ options }) => options?._name === PLUGIN_NAME)
 
   if (installed) return installed.options
 
