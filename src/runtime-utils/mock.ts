@@ -20,7 +20,13 @@ type Awaitable<T> = T | Promise<T>
 type OptionalFunction<T> = T | (() => Awaitable<T>)
 
 type Handler = H3V1EventHandler | H3V2EventHandler
-const endpointRegistry: Record<string, Array<{ handler: Handler, method?: HTTPMethod, once?: boolean }>> = {}
+type EndpointRegistry = Record<string, Array<{ handler: Handler, method?: HTTPMethod, once?: boolean }>>
+
+function getEndpointRegistry(): EndpointRegistry {
+  // @ts-expect-error private property
+  const app = window.__app ?? {}
+  return (app._registeredEndpointRegistry ||= {})
+}
 /**
  * `registerEndpoint` allows you create Nitro endpoint that returns mocked data. It can come in handy if you want to test a component that makes requests to API to display some data.
  * @param url - endpoint name (e.g. `/test/`).
@@ -54,6 +60,8 @@ export function registerEndpoint(url: string, options: H3V1EventHandler | { hand
 
   const config = typeof options === 'function' ? { handler: options, method: undefined, once: false } : options
   config.handler = Object.assign(config.handler, { __is_handler__: true as const })
+
+  const endpointRegistry = getEndpointRegistry()
 
   endpointRegistry[url] ||= []
   endpointRegistry[url].push(config)
@@ -241,6 +249,7 @@ export function mockComponent(_path: string, _component: unknown): void {
 }
 
 const handler = Object.assign(async (event: H3V1Event | H3V2Event) => {
+  const endpointRegistry = getEndpointRegistry()
   const url = 'url' in event && event.url
     ? event.url.pathname.replace(/^\/_/, '')
     : event.path.replace(/[?#].*$/, '').replace(/^\/_/, '')
@@ -268,6 +277,7 @@ function registerGlobalHandler(app: GenericApp) {
   app.use(handler, {
     match: (...args) => {
       const [eventOrPath, _event = eventOrPath] = args
+      const endpointRegistry = getEndpointRegistry()
       const url = typeof eventOrPath === 'string'
         ? eventOrPath.replace(/^\/_/, '').replace(/[?#].*$/, '')
         : eventOrPath.url.pathname.replace(/^\/_/, '')
