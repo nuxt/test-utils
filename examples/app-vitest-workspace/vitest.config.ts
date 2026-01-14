@@ -8,6 +8,7 @@ export default defineConfig({
         test: {
           name: 'nuxt',
           include: ['**/*.nuxt.spec.ts'],
+          setupFiles: ['test/setup/setup-nuxt.ts'],
         },
       }),
       {
