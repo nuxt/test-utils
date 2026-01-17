@@ -55,11 +55,13 @@ describe('mocking', () => {
         vi.mock("bob", async (importOriginal) => {
           const mocks = globalThis.__NUXT_VITEST_MOCKS
           if (!mocks["bob"]) {
-            mocks["bob"] = { ...await importOriginal("bob") }
+            const original = await importOriginal("bob")
+            mocks["bob"] = { ...original }
+            mocks["bob"].__NUXT_VITEST_MOCKS_ORIGINAL = { ...original }
           }
           mocks["bob"]["useSomeExport"] = await (() => {
                   return () => 'mocked'
-                })();
+                })(mocks["bob"].__NUXT_VITEST_MOCKS_ORIGINAL["useSomeExport"]);
           return mocks["bob"] 
         });
 
@@ -108,9 +110,11 @@ describe('mocking', () => {
         vi.mock("bob", async (importOriginal) => {
           const mocks = globalThis.__NUXT_VITEST_MOCKS
           if (!mocks["bob"]) {
-            mocks["bob"] = { ...await importOriginal("bob") }
+            const original = await importOriginal("bob")
+            mocks["bob"] = { ...original }
+            mocks["bob"].__NUXT_VITEST_MOCKS_ORIGINAL = { ...original }
           }
-          mocks["bob"]["useSomeExport"] = await (() => 'bob')();
+          mocks["bob"]["useSomeExport"] = await (() => 'bob')(mocks["bob"].__NUXT_VITEST_MOCKS_ORIGINAL["useSomeExport"]);
           return mocks["bob"] 
         });
 
