@@ -17,6 +17,7 @@ const PLUGIN_NAME = 'nuxt:vitest:mock-transform'
 const HELPER_MOCK_IMPORT = 'mockNuxtImport'
 const HELPER_MOCK_COMPONENT = 'mockComponent'
 const HELPER_MOCK_HOIST = '__NUXT_VITEST_MOCKS'
+const HELPER_MOCK_HOIST_ORIGINAL = '__NUXT_VITEST_MOCKS_ORIGINAL'
 
 const HELPERS_NAME = [HELPER_MOCK_IMPORT, HELPER_MOCK_COMPONENT]
 
@@ -187,26 +188,23 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
         ...Array.from(mockImportMap.entries()).flatMap(
           ([from, mocks]) => {
             importPathsList.add(from)
+            const quotedFrom = JSON.stringify(from)
             const lines = [
-              `vi.mock(${JSON.stringify(from)}, async (importOriginal) => {`,
+              `vi.mock(${quotedFrom}, async (importOriginal) => {`,
               `  const mocks = globalThis.${HELPER_MOCK_HOIST}`,
-              `  if (!mocks[${JSON.stringify(from)}]) {`,
-              `    mocks[${JSON.stringify(from)}] = { ...await importOriginal(${JSON.stringify(from)}) }`,
+              `  if (!mocks[${quotedFrom}]) {`,
+              `    const original = await importOriginal(${quotedFrom})`,
+              `    mocks[${quotedFrom}] = { ...original }`,
+              `    mocks[${quotedFrom}].${HELPER_MOCK_HOIST_ORIGINAL} = { ...original }`,
               `  }`,
             ]
             for (const mock of mocks) {
-              if (mock.import.name === 'default') {
-                lines.push(
-                  `  mocks[${JSON.stringify(from)}]["default"] = await (${mock.factory})();`,
-                )
-              }
-              else {
-                lines.push(
-                  `  mocks[${JSON.stringify(from)}][${JSON.stringify(mock.name)}] = await (${mock.factory})();`,
-                )
-              }
+              const quotedName = JSON.stringify(mock.import.name === 'default' ? 'default' : mock.name)
+              lines.push(
+                `  mocks[${quotedFrom}][${quotedName}] = await (${mock.factory})(mocks[${quotedFrom}].${HELPER_MOCK_HOIST_ORIGINAL}[${quotedName}]);`,
+              )
             }
-            lines.push(`  return mocks[${JSON.stringify(from)}] `)
+            lines.push(`  return mocks[${quotedFrom}] `)
             lines.push(`});`)
             return lines
           },

@@ -128,7 +128,7 @@ export function registerEndpoint(url: string, options: H3V1EventHandler | { hand
  */
 export function mockNuxtImport<T = unknown>(
   _target: string | T,
-  _factory: () => T | Promise<T>,
+  _factory: (original: T) => T | Promise<T>,
 ): void {
   throw new Error(
     'mockNuxtImport() is a macro and it did not get transpiled. This may be an internal bug of @nuxt/test-utils.',
