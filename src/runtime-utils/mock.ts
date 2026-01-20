@@ -20,13 +20,32 @@ type Awaitable<T> = T | Promise<T>
 type OptionalFunction<T> = T | (() => Awaitable<T>)
 
 type Handler = H3V1EventHandler | H3V2EventHandler
-type EndpointRegistry = Record<string, Array<{ handler: Handler, method?: HTTPMethod, once?: boolean }>>
+type EndpointConfig = {
+  url: string
+  handler: Handler
+  method?: HTTPMethod
+  once?: boolean
+}
+type EndpointRegistry = Record<string, Array<EndpointConfig>>
 
 function getEndpointRegistry(): EndpointRegistry {
   // @ts-expect-error private property
   const app = window.__app ?? {}
   return (app._registeredEndpointRegistry ||= {})
 }
+
+function findEndpointRegistryHandlers(url: string) {
+  const endpointRegistry = getEndpointRegistry()
+  const pathname = url.replace(/[?#].*$/, '')
+  for (const [key, handlers] of Object.entries(endpointRegistry)) {
+    if (key === url || key === pathname) {
+      if (handlers?.length) {
+        return handlers
+      }
+    }
+  }
+}
+
 /**
  * `registerEndpoint` allows you create Nitro endpoint that returns mocked data. It can come in handy if you want to test a component that makes requests to API to display some data.
  * @param url - endpoint name (e.g. `/test/`).
@@ -58,7 +77,9 @@ export function registerEndpoint(url: string, options: H3V1EventHandler | { hand
     throw new Error('registerEndpoint() can only be used in a `@nuxt/test-utils` runtime environment')
   }
 
-  const config = typeof options === 'function' ? { handler: options, method: undefined, once: false } : options
+  const config: EndpointConfig = typeof options === 'function'
+    ? { url, handler: options, method: undefined, once: false }
+    : { ...options, url }
   config.handler = Object.assign(config.handler, { __is_handler__: true as const })
 
   const endpointRegistry = getEndpointRegistry()
@@ -249,11 +270,11 @@ export function mockComponent(_path: string, _component: unknown): void {
 }
 
 const handler = Object.assign(async (event: H3V1Event | H3V2Event) => {
-  const endpointRegistry = getEndpointRegistry()
   const url = 'url' in event && event.url
-    ? event.url.pathname.replace(/^\/_/, '')
-    : event.path.replace(/[?#].*$/, '').replace(/^\/_/, '')
-  const latestHandler = [...endpointRegistry[url] || []].reverse().find(config => config.method ? event.method === config.method : true)
+    ? (event.url.pathname + event.url.search).replace(/^\/_/, '')
+    : event.path.replace(/^\/_/, '')
+  const registeredHandlers = findEndpointRegistryHandlers(url)
+  const latestHandler = [...registeredHandlers || []].reverse().find(config => config.method ? event.method === config.method : true)
   if (!latestHandler) return
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -261,13 +282,13 @@ const handler = Object.assign(async (event: H3V1Event | H3V2Event) => {
 
   if (!latestHandler.once) return result
 
-  const index = endpointRegistry[url]?.indexOf(latestHandler)
+  const index = registeredHandlers?.indexOf(latestHandler)
   if (index === undefined || index === -1) return result
 
-  endpointRegistry[url]?.splice(index, 1)
-  if (endpointRegistry[url]?.length === 0) {
+  registeredHandlers?.splice(index, 1)
+  if (registeredHandlers?.length === 0) {
     // @ts-expect-error private property
-    window.__registry.delete(url)
+    window.__registry.delete(latestHandler.url)
   }
 
   return result
@@ -277,12 +298,12 @@ function registerGlobalHandler(app: GenericApp) {
   app.use(handler, {
     match: (...args) => {
       const [eventOrPath, _event = eventOrPath] = args
-      const endpointRegistry = getEndpointRegistry()
       const url = typeof eventOrPath === 'string'
-        ? eventOrPath.replace(/^\/_/, '').replace(/[?#].*$/, '')
-        : eventOrPath.url.pathname.replace(/^\/_/, '')
+        ? eventOrPath.replace(/^\/_/, '')
+        : (eventOrPath.url.pathname + eventOrPath.url.search).replace(/^\/_/, '')
       const event = _event as H3V1Event | H3V2Event | undefined
-      return endpointRegistry[url]?.some(config => config.method ? event?.method === config.method : true) ?? false
+      const registeredHandlers = findEndpointRegistryHandlers(url)
+      return registeredHandlers?.some(config => config.method ? event?.method === config.method : true) ?? false
     },
   })
 

@@ -142,6 +142,20 @@ describe('server mocks and data fetching', () => {
     expect(await fetch('/with-data?q=1').then(res => res.json())).toMatchObject({ query: { q: '1' } })
   })
 
+  it('can mock fetch requests with url including query param', async () => {
+    registerEndpoint('/with-url-including-query-param/1?q=1', () => 'ok')
+
+    expect(await $fetch<unknown>('/with-url-including-query-param/1?q=1')).toBe('ok')
+    expect(await fetch('/with-url-including-query-param/1?q=1').then(res => res.text())).toBe('ok')
+  })
+
+  it('fails when query params do not match', async () => {
+    registerEndpoint('/with-url-including-query-param/2?q=2', () => 'ok')
+
+    await expect($fetch<unknown>('/with-url-including-query-param/2?q=3')).rejects.toMatchObject({ status: 404 })
+    expect(await fetch('/with-url-including-query-param/2?q=3').then(r => r.status)).toBe(404)
+  })
+
   it('can mock fetch requests with Request', async () => {
     registerEndpoint('http://localhost:3000/with-request', {
       method: 'GET',
@@ -224,5 +238,39 @@ describe('server mocks and data fetching', () => {
     expect(onResponse).toBeCalledTimes(3)
     expect(onRequestError).toBeCalledTimes(1)
     expect(onResponseError).toBeCalledTimes(1)
+  })
+
+  it('should mock request only once with once option', async () => {
+    registerEndpoint('/with-once-options', { handler: () => '1', once: true })
+    registerEndpoint('/with-once-options?q=1', { handler: () => '2', once: true })
+    registerEndpoint('/with-once-options?q=2', { handler: () => '3', once: true })
+    registerEndpoint('/with-once-options?q=2', { handler: () => '4', once: true })
+    registerEndpoint('/with-once-options?q=2', { handler: () => '5', once: true })
+
+    expect(await $fetch<unknown>('/with-once-options?q=1')).toBe('1')
+    expect(await $fetch<unknown>('/with-once-options?q=1')).toBe('2')
+    await expect($fetch<unknown>('/with-once-options?q=1')).rejects.toMatchObject({ status: 404 })
+    expect(await $fetch<unknown>('/with-once-options?q=2')).toBe('5')
+    expect(await $fetch<unknown>('/with-once-options?q=2')).toBe('4')
+    expect(await $fetch<unknown>('/with-once-options?q=2')).toBe('3')
+    await expect($fetch<unknown>('/with-once-options?q=2')).rejects.toMatchObject({ status: 404 })
+  })
+
+  it('endpoint priority 1', async () => {
+    registerEndpoint('/endpoint/priority/1?q=1', { handler: () => '1' })
+    registerEndpoint('/endpoint/priority/1', { handler: () => '2' })
+
+    expect(await $fetch<unknown>('/endpoint/priority/1')).toBe('2')
+    expect(await $fetch<unknown>('/endpoint/priority/1?q=1')).toBe('1')
+    expect(await $fetch<unknown>('/endpoint/priority/1?q=1')).toBe('1')
+  })
+
+  it('endpoint priority 2', async () => {
+    registerEndpoint('/endpoint/priority/2', { handler: () => '1' })
+    registerEndpoint('/endpoint/priority/2?q=1', { handler: () => '2' })
+
+    expect(await $fetch<unknown>('/endpoint/priority/2')).toBe('1')
+    expect(await $fetch<unknown>('/endpoint/priority/2?q=1')).toBe('1')
+    expect(await $fetch<unknown>('/endpoint/priority/2?q=1')).toBe('1')
   })
 })
