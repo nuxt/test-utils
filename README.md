@@ -1,5 +1,8 @@
 # Nuxt Test Utils
 
+[![nuxt.care health](https://img.shields.io/endpoint?url=https://nuxt.care/api/badge/test-utils)](https://nuxt.care/?search=test-utils)
+
+
 🧪 [Nuxt](https://nuxt.com/) Test Utils
 
 ## Overview
