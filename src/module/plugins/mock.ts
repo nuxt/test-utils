@@ -189,22 +189,22 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
           ([from, mocks]) => {
             importPathsList.add(from)
             const quotedFrom = JSON.stringify(from)
+            const mockModuleEntry = `globalThis.${HELPER_MOCK_HOIST}[${quotedFrom}]`
             const lines = [
               `vi.mock(${quotedFrom}, async (importOriginal) => {`,
-              `  const mocks = globalThis.${HELPER_MOCK_HOIST}`,
-              `  if (!mocks[${quotedFrom}]) {`,
+              `  if (!${mockModuleEntry}) {`,
               `    const original = await importOriginal(${quotedFrom})`,
-              `    mocks[${quotedFrom}] = { ...original }`,
-              `    mocks[${quotedFrom}].${HELPER_MOCK_HOIST_ORIGINAL} = { ...original }`,
+              `    ${mockModuleEntry} = { ...original }`,
+              `    ${mockModuleEntry}.${HELPER_MOCK_HOIST_ORIGINAL} = { ...original }`,
               `  }`,
             ]
             for (const mock of mocks) {
               const quotedName = JSON.stringify(mock.import.name === 'default' ? 'default' : mock.name)
               lines.push(
-                `  mocks[${quotedFrom}][${quotedName}] = await (${mock.factory})(mocks[${quotedFrom}].${HELPER_MOCK_HOIST_ORIGINAL}[${quotedName}]);`,
+                `  ${mockModuleEntry}[${quotedName}] = await (${mock.factory})(${mockModuleEntry}.${HELPER_MOCK_HOIST_ORIGINAL}[${quotedName}]);`,
               )
             }
-            lines.push(`  return mocks[${quotedFrom}] `)
+            lines.push(`  return ${mockModuleEntry} `)
             lines.push(`});`)
             return lines
           },
