@@ -1,4 +1,4 @@
-import { h } from 'vue'
+import { h, nextTick } from 'vue'
 import { cleanupAll, wrapperSuspended } from './utils/suspended'
 import type { WrapperSuspendedOptions, WrapperSuspendedResult } from './utils/suspended'
 
