@@ -1,8 +1,11 @@
 import defu from 'defu'
 import { test as base } from '@playwright/test'
 import type { Page, Response } from 'playwright-core'
+import { isWindows } from 'std-env'
 import type { GotoOptions, TestOptions as SetupOptions, TestHooks } from './e2e'
 import { createTest, url, waitForHydration } from './e2e'
+
+const FIXTURE_TIMEOUT = isWindows ? 120_000 : 60_000
 
 export type ConfigOptions = {
   nuxt: Partial<SetupOptions> | undefined
@@ -44,7 +47,7 @@ export const test = base.extend<TestOptions, WorkerOptions & ConfigOptions>({
       await hooks.beforeAll()
       await use(hooks)
       await hooks.afterAll()
-    }, { scope: 'worker' },
+    }, { scope: 'worker', timeout: FIXTURE_TIMEOUT },
   ],
   baseURL: async ({ _nuxtHooks }, use) => {
     _nuxtHooks.beforeEach()

@@ -1,4 +1,20 @@
 packages:
-  - "examples/*"
-  - "examples/module/playground"
-  - "stubs/*"
+  - examples/*
+  - examples/module/playground
+  - stubs/*
+
+ignoredBuiltDependencies:
+  - '@parcel/watcher'
+  - esbuild
+  - oxc-resolver
+  - unrs-resolver
+  - vue-demi
+
+onlyBuiltDependencies:
+  - better-sqlite3
+  - '@tailwindcss/oxide'
+
+patchedDependencies:
+  node-mock-http: patches/node-mock-http.patch
+
+shellEmulator: true

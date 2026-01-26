@@ -2,11 +2,12 @@ import assert from 'node:assert'
 import { Given } from '@cucumber/cucumber'
 import { $fetch, createPage } from '@nuxt/test-utils/e2e'
 
-Given(/^the user goes on the home page$/u, async function (): Promise<void> {
+Given(/^the user goes on the home page$/u, { timeout: 10000 }, async function (): Promise<void> {
   // Browser test
   const page = await createPage('/')
-  const text = await page.getByRole('heading', { name: 'Welcome to Nuxt!' }).textContent()
-  assert.match(text!, /Welcome to Nuxt!/)
+  // nuxt v3 or nuxt v4 welcome page text
+  const text = await page.getByRole('heading', { name: 'Get started' }).textContent()
+  assert.match(text!, /Get started/)
   await page.close()
 
   // SSR test

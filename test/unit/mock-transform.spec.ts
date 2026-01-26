@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { rollup } from 'rollup'
-import { type MockPluginContext, createMockPlugin } from '../../src/module/plugins/mock'
+import { createMockPlugin } from '../../src/module/plugins/mock'
+import type { MockPluginContext } from '../../src/module/plugins/mock'
 
 describe('mocking', () => {
   const pluginContext: MockPluginContext = { imports: [], components: [] }
@@ -42,12 +43,7 @@ describe('mocking', () => {
         name: 'useSomeExport',
         from: 'bob',
       }]
-      expect(await getResult(`
-        import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-        mockNuxtImport('useSomeExport', () => {
-          return () => 'mocked'
-        })
-      `)).toMatchInlineSnapshot(`
+      const expected = `
         "import {vi} from "vitest";
 
         vi.hoisted(() => { 
@@ -57,22 +53,37 @@ describe('mocking', () => {
               });
 
         vi.mock("bob", async (importOriginal) => {
-          const mocks = globalThis.__NUXT_VITEST_MOCKS
-          if (!mocks["bob"]) {
-            mocks["bob"] = { ...await importOriginal("bob") }
+          if (!globalThis.__NUXT_VITEST_MOCKS["bob"]) {
+            const original = await importOriginal("bob")
+            globalThis.__NUXT_VITEST_MOCKS["bob"] = { ...original }
+            globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_ORIGINAL = { ...original }
           }
-          mocks["bob"]["useSomeExport"] = await (() => {
+          globalThis.__NUXT_VITEST_MOCKS["bob"]["useSomeExport"] = await (() => {
                   return () => 'mocked'
-                })();
-          return mocks["bob"] 
+                })(globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_ORIGINAL["useSomeExport"]);
+          return globalThis.__NUXT_VITEST_MOCKS["bob"] 
         });
 
                 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
                 
               
          import "bob";"
-      `)
+      `
+      expect(await getResult(`
+        import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+        mockNuxtImport('useSomeExport', () => {
+          return () => 'mocked'
+        })
+      `)).toMatchInlineSnapshot(expected)
+
+      expect(await getResult(`
+        import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+        mockNuxtImport(useSomeExport, () => {
+          return () => 'mocked'
+        })
+      `)).toMatchInlineSnapshot(expected)
     })
+
     it('should not add `vi` import if it already exists', async () => {
       pluginContext.imports = [{
         name: 'useSomeExport',
@@ -96,12 +107,13 @@ describe('mocking', () => {
               });
 
         vi.mock("bob", async (importOriginal) => {
-          const mocks = globalThis.__NUXT_VITEST_MOCKS
-          if (!mocks["bob"]) {
-            mocks["bob"] = { ...await importOriginal("bob") }
+          if (!globalThis.__NUXT_VITEST_MOCKS["bob"]) {
+            const original = await importOriginal("bob")
+            globalThis.__NUXT_VITEST_MOCKS["bob"] = { ...original }
+            globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_ORIGINAL = { ...original }
           }
-          mocks["bob"]["useSomeExport"] = await (() => 'bob')();
-          return mocks["bob"] 
+          globalThis.__NUXT_VITEST_MOCKS["bob"]["useSomeExport"] = await (() => 'bob')(globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_ORIGINAL["useSomeExport"]);
+          return globalThis.__NUXT_VITEST_MOCKS["bob"] 
         });
 
                 

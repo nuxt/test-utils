@@ -37,8 +37,10 @@ export async function runTests(opts: RunTestOptions) {
     {
       root: opts.rootDir,
       run: !opts.watch,
-      deps: {
-        inline: [/@nuxt\/test-utils/],
+      server: {
+        deps: {
+          inline: [/@nuxt\/test-utils/],
+        },
       },
     },
     // Vite options
@@ -48,13 +50,15 @@ export async function runTests(opts: RunTestOptions) {
       },
       test: {
         dir: opts.rootDir,
-        deps: {
-          inline: [
-            distDir,
-            '@nuxt/test-utils',
-            '@nuxt/test-utils-nightly',
-            '@nuxt/test-utils-edge',
-          ],
+        server: {
+          deps: {
+            inline: [
+              distDir,
+              '@nuxt/test-utils',
+              '@nuxt/test-utils-nightly',
+              '@nuxt/test-utils-edge',
+            ],
+          },
         },
         globals: true,
         globalSetup: [

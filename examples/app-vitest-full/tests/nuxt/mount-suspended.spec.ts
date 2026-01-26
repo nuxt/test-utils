@@ -1,6 +1,8 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
+import { satisfies } from 'semver'
+import { version as nuxtVersion } from 'nuxt/package.json'
 
 import type { VueWrapper } from '@vue/test-utils'
 import { mount } from '@vue/test-utils'
@@ -13,16 +15,25 @@ import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
 import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
 import ExportDefaultWithRenderComponent from '~/components/ExportDefaultWithRenderComponent.vue'
 import ExportDefaultReturnsRenderComponent from '~/components/ExportDefaultReturnsRenderComponent.vue'
+import ScriptSetupEmits from '~/components/ScriptSetupEmits.vue'
+import ScriptSetupWatch from '~/components/ScriptSetupWatch.vue'
 import OptionsApiPage from '~/pages/other/options-api.vue'
+import OptionsApiComputed from '~/components/OptionsApiComputed.vue'
+import OptionsApiEmits from '~/components/OptionsApiEmits.vue'
+import OptionsApiWatch from '~/components/OptionsApiWatch.vue'
 import ComponentWithAttrs from '~/components/ComponentWithAttrs.vue'
 import ComponentWithReservedProp from '~/components/ComponentWithReservedProp.vue'
 import ComponentWithReservedState from '~/components/ComponentWithReservedState.vue'
 import ComponentWithImports from '~/components/ComponentWithImports.vue'
+import ComponentWithCssVar from '~/components/ComponentWithCssVar.vue'
+import ComponentWithPluginProvidedValue from '~/components/ComponentWithPluginProvidedValue.vue'
+import GenericStateComponent from '~/components/GenericStateComponent.vue'
 
 import { BoundAttrs } from '#components'
 import DirectiveComponent from '~/components/DirectiveComponent.vue'
 import CustomComponent from '~/components/CustomComponent.vue'
 import WrapperElement from '~/components/WrapperElement.vue'
+import WatcherComponent from '~/components/WatcherComponent.vue'
 
 const formats = {
   ExportDefaultComponent,
@@ -57,9 +68,10 @@ describe('mountSuspended', () => {
 
   it('should work with shallow mounting within suspense', async () => {
     const component = await mountSuspended(App, { shallow: true })
+    const stubName = satisfies(nuxtVersion, '^3') ? 'anonymous-stub' : 'global-component-stub'
     expect(component.html()).toMatchInlineSnapshot(`
       "<async-component-wrapper-stub></async-component-wrapper-stub>
-      <anonymous-stub></anonymous-stub>
+      <${stubName}></${stubName}>
       <nuxt-page-stub></nuxt-page-stub>
       <nuxt-link-stub to="/test"></nuxt-link-stub>"
     `)
@@ -95,7 +107,10 @@ describe('mountSuspended', () => {
   })
 
   it('can receive emitted events from components mounted within nuxt suspense', async () => {
-    const component = await mountSuspended(WrapperTests)
+    const onCustomEvent = vi.fn()
+    const component = await mountSuspended(WrapperTests, {
+      props: { onCustomEvent },
+    })
     component.find('button#emitCustomEvent').trigger('click')
     expect(component.emitted()).toMatchInlineSnapshot(`
       {
@@ -109,18 +124,82 @@ describe('mountSuspended', () => {
         ],
       }
     `)
+    expect(onCustomEvent).toBeCalledTimes(1)
+    expect(onCustomEvent).toBeCalledWith('foo')
   })
 
   it('can receive emitted events from components using defineModel', () => {
-    const component = mount(WrapperTests)
+    const onUpdateModelValue = vi.fn()
+    const component = mount(WrapperTests, {
+      props: { 'onUpdate:modelValue': onUpdateModelValue },
+    })
     component.find('button#changeModelValue').trigger('click')
     expect(component.emitted()).toHaveProperty('update:modelValue')
+    expect(onUpdateModelValue).toBeCalledTimes(1)
+    expect(onUpdateModelValue).toBeCalledWith(true)
   })
 
   it('can receive emitted events from components mounted within nuxt suspense using defineModel', async () => {
-    const component = await mountSuspended(WrapperTests)
-    component.find('button#changeModelValue').trigger('click')
+    const onUpdateModelValue = vi.fn()
+    const component = await mountSuspended(WrapperTests, {
+      props: { 'onUpdate:modelValue': onUpdateModelValue },
+    })
+    await component.find('button#changeModelValue').trigger('click')
     expect(component.emitted()).toHaveProperty('update:modelValue')
+    expect(onUpdateModelValue).toBeCalledTimes(1)
+    expect(onUpdateModelValue).toBeCalledWith(true)
+  })
+
+  it('can receive emitted events from components mounted within nuxt suspense using defineModel after prop changes and multiple interactions', async () => {
+    const onUpdateModelValue = vi.fn()
+    const component = await mountSuspended(WrapperTests, {
+      props: { 'onUpdate:modelValue': onUpdateModelValue },
+    })
+
+    await component.find('button#changeModelValue').trigger('click')
+    expect(component.emitted()).toMatchInlineSnapshot(`
+      {
+        "update:modelValue": [
+          [
+            true,
+          ],
+        ],
+      }
+    `)
+    expect(onUpdateModelValue).toBeCalledTimes(1)
+    expect(onUpdateModelValue).toBeCalledWith(true)
+
+    await component.setProps({ modelValue: true })
+
+    await component.find('button#changeModelValue').trigger('click')
+    expect(component.emitted()).toMatchInlineSnapshot(`
+      {
+        "update:modelValue": [
+          [
+            true,
+          ],
+        ],
+      }
+    `)
+    expect(onUpdateModelValue).toBeCalledTimes(1)
+
+    await component.setProps({ modelValue: false })
+
+    await component.find('button#changeModelValue').trigger('click')
+    expect(component.emitted()).toMatchInlineSnapshot(`
+      {
+        "update:modelValue": [
+          [
+            true,
+          ],
+          [
+            true,
+          ],
+        ],
+      }
+    `)
+    expect(onUpdateModelValue).toBeCalledTimes(2)
+    expect(onUpdateModelValue).toBeCalledWith(true)
   })
 
   it('can pass onUpdate event to components using defineModel', async () => {
@@ -139,8 +218,14 @@ describe('mountSuspended', () => {
   it('can access exposed methods/refs from components mounted within nuxt suspense', async () => {
     const component = await mountSuspended(WrapperTests)
     expect(component.vm.testExpose?.()).toBe('expose was successful')
-    // @ts-expect-error FIXME: someRef is typed as unwrapped
-    expect(component.vm.someRef.value).toBe('thing')
+    expect(component.vm.someRef).toBe('thing')
+  })
+
+  it('can modify exposed refs from components', async () => {
+    const component = await mountSuspended(WrapperTests)
+    expect(component.vm.someRef).toBe('thing')
+    component.vm.someRef = 'modified thing'
+    expect(component.vm.someRef).toBe('modified thing')
   })
 
   it('respects directives registered in nuxt plugins', async () => {
@@ -179,6 +264,69 @@ describe('mountSuspended', () => {
     expect(component.find('[foo="bar"]').exists()).toBe(true)
   })
 
+  it('should capture emits from script setup and early hooks', async () => {
+    const onEventFromSetup = vi.fn()
+    const onEventBeforeMount = vi.fn()
+    const onEventFromMounted = vi.fn()
+    const component = await mountSuspended(ScriptSetupEmits, {
+      props: {
+        'onEvent-from-setup': onEventFromSetup,
+        'onEvent-from-before-mount': onEventBeforeMount,
+        'onEvent-from-mounted': onEventFromMounted,
+      },
+    })
+    await expect.poll(() => component.emitted()).toEqual({
+      'event-from-setup': [[1], [2]],
+      'event-from-before-mount': [[1], [2]],
+      'event-from-mounted': [[1], [2]],
+    })
+    expect(onEventFromSetup.mock.calls).toEqual([[1], [2]])
+    expect(onEventBeforeMount.mock.calls).toEqual([[1], [2]])
+    expect(onEventFromMounted.mock.calls).toEqual([[1], [2]])
+  })
+
+  it('should handle data set from immediate watches', async () => {
+    const component = await mountSuspended(ScriptSetupWatch)
+    await expect.poll(
+      () =>
+        JSON.parse(component.find('[data-testid="set-by-watches"]').text()),
+    ).toEqual({
+      dataFromWatchEffectOnComputedFromReactiveObject: 'data-from-reactive-object',
+      dataFromWatchEffectOnReactiveObject: 'data-from-reactive-object',
+      dataFromWatchEffectOnReactiveString: 'data-from-reactive-string',
+      dataFromWatchOnComputedFromReactiveObject: 'data-from-reactive-object',
+      dataFromWatchOnReactiveObject: 'data-from-reactive-object',
+      dataFromWatchOnReactiveString: 'data-from-reactive-string',
+    })
+  })
+
+  it('should handle events emitted from immediate watches', async () => {
+    const component = await mountSuspended(ScriptSetupWatch)
+    await expect.poll(() => component.emitted()).toEqual({
+      'event-from-watch-effect-on-computed-from-reactive-object': [[1]],
+      'event-from-watch-effect-on-reactive-object': [[1]],
+      'event-from-watch-effect-on-reactive-string': [[1]],
+      'event-from-watch-on-computed-from-reactive-object': [[1]],
+      'event-from-watch-on-reactive-object': [[1]],
+      'event-from-watch-on-reactive-string': [[1]],
+    })
+  })
+
+  it('can mount components with use css modules', async () => {
+    const component = await mountSuspended(ComponentWithCssVar)
+    expect(component.text()).toBe('Css Module')
+    expect(component.find('#s1').classes()).toHaveLength(1)
+    expect(component.find('#s2').classes()).toHaveLength(1)
+    expect(component.find('#s3').classes()).toHaveLength(0)
+  })
+
+  it('can mount components with use plugin provided value in template', async () => {
+    const component = await mountSuspended(ComponentWithPluginProvidedValue)
+    expect(component.find('#s1').text()).toBe('pluginProvided.value')
+    expect(component.find('#s2').text()).toBe('pluginProvided.func(value)')
+    expect(component.find('#s3').text()).toBe('pluginProvided.object.value')
+  })
+
   describe('Options API', () => {
     beforeEach(() => {
       vi.spyOn(console, 'error').mockImplementation((message) => {
@@ -195,12 +343,21 @@ describe('mountSuspended', () => {
       expect(component.find('[data-testid="greeting-in-setup"]').text()).toBe('Hello, setup')
       expect(component.find('[data-testid="greeting-in-data1"]').text()).toBe('Hello, data1')
       expect(component.find('[data-testid="greeting-in-data2"]').text()).toBe('Hello, overwritten by asyncData')
+      expect(component.find('[data-testid="greeting-in-data3"]').text()).toBe('Hello, world')
+      expect(component.find('[data-testid="greeting-in-data4"]').text()).toBe('Hello, default')
       expect(component.find('[data-testid="greeting-in-computed"]').text()).toBe('Hello, computed property')
       expect(component.find('[data-testid="computed-data1"]').text()).toBe('Hello, data1')
-      expect(component.find('[data-testid="computed-greeting-in-methods"]').text()).toBe('Hello, method')
+      expect(component.find('[data-testid="computed-data2"]').text()).toBe('Hello')
+      expect(component.find('[data-testid="computed-with-methods"]').text()).toBe('Hello, method')
+      expect(component.find('[data-testid="computed-with-config"]').text()).toBe('Hello, world')
+      expect(component.find('[data-testid="computed-with-setup-ref"]').text()).toBe('Hello')
       expect(component.find('[data-testid="greeting-in-methods"]').text()).toBe('Hello, method')
       expect(component.find('[data-testid="return-data1"]').text()).toBe('Hello, data1')
       expect(component.find('[data-testid="return-computed-data1"]').text()).toBe('Hello, data1')
+      expect(component.find('[data-testid="return-computed-data2"]').text()).toBe('Hello')
+      expect(component.find('[data-testid="return-config-data"]').text()).toBe('Hello, world')
+      expect(component.find('[data-testid="return-ref-in-setup-data"]').text()).toBe('Hello')
+      expect(component.find('[data-testid="return-props-data"]').text()).toBe('Hello')
     })
 
     it('should not output error when button in page is clicked', async () => {
@@ -213,6 +370,73 @@ describe('mountSuspended', () => {
       const component = await mountSuspended(OptionsApiPage)
       await component.find('[data-testid="test-button"]').trigger('click')
       expect(console.error).not.toHaveBeenCalled()
+    })
+
+    it('should handle computed defined as functions and as objects', async () => {
+      const component = await mountSuspended(OptionsApiComputed)
+      expect(component.find('[data-testid="simple-function"]').text()).toBe('simple-function')
+      expect(component.find('[data-testid="object-with-get"]').text()).toBe('object-with-get')
+      expect(component.find('[data-testid="object-with-get-and-set"]').text()).toBe('object-with-get-and-set')
+      expect(console.error).not.toHaveBeenCalled()
+    })
+
+    it('should handle computed defined with setter can set value', async () => {
+      const component = await mountSuspended(OptionsApiComputed)
+      await component.find('[data-testid="hanlde-change-object-with-get-and-set"]').trigger('click')
+      expect(component.find('[data-testid="object-with-get-and-set"]').text()).toBe('object-with-get-and-set (changed)')
+      expect(console.error).not.toHaveBeenCalled()
+    })
+
+    it('should capture emits from setup and early hooks', async () => {
+      const onEventFromSetup = vi.fn()
+      const onEventBeforeMount = vi.fn()
+      const onEventFromMounted = vi.fn()
+      const component = await mountSuspended(OptionsApiEmits, {
+        props: {
+          'onEvent-from-setup': onEventFromSetup,
+          'onEvent-from-before-mount': onEventBeforeMount,
+          'onEvent-from-mounted': onEventFromMounted,
+        },
+      })
+      await expect.poll(() => component.emitted()).toEqual({
+        'event-from-setup': [[1], [2]],
+        'event-from-before-mount': [[1], [2]],
+        'event-from-mounted': [[1], [2]],
+      })
+      expect(console.error).not.toHaveBeenCalled()
+      expect(onEventFromSetup.mock.calls).toEqual([[1], [2]])
+      expect(onEventBeforeMount.mock.calls).toEqual([[1], [2]])
+      expect(onEventFromMounted.mock.calls).toEqual([[1], [2]])
+    })
+
+    it('should handle data set from immediate watches', async () => {
+      const component = await mountSuspended(OptionsApiWatch)
+      await expect.poll(
+        () =>
+          JSON.parse(component.find('[data-testid="set-by-watches"]').text()),
+      ).toEqual({
+        dataFromInternalDataObject: 'data-from-internal-data-object',
+        dataMappedFromExternalReactiveStore: 'data-from-external-reactive-store',
+      })
+      expect(console.error).not.toHaveBeenCalled()
+    })
+
+    it('should handle events emitted from immediate watches', async () => {
+      const onEventfromInternalDataObject = vi.fn()
+      const onEventMappedFromExternalReactiveStore = vi.fn()
+      const component = await mountSuspended(OptionsApiWatch, {
+        props: {
+          'onEvent-from-internal-data-object': onEventfromInternalDataObject,
+          'onEvent-mapped-from-external-reactive-store': onEventMappedFromExternalReactiveStore,
+        },
+      })
+      await expect.poll(() => component.emitted()).toEqual({
+        'event-from-internal-data-object': [[1]],
+        'event-mapped-from-external-reactive-store': [[1]],
+      })
+      expect(console.error).not.toHaveBeenCalled()
+      expect(onEventfromInternalDataObject.mock.calls).toEqual([[1]])
+      expect(onEventMappedFromExternalReactiveStore.mock.calls).toEqual([[1]])
     })
   })
 })
@@ -326,4 +550,80 @@ it('element should be changed', async () => {
   await component.setProps({ as: 'span' })
 
   expect(component.element.tagName).toBe('SPAN')
+})
+
+describe('composable state isolation', () => {
+  const { useCounterMock } = vi.hoisted(() => {
+    return {
+      useCounterMock: vi.fn(() => {
+        return {
+          isPositive: (): boolean => false,
+        }
+      }),
+    }
+  })
+
+  mockNuxtImport('useCounter', () => {
+    return useCounterMock
+  })
+
+  it('shows zero or negative state by default', async () => {
+    const component = await mountSuspended(GenericStateComponent, { scoped: true })
+    expect(component.text()).toMatchInlineSnapshot('"Zero or negative count"')
+  })
+
+  it('shows positive state when counter is positive', async () => {
+    useCounterMock.mockRestore()
+    useCounterMock.mockImplementation(() => ({
+      isPositive: () => true,
+    }))
+    const component = await mountSuspended(GenericStateComponent, { scoped: true })
+    expect(component.text()).toMatchInlineSnapshot('"Positive count"')
+  })
+})
+
+describe('watcher cleanup validation', () => {
+  let watcherCallCount = 0
+  beforeEach(() => {
+    watcherCallCount = 0
+    // Mock console.log to count watcher calls
+    vi.spyOn(console, 'log').mockImplementation((message) => {
+      if (typeof message === 'string' && message.includes('Test state has changed')) {
+        watcherCallCount++
+      }
+    })
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('mounts component in test 1', async () => {
+    await mountSuspended(WatcherComponent, {
+      props: {
+        title: 'Component 1',
+      },
+      scoped: true,
+    })
+
+    expect(watcherCallCount).toBe(0)
+  })
+
+  it('mounts component in test 2 and validates watcher cleanup', async () => {
+    await mountSuspended(WatcherComponent, {
+      props: {
+        title: 'Component 2',
+      },
+      scoped: true,
+    })
+
+    watcherCallCount = 0
+
+    const state = useState('testState')
+    state.value = 'new state'
+
+    await nextTick()
+
+    expect(watcherCallCount).toBe(1)
+  })
 })

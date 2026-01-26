@@ -1,22 +1,11 @@
-import { mount } from '@vue/test-utils'
-import type { ComponentMountingOptions } from '@vue/test-utils'
-import { Suspense, h, isReadonly, nextTick, reactive, unref, getCurrentInstance } from 'vue'
-import type { DefineComponent, SetupContext } from 'vue'
-import { defu } from 'defu'
-import type { RouteLocationRaw } from 'vue-router'
+import { mount as wrapperFn } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils'
+import { cleanupAll, wrapperSuspended } from './utils/suspended'
+import type { WrapperSuspendedOptions, WrapperSuspendedResult } from './utils/suspended'
 
-import { RouterLink } from './components/RouterLink'
-
-import NuxtRoot from '#build/root-component.mjs'
-import { tryUseNuxtApp, useRouter } from '#imports'
-
-type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
-  route?: RouteLocationRaw
-}
-
-// TODO: improve return types
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SetupState = Record<string, any>
+type WrapperFn<C> = typeof wrapperFn<C>
+type WrapperOptions<C> = WrapperSuspendedOptions<WrapperFn<C>>
+type WrapperResult<C> = WrapperSuspendedResult<WrapperFn<C>>
 
 /**
  * `mountSuspended` allows you to mount any vue component within the Nuxt environment, allowing async setup and access to injections from your Nuxt plugins. For example:
@@ -46,195 +35,65 @@ type SetupState = Record<string, any>
  */
 export async function mountSuspended<T>(
   component: T,
-  options?: MountSuspendedOptions<T>,
-): Promise<ReturnType<typeof mount<T>> & { setupState: SetupState }> {
-  const {
-    props = {},
-    attrs = {},
-    slots = {} as ComponentMountingOptions<T>['slots'],
-    route = '/',
-    ..._options
-  } = options || {}
+  options: WrapperOptions<T> = {},
+): Promise<WrapperResult<T>> {
+  const suspendedHelperName = 'MountSuspendedHelper'
+  const clonedComponentName = 'MountSuspendedComponent'
 
-  const vueApp = tryUseNuxtApp()?.vueApp
-    // @ts-expect-error untyped global __unctx__
-    || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
-  const { render, setup, data, computed, methods } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
+  cleanupAll()
 
-  let setupContext: SetupContext
-  let setupState: Record<string, unknown>
-  const setProps = reactive<Record<string, unknown>>({})
+  const { wrapper, setProps } = await wrapperSuspended(component, options, {
+    wrapperFn,
+    suspendedHelperName,
+    clonedComponentName,
+  })
 
-  let passedProps: Record<string, unknown>
-  const wrappedSetup = async (props: Record<string, unknown>, setupContext: SetupContext) => {
-    passedProps = props
-    if (setup) {
-      const result = await setup(props, setupContext)
-      setupState = result && typeof result === 'object' ? result : {}
-      return result
-    }
-  }
+  Object.assign(wrapper, { __setProps: setProps })
 
-  return new Promise<ReturnType<typeof mount<T>> & { setupState: Record<string, unknown> }>(
-    (resolve) => {
-      const vm = mount(
-        {
-          setup: (props: Record<string, unknown>, ctx: SetupContext) => {
-            setupContext = ctx
-            return NuxtRoot.setup(props, {
-              ...ctx,
-              expose: () => {},
-            })
-          },
-          render: (renderContext: Record<string, unknown>) =>
-            h(
-              Suspense,
-              {
-                onResolve: () =>
-                  nextTick().then(() => {
-                    (vm as unknown as AugmentedVueInstance).setupState = setupState;
-                    (vm as unknown as AugmentedVueInstance).__setProps = (props: Record<string, unknown>) => {
-                      Object.assign(setProps, props)
-                    }
-                    resolve(wrappedMountedWrapper(vm as ReturnType<typeof mount<T>> & { setupState: Record<string, unknown> }))
-                  }),
-              },
-              {
-                default: () =>
-                  h({
-                    name: 'MountSuspendedHelper',
-                    async setup() {
-                      const router = useRouter()
-                      await router.replace(route)
+  const clonedComponent = wrapper.findComponent({ name: clonedComponentName })
 
-                      // Proxy top-level setup/render context so test wrapper resolves child component
-                      const clonedComponent = {
-                        name: 'MountSuspendedComponent',
-                        ...component,
-                        render: render
-                          ? function (this: unknown, _ctx: Record<string, unknown>, ...args: unknown[]) {
-                            // When using defineModel, getCurrentInstance().emit is executed internally. it needs to override.
-                            const currentInstance = getCurrentInstance()
-                            if (currentInstance) {
-                              const oldEmit = currentInstance.emit
-                              currentInstance.emit = (event: string, ...args: unknown[]) => {
-                                oldEmit(event, ...args)
-                                setupContext.emit(event, ...args)
-                              }
-                            }
-                            // Set before setupState set to allow asyncData to overwrite data
-                            if (data && typeof data === 'function') {
-                              // @ts-expect-error error TS2554: Expected 1 arguments, but got 0
-                              const dataObject: Record<string, unknown> = data()
-                              for (const key in dataObject) {
-                                renderContext[key] = dataObject[key]
-                              }
-                            }
-                            for (const key in setupState || {}) {
-                              const warn = console.warn
-                              console.warn = () => {}
-                              try {
-                                renderContext[key] = isReadonly(setupState[key]) ? unref(setupState[key]) : setupState[key]
-                              }
-                              catch {
-                                // ignore errors setting properties that are not exposed to template
-                              }
-                              finally {
-                                console.warn = warn
-                              }
-                              if (key === 'props') {
-                                renderContext[key] = cloneProps(renderContext[key] as Record<string, unknown>)
-                              }
-                            }
-                            const propsContext = 'props' in renderContext ? renderContext.props as Record<string, unknown> : renderContext
-                            for (const key in props || {}) {
-                              propsContext[key] = _ctx[key]
-                            }
-                            for (const key in passedProps || {}) {
-                              propsContext[key] = passedProps[key]
-                            }
-                            if (methods && typeof methods === 'object') {
-                              for (const key in methods) {
-                                renderContext[key] = methods[key].bind(renderContext)
-                              }
-                            }
-                            if (computed && typeof computed === 'object') {
-                              for (const key in computed) {
-                                // @ts-expect-error error TS2339: Property 'call' does not exist on type 'ComputedGetter<any> | WritableComputedOptions<any, any>'
-                                renderContext[key] = computed[key].call(renderContext)
-                              }
-                            }
-                            return render.call(this, renderContext, ...args)
-                          }
-                          : undefined,
-                        setup: setup ? (props: Record<string, unknown>) => wrappedSetup(props, setupContext) : undefined,
-                      }
-
-                      return () => h(clonedComponent, { ...props, ...setProps, ...attrs }, slots)
-                    },
-                  }),
-              },
-            ),
-        },
-        defu(
-          _options,
-          {
-            slots,
-            attrs,
-            global: {
-              config: {
-                globalProperties: vueApp.config.globalProperties,
-              },
-              directives: vueApp._context.directives,
-              provide: vueApp._context.provides,
-              stubs: {
-                Suspense: false,
-                MountSuspendedHelper: false,
-                [component && typeof component === 'object' && 'name' in component && typeof component.name === 'string' ? component.name : 'MountSuspendedComponent']: false,
-              },
-              components: { ...vueApp._context.components, RouterLink },
-            },
-          } satisfies ComponentMountingOptions<T>,
-        ) as ComponentMountingOptions<T>,
-      )
-    },
-  )
+  return wrappedMountedWrapper(wrapper, clonedComponent)
 }
 
-interface AugmentedVueInstance {
-  setupState?: Record<string, unknown>
-  __setProps?: (props: Record<string, unknown>) => void
-}
-
-function cloneProps(props: Record<string, unknown>) {
-  const newProps = reactive<Record<string, unknown>>({})
-  for (const key in props) {
-    newProps[key] = props[key]
-  }
-  return newProps
-}
-
-function wrappedMountedWrapper<T>(wrapper: ReturnType<typeof mount<T>> & { setupState: Record<string, unknown> }) {
-  const proxy = new Proxy(wrapper, {
-    get: (target, prop, receiver) => {
-      if (prop === 'element') {
-        const component = target.findComponent({ name: 'MountSuspendedComponent' })
-        return component[prop]
-      }
-      else {
-        return Reflect.get(target, prop, receiver)
-      }
+function wrappedMountedWrapper<T>(wrapper: WrapperResult<T>, component: VueWrapper) {
+  const wrapperProps: (string | symbol)[] = [
+    'setProps', 'emitted', 'setupState', 'unmount',
+  ] satisfies (keyof typeof wrapper)[]
+  return new Proxy(wrapper, {
+    get: (_, prop, receiver) => {
+      if (prop === 'getCurrentComponent') return getCurrentComponentPatchedProxy
+      const target = wrapperProps.includes(prop)
+        ? wrapper
+        : Reflect.has(component, prop) ? component : wrapper
+      const value = Reflect.get(target, prop, receiver)
+      return typeof value === 'function' ? value.bind(target) : value
     },
   })
 
-  for (const key of ['props'] as const) {
-    proxy[key] = new Proxy(wrapper[key], {
-      apply: (target, thisArg, args) => {
-        const component = thisArg.findComponent({ name: 'MountSuspendedComponent' })
-        return component[key](...args)
+  // for compatibity for nuxt/test-utils v3.20.0
+  // cannot access setupState data via the proxy in original mount()
+  function getCurrentComponentPatchedProxy() {
+    const currentComponent = component.getCurrentComponent()
+    return new Proxy(currentComponent, {
+      get: (target, prop, receiver) => {
+        const value = Reflect.get(target, prop, receiver)
+        if (prop === 'proxy' && value) {
+          return new Proxy(value, {
+            get(o, p, r) {
+              if (!Reflect.has(currentComponent.props, p)) {
+                const setupState = wrapper.setupState
+                if (setupState && typeof setupState === 'object') {
+                  if (Reflect.has(setupState, p)) {
+                    return Reflect.get(setupState, p, r)
+                  }
+                }
+              }
+              return Reflect.get(o, p, r)
+            },
+          })
+        }
+        return value
       },
     })
   }
-
-  return proxy
 }

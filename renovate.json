@@ -13,10 +13,14 @@
       "groupName": "vitest",
       "matchPackageNames": [
         "vite-node",
-        "vitest"
-      ],
-      "matchPackagePatterns": [
-        "^@vitest/"
+        "vitest",
+        "/^@vitest//"
+      ]
+    },
+    {
+      "groupName": "node",
+      "matchPackageNames": [
+        "@types/node"
       ]
     },
     {

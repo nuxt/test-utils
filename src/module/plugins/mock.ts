@@ -17,6 +17,7 @@ const PLUGIN_NAME = 'nuxt:vitest:mock-transform'
 const HELPER_MOCK_IMPORT = 'mockNuxtImport'
 const HELPER_MOCK_COMPONENT = 'mockComponent'
 const HELPER_MOCK_HOIST = '__NUXT_VITEST_MOCKS'
+const HELPER_MOCK_HOIST_ORIGINAL = '__NUXT_VITEST_MOCKS_ORIGINAL'
 
 const HELPERS_NAME = [HELPER_MOCK_IMPORT, HELPER_MOCK_COMPONENT]
 
@@ -87,37 +88,39 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
               startOf(node),
             )
           }
-          const importName = node.arguments[0]
-          if (!isLiteral(importName) || typeof importName.value !== 'string') {
+
+          const importTarget = node.arguments[0]!
+          const name = isLiteral(importTarget)
+            ? importTarget.value
+            : isIdentifier(importTarget) ? importTarget.name : undefined
+          if (typeof name !== 'string') {
             return this.error(
               new Error(
-                `The first argument of ${HELPER_MOCK_IMPORT}() must be a string literal`,
+                `The first argument of ${HELPER_MOCK_IMPORT}() must be a string literal or mocked target`,
               ),
-              startOf(importName),
+              startOf(importTarget),
             )
           }
-          const name = importName.value
           const importItem = ctx.imports.find(_ => name === (_.as || _.name))
           if (!importItem) {
-            console.log({ imports: ctx.imports })
             return this.error(`Cannot find import "${name}" to mock`)
           }
 
           s.overwrite(
             isExpressionStatement(parent)
               ? startOf(parent)
-              : startOf(node.arguments[0]),
+              : startOf(node.arguments[0]!),
             isExpressionStatement(parent)
               ? endOf(parent)
-              : endOf(node.arguments[1]),
+              : endOf(node.arguments[1]!),
             '',
           )
           mocksImport.push({
             name,
             import: importItem,
             factory: code.slice(
-              startOf(node.arguments[1]),
-              endOf(node.arguments[1]),
+              startOf(node.arguments[1]!),
+              endOf(node.arguments[1]!),
             ),
           })
         }
@@ -134,7 +137,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
               startOf(node),
             )
           }
-          const componentName = node.arguments[0]
+          const componentName = node.arguments[0]!
           if (!isLiteral(componentName) || typeof componentName.value !== 'string') {
             return this.error(
               new Error(
@@ -152,17 +155,17 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
           s.overwrite(
             isExpressionStatement(parent)
               ? startOf(parent)
-              : startOf(node.arguments[1]),
+              : startOf(node.arguments[1]!),
             isExpressionStatement(parent)
               ? endOf(parent)
-              : endOf(node.arguments[1]),
+              : endOf(node.arguments[1]!),
             '',
           )
           mocksComponent.push({
             path: path,
             factory: code.slice(
-              startOf(node.arguments[1]),
-              endOf(node.arguments[1]),
+              startOf(node.arguments[1]!),
+              endOf(node.arguments[1]!),
             ),
           })
         }
@@ -185,26 +188,23 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
         ...Array.from(mockImportMap.entries()).flatMap(
           ([from, mocks]) => {
             importPathsList.add(from)
+            const quotedFrom = JSON.stringify(from)
+            const mockModuleEntry = `globalThis.${HELPER_MOCK_HOIST}[${quotedFrom}]`
             const lines = [
-              `vi.mock(${JSON.stringify(from)}, async (importOriginal) => {`,
-              `  const mocks = globalThis.${HELPER_MOCK_HOIST}`,
-              `  if (!mocks[${JSON.stringify(from)}]) {`,
-              `    mocks[${JSON.stringify(from)}] = { ...await importOriginal(${JSON.stringify(from)}) }`,
+              `vi.mock(${quotedFrom}, async (importOriginal) => {`,
+              `  if (!${mockModuleEntry}) {`,
+              `    const original = await importOriginal(${quotedFrom})`,
+              `    ${mockModuleEntry} = { ...original }`,
+              `    ${mockModuleEntry}.${HELPER_MOCK_HOIST_ORIGINAL} = { ...original }`,
               `  }`,
             ]
             for (const mock of mocks) {
-              if (mock.import.name === 'default') {
-                lines.push(
-                  `  mocks[${JSON.stringify(from)}]["default"] = await (${mock.factory})();`,
-                )
-              }
-              else {
-                lines.push(
-                  `  mocks[${JSON.stringify(from)}][${JSON.stringify(mock.name)}] = await (${mock.factory})();`,
-                )
-              }
+              const quotedName = JSON.stringify(mock.import.name === 'default' ? 'default' : mock.name)
+              lines.push(
+                `  ${mockModuleEntry}[${quotedName}] = await (${mock.factory})(${mockModuleEntry}.${HELPER_MOCK_HOIST_ORIGINAL}[${quotedName}]);`,
+              )
             }
-            lines.push(`  return mocks[${JSON.stringify(from)}] `)
+            lines.push(`  return ${mockModuleEntry} `)
             lines.push(`});`)
             return lines
           },
@@ -263,7 +263,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
         const vitestPlugins = plugins.filter(p => (p.name === 'vite:mocks' || p.name.startsWith('vitest:')) && (p.enforce || ('order' in p && p.order)) === 'post')
         const lastNuxt = findLastIndex(
           plugins,
-          i => i.name?.startsWith('nuxt:'),
+          i => !!i?.name?.startsWith('nuxt:'),
         )
         if (lastNuxt === -1) return
         for (const plugin of vitestPlugins) {
@@ -279,7 +279,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
 })
 
 // Polyfill Array.prototype.findLastIndex for legacy Node.js
-function findLastIndex<T>(arr: T[], predicate: (item: T) => boolean) {
+function findLastIndex<T>(arr: T[], predicate: (item?: T) => boolean) {
   for (let i = arr.length - 1; i >= 0; i--) {
     if (predicate(arr[i])) return i
   }

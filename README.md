@@ -1,5 +1,8 @@
 # Nuxt Test Utils
 
+[![nuxt.care health](https://img.shields.io/endpoint?url=https://nuxt.care/api/badge/test-utils)](https://nuxt.care/?search=test-utils)
+
+
 🧪 [Nuxt](https://nuxt.com/) Test Utils
 
 ## Overview
@@ -11,7 +14,7 @@ Nuxt Test Utils is currently powering [the tests we use on Nuxt itself](https://
 You can find out more about how to use Nuxt Test Utils:
 
 - in [a general overview](https://nuxt.com/docs/getting-started/testing)
-- in [an in-depth guide for module authors](https://nuxt.com/docs/guide/going-further/modules#testing)
+- in [an in-depth guide for module authors](https://nuxt.com/docs/4.x/guide/modules/testing)
 
 ## License
 

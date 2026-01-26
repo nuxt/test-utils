@@ -13,9 +13,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - run: npm i -g --force corepack && corepack enable
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - run: corepack enable
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: lts/*
           cache: "pnpm"
@@ -23,10 +23,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Prepare build environment
+        run: pnpm dev:prepare
+
       - name: Lint (code)
         run: pnpm lint:fix
 
-      - name: Check engine ranges, peer dependency ranges and installed versions
-        run: pnpm installed-check --no-workspaces --fix
+      - name: Knip
+        run: pnpm test:knip --fix
 
-      - uses: autofix-ci/action@551dded8c6cc8a1054039c8bc0b8b48c51dfc6ef
+      - name: Check engine ranges, peer dependency ranges and installed versions
+        run: pnpm test:engines --fix
+
+      - uses: autofix-ci/action@635ffb0c9798bd160680f18fd73371e355b85f27

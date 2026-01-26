@@ -207,9 +207,7 @@ export async function loadWorkspace(dir: string) {
 export async function determineBumpType(config: ResolvedChangelogConfig) {
   const commits = await getLatestCommits(config)
 
-  const bumpType = determineSemverChange(commits, config)
-
-  return bumpType === 'major' ? 'minor' : bumpType
+  return determineSemverChange(commits, config)
 }
 
 export async function getLatestCommits(config: ResolvedChangelogConfig) {

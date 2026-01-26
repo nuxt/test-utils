@@ -8,9 +8,9 @@
     "dev:prepare": "nuxt prepare",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "test:dev": "NUXT_VITEST_DEV_TEST=true nuxt dev --no-fork",
+    "test:dev": "nuxt dev --no-fork",
     "test:unit": "vitest",
-    "test:types": "nuxi prepare && vue-tsc --noEmit",
+    "test:types": "nuxt prepare && vue-tsc --noEmit",
     "test:jsdom": "VITEST_DOM_ENV=jsdom pnpm test:unit --run",
     "test:happy-dom": "VITEST_DOM_ENV=happy-dom pnpm test:unit --run",
     "test": "pnpm test:happy-dom && pnpm test:jsdom && pnpm test:dev && pnpm test:types"
@@ -18,13 +18,14 @@
   "devDependencies": {
     "@nuxt/test-utils": "latest",
     "@testing-library/vue": "8.1.0",
-    "happy-dom": "17.4.7",
-    "jsdom": "26.1.0",
+    "@vitest/ui": "4.0.18",
+    "happy-dom": "20.3.9",
+    "jsdom": "27.4.0",
     "listhen": "1.9.0",
-    "nuxt": "3.17.4",
-    "typescript": "5.8.3",
-    "vitest": "3.2.0",
-    "vue-tsc": "2.2.10"
+    "nuxt": "4.2.2",
+    "typescript": "5.9.3",
+    "vitest": "4.0.18",
+    "vue-tsc": "3.2.4"
   },
   "dependencies": {
     "idb-keyval": "^6.2.2"
