@@ -14,7 +14,7 @@ function validateTypeScriptSyntax(code: string): void {
 
 describe('install wizard config generation', () => {
   describe('vitest config', () => {
-    it('generates config for unit + components with happy-dom', () => {
+    it('generates config for unit + components with happy-dom', async () => {
       const answers: WizardAnswers = {
         testingScope: ['unit', 'runtime'],
         domEnvironment: 'happy-dom',
@@ -22,10 +22,10 @@ describe('install wizard config generation', () => {
       }
 
       const config = generateVitestConfig(answers)
-      expect(config).toMatchFileSnapshot('__snapshots__/vitest-project-unit-components-happy-dom.ts')
+      await expect(config).toMatchFileSnapshot('__snapshots__/vitest-project-unit-components-happy-dom.ts')
     })
 
-    it('generates config for components with jsdom', () => {
+    it('generates config for components with jsdom', async () => {
       const answers: WizardAnswers = {
         testingScope: ['runtime'],
         domEnvironment: 'jsdom',
@@ -33,10 +33,10 @@ describe('install wizard config generation', () => {
       }
 
       const config = generateVitestConfig(answers)
-      expect(config).toMatchFileSnapshot('__snapshots__/vitest-project-components-jsdom.ts')
+      await expect(config).toMatchFileSnapshot('__snapshots__/vitest-project-components-jsdom.ts')
     })
 
-    it('generates config with browser mode', () => {
+    it('generates config with browser mode', async () => {
       const answers: WizardAnswers = {
         testingScope: ['runtime'],
         browserMode: true,
@@ -44,10 +44,10 @@ describe('install wizard config generation', () => {
       }
 
       const config = generateVitestConfig(answers)
-      expect(config).toMatchFileSnapshot('__snapshots__/vitest-project-browser.ts')
+      await expect(config).toMatchFileSnapshot('__snapshots__/vitest-project-browser.ts')
     })
 
-    it('generates config with coverage', () => {
+    it('generates config with coverage', async () => {
       const answers: WizardAnswers = {
         testingScope: ['runtime'],
         domEnvironment: 'happy-dom',
@@ -56,10 +56,10 @@ describe('install wizard config generation', () => {
       }
 
       const config = generateVitestConfig(answers)
-      expect(config).toMatchFileSnapshot('__snapshots__/vitest-project-coverage.ts')
+      await expect(config).toMatchFileSnapshot('__snapshots__/vitest-project-coverage.ts')
     })
 
-    it('generates config with e2e using vitest', () => {
+    it('generates config with e2e using vitest', async () => {
       const answers: WizardAnswers = {
         testingScope: ['unit', 'runtime', 'e2e'],
         domEnvironment: 'happy-dom',
@@ -68,10 +68,10 @@ describe('install wizard config generation', () => {
       }
 
       const config = generateVitestConfig(answers)
-      expect(config).toMatchFileSnapshot('__snapshots__/vitest-project-with-e2e.ts')
+      await expect(config).toMatchFileSnapshot('__snapshots__/vitest-project-with-e2e.ts')
     })
 
-    it('does not include e2e project when using playwright', () => {
+    it('does not include e2e project when using playwright', async () => {
       const answers: WizardAnswers = {
         testingScope: ['unit', 'runtime', 'e2e'],
         domEnvironment: 'happy-dom',
@@ -80,14 +80,14 @@ describe('install wizard config generation', () => {
       }
 
       const config = generateVitestConfig(answers)
-      expect(config).toMatchFileSnapshot('__snapshots__/vitest-project-with-playwright-e2e.ts')
+      await expect(config).toMatchFileSnapshot('__snapshots__/vitest-project-with-playwright-e2e.ts')
     })
   })
 
   describe('playwright config', () => {
-    it('generates playwright config', () => {
+    it('generates playwright config', async () => {
       const config = generatePlaywrightConfig()
-      expect(config).toMatchFileSnapshot('__snapshots__/playwright.config.ts')
+      await expect(config).toMatchFileSnapshot('__snapshots__/playwright.config.ts')
     })
   })
 
