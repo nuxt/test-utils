@@ -8,6 +8,9 @@ import type { Vitest } from 'vitest/node'
 
 type VitestCliOptions = Parameters<typeof createVitest>[1]
 
+// Increase timeout for CI environments (especially Windows) where Nuxt build can be slow
+const TEST_TIMEOUT = process.env.CI ? 60_000 : 10_000
+
 describe('resolve config', () => {
   describe('basic', async () => {
     const expected = {
@@ -21,13 +24,13 @@ describe('resolve config', () => {
 
     it('all', async () => {
       expect(await globTestSpecifications('../fixtures/basic')).toEqual(expected)
-    })
+    }, TEST_TIMEOUT)
 
     it('spcific root', async () => {
       expect(await globTestSpecifications('./', {
         root: '../fixtures/basic',
       })).toEqual(expected)
-    })
+    }, TEST_TIMEOUT)
   })
 
   describe('project', async () => {
@@ -42,19 +45,19 @@ describe('resolve config', () => {
 
     it('all', async () => {
       expect(await globTestSpecifications('../fixtures/project')).toEqual(expected)
-    })
+    }, TEST_TIMEOUT)
 
     it('only spcific project', async () => {
       expect(await globTestSpecifications('../fixtures/project', {
         project: 'nuxt',
       })).toEqual({ nuxt: expected.nuxt })
-    })
+    }, TEST_TIMEOUT)
 
     it('spcific root', async () => {
       expect(await globTestSpecifications('./', {
         root: '../fixtures/project',
       })).toEqual(expected)
-    })
+    }, TEST_TIMEOUT)
   })
 
   describe('override', () => {
@@ -75,7 +78,7 @@ describe('resolve config', () => {
 
     it('all', async () => {
       expect(await globTestSpecifications('../fixtures/override')).toEqual(expected)
-    })
+    }, TEST_TIMEOUT)
 
     it('only spcific project', async () => {
       expect(await globTestSpecifications('../fixtures/override', {
@@ -84,13 +87,13 @@ describe('resolve config', () => {
         nuxt1: expected.nuxt1,
         nuxt2: expected.nuxt2,
       })
-    })
+    }, TEST_TIMEOUT)
 
     it('spcific root', async () => {
       expect(await globTestSpecifications('./', {
         root: '../fixtures/override',
       })).toEqual(expected)
-    })
+    }, TEST_TIMEOUT)
   })
 })
 
