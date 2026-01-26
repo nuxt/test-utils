@@ -1,4 +1,5 @@
 import { createResolver, defineNuxtModule, logger, resolvePath, useNuxt } from '@nuxt/kit'
+import { onDevToolsInitialized } from '@nuxt/devtools-kit'
 import type { TestUserConfig as VitestConfig } from 'vitest/config'
 import { join, relative } from 'pathe'
 import { isCI } from 'std-env'
@@ -70,9 +71,9 @@ export default defineNuxtModule<NuxtVitestOptions>({
 
     const vitestWrapper = createVitestWrapper(options, nuxt)
 
-    nuxt.hook('devtools:before', async () => {
+    onDevToolsInitialized(async () => {
       await setupDevTools(vitestWrapper, nuxt)
-    })
+    }, nuxt)
 
     if (options.startOnBoot) {
       vitestWrapper.start()
