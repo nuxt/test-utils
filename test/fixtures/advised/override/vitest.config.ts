@@ -9,11 +9,11 @@ export default defineConfig({
         test: {
           name: 'nuxt1',
           environment: 'nuxt',
-          include: ['./test/**.spec.ts'],
+          include: ['./test/app/**/*.spec.ts'],
           environmentOptions: {
             nuxt: {
               overrides: {
-                rootDir: fileURLToPath(new URL('test/app/', import.meta.url)),
+                rootDir: fileURLToPath(new URL('test/fixture/', import.meta.url)),
               },
             },
           },
@@ -24,11 +24,11 @@ export default defineConfig({
         test: {
           name: 'nuxt2',
           environment: 'nuxt',
-          include: ['./test/**.spec.ts'],
+          include: ['./test/app/**.spec.ts'],
           environmentOptions: {
             nuxt: {
               overrides: {
-                rootDir: fileURLToPath(new URL('test/app/', import.meta.url)),
+                rootDir: fileURLToPath(new URL('test/fixture/', import.meta.url)),
               },
             },
           },
@@ -37,14 +37,14 @@ export default defineConfig({
       {
         test: {
           name: 'unit1',
-          include: ['./test/**.spec.ts'],
+          include: ['./test/unit/**.spec.ts'],
         },
       },
       {
         extends: true,
         test: {
           name: 'unit2',
-          include: ['./test/**.spec.ts'],
+          include: ['./test/unit/**.spec.ts'],
         },
       },
     ],
