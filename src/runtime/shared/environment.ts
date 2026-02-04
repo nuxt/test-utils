@@ -21,18 +21,6 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
     state: {},
   }
 
-  const rootId = environmentOptions.nuxt.rootId || 'nuxt-test'
-  let el
-  try {
-    el = win.document.querySelector(rootId)
-  }
-  catch {
-    // suppress error - jsdom bug with `__nuxt` query selector
-  }
-  if (el) {
-    return () => {}
-  }
-
   const consoleInfo = console.info
   console.info = (...args) => {
     if (args[0] === '<Suspense> is an experimental feature and its API will likely change.') {
@@ -43,7 +31,7 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
 
   const app = win.document.createElement('div')
   // this is a workaround for a happy-dom bug with ids beginning with _
-  app.id = rootId
+  app.id = environmentOptions.nuxt.rootId || 'nuxt-test'
   win.document.body.appendChild(app)
 
   if (!win.fetch || !('Request' in win)) {
