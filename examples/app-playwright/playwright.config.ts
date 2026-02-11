@@ -1,9 +1,12 @@
 import { fileURLToPath } from 'node:url'
 import { defineConfig, devices } from '@playwright/test'
+import type { Project } from '@playwright/test'
 import type { ConfigOptions } from '@nuxt/test-utils/playwright'
 import { isCI, isWindows } from 'std-env'
 
-const devicesToTest = [
+type DeviceName = keyof { [K in keyof typeof devices as string extends K ? never : K]: unknown }
+
+const devicesToTest: Array<DeviceName | Project> = [
   'Desktop Chrome',
   // Test against other common browser engines.
   // 'Desktop Firefox',
@@ -12,9 +15,15 @@ const devicesToTest = [
   // 'Pixel 5',
   // 'iPhone 12',
   // Test against branded browsers.
-  // { ...devices['Desktop Edge'], channel: 'msedge' },
-  // { ...devices['Desktop Chrome'], channel: 'chrome' },
-] satisfies Array<string | typeof devices[string]>
+  // {
+  //   name: 'Microsoft Edge',
+  //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
+  // },
+  // {
+  //   name: 'Google Chrome',
+  //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+  // },
+]
 
 /* See https://playwright.dev/docs/test-configuration. */
 export default defineConfig<ConfigOptions>({
