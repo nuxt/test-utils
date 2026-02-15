@@ -7,7 +7,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
+    "dev:prepare": "nuxt prepare app1 && nuxt prepare app2",
+    "postinstall": "pnpm dev:prepare",
     "test": "vitest run"
   },
   "dependencies": {
@@ -15,6 +16,7 @@
   },
   "devDependencies": {
     "@nuxt/test-utils": "latest",
+    "@nuxt/ui": "4.4.0",
     "happy-dom": "20.6.1",
     "playwright-core": "1.58.2",
     "typescript": "5.9.3",

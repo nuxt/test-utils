@@ -26,8 +26,25 @@ interface LoadNuxtOptions {
   overrides?: Partial<NuxtConfig>
 }
 
+const startNuxtAndGetViteConfig: typeof _startNuxtAndGetViteConfig = (() => {
+  let _lock = Promise.resolve()
+
+  return async (...args) => {
+    const acquire = _lock
+    let release = () => {}
+    _lock = new Promise(resolve => release = resolve)
+    try {
+      await acquire
+      return await _startNuxtAndGetViteConfig(...args)
+    }
+    finally {
+      release()
+    }
+  }
+})()
+
 // https://github.com/nuxt/framework/issues/6496
-async function startNuxtAndGetViteConfig(rootDir = process.cwd(), options: LoadNuxtOptions = {}) {
+async function _startNuxtAndGetViteConfig(rootDir = process.cwd(), options: LoadNuxtOptions = {}) {
   const { buildNuxt, loadNuxt } = await loadKit(rootDir)
   const nuxt = await loadNuxt({
     cwd: rootDir,
