@@ -56,12 +56,13 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "pnpm test:types && pnpm test:unit && pnpm test:examples",
+    "test": "pnpm test:types && pnpm test:unit:types && pnpm test:unit && pnpm test:examples",
     "test:examples": "pnpm --filter '!@nuxt/test-utils' --filter '!example-app-cucumber' --filter '!example-app-jest' --filter '!example-app-bun' -r test && pnpm --filter example-app-cucumber -r test",
     "test:knip": "knip",
     "test:engines": "pnpm installed-check --no-workspaces --ignore-dev",
     "test:types": "vue-tsc --noEmit",
     "test:unit": "vitest test/unit --run",
+    "test:unit:types": "vitest test/types --typecheck.only --run",
     "build": "unbuild",
     "prepack": "unbuild",
     "dev:prepare": "nuxt prepare && unbuild --stub && pnpm -r dev:prepare"

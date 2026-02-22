@@ -124,11 +124,28 @@ export function registerEndpoint(url: string, options: H3V1EventHandler | { hand
  *  }
  * })
  * ```
+ * @example
+ * ```ts
+ * // Making partial mock with original implementation
+ * mockNuxtImport(useRoute, original => vi.fn(original))
+ * // or (with name based)
+ * mockNuxtImport('useRoute', original => vi.fn(original))
+ * // or (with name based, type parameter)
+ * mockNuxtImport<typeof useRoute>('useRoute', original => vi.fn(original))
+ *
+ * // Override in test
+ * vi.mocked(useRoute).mockImplementation(
+ *  (...args) => ({ ...vi.mocked(useRoute).getMockImplementation()!(...args), path: '/mocked' }),
+ * )
+ * ```
  * @see https://nuxt.com/docs/getting-started/testing#mocknuxtimport
  */
 export function mockNuxtImport<T = unknown>(
   _target: string | T,
-  _factory: (original: T) => T | Promise<T>,
+  _factory: T extends string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ? (original: any) => any
+    : (original: T) => T | Promise<T>,
 ): void {
   throw new Error(
     'mockNuxtImport() is a macro and it did not get transpiled. This may be an internal bug of @nuxt/test-utils.',
