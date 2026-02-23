@@ -15,5 +15,10 @@ export default defineVitestConfig({
     },
     setupFiles: './tests/setup/mocks.ts',
     globals: true,
+    onConsoleLog(log) {
+      if (log.includes('<Suspense> is an experimental feature')) {
+        return false
+      }
+    },
   },
 })

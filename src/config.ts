@@ -316,9 +316,12 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
         },
       }, resolvedConfig)
 
-      resolvedConfig.test = {
-        projects: [nuxtProject, defaultProject],
-      }
+      delete resolvedConfig.test.name
+      delete resolvedConfig.test.environment
+      delete resolvedConfig.test.include
+      delete resolvedConfig.test.exclude
+
+      resolvedConfig.test.projects = [nuxtProject, defaultProject]
     }
 
     return resolvedConfig
