@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
-mockNuxtImport(useAutoImportedTarget, (original) => {
+mockNuxtImport('useAutoImportedTarget', (original) => {
   return () => `useAutoImportedTarget mocked(${original()})`
 })
 
-mockNuxtImport(useDefaultExport, (original) => {
+mockNuxtImport<typeof useDefaultExport>('useDefaultExport', (original) => {
   return () => `useDefaultExport mocked(${original()})`
 })
 

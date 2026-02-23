@@ -12,7 +12,7 @@ mockNuxtImport(useGlobalCounter, () => () => ({
   increment: incrementMock,
 }))
 
-mockNuxtImport(navigateTo, original => vi.fn(original))
+mockNuxtImport('navigateTo', original => vi.fn(original))
 
 describe('middleware', () => {
   beforeEach(() => {
