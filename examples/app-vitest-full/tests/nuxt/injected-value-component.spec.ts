@@ -28,4 +28,14 @@ describe('InjectedValueComponent', () => {
       expect(inject(CUSTOM_VUE_PLUGIN_SYMBOL2)).toBe(VUE_INJECTED_VALUE2)
     })
   })
+  it.fails('can stub injected values', async () => {
+    const component = await mountSuspended(InjectedValueComponent, {
+      global: {
+        provide: {
+          [CUSTOM_VUE_PLUGIN_SYMBOL]: 'stubbed value',
+        },
+      },
+    })
+    expect(component.text()).toContain('stubbed value')
+  })
 })
