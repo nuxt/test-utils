@@ -8,7 +8,7 @@ import { setupDotenv } from 'c12'
 import type { DotenvOptions } from 'c12'
 import type { UserConfigFnPromise, UserConfig as ViteUserConfig } from 'vite'
 import type { DateString } from 'compatx'
-import { defu } from 'defu'
+import { createDefu, defu } from 'defu'
 import { createResolver, findPath } from '@nuxt/kit'
 import { resolveModulePath } from 'exsolve'
 import { getPackageInfoSync } from 'local-pkg'
@@ -179,7 +179,7 @@ export async function getVitestConfigFromNuxt(
         },
         deps: {
           optimizer: {
-            web: {
+            client: {
               enabled: false,
             },
           },
@@ -275,21 +275,33 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
 
     const defaultEnvironment = resolvedConfig.test.environment || 'node'
     if (defaultEnvironment !== 'nuxt') {
-      resolvedConfig.test.projects = []
-      resolvedConfig.test.projects.push({
-        extends: true,
+      const merge = createDefu((obj, key, value) => {
+        if (Array.isArray(value) && Array.isArray(obj[key])) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ;(obj[key] as any) = [...new Set([...value, ...obj[key]])]
+          return true
+        }
+      })
+
+      const nuxtProject = merge({
+        ...resolvedConfig,
         test: {
+          ...resolvedConfig.test,
           name: 'nuxt',
           environment: 'nuxt',
-          include: [
-            '**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-            '{test,tests}/nuxt/**.*',
-          ],
+          include: [] as string[],
         },
-      })
-      resolvedConfig.test.projects.push({
-        extends: true,
+      }, resolvedConfig)
+
+      nuxtProject.test.include = [
+        '**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+        '{test,tests}/nuxt/**.*',
+      ]
+
+      const defaultProject = merge({
+        ...resolvedConfig,
         test: {
+          ...resolvedConfig.test,
           name: defaultEnvironment,
           environment: defaultEnvironment,
           exclude: [
@@ -302,7 +314,14 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
             './{test,tests}/nuxt/**.*',
           ],
         },
-      })
+      }, resolvedConfig)
+
+      delete resolvedConfig.test.name
+      delete resolvedConfig.test.environment
+      delete resolvedConfig.test.include
+      delete resolvedConfig.test.exclude
+
+      resolvedConfig.test.projects = [nuxtProject, defaultProject]
     }
 
     return resolvedConfig
