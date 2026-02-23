@@ -179,7 +179,7 @@ export async function getVitestConfigFromNuxt(
         },
         deps: {
           optimizer: {
-            web: {
+            client: {
               enabled: false,
             },
           },
