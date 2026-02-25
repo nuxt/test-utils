@@ -1,6 +1,7 @@
 import type { Browser, BrowserContextOptions, Page, Response } from 'playwright-core'
 import { useTestContext } from './context'
 import { url } from './server'
+import { join, dirname } from 'node:path'
 
 export async function createBrowser() {
   const ctx = useTestContext()
@@ -43,8 +44,23 @@ export interface NuxtPage extends Omit<Page, 'goto'> {
 }
 
 export async function createPage(path?: string, options?: BrowserContextOptions): Promise<NuxtPage> {
+  const ctx = useTestContext()
   const browser = await getBrowser()
   const page = await browser.newPage(options) as unknown as NuxtPage
+
+  if (ctx.options.runner === 'vitest') {
+    const vitest = await import('vitest')
+    vitest.onTestFailed(async (test) => {
+      try {
+        await page.screenshot({
+          path: join(dirname(test.task.file.filepath), '__screenshots__', `${'fullTestName' in test.task ? test.task.fullTestName : test.task.id}.png`),
+        })
+      }
+      catch {
+        // noop
+      }
+    })
+  }
 
   const _goto = page.goto.bind(page)
   page.goto = async (url, options): Promise<Response | null> => {
