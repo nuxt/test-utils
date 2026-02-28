@@ -44,7 +44,9 @@ export function createTest(options: Partial<TestOptions>): TestHooks {
             const { formatViolations } = await import('@nuxt/a11y/test-utils')
             detail = '\n\n' + formatViolations(allViolations as Parameters<typeof formatViolations>[0])
           }
-          catch {}
+          catch {
+            // formatViolations is optional
+          }
           throw new Error(`[a11y] Violation count (${totalViolations}) exceeds threshold` + detail)
         }
       }

@@ -5,6 +5,7 @@ import { isWindows } from 'std-env'
 await setup({
   rootDir: fileURLToPath(new URL('../', import.meta.url)),
   browser: true,
+  a11y: true,
 })
 
 describe('browser', () => {
