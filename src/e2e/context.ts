@@ -62,6 +62,11 @@ export function useTestContext(): TestContext {
   return currentContext
 }
 
+export function tryUseTestContext(): TestContext | undefined {
+  recoverContextFromEnv()
+  return currentContext
+}
+
 export function setTestContext(context: TestContext): TestContext
 export function setTestContext(context?: TestContext): TestContext | undefined
 export function setTestContext(context?: TestContext): TestContext | undefined {

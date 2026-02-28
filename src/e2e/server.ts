@@ -4,7 +4,7 @@ import type { $Fetch, FetchOptions } from 'ofetch'
 import { fetch as _fetch, createFetch } from 'ofetch'
 import { resolve } from 'pathe'
 import { joinURL } from 'ufo'
-import { useTestContext } from './context'
+import { tryUseTestContext, useTestContext } from './context'
 
 const globalFetch = globalThis.fetch || _fetch
 
@@ -92,7 +92,17 @@ export function fetch(path: string, options?: RequestInit) {
 const _$fetch = createFetch({ fetch: globalFetch })
 
 export const $fetch = function $fetch(path: string, options?: FetchOptions) {
-  return _$fetch(url(path), options)
+  const promise = _$fetch(url(path), options)
+  const ctx = tryUseTestContext()
+  if (!ctx?.a11y) {
+    return promise
+  }
+  return promise.then(async (data) => {
+    if (typeof data === 'string' && data.includes('<body')) {
+      await ctx.a11y!.scanFetchedHtml(path, data)
+    }
+    return data
+  })
 } as '$fetch' extends keyof typeof globalThis ? typeof globalThis.$fetch : $Fetch
 
 export function url(path: string) {

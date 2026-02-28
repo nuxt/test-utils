@@ -27,6 +27,31 @@ export function createTest(options: Partial<TestOptions>): TestHooks {
   }
 
   const afterAll = async () => {
+    if (ctx.a11y) {
+      const results = ctx.a11y.getResults()
+      const routes = Object.keys(results)
+      if (routes.length > 0) {
+        let totalViolations = 0
+        const allViolations: unknown[] = []
+        for (const result of Object.values(results)) {
+          totalViolations += result.violationCount
+          allViolations.push(...result.violations)
+        }
+        console.log(`[a11y] Scanned ${routes.length} route(s) \u2014 ${totalViolations} violation(s)`)
+        if (ctx.a11y.exceedsThreshold()) {
+          let detail = ''
+          try {
+            const { formatViolations } = await import('@nuxt/a11y/test-utils')
+            detail = '\n\n' + formatViolations(allViolations as Parameters<typeof formatViolations>[0])
+          }
+          catch {
+            // formatViolations is optional
+          }
+          throw new Error(`[a11y] Violation count (${totalViolations}) exceeds threshold` + detail)
+        }
+      }
+    }
+
     if (ctx.serverProcess) {
       setTestContext(ctx)
       await stopServer()
@@ -57,6 +82,17 @@ export function createTest(options: Partial<TestOptions>): TestHooks {
 
     if (ctx.options.waitFor) {
       await (new Promise(resolve => setTimeout(resolve, ctx.options.waitFor)))
+    }
+
+    if (ctx.options.a11y) {
+      try {
+        const { createAutoScan } = await import('@nuxt/a11y/test-utils')
+        const a11yOptions = typeof ctx.options.a11y === 'object' ? ctx.options.a11y : {}
+        ctx.a11y = createAutoScan(a11yOptions)
+      }
+      catch {
+        throw new Error('setup({ a11y: true }) requires @nuxt/a11y to be installed')
+      }
     }
 
     if (ctx.options.browser) {

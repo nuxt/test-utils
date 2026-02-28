@@ -46,6 +46,7 @@ export default defineConfig<ConfigOptions>({
     /* Nuxt configuration options */
     nuxt: {
       rootDir: fileURLToPath(new URL('.', import.meta.url)),
+      a11y: true,
     },
   },
   projects: devicesToTest.map(p => typeof p === 'string' ? ({ name: p, use: devices[p] }) : p),

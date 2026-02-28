@@ -10,6 +10,7 @@ if (!isWindows) {
   await setup({
     rootDir: fileURLToPath(new URL('../', import.meta.url)),
     browser: true,
+    a11y: true,
   })
 }
 

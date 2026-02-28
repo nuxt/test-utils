@@ -7,6 +7,7 @@ await setup({
   rootDir: fileURLToPath(new URL('../../', import.meta.url)),
   browser: true,
   setupTimeout: isWindows ? 240000 : 120000,
+  a11y: true,
 })
 
 describe('browser', () => {

@@ -70,6 +70,7 @@ export interface TestOptions {
    */
   port?: number
   env?: StartServerOptions['env']
+  a11y?: boolean | { exclude?: (string | RegExp)[], threshold?: number }
 }
 
 export interface TestContext {
@@ -84,6 +85,14 @@ export interface TestContext {
    * Useful for removing anything created during the test.
    */
   teardown?: (() => void)[]
+  a11y?: {
+    scanFetchedHtml(url: string, html: string): Promise<void>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    addResult(url: string, result: any): void
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getResults(): Record<string, any>
+    exceedsThreshold(): boolean
+  }
 }
 
 export interface TestHooks {
