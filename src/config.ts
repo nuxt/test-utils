@@ -248,6 +248,11 @@ export async function getVitestConfigFromNuxt(
   const entryPath = resolver.resolve('./runtime/entry')
   resolvedConfig.test.setupFiles.unshift(await findPath(entryPath) ?? entryPath)
 
+  const a11ySetup = resolveModulePath('@nuxt/a11y/test-utils/setup', { try: true })
+  if (a11ySetup) {
+    resolvedConfig.test.setupFiles.push(a11ySetup)
+  }
+
   return resolvedConfig
 }
 

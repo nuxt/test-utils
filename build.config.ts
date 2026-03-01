@@ -7,6 +7,7 @@ export default defineBuildConfig({
   entries: [
     'src/e2e',
     'src/playwright',
+    'src/playwright-reporter',
     'src/experimental',
     'src/config',
     'src/module.ts',
@@ -25,5 +26,8 @@ export default defineBuildConfig({
     '@nuxt/schema',
     'vue-router',
     'nitropack',
+    '@nuxt/a11y/test-utils',
+    '@nuxt/a11y/test-utils/setup',
+    '@nuxt/a11y/test-utils/browser',
   ],
 })

@@ -1,5 +1,5 @@
 import type { Browser, BrowserContextOptions, Page, Response } from 'playwright-core'
-import { useTestContext } from './context'
+import { tryUseTestContext, useTestContext } from './context'
 import { url } from './server'
 
 export async function createBrowser() {
@@ -54,11 +54,36 @@ export async function createPage(path?: string, options?: BrowserContextOptions)
     }
     const res = await _goto(url, options as Parameters<Page['goto']>[1])
     await waitForHydration(page, url, waitUntil)
+    const a11y = tryUseTestContext()?.a11y
+    if (a11y) {
+      try {
+        const { runAxeOnPage } = await import('@nuxt/a11y/test-utils/browser')
+        const result = await runAxeOnPage(page, { waitForState: null })
+        a11y.addResult(url, result)
+      }
+      catch {
+        // a11y scan failure must not break navigation
+      }
+    }
     return res
   }
 
   if (path) {
     await page.goto(url(path), options?.javaScriptEnabled === false ? {} : { waitUntil: 'hydration' })
+  }
+
+  const a11y = tryUseTestContext()?.a11y
+  if (a11y) {
+    try {
+      const { observePage } = await import('@nuxt/a11y/test-utils/browser')
+      const stop = await observePage(page, (_url, result) => {
+        a11y.addResult(_url, result)
+      })
+      page.on('close', () => stop().catch(() => {}))
+    }
+    catch {
+      // observer setup failure must not break tests
+    }
   }
 
   return page

@@ -13,6 +13,7 @@
     "./config": "./dist/config.mjs",
     "./e2e": "./dist/e2e.mjs",
     "./playwright": "./dist/playwright.mjs",
+    "./playwright/a11y-reporter": "./dist/playwright-reporter.mjs",
     "./experimental": "./dist/experimental.mjs",
     "./module": "./dist/module.mjs",
     "./runtime": "./dist/runtime-utils/index.mjs",
@@ -34,6 +35,9 @@
       ],
       "playwright": [
         "./dist/playwright.d.mts"
+      ],
+      "playwright/a11y-reporter": [
+        "./dist/playwright-reporter.d.mts"
       ],
       "experimental": [
         "./dist/experimental.d.mts"
@@ -101,6 +105,7 @@
   "devDependencies": {
     "@cucumber/cucumber": "12.6.0",
     "@jest/globals": "30.2.0",
+    "@nuxt/a11y": "https://pkg.pr.new/nuxt/a11y/@nuxt/a11y@b16cc65",
     "@nuxt/eslint-config": "1.15.1",
     "@nuxt/schema": "4.3.0",
     "@playwright/test": "1.58.2",
@@ -133,6 +138,7 @@
     "vue-tsc": "3.2.5"
   },
   "peerDependencies": {
+    "@nuxt/a11y": ">=1.0.0",
     "@cucumber/cucumber": ">=11.0.0",
     "@jest/globals": ">=30.0.0",
     "@playwright/test": "^1.43.1",
@@ -144,6 +150,9 @@
     "vitest": "^4.0.2"
   },
   "peerDependenciesMeta": {
+    "@nuxt/a11y": {
+      "optional": true
+    },
     "@cucumber/cucumber": {
       "optional": true
     },

@@ -42,8 +42,9 @@ export const test = base.extend<TestOptions, WorkerOptions & ConfigOptions>({
   nuxt: [undefined, { option: true, scope: 'worker' }],
   defaults: [{ nuxt: undefined }, { option: true, scope: 'worker' }],
   _nuxtHooks: [
-    async ({ nuxt, defaults }, use) => {
+    async ({ nuxt, defaults }, use, workerInfo) => {
       const hooks = createTest(defu(nuxt || {}, defaults.nuxt || {}))
+      hooks.ctx.playwrightProjectName = workerInfo.project.name
       await hooks.beforeAll()
       await use(hooks)
       await hooks.afterAll()
@@ -54,7 +55,8 @@ export const test = base.extend<TestOptions, WorkerOptions & ConfigOptions>({
     await use(url('/'))
     _nuxtHooks.afterEach()
   },
-  goto: async ({ page }, use) => {
+  goto: async ({ page, _nuxtHooks }, use) => {
+    let observerStarted = false
     await use(async (url, options) => {
       const waitUntil = options?.waitUntil
       if (waitUntil && ['hydration', 'route'].includes(waitUntil)) {
@@ -62,6 +64,29 @@ export const test = base.extend<TestOptions, WorkerOptions & ConfigOptions>({
       }
       const response = await page.goto(url, options as Parameters<Page['goto']>[1])
       await waitForHydration(page, url, waitUntil)
+      const a11y = _nuxtHooks.ctx.a11y
+      if (a11y) {
+        try {
+          const { runAxeOnPage } = await import('@nuxt/a11y/test-utils/browser')
+          const result = await runAxeOnPage(page, { waitForState: null })
+          a11y.addResult(url, result)
+        }
+        catch {
+          // a11y scan failure must not break navigation
+        }
+        if (!observerStarted) {
+          observerStarted = true
+          try {
+            const { observePage } = await import('@nuxt/a11y/test-utils/browser')
+            await observePage(page, (_url, result) => {
+              a11y.addResult(_url, result)
+            })
+          }
+          catch {
+            // observer setup failure must not break tests
+          }
+        }
+      }
       return response
     })
   },

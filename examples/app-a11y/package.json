@@ -1,0 +1,29 @@
+{
+  "name": "example-app-a11y",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "test": "vitest run",
+    "test:vitest": "vitest run",
+    "test:playwright": "playwright test --project=a11y",
+    "test:auto-scan": "playwright test --project=auto-scan",
+    "test:cucumber": "NODE_OPTIONS='--import ./register-ts-node.mjs' NODE_ENV=test cucumber-js"
+  },
+  "dependencies": {
+    "nuxt": "^4.3.0"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "12.6.0",
+    "@nuxt/test-utils": "latest",
+    "@playwright/test": "1.58.2",
+    "happy-dom": "20.7.0",
+    "playwright-core": "1.58.2",
+    "std-env": "3.10.0",
+    "ts-node": "10.9.2"
+  }
+}
