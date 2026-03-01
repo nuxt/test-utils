@@ -27,6 +27,6 @@ export default defineBuildConfig({
     'nitropack',
     '@nuxt/a11y/test-utils',
     '@nuxt/a11y/test-utils/setup',
-    '@nuxt/a11y/test-utils/playwright',
+    '@nuxt/a11y/test-utils/browser',
   ],
 })

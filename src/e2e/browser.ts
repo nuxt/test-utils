@@ -57,7 +57,7 @@ export async function createPage(path?: string, options?: BrowserContextOptions)
     const a11y = tryUseTestContext()?.a11y
     if (a11y) {
       try {
-        const { runAxeOnPage } = await import('@nuxt/a11y/test-utils/playwright')
+        const { runAxeOnPage } = await import('@nuxt/a11y/test-utils/browser')
         const result = await runAxeOnPage(page, { waitForState: null })
         a11y.addResult(url, result)
       }
@@ -70,6 +70,20 @@ export async function createPage(path?: string, options?: BrowserContextOptions)
 
   if (path) {
     await page.goto(url(path), options?.javaScriptEnabled === false ? {} : { waitUntil: 'hydration' })
+  }
+
+  const a11y = tryUseTestContext()?.a11y
+  if (a11y) {
+    try {
+      const { observePage } = await import('@nuxt/a11y/test-utils/browser')
+      const stop = await observePage(page, (_url, result) => {
+        a11y.addResult(_url, result)
+      })
+      page.on('close', () => stop().catch(() => {}))
+    }
+    catch {
+      // observer setup failure must not break tests
+    }
   }
 
   return page

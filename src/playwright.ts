@@ -55,6 +55,7 @@ export const test = base.extend<TestOptions, WorkerOptions & ConfigOptions>({
     _nuxtHooks.afterEach()
   },
   goto: async ({ page, _nuxtHooks }, use) => {
+    let observerStarted = false
     await use(async (url, options) => {
       const waitUntil = options?.waitUntil
       if (waitUntil && ['hydration', 'route'].includes(waitUntil)) {
@@ -65,12 +66,24 @@ export const test = base.extend<TestOptions, WorkerOptions & ConfigOptions>({
       const a11y = _nuxtHooks.ctx.a11y
       if (a11y) {
         try {
-          const { runAxeOnPage } = await import('@nuxt/a11y/test-utils/playwright')
+          const { runAxeOnPage } = await import('@nuxt/a11y/test-utils/browser')
           const result = await runAxeOnPage(page, { waitForState: null })
           a11y.addResult(url, result)
         }
         catch {
           // a11y scan failure must not break navigation
+        }
+        if (!observerStarted) {
+          observerStarted = true
+          try {
+            const { observePage } = await import('@nuxt/a11y/test-utils/browser')
+            await observePage(page, (_url, result) => {
+              a11y.addResult(_url, result)
+            })
+          }
+          catch {
+            // observer setup failure must not break tests
+          }
         }
       }
       return response
