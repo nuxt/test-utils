@@ -126,8 +126,8 @@ importers:
         specifier: 30.2.0
         version: 30.2.0
       '@nuxt/a11y':
-        specifier: https://pkg.pr.new/nuxt/a11y/@nuxt/a11y@627c26a
-        version: https://pkg.pr.new/nuxt/a11y/@nuxt/a11y@627c26a(magicast@0.5.2)(playwright-core@1.58.2)(vite@7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))(vitest@4.0.18)
+        specifier: https://pkg.pr.new/nuxt/a11y/@nuxt/a11y@b16cc65
+        version: https://pkg.pr.new/nuxt/a11y/@nuxt/a11y@b16cc65(magicast@0.5.2)(playwright-core@1.58.2)(vite@7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))(vitest@4.0.18)
       '@nuxt/eslint-config':
         specifier: 1.15.1
         version: 1.15.1(@typescript-eslint/utils@8.55.0(eslint@10.0.2(jiti@2.6.1))(typescript@5.9.3))(@vue/compiler-sfc@3.5.28)(eslint@10.0.2(jiti@2.6.1))(typescript@5.9.3)
@@ -218,6 +218,34 @@ importers:
       vue-tsc:
         specifier: 3.2.5
         version: 3.2.5(typescript@5.9.3)
+
+  examples/app-a11y:
+    dependencies:
+      nuxt:
+        specifier: ^4.3.0
+        version: 4.3.0(@parcel/watcher@2.5.1)(@types/node@24.10.13)(@vue/compiler-sfc@3.5.28)(better-sqlite3@12.6.2)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.6.2))(eslint@10.0.2(jiti@2.6.1))(idb-keyval@6.2.2)(ioredis@5.9.1)(lightningcss@1.30.2)(magicast@0.5.2)(optionator@0.9.4)(rollup@4.59.0)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))(vue-tsc@3.2.5(typescript@5.9.3))(yaml@2.8.2)
+    devDependencies:
+      '@cucumber/cucumber':
+        specifier: 12.6.0
+        version: 12.6.0
+      '@nuxt/test-utils':
+        specifier: workspace:*
+        version: link:../..
+      '@playwright/test':
+        specifier: 1.58.2
+        version: 1.58.2
+      happy-dom:
+        specifier: 20.7.0
+        version: 20.7.0
+      playwright-core:
+        specifier: 1.58.2
+        version: 1.58.2
+      std-env:
+        specifier: 3.10.0
+        version: 3.10.0
+      ts-node:
+        specifier: 10.9.2
+        version: 10.9.2(@types/node@24.10.13)(typescript@5.9.3)
 
   examples/app-bun:
     dependencies:
@@ -1615,8 +1643,8 @@ packages:
     resolution: {integrity: sha512-pwK+BfEBZJbKdNYpHHRTNBwBoqrN/iIMO0AiGvYsp3Hoaq0WbgGSWQR6SCldZovoDpY3yje5lkFUe6gsDgJ2vg==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
 
-  '@nuxt/a11y@https://pkg.pr.new/nuxt/a11y/@nuxt/a11y@627c26a':
-    resolution: {integrity: sha512-y5x3cwRWzTDdRheg8+jOyPSEC0VODqeImXf33/hoyYEZT9AxKgL64svy5FojBW3GqtPHSFMXJiBtllguMj3mZw==, tarball: https://pkg.pr.new/nuxt/a11y/@nuxt/a11y@627c26a}
+  '@nuxt/a11y@https://pkg.pr.new/nuxt/a11y/@nuxt/a11y@b16cc65':
+    resolution: {integrity: sha512-wW8MwzIQtAy7mMM8uOECeiGlMjmDZZZ94BwK6eW/ESFnTDH3DcFmJSH77owcpbViy/QP8W5LuWy2iJj1D/ag8g==, tarball: https://pkg.pr.new/nuxt/a11y/@nuxt/a11y@b16cc65}
     version: 1.0.0-alpha.1
     peerDependencies:
       playwright-core: '>=1.0.0'
@@ -10881,7 +10909,7 @@ snapshots:
 
   '@npmcli/name-from-folder@2.0.0': {}
 
-  '@nuxt/a11y@https://pkg.pr.new/nuxt/a11y/@nuxt/a11y@627c26a(magicast@0.5.2)(playwright-core@1.58.2)(vite@7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))(vitest@4.0.18)':
+  '@nuxt/a11y@https://pkg.pr.new/nuxt/a11y/@nuxt/a11y@b16cc65(magicast@0.5.2)(playwright-core@1.58.2)(vite@7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))(vitest@4.0.18)':
     dependencies:
       '@nuxt/devtools-kit': 3.2.1(magicast@0.5.2)(vite@7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))
       '@nuxt/kit': 4.3.1(magicast@0.5.2)

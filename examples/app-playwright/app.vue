@@ -2,8 +2,6 @@
   <h1>
     {{ config.public.myValue }}
   </h1>
-
-  <button />
 </template>
 
 <script setup>
