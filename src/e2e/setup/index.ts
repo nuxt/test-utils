@@ -1,3 +1,7 @@
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { createHash } from 'node:crypto'
 import { createTestContext, setTestContext } from '../context'
 import { buildFixture, loadFixture } from '../nuxt'
 import { startServer, stopServer } from '../server'
@@ -7,6 +11,13 @@ import setupBun from './bun'
 import setupCucumber from './cucumber'
 import setupJest from './jest'
 import setupVitest from './vitest'
+
+const A11Y_BASE_DIR = join(tmpdir(), '.nuxt-test-a11y')
+
+function getSignalPath(key: string): string {
+  const hash = createHash('md5').update(key).digest('hex').slice(0, 12)
+  return join(A11Y_BASE_DIR, `signal-${hash}`)
+}
 
 export const setupMaps = {
   bun: setupBun,
@@ -37,17 +48,43 @@ export function createTest(options: Partial<TestOptions>): TestHooks {
           totalViolations += result.violationCount
           allViolations.push(...result.violations)
         }
-        console.log(`[a11y] Scanned ${routes.length} route(s) \u2014 ${totalViolations} violation(s)`)
-        if (ctx.a11y.exceedsThreshold()) {
-          let detail = ''
+
+        const signalPath = getSignalPath(process.cwd())
+        const reporterActive = existsSync(signalPath)
+
+        if (reporterActive) {
           try {
-            const { formatViolations } = await import('@nuxt/a11y/test-utils')
-            detail = '\n\n' + formatViolations(allViolations as Parameters<typeof formatViolations>[0])
+            const runId = readFileSync(signalPath, 'utf-8').trim()
+            const runDir = join(A11Y_BASE_DIR, runId)
+            mkdirSync(runDir, { recursive: true })
+            const a11yOptions = typeof ctx.options.a11y === 'object' ? ctx.options.a11y : {}
+            const data = {
+              projectName: ctx.playwrightProjectName || '',
+              threshold: a11yOptions.threshold ?? 0,
+              routeCount: routes.length,
+              totalViolations,
+              violations: allViolations,
+            }
+            const fileName = `worker-${process.pid}-${Date.now()}.json`
+            writeFileSync(join(runDir, fileName), JSON.stringify(data), 'utf-8')
           }
           catch {
-            // formatViolations is optional
+            // fall through — reporter will see partial data
           }
-          throw new Error(`[a11y] Violation count (${totalViolations}) exceeds threshold` + detail)
+        }
+        else {
+          console.log(`[@nuxt/a11y] Scanned ${routes.length} route(s) \u2014 ${totalViolations} violation(s)`)
+          if (ctx.a11y.exceedsThreshold()) {
+            let detail = ''
+            try {
+              const { formatViolations } = await import('@nuxt/a11y/test-utils')
+              detail = '\n\n' + formatViolations(allViolations as Parameters<typeof formatViolations>[0])
+            }
+            catch {
+              // formatViolations is optional
+            }
+            throw new Error(`[@nuxt/a11y] Violation count (${totalViolations}) exceeds threshold` + detail)
+          }
         }
       }
     }

@@ -14,7 +14,7 @@ export default defineConfig<ConfigOptions>({
   retries: isCI ? 2 : 0,
   workers: isCI ? 1 : undefined,
   timeout: isWindows ? 60000 : undefined,
-  reporter: 'html',
+  reporter: [['list'], ['html'], ['@nuxt/test-utils/playwright/a11y-reporter']],
   use: {
     trace: 'on-first-retry',
   },
@@ -26,7 +26,6 @@ export default defineConfig<ConfigOptions>({
     },
     {
       name: 'auto-scan',
-      fullyParallel: false,
       use: { ...devices['Desktop Chrome'], nuxt: { ...nuxtOptions, a11y: true } },
       testMatch: 'auto-scan.test.ts',
     },

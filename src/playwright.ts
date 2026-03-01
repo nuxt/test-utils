@@ -42,8 +42,9 @@ export const test = base.extend<TestOptions, WorkerOptions & ConfigOptions>({
   nuxt: [undefined, { option: true, scope: 'worker' }],
   defaults: [{ nuxt: undefined }, { option: true, scope: 'worker' }],
   _nuxtHooks: [
-    async ({ nuxt, defaults }, use) => {
+    async ({ nuxt, defaults }, use, workerInfo) => {
       const hooks = createTest(defu(nuxt || {}, defaults.nuxt || {}))
+      hooks.ctx.playwrightProjectName = workerInfo.project.name
       await hooks.beforeAll()
       await use(hooks)
       await hooks.afterAll()

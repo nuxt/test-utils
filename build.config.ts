@@ -7,6 +7,7 @@ export default defineBuildConfig({
   entries: [
     'src/e2e',
     'src/playwright',
+    'src/playwright-reporter',
     'src/experimental',
     'src/config',
     'src/module.ts',

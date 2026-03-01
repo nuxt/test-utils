@@ -13,6 +13,7 @@
     "./config": "./dist/config.mjs",
     "./e2e": "./dist/e2e.mjs",
     "./playwright": "./dist/playwright.mjs",
+    "./playwright/a11y-reporter": "./dist/playwright-reporter.mjs",
     "./experimental": "./dist/experimental.mjs",
     "./module": "./dist/module.mjs",
     "./runtime": "./dist/runtime-utils/index.mjs",
@@ -34,6 +35,9 @@
       ],
       "playwright": [
         "./dist/playwright.d.mts"
+      ],
+      "playwright/a11y-reporter": [
+        "./dist/playwright-reporter.d.mts"
       ],
       "experimental": [
         "./dist/experimental.d.mts"
