@@ -12,7 +12,7 @@
     "test:vitest": "vitest run",
     "test:playwright": "playwright test --project=a11y",
     "test:auto-scan": "playwright test --project=auto-scan",
-    "test:cucumber": "NODE_OPTIONS='--loader ts-node/esm' NODE_ENV=test cucumber-js"
+    "test:cucumber": "NODE_OPTIONS='--import ./register-ts-node.mjs' NODE_ENV=test cucumber-js"
   },
   "dependencies": {
     "nuxt": "^4.3.0"

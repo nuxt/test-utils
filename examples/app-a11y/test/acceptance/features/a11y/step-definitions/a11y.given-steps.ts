@@ -8,14 +8,22 @@ let lastScanResult: ScanResult
 
 Given(/^the user navigates to the home page$/u, { timeout: 30000 }, async function (): Promise<void> {
   const page = await createPage('/')
-  lastScanResult = await runAxeOnPage(page)
-  await page.close()
+  try {
+    lastScanResult = await runAxeOnPage(page)
+  }
+  finally {
+    await page.close()
+  }
 })
 
 Given(/^the user navigates to the violations page$/u, { timeout: 30000 }, async function (): Promise<void> {
   const page = await createPage('/violations')
-  lastScanResult = await runAxeOnPage(page)
-  await page.close()
+  try {
+    lastScanResult = await runAxeOnPage(page)
+  }
+  finally {
+    await page.close()
+  }
 })
 
 Then(/^the page has no accessibility violations$/u, function (): void {

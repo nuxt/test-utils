@@ -32,8 +32,9 @@ test('observePage detects dynamically added violations', async ({ page, goto }) 
   const stop = await observePage(page, (_url, result) => results.push(result))
 
   await page.waitForTimeout(700)
+  const lengthBeforeClick = results.length
   await page.getByRole('button', { name: 'Add violation' }).click()
-  await expect.poll(() => results.length, { timeout: 10_000 }).toBeGreaterThan(0)
+  await expect.poll(() => results.length, { timeout: 10_000 }).toBeGreaterThan(lengthBeforeClick)
 
   await stop()
 })
@@ -44,10 +45,11 @@ test('observePage stop prevents further callbacks', async ({ page, goto }) => {
   const results: ScanResult[] = []
   const stop = await observePage(page, (_url, result) => results.push(result))
   await page.waitForTimeout(700)
+  const lengthBeforeStop = results.length
   await stop()
 
   await page.getByRole('button', { name: 'Add violation' }).click()
   await page.waitForTimeout(1000)
 
-  expect(results.length).toBe(0)
+  expect(results.length).toBe(lengthBeforeStop)
 })

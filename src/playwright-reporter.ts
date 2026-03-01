@@ -61,6 +61,7 @@ class NuxtA11yReporter implements Reporter {
       const key = data.projectName || ''
       const existing = byProject.get(key)
       if (existing) {
+        existing.threshold = Math.min(existing.threshold, data.threshold)
         existing.totalViolations += data.totalViolations
         existing.routeCount += data.routeCount
         existing.allViolations.push(...data.violations)
