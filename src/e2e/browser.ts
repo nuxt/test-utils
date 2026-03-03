@@ -53,7 +53,7 @@ export async function createPage(path?: string, options?: BrowserContextOptions)
     vitest.onTestFailed(async (test) => {
       try {
         await page.screenshot({
-          path: join(dirname(test.task.file.filepath), '__screenshots__', `${'fullTestName' in test.task ? test.task.fullTestName : test.task.id}.png`),
+          path: join(dirname(test.task.file.filepath), '__screenshots__', `failed-${test.task.fullTestName}.png`),
         })
       }
       catch {
