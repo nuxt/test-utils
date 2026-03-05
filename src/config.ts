@@ -31,7 +31,8 @@ async function startNuxtAndGetViteConfig(rootDir = process.cwd(), options: LoadN
   const { buildNuxt, loadNuxt } = await loadKit(rootDir)
   const nuxt = await loadNuxt({
     cwd: rootDir,
-    dev: false,
+    // https://github.com/nuxt/nuxt/blob/d52a4fdd7ad5feb035dcf3f56c3b2d0ab059b1d4/packages/kit/src/loader/nuxt.ts#L24
+    dev: options.overrides?.dev ?? false,
     dotenv: defu(options.dotenv, {
       cwd: rootDir,
       fileName: '.env.test',
