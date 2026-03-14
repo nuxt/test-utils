@@ -1,5 +1,5 @@
 import process from 'node:process'
-import type { Nuxt, NuxtConfig } from '@nuxt/schema'
+import type { Nuxt, NuxtConfig, ViteConfig as NuxtViteConfig } from '@nuxt/schema'
 import type { UserWorkspaceConfig, InlineConfig as VitestConfig } from 'vitest/node'
 import type { TestProjectInlineConfiguration } from 'vitest/config'
 import { setupDotenv } from 'c12'
@@ -16,7 +16,7 @@ import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options'
 
 interface GetVitestConfigOptions {
   nuxt: Nuxt
-  viteConfig: ViteUserConfig
+  viteConfig: NuxtViteConfig
 }
 
 interface LoadNuxtOptions {
