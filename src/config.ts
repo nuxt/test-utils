@@ -3,13 +3,13 @@ import type { Nuxt, NuxtConfig } from '@nuxt/schema'
 import type { UserWorkspaceConfig, InlineConfig as VitestConfig } from 'vitest/node'
 import type { TestProjectInlineConfiguration } from 'vitest/config'
 import { setupDotenv } from 'c12'
+import { readPackageJSON } from 'pkg-types'
 import type { DotenvOptions } from 'c12'
 import type { defineConfig, UserConfigFnPromise, UserConfig as ViteUserConfig } from 'vite'
 import type { DateString } from 'compatx'
 import { createDefu, defu } from 'defu'
 import { createResolver, findPath } from '@nuxt/kit'
 import { resolveModulePath } from 'exsolve'
-import { getPackageInfoSync } from 'local-pkg'
 
 import { applyEnv, loadKit } from './utils'
 import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options'
@@ -107,8 +107,8 @@ export async function getVitestConfigFromNuxt(
   options.viteConfig.plugins = (options.viteConfig.plugins || []).filter(p => !p || !('name' in p) || !excludedPlugins.includes(p.name))
 
   // resolve nitro/h3 version (to support nitro v3)
-  const nuxtServerIntegration = getPackageInfoSync('@nuxt/nitro-server', {
-    paths: [options.nuxt.options.appDir],
+  const nuxtServerIntegration = await readPackageJSON('@nuxt/nitro-server', {
+    from: options.nuxt.options.appDir,
   })
 
   let nitroPath: string | undefined
@@ -123,8 +123,8 @@ export async function getVitestConfigFromNuxt(
     }
   }
 
-  const h3Info = getPackageInfoSync('h3', {
-    paths: nitroPath ? [nitroPath] : options.nuxt.options.modulesDir,
+  const h3Info = await readPackageJSON('h3', {
+    from: nitroPath || options.nuxt.options.modulesDir,
   })
 
   const resolver = createResolver(import.meta.url)
