@@ -1,12 +1,10 @@
 import process from 'node:process'
 import type { Nuxt, NuxtConfig } from '@nuxt/schema'
 import type { UserWorkspaceConfig, InlineConfig as VitestConfig } from 'vitest/node'
-// this is deliberately the vite config function so the module runs if vitest is not installed
-import { defineConfig } from 'vite'
 import type { TestProjectInlineConfiguration } from 'vitest/config'
 import { setupDotenv } from 'c12'
 import type { DotenvOptions } from 'c12'
-import type { UserConfigFnPromise, UserConfig as ViteUserConfig } from 'vite'
+import type { defineConfig, UserConfigFnPromise, UserConfig as ViteUserConfig } from 'vite'
 import type { DateString } from 'compatx'
 import { createDefu, defu } from 'defu'
 import { createResolver, findPath } from '@nuxt/kit'
@@ -259,8 +257,10 @@ export async function defineVitestProject(config: TestProjectInlineConfiguration
   return resolvedConfig
 }
 
+const defineViteConfig: typeof defineConfig = (config) => config as any
+
 export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfig } = {}): UserConfigFnPromise {
-  return defineConfig(async () => {
+  return defineViteConfig(async () => {
     const resolvedConfig = await resolveConfig(config)
 
     if (resolvedConfig.test.browser?.enabled) {
