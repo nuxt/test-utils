@@ -257,7 +257,8 @@ export async function defineVitestProject(config: TestProjectInlineConfiguration
   return resolvedConfig
 }
 
-const defineViteConfig: typeof defineConfig = (config) => config as any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const defineViteConfig: typeof defineConfig = (config: any) => config
 
 export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfig } = {}): UserConfigFnPromise {
   return defineViteConfig(async () => {
