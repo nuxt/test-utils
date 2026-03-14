@@ -1,11 +1,10 @@
-import { importModule } from 'local-pkg'
 import type { DOMWindow, SupportedContentTypes, ConstructorOptions } from 'jsdom'
 import defu from 'defu'
 import type { EnvironmentOptions } from 'vitest/node'
 import type { EnvironmentNuxt, NuxtWindow } from '../types'
 
 export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
-  const { CookieJar, JSDOM, ResourceLoader, VirtualConsole } = (await importModule('jsdom')) as typeof import('jsdom') & {
+  const { CookieJar, JSDOM, ResourceLoader, VirtualConsole } = await import('jsdom') as typeof import('jsdom') & {
     ResourceLoader?: { new(...args: unknown[]): ConstructorOptions['resources'] }
   }
   const jsdomOptions = defu(jsdom, {

@@ -1,5 +1,4 @@
 import type { Vitest, Reporter } from 'vitest/node'
-import { importModule } from 'local-pkg'
 import { getPort } from 'get-port-please'
 
 import {
@@ -77,7 +76,7 @@ async function main() {
 
   const port = apiPorts ? await getPort({ ports: apiPorts }) : undefined
 
-  const { startVitest } = await importModule<typeof import('vitest/node')>('vitest/node')
+  const { startVitest } = await import('vitest/node')
 
   const customReporter = createCustomReporter((vitest) => {
     listenMessages(async ({ type, payload }) => {
