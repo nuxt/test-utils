@@ -231,6 +231,10 @@ function mergeComponentMountingGlobalOptions<C>(
     config: {
       ...defaults.config,
       ...options.config,
+      compilerOptions: {
+        ...defaults.config?.compilerOptions,
+        ...options.config?.compilerOptions,
+      },
       globalProperties: {
         ...defaults.config?.globalProperties,
         ...options.config?.globalProperties,
