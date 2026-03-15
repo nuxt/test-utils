@@ -12,9 +12,6 @@ export default defineComponent({
     const done = nuxtApp.deferHydration()
 
     // vue:setup hook
-    // TODO: remove eslint-disable-next-line, @ts-ignore, type annotation
-    // eslint-disable-next-line
-    // @ts-ignore
     const results: (void | Promise<void>)[] = nuxtApp.hooks.callHookWith(hooks => hooks.map(hook => hook()), 'vue:setup', [])
     if (import.meta.dev && results && results.some(i => i && 'then' in i)) {
       console.error('[nuxt] Error in `vue:setup`. Callbacks must be synchronous.')
