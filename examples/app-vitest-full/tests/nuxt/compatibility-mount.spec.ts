@@ -575,6 +575,30 @@ describe('mountSuspended() compatible to mount()', () => {
       expect(nWrapper.html()).toBe(vWrapper.html())
     })
 
+    it('directives', async () => {
+      const Component = defineComponent({
+        template: '<div v-repeat-text="2">(hello)</div>',
+      })
+
+      const options: Options<typeof Component> = {
+        global: {
+          directives: {
+            repeatText: {
+              beforeMount(el: Element, { value }: { value: number }) {
+                el.textContent = el.textContent.repeat(value)
+              },
+            },
+          },
+        },
+      }
+
+      const vWrapper = mount(Component, options)
+      const nWrapper = await mountSuspended(Component, options)
+
+      expect(vWrapper.html()).toBe('<div>(hello)(hello)</div>')
+      expect(nWrapper.html()).toBe(vWrapper.html())
+    })
+
     it('config.compilerOptions', async () => {
       const Component = defineComponent({
         setup: () => ({ message: 'hello!' }),
