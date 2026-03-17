@@ -8,6 +8,12 @@ export default defineConfig({
         test: {
           name: 'nuxt',
           include: ['**/nuxt/*.spec.ts'],
+          environmentOptions: {
+            nuxt: {
+              // TODO: remove once h3 in nuxt/nitro-server is v2
+              h3Version: 2,
+            },
+          },
         },
       }),
       {
