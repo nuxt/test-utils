@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { rollup } from 'rollup'
+import type { InputPluginOption } from 'rollup'
 import { createMockPlugin } from '../../src/module/plugins/mock'
 import type { MockPluginContext } from '../../src/module/plugins/mock'
 
@@ -16,7 +17,7 @@ describe('mocking', () => {
           resolveId: id => id === input ? input : { id, external: true },
           load: () => code,
         },
-        plugin.vite(),
+        plugin.vite() as InputPluginOption,
         {
           name: 'resolve',
           transform: {

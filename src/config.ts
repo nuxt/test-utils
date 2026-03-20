@@ -239,6 +239,9 @@ export async function getVitestConfigFromNuxt(
   // Remove built-in Nuxt logger: https://github.com/vitest-dev/vitest/issues/5211
   delete resolvedConfig.customLogger
 
+  // Remove SSR config to prevent conflicts with Vitest's client-side test environment
+  delete resolvedConfig.ssr
+
   if (!Array.isArray(resolvedConfig.test.setupFiles)) {
     resolvedConfig.test.setupFiles = [resolvedConfig.test.setupFiles].filter(Boolean) as string[]
   }
