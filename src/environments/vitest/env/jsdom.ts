@@ -1,11 +1,12 @@
-import { importModule } from 'local-pkg'
-import type { DOMWindow, SupportedContentTypes } from 'jsdom'
+import type { DOMWindow, SupportedContentTypes, ConstructorOptions } from 'jsdom'
 import defu from 'defu'
 import type { EnvironmentOptions } from 'vitest/node'
 import type { EnvironmentNuxt, NuxtWindow } from '../types'
 
 export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
-  const { CookieJar, JSDOM, ResourceLoader, VirtualConsole } = (await importModule('jsdom')) as typeof import('jsdom')
+  const { CookieJar, JSDOM, ResourceLoader, VirtualConsole } = await import('jsdom') as typeof import('jsdom') & {
+    ResourceLoader?: { new(...args: unknown[]): ConstructorOptions['resources'] }
+  }
   const jsdomOptions = defu(jsdom, {
     html: '<!DOCTYPE html>',
     url: 'http://localhost:3000',
@@ -23,7 +24,12 @@ export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
 
   const window = new JSDOM(jsdomOptions.html, {
     ...jsdomOptions,
-    resources: jsdomOptions.resources ?? (jsdomOptions.userAgent ? new ResourceLoader({ userAgent: jsdomOptions.userAgent }) : undefined),
+    resources: jsdomOptions.resources ?? (jsdomOptions.userAgent
+      // `ResourceLoader` usage can be removed when dropping support for jsdom v27.x
+      ? ResourceLoader
+        ? new ResourceLoader({ userAgent: jsdomOptions.userAgent })
+        : { userAgent: jsdomOptions.userAgent }
+      : undefined),
     virtualConsole: virtualConsole
       ? 'sendTo' in virtualConsole
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
