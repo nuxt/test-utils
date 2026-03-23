@@ -67,6 +67,7 @@ export default <Environment>{
   },
 }
 
+// This can be removed when dropping support for vitest 4.0.x (We can static import from 'vitest/runtime')
 async function importVitestEnvironments() {
   const pkg = resolveModulePath('vitest/runtime', { try: true }) ? 'vitest/runtime' : 'vitest/environments'
   return await import(pkg) as typeof import('vitest/environments')
