@@ -326,7 +326,7 @@ describe('renderSuspended handle error', () => {
       await expect(() => renderSuspended(TestComponent, { route: 'throws-on-router' })).rejects.toThrow('throws on router')
       await nextTick()
 
-      expect(setupFn).not.toBeCalled()
+      expect(setupFn).not.toHaveBeenCalled()
       expect(
         consoleWarn.mock.calls.flat().map(String).join('\n'),
       ).not.toContain('[Vue warn]: Component is missing template or render function')
