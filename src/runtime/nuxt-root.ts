@@ -12,14 +12,14 @@ export default defineComponent({
     const done = nuxtApp.deferHydration()
 
     // vue:setup hook
-    const results = nuxtApp.hooks.callHookWith(hooks => hooks.map(hook => hook()), 'vue:setup')
+    const results: (void | Promise<void>)[] = nuxtApp.hooks.callHookWith(hooks => hooks.map(hook => hook()), 'vue:setup', [])
     if (import.meta.dev && results && results.some(i => i && 'then' in i)) {
       console.error('[nuxt] Error in `vue:setup`. Callbacks must be synchronous.')
     }
 
     // error handling
     onErrorCaptured((err, target, info) => {
-      nuxtApp.hooks.callHook('vue:error', err, target, info).catch(hookError => console.error('[nuxt] Error in `vue:error` hook', hookError))
+      nuxtApp.hooks.callHook('vue:error', err, target, info)?.catch(hookError => console.error('[nuxt] Error in `vue:error` hook', hookError))
       if (isNuxtError(err) && (err.fatal || err.unhandled)) {
         return false // suppress error from breaking render
       }
