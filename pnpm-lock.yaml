@@ -63,7 +63,7 @@ importers:
         version: 1.15.10
       h3-next:
         specifier: npm:h3@2.0.1-rc.14
-        version: h3@2.0.1-rc.14(crossws@0.4.4(srvx@0.11.12))
+        version: h3@2.0.1-rc.14(crossws@0.4.4(srvx@0.11.13))
       happy-dom:
         specifier: '>=20.0.11'
         version: 20.8.4
@@ -487,7 +487,7 @@ importers:
     dependencies:
       h3:
         specifier: ^2.0.1-rc.14
-        version: 2.0.1-rc.17(crossws@0.4.4(srvx@0.9.8))
+        version: 2.0.1-rc.18(crossws@0.4.4(srvx@0.9.8))
       nitro:
         specifier: https://pkg.pr.new/nitrojs/nitro@00598a8
         version: https://pkg.pr.new/nitrojs/nitro@00598a8(better-sqlite3@12.8.0)(chokidar@5.0.0)(idb-keyval@6.2.2)(ioredis@5.10.1)(lru-cache@11.2.7)(nf3@0.3.11)(rolldown@1.0.0-rc.11)(rollup@4.60.0)(vite@8.0.2(@types/node@24.11.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(yaml@2.8.2))
@@ -6207,8 +6207,8 @@ packages:
       crossws:
         optional: true
 
-  h3@2.0.1-rc.17:
-    resolution: {integrity: sha512-9rPJs68qMj7HJH78z7uSIAw6rl3EElLdVSirTeAf6B5ogwiFVIr9AKMMS4u00Gp8DYIPnnjtw3ZWN7EkYcPBrQ==}
+  h3@2.0.1-rc.18:
+    resolution: {integrity: sha512-2EdYEOIJwZHfhfdxvqZsmmUz4tgwzQSuzre+l50j+voHJV4m7j3zw2lYLgHoyfkCF9EAZcaH4ea0zH/hgcs9Yg==}
     engines: {node: '>=20.11.1'}
     hasBin: true
     peerDependencies:
@@ -8630,8 +8630,8 @@ packages:
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
 
-  srvx@0.11.12:
-    resolution: {integrity: sha512-AQfrGqntqVPXgP03pvBDN1KyevHC+KmYVqb8vVf4N+aomQqdhaZxjvoVp+AOm4u6x+GgNQY3MVzAUIn+TqwkOA==}
+  srvx@0.11.13:
+    resolution: {integrity: sha512-oknN6qduuMPafxKtHucUeG32Q963pjriA5g3/Bl05cwEsUe5VVbIU4qR9LrALHbipSCyBe+VmfDGGydqazDRkw==}
     engines: {node: '>=20.16.0'}
     hasBin: true
 
@@ -11026,7 +11026,7 @@ snapshots:
       pkg-types: 2.3.0
       scule: 1.3.0
       semver: 7.7.4
-      srvx: 0.11.12
+      srvx: 0.11.13
       std-env: 3.10.0
       tinyclip: 0.1.12
       tinyexec: 1.0.4
@@ -11462,7 +11462,7 @@ snapshots:
       ohash: 2.0.11
       pathe: 2.0.3
       rou3: 0.8.1
-      srvx: 0.11.12
+      srvx: 0.11.13
       std-env: 4.0.0
       ufo: 1.6.3
       unctx: 2.5.0
@@ -14611,9 +14611,9 @@ snapshots:
     dependencies:
       uncrypto: 0.1.3
 
-  crossws@0.4.4(srvx@0.11.12):
+  crossws@0.4.4(srvx@0.11.13):
     optionalDependencies:
-      srvx: 0.11.12
+      srvx: 0.11.13
     optional: true
 
   crossws@0.4.4(srvx@0.9.8):
@@ -15612,17 +15612,17 @@ snapshots:
       ufo: 1.6.3
       uncrypto: 0.1.3
 
-  h3@2.0.1-rc.14(crossws@0.4.4(srvx@0.11.12)):
+  h3@2.0.1-rc.14(crossws@0.4.4(srvx@0.11.13)):
     dependencies:
       rou3: 0.7.12
-      srvx: 0.11.12
+      srvx: 0.11.13
     optionalDependencies:
-      crossws: 0.4.4(srvx@0.11.12)
+      crossws: 0.4.4(srvx@0.11.13)
 
-  h3@2.0.1-rc.17(crossws@0.4.4(srvx@0.9.8)):
+  h3@2.0.1-rc.18(crossws@0.4.4(srvx@0.9.8)):
     dependencies:
       rou3: 0.8.1
-      srvx: 0.11.12
+      srvx: 0.11.13
     optionalDependencies:
       crossws: 0.4.4(srvx@0.9.8)
 
@@ -17253,7 +17253,7 @@ snapshots:
       consola: 3.4.2
       crossws: 0.4.4(srvx@0.9.8)
       db0: 0.3.4(better-sqlite3@12.8.0)
-      h3: 2.0.1-rc.17(crossws@0.4.4(srvx@0.9.8))
+      h3: 2.0.1-rc.18(crossws@0.4.4(srvx@0.9.8))
       jiti: 2.6.1
       ofetch: 2.0.0-alpha.3
       ohash: 2.0.11
@@ -19255,7 +19255,7 @@ snapshots:
 
   sprintf-js@1.0.3: {}
 
-  srvx@0.11.12: {}
+  srvx@0.11.13: {}
 
   srvx@0.9.8: {}
 
