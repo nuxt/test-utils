@@ -21,7 +21,7 @@ describe('middleware', () => {
 
   it('can mock composable inside global middleware', async () => {
     const { count } = useGlobalCounter()
-    expect(incrementMock).not.toBeCalled()
+    expect(incrementMock).not.toHaveBeenCalled()
 
     await navigateTo({ path: '/', force: true })
 
