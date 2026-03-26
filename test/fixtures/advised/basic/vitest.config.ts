@@ -16,6 +16,21 @@ export default defineConfig({
           include: ['./unit-test/**/*.spec.ts'],
         },
       },
+     
+      await defineVitestProject( {
+        test: {
+          name: 'dev-override',
+          environment: 'nuxt',
+          include: ['./overrides/**/*.test.ts'],
+          environmentOptions: {
+            nuxt: {
+              overrides: {
+                dev: true,
+              },
+            },
+          },
+        },
+      })
     ],
   },
 })
