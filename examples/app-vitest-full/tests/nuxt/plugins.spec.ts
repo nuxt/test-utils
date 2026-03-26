@@ -25,7 +25,7 @@ describe('plugins', () => {
     const { count, increment } = useNuxtApp().$counter
 
     expect(count.value).toBe(100)
-    expect(incrementMock).not.toBeCalled()
+    expect(incrementMock).not.toHaveBeenCalled()
 
     expect(increment()).toBe(100)
 

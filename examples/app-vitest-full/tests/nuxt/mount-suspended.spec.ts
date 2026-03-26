@@ -124,8 +124,8 @@ describe('mountSuspended', () => {
         ],
       }
     `)
-    expect(onCustomEvent).toBeCalledTimes(1)
-    expect(onCustomEvent).toBeCalledWith('foo')
+    expect(onCustomEvent).toHaveBeenCalledTimes(1)
+    expect(onCustomEvent).toHaveBeenCalledWith('foo')
   })
 
   it('can receive emitted events from components using defineModel', () => {
@@ -135,8 +135,8 @@ describe('mountSuspended', () => {
     })
     component.find('button#changeModelValue').trigger('click')
     expect(component.emitted()).toHaveProperty('update:modelValue')
-    expect(onUpdateModelValue).toBeCalledTimes(1)
-    expect(onUpdateModelValue).toBeCalledWith(true)
+    expect(onUpdateModelValue).toHaveBeenCalledTimes(1)
+    expect(onUpdateModelValue).toHaveBeenCalledWith(true)
   })
 
   it('can receive emitted events from components mounted within nuxt suspense using defineModel', async () => {
@@ -146,8 +146,8 @@ describe('mountSuspended', () => {
     })
     await component.find('button#changeModelValue').trigger('click')
     expect(component.emitted()).toHaveProperty('update:modelValue')
-    expect(onUpdateModelValue).toBeCalledTimes(1)
-    expect(onUpdateModelValue).toBeCalledWith(true)
+    expect(onUpdateModelValue).toHaveBeenCalledTimes(1)
+    expect(onUpdateModelValue).toHaveBeenCalledWith(true)
   })
 
   it('can receive emitted events from components mounted within nuxt suspense using defineModel after prop changes and multiple interactions', async () => {
@@ -166,8 +166,8 @@ describe('mountSuspended', () => {
         ],
       }
     `)
-    expect(onUpdateModelValue).toBeCalledTimes(1)
-    expect(onUpdateModelValue).toBeCalledWith(true)
+    expect(onUpdateModelValue).toHaveBeenCalledTimes(1)
+    expect(onUpdateModelValue).toHaveBeenCalledWith(true)
 
     await component.setProps({ modelValue: true })
 
@@ -181,7 +181,7 @@ describe('mountSuspended', () => {
         ],
       }
     `)
-    expect(onUpdateModelValue).toBeCalledTimes(1)
+    expect(onUpdateModelValue).toHaveBeenCalledTimes(1)
 
     await component.setProps({ modelValue: false })
 
@@ -198,8 +198,8 @@ describe('mountSuspended', () => {
         ],
       }
     `)
-    expect(onUpdateModelValue).toBeCalledTimes(2)
-    expect(onUpdateModelValue).toBeCalledWith(true)
+    expect(onUpdateModelValue).toHaveBeenCalledTimes(2)
+    expect(onUpdateModelValue).toHaveBeenCalledWith(true)
   })
 
   it('can pass onUpdate event to components using defineModel', async () => {

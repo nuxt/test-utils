@@ -109,9 +109,9 @@ describe('mountSuspended() compatible to mount()', () => {
         const nWrapper = await mountSuspended(Component)
 
         await expect(async () => await vWrapper.setData({ data1: '1' })).rejects
-          .toThrowError(/Cannot add property data1/)
+          .toThrow(/Cannot add property data1/)
         await expect(async () => await nWrapper.setData({ data1: '1' })).rejects
-          .toThrowError(/Cannot add property data1/)
+          .toThrow(/Cannot add property data1/)
       })
 
       it.runIf(!Component.setup)('works if setup is absent', async () => {
