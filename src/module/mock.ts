@@ -1,5 +1,4 @@
-import type { Nuxt } from '@nuxt/schema'
-import type { Unimport } from 'unimport'
+import type { Nuxt, NuxtHooks } from '@nuxt/schema'
 import { resolveIgnorePatterns } from '@nuxt/kit'
 
 import { createMockPlugin } from './plugins/mock'
@@ -17,7 +16,7 @@ export async function setupImportMocking(nuxt: Nuxt) {
     imports: [],
   }
 
-  let importsCtx: Unimport
+  let importsCtx: Parameters<NuxtHooks['imports:context']>[0]
   nuxt.hook('imports:context', async (ctx) => {
     importsCtx = ctx
   })

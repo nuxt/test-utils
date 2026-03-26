@@ -1,8 +1,8 @@
 import type { Environment } from 'vitest/environments'
+import { resolveModulePath } from 'exsolve'
 import { indexedDB } from 'fake-indexeddb'
 import { joinURL } from 'ufo'
 import defu from 'defu'
-import { populateGlobal } from 'vitest/environments'
 
 import { setupWindow } from '../../runtime/shared/environment'
 import type { NuxtBuiltinEnvironment } from './types'
@@ -18,6 +18,8 @@ export default <Environment>{
   name: 'nuxt',
   viteEnvironment: 'client',
   async setup(global, environmentOptions) {
+    const { populateGlobal } = await importVitestEnvironments()
+
     const url = joinURL(
       environmentOptions.nuxt?.url ?? 'http://localhost:3000',
       environmentOptions.nuxtRuntimeConfig?.app?.baseURL || '/',
@@ -63,6 +65,12 @@ export default <Environment>{
       },
     }
   },
+}
+
+// This can be removed when dropping support for vitest 4.0.x (We can static import from 'vitest/runtime')
+async function importVitestEnvironments() {
+  const pkg = resolveModulePath('vitest/runtime', { try: true }) ? 'vitest/runtime' : 'vitest/environments'
+  return await import(pkg) as typeof import('vitest/environments')
 }
 
 class IntersectionObserver {

@@ -109,9 +109,9 @@ describe('mountSuspended() compatible to mount()', () => {
         const nWrapper = await mountSuspended(Component)
 
         await expect(async () => await vWrapper.setData({ data1: '1' })).rejects
-          .toThrowError(/Cannot add property data1/)
+          .toThrow(/Cannot add property data1/)
         await expect(async () => await nWrapper.setData({ data1: '1' })).rejects
-          .toThrowError(/Cannot add property data1/)
+          .toThrow(/Cannot add property data1/)
       })
 
       it.runIf(!Component.setup)('works if setup is absent', async () => {
@@ -479,6 +479,170 @@ describe('mountSuspended() compatible to mount()', () => {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect((nWrapper as any).data).toBe((vWrapper as any).data)
+  })
+
+  describe('mount global options', () => {
+    it('mixins', async () => {
+      const Component = defineComponent({
+        data: () => ({ message: 'hello' }),
+        template: '{{ hello() }}',
+      })
+
+      const options: Options<typeof Component> = {
+        global: {
+          mixins: [{
+            methods: { hello() { return `${this.message}!` } },
+          }],
+        },
+      }
+
+      const vWrapper = mount(Component, options)
+      const nWrapper = await mountSuspended(Component, options)
+
+      expect(nWrapper.html()).toBe('hello!')
+      expect(nWrapper.html()).toBe(vWrapper.html())
+    })
+
+    describe('stubs', () => {
+      const Component = defineComponent({
+        template: '<NuxtLink />',
+      })
+
+      it('pass option object', async () => {
+        const options: Options<typeof Component> = {
+          global: { stubs: { NuxtLink: true } },
+        }
+
+        const vWrapper = mount(Component, options)
+        const nWrapper = await mountSuspended(Component, options)
+
+        expect(nWrapper.html()).toContain('<nuxt-link-stub>')
+        expect(nWrapper.html()).toBe(vWrapper.html())
+      })
+
+      it('pass array', async () => {
+        const options: Options<typeof Component> = {
+          global: { stubs: ['NuxtLink'] },
+        }
+
+        const vWrapper = mount(Component, options)
+        const nWrapper = await mountSuspended(Component, options)
+
+        expect(nWrapper.html()).toContain('<nuxt-link-stub>')
+        expect(nWrapper.html()).toBe(vWrapper.html())
+      })
+    })
+
+    it('plugins', async () => {
+      const Component = defineComponent({
+        template: '{{ $hello() }}',
+      })
+
+      const options: Options<typeof Component> = {
+        global: {
+          plugins: [{
+            install(app) {
+              app.config.globalProperties.$hello = () => 'hello!'
+            },
+          }],
+        },
+      }
+
+      const vWrapper = mount(Component, options)
+      const nWrapper = await mountSuspended(Component, options)
+
+      expect(vWrapper.html()).toBe('hello!')
+      expect(nWrapper.html()).toBe(vWrapper.html())
+    })
+
+    it('components', async () => {
+      const Component = defineComponent({
+        template: '<HelloWithTestComponent />',
+      })
+
+      const options: Options<typeof Component> = {
+        global: {
+          components: {
+            HelloWithTestComponent: () => 'hello!',
+          },
+        },
+      }
+
+      const vWrapper = mount(Component, options)
+      const nWrapper = await mountSuspended(Component, options)
+
+      expect(vWrapper.html()).toBe('hello!')
+      expect(nWrapper.html()).toBe(vWrapper.html())
+    })
+
+    it('directives', async () => {
+      const Component = defineComponent({
+        template: '<div v-repeat-text="2">(hello)</div>',
+      })
+
+      const options: Options<typeof Component> = {
+        global: {
+          directives: {
+            repeatText: {
+              beforeMount(el: Element, { value }: { value: number }) {
+                el.textContent = el.textContent.repeat(value)
+              },
+            },
+          },
+        },
+      }
+
+      const vWrapper = mount(Component, options)
+      const nWrapper = await mountSuspended(Component, options)
+
+      expect(vWrapper.html()).toBe('<div>(hello)(hello)</div>')
+      expect(nWrapper.html()).toBe(vWrapper.html())
+    })
+
+    it('config.compilerOptions', async () => {
+      const Component = defineComponent({
+        setup: () => ({ message: 'hello!' }),
+        template: '[[ message ]]',
+      })
+
+      const options: Options<typeof Component> = {
+        global: {
+          config: {
+            compilerOptions: {
+              delimiters: ['[[', ']]'],
+            },
+          },
+        },
+      }
+
+      const vWrapper = mount(Component, options)
+      const nWrapper = await mountSuspended(Component, options)
+
+      expect(vWrapper.html()).toBe('hello!')
+      expect(nWrapper.html()).toBe(vWrapper.html())
+    })
+
+    it('config.globalProperties', async () => {
+      const Component = defineComponent({
+        template: '{{ $hello() }}',
+      })
+
+      const options: Options<typeof Component> = {
+        global: {
+          config: {
+            globalProperties: {
+              $hello: () => 'hello!',
+            } as never,
+          },
+        },
+      }
+
+      const vWrapper = mount(Component, options)
+      const nWrapper = await mountSuspended(Component, options)
+
+      expect(vWrapper.html()).toBe('hello!')
+      expect(nWrapper.html()).toBe(vWrapper.html())
+    })
   })
 
   it('getCurrentComponent().proxy for compatibity for nuxt/test-utils v3.20.0', async () => {

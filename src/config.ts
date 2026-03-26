@@ -1,12 +1,10 @@
 import process from 'node:process'
-import type { Nuxt, NuxtConfig } from '@nuxt/schema'
+import type { Nuxt, NuxtConfig, ViteConfig as NuxtViteConfig } from '@nuxt/schema'
 import type { UserWorkspaceConfig, InlineConfig as VitestConfig } from 'vitest/node'
-// this is deliberately the vite config function so the module runs if vitest is not installed
-import { defineConfig } from 'vite'
 import type { TestProjectInlineConfiguration } from 'vitest/config'
 import { setupDotenv } from 'c12'
 import type { DotenvOptions } from 'c12'
-import type { UserConfigFnPromise, UserConfig as ViteUserConfig } from 'vite'
+import type { defineConfig, UserConfigFnPromise, UserConfig as ViteUserConfig } from 'vite'
 import type { DateString } from 'compatx'
 import { createDefu, defu } from 'defu'
 import { createResolver, findPath } from '@nuxt/kit'
@@ -18,7 +16,7 @@ import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options'
 
 interface GetVitestConfigOptions {
   nuxt: Nuxt
-  viteConfig: ViteUserConfig
+  viteConfig: NuxtViteConfig
 }
 
 interface LoadNuxtOptions {
@@ -242,6 +240,9 @@ export async function getVitestConfigFromNuxt(
   // Remove built-in Nuxt logger: https://github.com/vitest-dev/vitest/issues/5211
   delete resolvedConfig.customLogger
 
+  // Remove SSR config to prevent conflicts with Vitest's client-side test environment
+  delete resolvedConfig.ssr
+
   if (!Array.isArray(resolvedConfig.test.setupFiles)) {
     resolvedConfig.test.setupFiles = [resolvedConfig.test.setupFiles].filter(Boolean) as string[]
   }
@@ -260,8 +261,11 @@ export async function defineVitestProject(config: TestProjectInlineConfiguration
   return resolvedConfig
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const defineViteConfig: typeof defineConfig = (config: any) => config
+
 export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfig } = {}): UserConfigFnPromise {
-  return defineConfig(async () => {
+  return defineViteConfig(async () => {
     const resolvedConfig = await resolveConfig(config)
 
     if (resolvedConfig.test.browser?.enabled) {
