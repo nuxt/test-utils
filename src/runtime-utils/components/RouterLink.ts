@@ -28,16 +28,16 @@ export const RouterLink = defineComponent({
       return props.custom
         ? slots.default?.({ href: route.href, navigate, route, isActive, isExactActive })
         : h(
-          'a',
-          {
-            href: route.href,
-            onClick: (e: MouseEvent) => {
-              e.preventDefault()
-              return navigate()
+            'a',
+            {
+              href: route.href,
+              onClick: (e: MouseEvent) => {
+                e.preventDefault()
+                return navigate()
+              },
             },
-          },
-          slots,
-        )
+            slots,
+          )
     }
   },
 })
