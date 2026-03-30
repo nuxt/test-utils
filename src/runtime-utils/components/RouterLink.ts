@@ -15,23 +15,29 @@ export const RouterLink = defineComponent({
     ariaCurrentValue: String,
   },
   setup: (props, { slots }) => {
-    const navigate = () => {}
+    const navigate = () => { }
+    const router = useRouter()
+
     return () => {
-      const route = useRouter().resolve(props.to)
+      const route = router.resolve(props.to)
+      const currentRoute = router.currentRoute.value
+
+      const isActive = route.path === currentRoute.path
+      const isExactActive = isActive
 
       return props.custom
-        ? slots.default?.({ href: route.href, navigate, route })
+        ? slots.default?.({ href: route.href, navigate, route, isActive, isExactActive })
         : h(
-            'a',
-            {
-              href: route.href,
-              onClick: (e: MouseEvent) => {
-                e.preventDefault()
-                return navigate()
-              },
+          'a',
+          {
+            href: route.href,
+            onClick: (e: MouseEvent) => {
+              e.preventDefault()
+              return navigate()
             },
-            slots,
-          )
+          },
+          slots,
+        )
     }
   },
 })

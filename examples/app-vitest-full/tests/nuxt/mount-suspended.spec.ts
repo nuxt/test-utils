@@ -10,6 +10,7 @@ import App from '~/app.vue'
 import OptionsComponent from '~/components/OptionsComponent.vue'
 import WrapperTests from '~/components/WrapperTests.vue'
 import LinkTests from '~/components/LinkTests.vue'
+import NuxtLinkWithIsActive from '~/components/NuxtLinkWithIsActive.vue'
 
 import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
 import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
@@ -540,6 +541,24 @@ it('renders links correctly', async () => {
   const component = await mountSuspended(LinkTests)
 
   expect(component.html()).toMatchInlineSnapshot(`"<div><a href="/test"> Link with string to prop </a><a href="/test"> Link with object to prop </a></div>"`)
+})
+
+it('applies active class to NuxtLink custom slot when route matches', async () => {
+  const component = await mountSuspended(NuxtLinkWithIsActive, {
+    route: '/about',
+  })
+
+  const aboutLink = component.findAll('a').find(el => el.text().includes('About'))
+  expect(aboutLink?.classes()).toContain('active')
+})
+
+it('does not apply active class to NuxtLink custom slot when route does not match', async () => {
+  const component = await mountSuspended(NuxtLinkWithIsActive, {
+    route: '/',
+  })
+
+  const aboutLink = component.findAll('a').find(el => el.text().includes('About'))
+  expect(aboutLink?.classes()).not.toContain('active')
 })
 
 it('element should be changed', async () => {
