@@ -543,22 +543,44 @@ it('renders links correctly', async () => {
   expect(component.html()).toMatchInlineSnapshot(`"<div><a href="/test"> Link with string to prop </a><a href="/test"> Link with object to prop </a></div>"`)
 })
 
-it('applies active class to NuxtLink custom slot when route matches', async () => {
+it('receives correct isActive and isExactActive values in custom slot', async () => {
   const component = await mountSuspended(NuxtLinkWithIsActive, {
     route: '/about',
   })
 
-  const aboutLink = component.findAll('a').find(el => el.text().includes('About'))
-  expect(aboutLink?.classes()).toContain('active')
+  const aboutLink = component.find('a[href="/about"]')
+  expect(aboutLink.classes()).toContain('active')
+  expect(aboutLink.attributes('data-is-active')).toBe('true')
+  expect(aboutLink.attributes('data-is-exact-active')).toBe('true')
 })
 
-it('does not apply active class to NuxtLink custom slot when route does not match', async () => {
+it('does not apply isActive when route does not match', async () => {
   const component = await mountSuspended(NuxtLinkWithIsActive, {
     route: '/',
   })
 
-  const aboutLink = component.findAll('a').find(el => el.text().includes('About'))
-  expect(aboutLink?.classes()).not.toContain('active')
+  const aboutLink = component.find('a[href="/about"]')
+  expect(aboutLink.classes()).not.toContain('active')
+  expect(aboutLink.attributes('data-is-active')).toBe('false')
+  expect(aboutLink.attributes('data-is-exact-active')).toBe('false')
+})
+
+it.fails('keeps parent link active without exact match on nested routes', async () => {
+  // NuxtLink in mountSuspended currently falls back to exact path matching for nested routes. Keep this stronger assertion as a tracked regression.
+  const component = await mountSuspended(NuxtLinkWithIsActive, {
+    route: '/about/team',
+  })
+
+  const aboutLink = component.find('a[href="/about"]')
+  const teamLink = component.find('a[href="/about/team"]')
+
+  expect(aboutLink.classes()).toContain('active')
+  expect(aboutLink.attributes('data-is-active')).toBe('true')
+  expect(aboutLink.attributes('data-is-exact-active')).toBe('false')
+
+  expect(teamLink.classes()).toContain('active')
+  expect(teamLink.attributes('data-is-active')).toBe('true')
+  expect(teamLink.attributes('data-is-exact-active')).toBe('true')
 })
 
 it('element should be changed', async () => {

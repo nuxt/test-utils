@@ -1,4 +1,5 @@
-import { defineComponent, h, useRouter } from '#imports'
+import { defineComponent, h } from '#imports'
+import { useLink } from 'vue-router'
 
 export const RouterLink = defineComponent({
   functional: true,
@@ -9,35 +10,32 @@ export const RouterLink = defineComponent({
     },
     custom: Boolean,
     replace: Boolean,
-    // Not implemented
     activeClass: String,
     exactActiveClass: String,
     ariaCurrentValue: String,
   },
   setup: (props, { slots }) => {
-    const navigate = () => { }
-    const router = useRouter()
+    const link = useLink(props)
 
     return () => {
-      const route = router.resolve(props.to)
-      const currentRoute = router.currentRoute.value
-
-      const isActive = route.path === currentRoute.path
-      const isExactActive = isActive
+      const route = link.route.value
+      const href = link.href.value
+      const isActive = link.isActive.value
+      const isExactActive = link.isExactActive.value
 
       return props.custom
-        ? slots.default?.({ href: route.href, navigate, route, isActive, isExactActive })
+        ? slots.default?.({ href, navigate: link.navigate, route, isActive, isExactActive })
         : h(
-            'a',
-            {
-              href: route.href,
-              onClick: (e: MouseEvent) => {
-                e.preventDefault()
-                return navigate()
-              },
+          'a',
+          {
+            href,
+            onClick: (e: MouseEvent) => {
+              e.preventDefault()
+              return link.navigate(e)
             },
-            slots,
-          )
+          },
+          slots,
+        )
     }
   },
 })
