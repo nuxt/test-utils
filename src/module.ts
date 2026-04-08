@@ -11,7 +11,7 @@ import { loadKit } from './utils'
 import { setupDevTools } from './devtools'
 import { vitestWrapper } from './vitest-wrapper/host'
 
-import pkg from '../package.json' assert { type: 'json' }
+import pkg from '../package.json' with { type: 'json' }
 
 export interface NuxtVitestOptions {
   startOnBoot?: boolean
