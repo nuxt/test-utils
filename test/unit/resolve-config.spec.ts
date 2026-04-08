@@ -124,10 +124,13 @@ describe('resolve config', () => {
     const fixtureDir = '../fixtures/advised/basic'
 
     const expected = {
-      nuxt: [
+      'dev-override': [
+        'overrides/overrides.test.ts',
+      ],
+      'nuxt': [
         'nuxt-test/test1.spec.ts',
       ],
-      unit: [
+      'unit': [
         'unit-test/test1.spec.ts',
       ],
     } as const
