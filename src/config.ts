@@ -124,7 +124,10 @@ export async function getVitestConfigFromNuxt(
     }
   }
 
-  const h3Info = getPackageInfoSync('h3', {
+  const projectH3Path = resolveModulePath('h3/package.json', { from: rootDir, try: true })
+  const projectH3Info = projectH3Path ? getPackageInfoSync('h3', { paths: [projectH3Path] }) : undefined
+
+  const h3Info = projectH3Info || getPackageInfoSync('h3', {
     paths: nitroPath ? [nitroPath] : options.nuxt.options.modulesDir,
   })
 
