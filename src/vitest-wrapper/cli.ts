@@ -6,7 +6,7 @@ import {
   listenHostMessages as listenMessages,
 } from './interface'
 import type {
-  SendToCliMessage as RecieveMessage,
+  SendToCliMessage as ReceiveMessage,
   SendToHostMessage as SendMessage,
 } from './interface'
 
@@ -68,7 +68,7 @@ async function main() {
   const {
     apiPorts,
     watchMode,
-  } = await new Promise<RecieveMessage['start']>((resolve) => {
+  } = await new Promise<ReceiveMessage['start']>((resolve) => {
     listenMessages(({ type, payload }) => {
       if (type === 'start') resolve(payload)
     })
