@@ -1,5 +1,9 @@
 <template>
   <div>
-    I am a global component
+    {{ message }}
   </div>
 </template>
+
+<script setup lang="ts">
+const { message } = useGlobalComponentMessage()
+</script>
