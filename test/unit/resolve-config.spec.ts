@@ -82,6 +82,20 @@ describe('resolve config', () => {
     }, TEST_TIMEOUT)
   })
 
+  describe('simple/plugin-spec', async () => {
+    const fixtureDir = '../fixtures/simple/plugin-spec'
+
+    const expected = {
+      nuxt: [
+        'plugins/customFetch.nuxt.spec.ts',
+      ],
+    } as const
+
+    it('all', async () => {
+      expect(await globTestSpecifications(fixtureDir)).toEqual(expected)
+    }, TEST_TIMEOUT)
+  })
+
   describe('simple/env-other', () => {
     const fixtureDir = '../fixtures/simple/env-other'
 
