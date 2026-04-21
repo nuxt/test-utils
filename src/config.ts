@@ -371,7 +371,8 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
 export interface NuxtEnvironmentOptions {
   rootDir?: string
   /**
-   * The starting URL for your Nuxt window environment
+   * The starting URL for your Nuxt window environment.
+   * Can be overridden via `@vitest-environment-options`.
    * @default 'http://localhost:3000'
    */
   url?: string
@@ -392,6 +393,7 @@ export interface NuxtEnvironmentOptions {
    * The name of the DOM environment to use.
    *
    * It also needs to be installed as a dev dependency in your project.
+   * Can be overridden via `@vitest-environment-options`.
    * @default 'happy-dom'
    */
   domEnvironment?: 'happy-dom' | 'jsdom'

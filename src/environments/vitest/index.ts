@@ -5,7 +5,7 @@ import { joinURL } from 'ufo'
 import defu from 'defu'
 
 import { setupWindow } from '../../runtime/shared/environment'
-import type { NuxtBuiltinEnvironment } from './types'
+import type { SetupWindowNuxtEnvironmentOptions } from '../../runtime/shared/environment'
 import happyDom from './env/happy-dom'
 import jsdom from './env/jsdom'
 
@@ -17,32 +17,32 @@ const environmentMap = {
 export default <Environment>{
   name: 'nuxt',
   viteEnvironment: 'client',
-  async setup(global, environmentOptions) {
+  async setup(global, _environmentOptions) {
     const { populateGlobal } = await importVitestEnvironments()
 
+    const environmentOptions = mergeSetupWindowEnvironmentOptions(_environmentOptions)
     const url = joinURL(
-      environmentOptions.nuxt?.url ?? 'http://localhost:3000',
+      environmentOptions.nuxt.url ?? 'http://localhost:3000',
       environmentOptions.nuxtRuntimeConfig?.app?.baseURL || '/',
     )
 
-    const environmentName = environmentOptions.nuxt?.domEnvironment as NuxtBuiltinEnvironment
+    const environmentName = environmentOptions.nuxt.domEnvironment || 'happy-dom'
     const environment = environmentMap[environmentName] || environmentMap['happy-dom']
     const { window: win, teardown } = await environment(global, defu(environmentOptions, {
       happyDom: { url },
       jsdom: { url },
     }))
 
-    if (environmentOptions.nuxt?.mock?.intersectionObserver) {
+    if (environmentOptions.nuxt.mock?.intersectionObserver) {
       win.IntersectionObserver ||= IntersectionObserver
     }
 
-    if (environmentOptions.nuxt?.mock?.indexedDb) {
+    if (environmentOptions.nuxt.mock?.indexedDb) {
       // @ts-expect-error win.indexedDB is read-only
       win.indexedDB = indexedDB
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const teardownWindow = await setupWindow(win, environmentOptions as any)
+    const teardownWindow = await setupWindow(win, environmentOptions)
     const { keys, originals } = populateGlobal(global, win, {
       bindFunctions: true,
       additionalKeys: ['fetch', 'Request'],
@@ -65,6 +65,30 @@ export default <Environment>{
       },
     }
   },
+}
+
+// Manually merge with base config because `@vitest-environment-options` doesn't merge by default
+function mergeSetupWindowEnvironmentOptions(
+  environmentOptions: Record<string, unknown> = {},
+): SetupWindowNuxtEnvironmentOptions {
+  const {
+    nuxt: nuxtEnvironmentOptions = {},
+  } = environmentOptions as unknown as SetupWindowNuxtEnvironmentOptions
+
+  const serializedResolvedOptions = process.env.__NUXT_VITEST_ENVIRONMENT_RESOLVED_OPTIONS__
+  const baseEnvironmentOptions = serializedResolvedOptions
+    ? JSON.parse(serializedResolvedOptions)
+    : environmentOptions
+
+  return defu(
+    {
+      nuxt: {
+        url: nuxtEnvironmentOptions.url,
+        domEnvironment: nuxtEnvironmentOptions.domEnvironment,
+      },
+    },
+    baseEnvironmentOptions,
+  )
 }
 
 // This can be removed when dropping support for vitest 4.0.x (We can static import from 'vitest/runtime')
