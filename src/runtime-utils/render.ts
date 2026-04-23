@@ -1,5 +1,4 @@
 import { h, nextTick } from 'vue'
-import { cleanupAll, wrapperSuspended } from './utils/suspended'
 import type { WrapperSuspendedOptions, WrapperSuspendedResult } from './utils/suspended'
 
 import type { render } from '@testing-library/vue'
@@ -42,6 +41,8 @@ export async function renderSuspended<T>(
   component: T,
   options: WrapperOptions<T> = {},
 ): Promise<WrapperResult<T>> {
+  const { cleanupAll, wrapperSuspended } = await import('./utils/suspended')
+
   const wrapperId = 'test-wrapper'
   const suspendedHelperName = 'RenderHelper'
   const clonedComponentName = 'RenderSuspendedComponent'
