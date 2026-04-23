@@ -215,6 +215,10 @@ function mergeComponentMountingGlobalOptions<C>(
   options: ComponentMountingOptions<C>['global'] = {},
   defaults: typeof options = {},
 ): typeof options {
+  const compilerOptions = {
+    ...defaults.config?.compilerOptions,
+    ...options.config?.compilerOptions,
+  }
   return {
     ...options,
     mixins: [...defaults.mixins || [], ...options.mixins || []],
@@ -231,10 +235,7 @@ function mergeComponentMountingGlobalOptions<C>(
     config: {
       ...defaults.config,
       ...options.config,
-      compilerOptions: {
-        ...defaults.config?.compilerOptions,
-        ...options.config?.compilerOptions,
-      },
+      ...(Object.keys(compilerOptions).length ? { compilerOptions } : undefined),
       globalProperties: {
         ...defaults.config?.globalProperties,
         ...options.config?.globalProperties,
