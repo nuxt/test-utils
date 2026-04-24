@@ -336,9 +336,27 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
   })
 }
 
+function isCoverageEnabled(config: ViteUserConfig & { test?: VitestConfig } | UserWorkspaceConfig): boolean {
+  if (config.test && 'coverage' in config.test && config.test.coverage?.enabled) {
+    return true
+  }
+  // vitest CLI `--coverage` / `--coverage.enabled`
+  return process.argv.some(arg => arg === '--coverage' || arg === '--coverage.enabled' || arg === '--coverage=true' || arg === '--coverage.enabled=true')
+}
+
 async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } | UserWorkspaceConfig>(config: T) {
   const overrides = config.test?.environmentOptions?.nuxt?.overrides || {}
   overrides.rootDir = config.test?.environmentOptions?.nuxt?.rootDir
+
+  // enable client-side sourcemaps when running with coverage
+  if (isCoverageEnabled(config)) {
+    if (overrides.sourcemap === undefined) {
+      overrides.sourcemap = { client: true }
+    }
+    else if (typeof overrides.sourcemap === 'object' && overrides.sourcemap.client === undefined) {
+      overrides.sourcemap.client = true
+    }
+  }
 
   if (config.test?.setupFiles && !Array.isArray(config.test.setupFiles)) {
     config.test.setupFiles = [config.test.setupFiles].filter(Boolean) as string[]
