@@ -7,15 +7,22 @@ import type { NuxtEnvironmentOptions } from '../../config'
 import { createFetchForH3V1 } from './h3-v1'
 import { createFetchForH3V2 } from './h3-v2'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: NuxtEnvironmentOptions, nuxtRuntimeConfig?: Record<string, any>, nuxtRouteRules?: Record<string, any> }) {
+export interface SetupWindowNuxtEnvironmentOptions {
+  nuxt: NuxtEnvironmentOptions
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  nuxtRuntimeConfig?: Record<string, any>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  nuxtRouteRules?: Record<string, any>
+}
+
+export async function setupWindow(win: NuxtWindow, environmentOptions: SetupWindowNuxtEnvironmentOptions) {
   win.__NUXT_VITEST_ENVIRONMENT__ = true
   win.__NUXT__ = {
     serverRendered: false,
     config: {
       public: {},
       app: { baseURL: '/' },
-      ...environmentOptions?.nuxtRuntimeConfig,
+      ...environmentOptions.nuxtRuntimeConfig,
     },
     data: {},
     state: {},
@@ -70,8 +77,8 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
   )
   const matcher = exportMatcher(routeRulesMatcher)
   const manifestOutputPath = joinURL(
-    environmentOptions?.nuxtRuntimeConfig?.app?.baseURL || '/',
-    environmentOptions?.nuxtRuntimeConfig?.app?.buildAssetsDir || '_nuxt',
+    environmentOptions.nuxtRuntimeConfig?.app?.baseURL || '/',
+    environmentOptions.nuxtRuntimeConfig?.app?.buildAssetsDir || '_nuxt',
     'builds',
   )
   const manifestBaseRoutePath = joinURL('/_', manifestOutputPath)
