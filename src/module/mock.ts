@@ -6,7 +6,7 @@ import type { MockPluginContext } from './plugins/mock'
 import { loadKit } from '../utils'
 
 function isTestPluginFile(src: string) {
-  return src.includes('/plugins/') && (src.includes('.spec.') || src.includes('.test.'))
+  return (src.includes('.spec.') || src.includes('.test.'))
 }
 
 /**
