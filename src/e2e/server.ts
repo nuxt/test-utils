@@ -3,7 +3,6 @@ import { getRandomPort, waitForPort } from 'get-port-please'
 import type { $Fetch, FetchOptions } from 'ofetch'
 import { fetch as _fetch, createFetch } from 'ofetch'
 import { resolve } from 'pathe'
-import { isWindows } from 'std-env'
 import { joinURL } from 'ufo'
 import { useTestContext } from './context'
 
@@ -71,11 +70,10 @@ interface WaitForServerOptions {
 async function waitForServer({ host, port, dev }: WaitForServerOptions) {
   const ctx = useTestContext()
   const baseURL = ctx.nuxt?.options.app.baseURL ?? '/'
-  const timeout = ctx.options.serverStartTimeout ?? (isWindows ? 120_000 : 60_000)
-  const deadline = Date.now() + timeout
+  const deadline = Date.now() + ctx.options.serverStartTimeout
 
-  const portRetries = Math.max(1, Math.ceil(timeout / 1000))
-  await waitForPort(port, { retries: portRetries, host }).catch(() => {})
+  // Brief opportunistic port wait; the fetch loop below owns the real readiness budget.
+  await waitForPort(port, { retries: 8, host }).catch(() => {})
 
   let lastError: unknown
   while (Date.now() < deadline) {
@@ -84,7 +82,6 @@ async function waitForServer({ host, port, dev }: WaitForServerOptions) {
     }
     try {
       const res = await globalFetch(joinURL(ctx.url!, baseURL), { signal: AbortSignal.timeout(10_000) })
-      const body = await res.text()
       // any response means the server is accepting connections.
       // the dev server (`nuxi _dev`) is the one exception: it answers with
       // 503 or a 200 HTML placeholder containing `__NUXT_LOADING__` while the
@@ -92,7 +89,7 @@ async function waitForServer({ host, port, dev }: WaitForServerOptions) {
       if (dev && res.status === 503) {
         lastError = new Error(`Server responded with ${res.status} ${res.statusText}`)
       }
-      else if (dev && body.includes('__NUXT_LOADING__')) {
+      else if (dev && (await res.text()).includes('__NUXT_LOADING__')) {
         lastError = new Error('Dev server is still starting up')
       }
       else {
@@ -108,13 +105,30 @@ async function waitForServer({ host, port, dev }: WaitForServerOptions) {
   await stopServer()
   throw lastError instanceof Error
     ? lastError
-    : new Error(`Timeout (${timeout}ms) waiting for ${dev ? 'dev' : 'built'} server to become ready at ${ctx.url}`)
+    : new Error(`Timeout (${ctx.options.serverStartTimeout}ms) waiting for ${dev ? 'dev' : 'built'} server to become ready at ${ctx.url}`)
 }
 
 export async function stopServer() {
   const ctx = useTestContext()
-  if (ctx.serverProcess) {
-    ctx.serverProcess.kill()
+  const proc = ctx.serverProcess
+  if (!proc) {
+    return
+  }
+  ctx.serverProcess = undefined
+
+  // tinyexec resolves the process when it exits; swallow non-zero exits since
+  // we're killing it on purpose.
+  const exited = Promise.resolve(proc).then(() => {}, () => {})
+  const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms))
+
+  proc.kill()
+  // Wait for the child to actually exit, escalating to SIGKILL if it lingers.
+  // Without this, callers can race a still-running server and (on Windows
+  // especially) leave orphan processes holding the port.
+  await Promise.race([exited, sleep(5_000)])
+  if (proc.exitCode == null) {
+    proc.kill('SIGKILL')
+    await Promise.race([exited, sleep(5_000)])
   }
 }
 
