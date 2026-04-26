@@ -36,6 +36,13 @@ export interface TestOptions {
    * @default 30000
    */
   teardownTimeout: number
+  /**
+   * The amount of time (in milliseconds) to wait for the dev or built server to become ready (i.e. respond successfully on the configured base URL) before failing.
+   *
+   * This is bounded by `setupTimeout`, so increasing this is only useful in combination with a sufficiently large `setupTimeout`.
+   * @default 120000 // on windows; otherwise 60000
+   */
+  serverStartTimeout: number
   waitFor: number
   /**
    * Under the hood, Nuxt test utils uses [`playwright`](https://playwright.dev) to carry out browser testing. If this option is set, a browser will be launched and can be controlled in the subsequent test suite.

@@ -3,6 +3,7 @@ import { getRandomPort, waitForPort } from 'get-port-please'
 import type { $Fetch, FetchOptions } from 'ofetch'
 import { fetch as _fetch, createFetch } from 'ofetch'
 import { resolve } from 'pathe'
+import { isWindows } from 'std-env'
 import { joinURL } from 'ufo'
 import { useTestContext } from './context'
 
@@ -35,24 +36,6 @@ export async function startServer(options: StartServerOptions = {}) {
         },
       },
     })
-    await waitForPort(port, { retries: 32, host }).catch(() => {})
-    let lastError
-    for (let i = 0; i < 150; i++) {
-      await new Promise(resolve => setTimeout(resolve, 100))
-      try {
-        const res = await $fetch<string>(ctx.nuxt!.options.app.baseURL, {
-          responseType: 'text',
-        })
-        if (!res.includes('__NUXT_LOADING__')) {
-          return
-        }
-      }
-      catch (e) {
-        lastError = e
-      }
-    }
-    ctx.serverProcess.kill()
-    throw lastError || new Error('Timeout waiting for dev server!')
   }
   else {
     const outputDir = ctx.nuxt ? ctx.nuxt.options.nitro.output!.dir! : ctx.options.nuxtConfig.nitro!.output!.dir!
@@ -74,8 +57,52 @@ export async function startServer(options: StartServerOptions = {}) {
         },
       },
     )
-    await waitForPort(port, { retries: 20, host })
   }
+
+  await waitForServer({ host, port, dev: ctx.options.dev })
+}
+
+interface WaitForServerOptions {
+  host: string
+  port: number
+  dev: boolean
+}
+
+async function waitForServer({ host, port, dev }: WaitForServerOptions) {
+  const ctx = useTestContext()
+  const baseURL = ctx.nuxt?.options.app.baseURL ?? '/'
+  const timeout = ctx.options.serverStartTimeout ?? (isWindows ? 120_000 : 60_000)
+  const deadline = Date.now() + timeout
+
+  // Port-listening is a fast first signal but not authoritative: a bound
+  // socket does not always mean the request handler is live yet (esp. in
+  // built mode), so an HTTP probe follows below.
+  const portRetries = Math.max(1, Math.ceil(timeout / 1000))
+  await waitForPort(port, { retries: portRetries, host }).catch(() => {})
+
+  let lastError: unknown
+  while (Date.now() < deadline) {
+    if (ctx.serverProcess && (ctx.serverProcess.killed || ctx.serverProcess.exitCode != null)) {
+      throw new Error(`Server process exited before becoming ready (exit code: ${ctx.serverProcess.exitCode ?? 'unknown'})`)
+    }
+    try {
+      const res = await $fetch<string>(baseURL, { responseType: 'text' })
+      // `nuxi _dev` serves a placeholder containing `__NUXT_LOADING__` until
+      // the underlying dev server is ready; keep polling while we see it.
+      if (!res.includes('__NUXT_LOADING__')) {
+        return
+      }
+    }
+    catch (e) {
+      lastError = e
+    }
+    await new Promise(resolve => setTimeout(resolve, 100))
+  }
+
+  await stopServer()
+  throw lastError instanceof Error
+    ? lastError
+    : new Error(`Timeout (${timeout}ms) waiting for ${dev ? 'dev' : 'built'} server to become ready at ${ctx.url}`)
 }
 
 export async function stopServer() {
