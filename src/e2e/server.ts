@@ -74,9 +74,6 @@ async function waitForServer({ host, port, dev }: WaitForServerOptions) {
   const timeout = ctx.options.serverStartTimeout ?? (isWindows ? 120_000 : 60_000)
   const deadline = Date.now() + timeout
 
-  // Port-listening is a fast first signal but not authoritative: a bound
-  // socket does not always mean the request handler is live yet (esp. in
-  // built mode), so an HTTP probe follows below.
   const portRetries = Math.max(1, Math.ceil(timeout / 1000))
   await waitForPort(port, { retries: portRetries, host }).catch(() => {})
 
