@@ -86,10 +86,19 @@ async function waitForServer({ host, port, dev }: WaitForServerOptions) {
       throw new Error(`Server process exited before becoming ready (exit code: ${ctx.serverProcess.exitCode ?? 'unknown'})`)
     }
     try {
-      const res = await $fetch<string>(baseURL, { responseType: 'text' })
-      // `nuxi _dev` serves a placeholder containing `__NUXT_LOADING__` until
-      // the underlying dev server is ready; keep polling while we see it.
-      if (!res.includes('__NUXT_LOADING__')) {
+      const res = await globalFetch(joinURL(ctx.url!, baseURL), { signal: AbortSignal.timeout(10_000) })
+      const body = await res.text()
+      // any response means the server is accepting connections.
+      // the dev server (`nuxi _dev`) is the one exception: it answers with
+      // 503 or a 200 HTML placeholder containing `__NUXT_LOADING__` while the
+      // underlying dev server is still starting up.
+      if (dev && res.status === 503) {
+        lastError = new Error(`Server responded with ${res.status} ${res.statusText}`)
+      }
+      else if (dev && body.includes('__NUXT_LOADING__')) {
+        lastError = new Error('Dev server is still starting up')
+      }
+      else {
         return
       }
     }
