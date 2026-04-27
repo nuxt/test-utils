@@ -565,8 +565,7 @@ it('does not apply isActive when route does not match', async () => {
   expect(aboutLink.attributes('data-is-exact-active')).toBe('false')
 })
 
-it.fails('keeps parent link active without exact match on nested routes', async () => {
-  // NuxtLink in mountSuspended currently falls back to exact path matching for nested routes. Keep this stronger assertion as a tracked regression.
+it('keeps parent link active without exact match on nested routes', async () => {
   const component = await mountSuspended(NuxtLinkWithIsActive, {
     route: '/about/team',
   })
