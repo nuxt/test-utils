@@ -10,6 +10,7 @@ export const RouterLink = defineComponent({
     },
     custom: Boolean,
     replace: Boolean,
+    // Not implemented
     activeClass: String,
     exactActiveClass: String,
     ariaCurrentValue: String,
