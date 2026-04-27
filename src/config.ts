@@ -29,7 +29,8 @@ async function startNuxtAndGetViteConfig(rootDir = process.cwd(), options: LoadN
   const { buildNuxt, loadNuxt } = await loadKit(rootDir)
   const nuxt = await loadNuxt({
     cwd: rootDir,
-    dev: false,
+    // https://github.com/nuxt/nuxt/blob/d52a4fdd7ad5feb035dcf3f56c3b2d0ab059b1d4/packages/kit/src/loader/nuxt.ts#L24
+    dev: options.overrides?.dev ?? false,
     dotenv: defu(options.dotenv, {
       cwd: rootDir,
       fileName: '.env.test',
@@ -123,7 +124,10 @@ export async function getVitestConfigFromNuxt(
     }
   }
 
-  const h3Info = getPackageInfoSync('h3', {
+  const projectH3Path = resolveModulePath('h3/package.json', { from: rootDir, try: true })
+  const projectH3Info = projectH3Path ? getPackageInfoSync('h3', { paths: [projectH3Path] }) : undefined
+
+  const h3Info = projectH3Info || getPackageInfoSync('h3', {
     paths: nitroPath ? [nitroPath] : options.nuxt.options.modulesDir,
   })
 
@@ -332,9 +336,27 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
   })
 }
 
+function isCoverageEnabled(config: ViteUserConfig & { test?: VitestConfig } | UserWorkspaceConfig): boolean {
+  if (config.test && 'coverage' in config.test && config.test.coverage?.enabled) {
+    return true
+  }
+  // vitest CLI `--coverage` / `--coverage.enabled`
+  return process.argv.some(arg => arg === '--coverage' || arg === '--coverage.enabled' || arg === '--coverage=true' || arg === '--coverage.enabled=true')
+}
+
 async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } | UserWorkspaceConfig>(config: T) {
   const overrides = config.test?.environmentOptions?.nuxt?.overrides || {}
   overrides.rootDir = config.test?.environmentOptions?.nuxt?.rootDir
+
+  // enable client-side sourcemaps when running with coverage
+  if (isCoverageEnabled(config)) {
+    if (overrides.sourcemap === undefined) {
+      overrides.sourcemap = { client: true }
+    }
+    else if (typeof overrides.sourcemap === 'object' && overrides.sourcemap.client === undefined) {
+      overrides.sourcemap.client = true
+    }
+  }
 
   if (config.test?.setupFiles && !Array.isArray(config.test.setupFiles)) {
     config.test.setupFiles = [config.test.setupFiles].filter(Boolean) as string[]

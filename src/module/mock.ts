@@ -5,6 +5,10 @@ import { createMockPlugin } from './plugins/mock'
 import type { MockPluginContext } from './plugins/mock'
 import { loadKit } from '../utils'
 
+function isTestPluginFile(src: string) {
+  return (src.includes('.spec.') || src.includes('.test.'))
+}
+
 /**
  * This module is a macro that transforms `mockNuxtImport()` to `vi.mock()`,
  * which make it possible to mock Nuxt imports.
@@ -43,6 +47,11 @@ export async function setupImportMocking(nuxt: Nuxt) {
       nuxt._ignore.add(`!${pattern}`)
     }
   }
+
+  // But do not register test files inside plugins/ as real Nuxt plugins
+  nuxt.hook('app:resolve', (app) => {
+    app.plugins = app.plugins.filter(plugin => !isTestPluginFile(plugin.src))
+  })
 
   addVitePlugin(createMockPlugin(ctx).vite())
 }

@@ -9,13 +9,13 @@ import {
 } from './interface'
 import type {
   SendToCliMessage as SendMessage,
-  SendToHostMessage as RecieveMessage,
+  SendToHostMessage as ReceiveMessage,
 } from './interface'
 
 import { distDir } from '#dirs'
 
 type Handlers = {
-  [K in keyof RecieveMessage]: ((payload: RecieveMessage[K]) => unknown)[]
+  [K in keyof ReceiveMessage]: ((payload: ReceiveMessage[K]) => unknown)[]
 } & {
   exited: ((payload: { exitCode: number }) => unknown)[]
 }

@@ -1,11 +1,24 @@
-import { config } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 
-type Options = ReturnType<typeof createPluginOptions>
+interface Options {
+  hasNuxtPage(): boolean
+}
 
 const PLUGIN_NAME = 'nuxt-test-utils'
 
+// @vue/test-utils is optional
+// If import fails, hasNuxtPage always returns false
+const config = await import('@vue/test-utils')
+  .then(r => r.config)
+  .catch(() => undefined)
+
 export function getVueWrapperPlugin(): Options {
+  if (!config) {
+    return {
+      hasNuxtPage: () => false,
+    }
+  }
+
   const installed = config.plugins.VueWrapper.installedPlugins
     .find(({ options }) => options?._name === PLUGIN_NAME)
 
