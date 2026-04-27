@@ -104,14 +104,16 @@ describe('mountSuspended() compatible to mount()', () => {
     })
 
     describe('setData()', () => {
-      it.runIf(Component.setup)('throw error if setup is present', async () => {
+      // Since @vue/test-utils v2.4.7 (#2655), `setData` is a no-op on components
+      // using `<script setup>` / Composition API instead of throwing.
+      it.runIf(Component.setup)('is a no-op if setup is present', async () => {
         const vWrapper = mount(Component)
         const nWrapper = await mountSuspended(Component)
 
-        await expect(async () => await vWrapper.setData({ data1: '1' })).rejects
-          .toThrow(/Cannot add property data1/)
-        await expect(async () => await nWrapper.setData({ data1: '1' })).rejects
-          .toThrow(/Cannot add property data1/)
+        await vWrapper.setData({ data1: '1' })
+        await nWrapper.setData({ data1: '1' })
+
+        expect(vWrapper.vm.$data).toEqual(nWrapper.vm.$data)
       })
 
       it.runIf(!Component.setup)('works if setup is absent', async () => {
