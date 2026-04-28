@@ -14,7 +14,21 @@ onlyBuiltDependencies:
   - better-sqlite3
   - '@tailwindcss/oxide'
 
+overrides:
+  '@cucumber/cucumber': 12.8.2
+  '@nuxt/schema': 4.4.2
+  '@nuxt/test-utils': workspace:*
+  '@types/node': 24.12.2
+  rollup: 4.60.2
+  vite: 8.0.10
+  vite-node: 6.0.0
+  vitest: 4.1.5
+  vue: ^3.5.33
+
 patchedDependencies:
   node-mock-http: patches/node-mock-http.patch
 
 shellEmulator: true
+
+ignoreWorkspaceRootCheck: true
+

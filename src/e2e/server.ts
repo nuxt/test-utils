@@ -35,24 +35,6 @@ export async function startServer(options: StartServerOptions = {}) {
         },
       },
     })
-    await waitForPort(port, { retries: 32, host }).catch(() => {})
-    let lastError
-    for (let i = 0; i < 150; i++) {
-      await new Promise(resolve => setTimeout(resolve, 100))
-      try {
-        const res = await $fetch<string>(ctx.nuxt!.options.app.baseURL, {
-          responseType: 'text',
-        })
-        if (!res.includes('__NUXT_LOADING__')) {
-          return
-        }
-      }
-      catch (e) {
-        lastError = e
-      }
-    }
-    ctx.serverProcess.kill()
-    throw lastError || new Error('Timeout waiting for dev server!')
   }
   else {
     const outputDir = ctx.nuxt ? ctx.nuxt.options.nitro.output!.dir! : ctx.options.nuxtConfig.nitro!.output!.dir!
@@ -74,14 +56,79 @@ export async function startServer(options: StartServerOptions = {}) {
         },
       },
     )
-    await waitForPort(port, { retries: 20, host })
   }
+
+  await waitForServer({ host, port, dev: ctx.options.dev })
+}
+
+interface WaitForServerOptions {
+  host: string
+  port: number
+  dev: boolean
+}
+
+async function waitForServer({ host, port, dev }: WaitForServerOptions) {
+  const ctx = useTestContext()
+  const baseURL = ctx.nuxt?.options.app.baseURL ?? '/'
+  const deadline = Date.now() + ctx.options.serverStartTimeout
+
+  // Brief opportunistic port wait; the fetch loop below owns the real readiness budget.
+  await waitForPort(port, { retries: 8, host }).catch(() => {})
+
+  let lastError: unknown
+  while (Date.now() < deadline) {
+    if (ctx.serverProcess && (ctx.serverProcess.killed || ctx.serverProcess.exitCode != null)) {
+      throw new Error(`Server process exited before becoming ready (exit code: ${ctx.serverProcess.exitCode ?? 'unknown'})`)
+    }
+    try {
+      const res = await globalFetch(joinURL(ctx.url!, baseURL), { signal: AbortSignal.timeout(10_000) })
+      // any response means the server is accepting connections.
+      // the dev server (`nuxi _dev`) is the one exception: it answers with
+      // 503 or a 200 HTML placeholder containing `__NUXT_LOADING__` while the
+      // underlying dev server is still starting up.
+      if (dev && res.status === 503) {
+        lastError = new Error(`Server responded with ${res.status} ${res.statusText}`)
+      }
+      else if (dev && (await res.text()).includes('__NUXT_LOADING__')) {
+        lastError = new Error('Dev server is still starting up')
+      }
+      else {
+        return
+      }
+    }
+    catch (e) {
+      lastError = e
+    }
+    await new Promise(resolve => setTimeout(resolve, 100))
+  }
+
+  await stopServer()
+  throw lastError instanceof Error
+    ? lastError
+    : new Error(`Timeout (${ctx.options.serverStartTimeout}ms) waiting for ${dev ? 'dev' : 'built'} server to become ready at ${ctx.url}`)
 }
 
 export async function stopServer() {
   const ctx = useTestContext()
-  if (ctx.serverProcess) {
-    ctx.serverProcess.kill()
+  const proc = ctx.serverProcess
+  if (!proc) {
+    return
+  }
+  ctx.serverProcess = undefined
+
+  // tinyexec resolves the process when it exits; swallow non-zero exits since
+  // we're killing it on purpose.
+  const exited = Promise.resolve(proc).then(() => {}, () => {})
+  const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms))
+
+  proc.kill()
+  // Wait for the child to actually exit, escalating to SIGKILL if it lingers.
+  // Without this, callers can race a still-running server and (on Windows
+  // especially) leave orphan processes holding the port.
+  await Promise.race([exited, sleep(5_000)])
+  if (proc.exitCode == null) {
+    proc.kill('SIGKILL')
+    await Promise.race([exited, sleep(5_000)])
   }
 }
 

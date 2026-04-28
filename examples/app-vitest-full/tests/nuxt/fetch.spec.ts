@@ -232,12 +232,12 @@ describe('server mocks and data fetching', () => {
     })
 
     await expect(fetch<unknown>('/error')).rejects.toMatchObject({ status: 500, statusText: 'Mock Server Error' })
-    await expect(fetch<unknown>('/error', { baseURL: '"INVALID"' })).rejects.toThrowError()
+    await expect(fetch<unknown>('/error', { baseURL: '"INVALID"' })).rejects.toThrow()
 
-    expect(onRequest).toBeCalledTimes(4)
-    expect(onResponse).toBeCalledTimes(3)
-    expect(onRequestError).toBeCalledTimes(1)
-    expect(onResponseError).toBeCalledTimes(1)
+    expect(onRequest).toHaveBeenCalledTimes(4)
+    expect(onResponse).toHaveBeenCalledTimes(3)
+    expect(onRequestError).toHaveBeenCalledTimes(1)
+    expect(onResponseError).toHaveBeenCalledTimes(1)
   })
 
   it('should mock request only once with once option', async () => {

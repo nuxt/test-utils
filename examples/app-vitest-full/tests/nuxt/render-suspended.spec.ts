@@ -136,8 +136,8 @@ describe('renderSuspended', () => {
         ],
       }
     `)
-    expect(onCustomEvent).toBeCalledTimes(1)
-    expect(onCustomEvent).toBeCalledWith('foo')
+    expect(onCustomEvent).toHaveBeenCalledTimes(1)
+    expect(onCustomEvent).toHaveBeenCalledWith('foo')
   })
 
   it('can receive emitted events from components rendered within nuxt suspense using defineModel', async () => {
@@ -150,8 +150,8 @@ describe('renderSuspended', () => {
 
     const emittedEvents = emitted()
     expect(emittedEvents['update:modelValue']).toEqual([[true]])
-    expect(onUpdateModelValue).toBeCalledTimes(1)
-    expect(onUpdateModelValue).toBeCalledWith(true)
+    expect(onUpdateModelValue).toHaveBeenCalledTimes(1)
+    expect(onUpdateModelValue).toHaveBeenCalledWith(true)
   })
 
   it('should define $attrs', async () => {

@@ -1,6 +1,5 @@
 import { Suspense, effectScope, h, nextTick, reactive, getCurrentInstance, onErrorCaptured } from 'vue'
 import type { App, ComponentInternalInstance, DefineComponent, SetupContext, VNode } from 'vue'
-import { defu } from 'defu'
 import type { RouteLocationRaw } from 'vue-router'
 import type { ComponentMountingOptions } from '@vue/test-utils'
 
@@ -65,7 +64,7 @@ export function wrapperSuspended<C, Fn extends WrapperFn<C>>(
   setProps: (props: object) => void
 }> {
   const { props = {}, attrs = {} } = options as ComponentMountingOptions<C>
-  const { route = '/', scoped = false, ...wrapperFnOptions } = options
+  const { route = '/', scoped = false, ...wrapperFnOptions } = options as ComponentMountingOptions<C>
 
   const vueApp: App<Element> & Record<string, unknown> = tryUseNuxtApp()?.vueApp
     // @ts-expect-error untyped global __unctx__
@@ -190,8 +189,9 @@ export function wrapperSuspended<C, Fn extends WrapperFn<C>>(
           },
         )),
       } as C,
-      defu(wrapperFnOptions, {
-        global: {
+      {
+        ...wrapperFnOptions,
+        global: mergeComponentMountingGlobalOptions(wrapperFnOptions.global, {
           config: {
             globalProperties: makeAllPropertiesEnumerable(
               vueApp.config.globalProperties,
@@ -205,10 +205,44 @@ export function wrapperSuspended<C, Fn extends WrapperFn<C>>(
             [ClonedComponent.name]: false,
           },
           components: { ...vueApp._context.components, RouterLink },
-        },
-      } satisfies ComponentMountingOptions<C>),
+        }),
+      },
     ) as WrapperSuspendedResult<Fn>
   })
+}
+
+function mergeComponentMountingGlobalOptions<C>(
+  options: ComponentMountingOptions<C>['global'] = {},
+  defaults: typeof options = {},
+): typeof options {
+  const compilerOptions = {
+    ...defaults.config?.compilerOptions,
+    ...options.config?.compilerOptions,
+  }
+  return {
+    ...options,
+    mixins: [...defaults.mixins || [], ...options.mixins || []],
+    stubs: {
+      ...defaults.stubs,
+      ...Array.isArray(options.stubs)
+        ? Object.fromEntries(options.stubs.map(n => [n, true]))
+        : options.stubs,
+    },
+    plugins: [...defaults.plugins || [], ...options.plugins || []],
+    components: { ...defaults.components, ...options.components },
+    provide: { ...defaults.provide, ...options.provide },
+    mocks: { ...defaults.mocks, ...options.mocks },
+    config: {
+      ...defaults.config,
+      ...options.config,
+      ...(Object.keys(compilerOptions).length ? { compilerOptions } : undefined),
+      globalProperties: {
+        ...defaults.config?.globalProperties,
+        ...options.config?.globalProperties,
+      } as NonNullable<typeof options['config']>['globalProperties'],
+    },
+    directives: { ...defaults.directives, ...options.directives },
+  } satisfies Omit<Required<typeof options>, 'renderStubDefaultSlot'>
 }
 
 function makeAllPropertiesEnumerable<V, T extends Record<string, V>>(target: T) {

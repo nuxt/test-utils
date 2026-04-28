@@ -36,13 +36,13 @@ describe('Index', async () => {
       path: '/123',
     }))
 
-    expect(useRouteMock).not.toBeCalled()
-    expect(useVueRouteMock).not.toBeCalled()
+    expect(useRouteMock).not.toHaveBeenCalled()
+    expect(useVueRouteMock).not.toHaveBeenCalled()
 
     const wrapper = await mountSuspended(Index)
     expect(wrapper.html()).toMatchSnapshot()
 
-    expect(useRouteMock).toBeCalled()
-    expect(useVueRouteMock).toBeCalled()
+    expect(useRouteMock).toHaveBeenCalled()
+    expect(useVueRouteMock).toHaveBeenCalled()
   })
 })

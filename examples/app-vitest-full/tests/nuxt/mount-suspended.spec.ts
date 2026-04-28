@@ -10,6 +10,7 @@ import App from '~/app.vue'
 import OptionsComponent from '~/components/OptionsComponent.vue'
 import WrapperTests from '~/components/WrapperTests.vue'
 import LinkTests from '~/components/LinkTests.vue'
+import NuxtLinkWithIsActive from '~/components/NuxtLinkWithIsActive.vue'
 
 import ExportDefaultComponent from '~/components/ExportDefaultComponent.vue'
 import ExportDefineComponent from '~/components/ExportDefineComponent.vue'
@@ -124,8 +125,8 @@ describe('mountSuspended', () => {
         ],
       }
     `)
-    expect(onCustomEvent).toBeCalledTimes(1)
-    expect(onCustomEvent).toBeCalledWith('foo')
+    expect(onCustomEvent).toHaveBeenCalledTimes(1)
+    expect(onCustomEvent).toHaveBeenCalledWith('foo')
   })
 
   it('can receive emitted events from components using defineModel', () => {
@@ -135,8 +136,8 @@ describe('mountSuspended', () => {
     })
     component.find('button#changeModelValue').trigger('click')
     expect(component.emitted()).toHaveProperty('update:modelValue')
-    expect(onUpdateModelValue).toBeCalledTimes(1)
-    expect(onUpdateModelValue).toBeCalledWith(true)
+    expect(onUpdateModelValue).toHaveBeenCalledTimes(1)
+    expect(onUpdateModelValue).toHaveBeenCalledWith(true)
   })
 
   it('can receive emitted events from components mounted within nuxt suspense using defineModel', async () => {
@@ -146,8 +147,8 @@ describe('mountSuspended', () => {
     })
     await component.find('button#changeModelValue').trigger('click')
     expect(component.emitted()).toHaveProperty('update:modelValue')
-    expect(onUpdateModelValue).toBeCalledTimes(1)
-    expect(onUpdateModelValue).toBeCalledWith(true)
+    expect(onUpdateModelValue).toHaveBeenCalledTimes(1)
+    expect(onUpdateModelValue).toHaveBeenCalledWith(true)
   })
 
   it('can receive emitted events from components mounted within nuxt suspense using defineModel after prop changes and multiple interactions', async () => {
@@ -166,8 +167,8 @@ describe('mountSuspended', () => {
         ],
       }
     `)
-    expect(onUpdateModelValue).toBeCalledTimes(1)
-    expect(onUpdateModelValue).toBeCalledWith(true)
+    expect(onUpdateModelValue).toHaveBeenCalledTimes(1)
+    expect(onUpdateModelValue).toHaveBeenCalledWith(true)
 
     await component.setProps({ modelValue: true })
 
@@ -181,7 +182,7 @@ describe('mountSuspended', () => {
         ],
       }
     `)
-    expect(onUpdateModelValue).toBeCalledTimes(1)
+    expect(onUpdateModelValue).toHaveBeenCalledTimes(1)
 
     await component.setProps({ modelValue: false })
 
@@ -198,8 +199,8 @@ describe('mountSuspended', () => {
         ],
       }
     `)
-    expect(onUpdateModelValue).toBeCalledTimes(2)
-    expect(onUpdateModelValue).toBeCalledWith(true)
+    expect(onUpdateModelValue).toHaveBeenCalledTimes(2)
+    expect(onUpdateModelValue).toHaveBeenCalledWith(true)
   })
 
   it('can pass onUpdate event to components using defineModel', async () => {
@@ -540,6 +541,45 @@ it('renders links correctly', async () => {
   const component = await mountSuspended(LinkTests)
 
   expect(component.html()).toMatchInlineSnapshot(`"<div><a href="/test"> Link with string to prop </a><a href="/test"> Link with object to prop </a></div>"`)
+})
+
+it('receives correct isActive and isExactActive values in custom slot', async () => {
+  const component = await mountSuspended(NuxtLinkWithIsActive, {
+    route: '/about',
+  })
+
+  const aboutLink = component.find('a[href="/about"]')
+  expect(aboutLink.classes()).toContain('active')
+  expect(aboutLink.attributes('data-is-active')).toBe('true')
+  expect(aboutLink.attributes('data-is-exact-active')).toBe('true')
+})
+
+it('does not apply isActive when route does not match', async () => {
+  const component = await mountSuspended(NuxtLinkWithIsActive, {
+    route: '/',
+  })
+
+  const aboutLink = component.find('a[href="/about"]')
+  expect(aboutLink.classes()).not.toContain('active')
+  expect(aboutLink.attributes('data-is-active')).toBe('false')
+  expect(aboutLink.attributes('data-is-exact-active')).toBe('false')
+})
+
+it('keeps parent link active without exact match on nested routes', async () => {
+  const component = await mountSuspended(NuxtLinkWithIsActive, {
+    route: '/about/team',
+  })
+
+  const aboutLink = component.find('a[href="/about"]')
+  const teamLink = component.find('a[href="/about/team"]')
+
+  expect(aboutLink.classes()).toContain('active')
+  expect(aboutLink.attributes('data-is-active')).toBe('true')
+  expect(aboutLink.attributes('data-is-exact-active')).toBe('false')
+
+  expect(teamLink.classes()).toContain('active')
+  expect(teamLink.attributes('data-is-active')).toBe('true')
+  expect(teamLink.attributes('data-is-exact-active')).toBe('true')
 })
 
 it('element should be changed', async () => {

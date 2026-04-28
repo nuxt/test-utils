@@ -1,5 +1,4 @@
 import type { Vitest, Reporter } from 'vitest/node'
-import { importModule } from 'local-pkg'
 import { getPort } from 'get-port-please'
 
 import {
@@ -7,7 +6,7 @@ import {
   listenHostMessages as listenMessages,
 } from './interface'
 import type {
-  SendToCliMessage as RecieveMessage,
+  SendToCliMessage as ReceiveMessage,
   SendToHostMessage as SendMessage,
 } from './interface'
 
@@ -69,7 +68,7 @@ async function main() {
   const {
     apiPorts,
     watchMode,
-  } = await new Promise<RecieveMessage['start']>((resolve) => {
+  } = await new Promise<ReceiveMessage['start']>((resolve) => {
     listenMessages(({ type, payload }) => {
       if (type === 'start') resolve(payload)
     })
@@ -77,7 +76,7 @@ async function main() {
 
   const port = apiPorts ? await getPort({ ports: apiPorts }) : undefined
 
-  const { startVitest } = await importModule<typeof import('vitest/node')>('vitest/node')
+  const { startVitest } = await import('vitest/node')
 
   const customReporter = createCustomReporter((vitest) => {
     listenMessages(async ({ type, payload }) => {

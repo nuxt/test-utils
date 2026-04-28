@@ -12,7 +12,7 @@ export default defineConfig({
       }),
       {
         test: {
-          name: 'unit',
+          name: 'e2e',
           include: ['**/*.e2e.spec.ts'],
         },
       },

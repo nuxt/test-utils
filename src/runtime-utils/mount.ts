@@ -1,6 +1,5 @@
 import { mount as wrapperFn } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
-import { cleanupAll, wrapperSuspended } from './utils/suspended'
 import type { WrapperSuspendedOptions, WrapperSuspendedResult } from './utils/suspended'
 
 type WrapperFn<C> = typeof wrapperFn<C>
@@ -37,6 +36,8 @@ export async function mountSuspended<T>(
   component: T,
   options: WrapperOptions<T> = {},
 ): Promise<WrapperResult<T>> {
+  const { cleanupAll, wrapperSuspended } = await import('./utils/suspended')
+
   const suspendedHelperName = 'MountSuspendedHelper'
   const clonedComponentName = 'MountSuspendedComponent'
 

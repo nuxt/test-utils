@@ -1,12 +1,10 @@
 import process from 'node:process'
-import type { Nuxt, NuxtConfig } from '@nuxt/schema'
+import type { Nuxt, NuxtConfig, ViteConfig as NuxtViteConfig } from '@nuxt/schema'
 import type { UserWorkspaceConfig, InlineConfig as VitestConfig } from 'vitest/node'
-// this is deliberately the vite config function so the module runs if vitest is not installed
-import { defineConfig } from 'vite'
 import type { TestProjectInlineConfiguration } from 'vitest/config'
 import { setupDotenv } from 'c12'
 import type { DotenvOptions } from 'c12'
-import type { UserConfigFnPromise, UserConfig as ViteUserConfig } from 'vite'
+import type { defineConfig, UserConfigFnPromise, UserConfig as ViteUserConfig } from 'vite'
 import type { DateString } from 'compatx'
 import { createDefu, defu } from 'defu'
 import { createResolver, findPath } from '@nuxt/kit'
@@ -18,7 +16,7 @@ import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options'
 
 interface GetVitestConfigOptions {
   nuxt: Nuxt
-  viteConfig: ViteUserConfig
+  viteConfig: NuxtViteConfig
 }
 
 interface LoadNuxtOptions {
@@ -31,7 +29,8 @@ async function startNuxtAndGetViteConfig(rootDir = process.cwd(), options: LoadN
   const { buildNuxt, loadNuxt } = await loadKit(rootDir)
   const nuxt = await loadNuxt({
     cwd: rootDir,
-    dev: false,
+    // https://github.com/nuxt/nuxt/blob/d52a4fdd7ad5feb035dcf3f56c3b2d0ab059b1d4/packages/kit/src/loader/nuxt.ts#L24
+    dev: options.overrides?.dev ?? false,
     dotenv: defu(options.dotenv, {
       cwd: rootDir,
       fileName: '.env.test',
@@ -125,7 +124,10 @@ export async function getVitestConfigFromNuxt(
     }
   }
 
-  const h3Info = getPackageInfoSync('h3', {
+  const projectH3Path = resolveModulePath('h3/package.json', { from: rootDir, try: true })
+  const projectH3Info = projectH3Path ? getPackageInfoSync('h3', { paths: [projectH3Path] }) : undefined
+
+  const h3Info = projectH3Info || getPackageInfoSync('h3', {
     paths: nitroPath ? [nitroPath] : options.nuxt.options.modulesDir,
   })
 
@@ -241,6 +243,9 @@ export async function getVitestConfigFromNuxt(
   // Remove built-in Nuxt logger: https://github.com/vitest-dev/vitest/issues/5211
   delete resolvedConfig.customLogger
 
+  // Remove SSR config to prevent conflicts with Vitest's client-side test environment
+  delete resolvedConfig.ssr
+
   if (!Array.isArray(resolvedConfig.test.setupFiles)) {
     resolvedConfig.test.setupFiles = [resolvedConfig.test.setupFiles].filter(Boolean) as string[]
   }
@@ -259,8 +264,11 @@ export async function defineVitestProject(config: TestProjectInlineConfiguration
   return resolvedConfig
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const defineViteConfig: typeof defineConfig = (config: any) => config
+
 export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfig } = {}): UserConfigFnPromise {
-  return defineConfig(async () => {
+  return defineViteConfig(async () => {
     const resolvedConfig = await resolveConfig(config)
 
     if (resolvedConfig.test.browser?.enabled) {
@@ -328,9 +336,27 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
   })
 }
 
+function isCoverageEnabled(config: ViteUserConfig & { test?: VitestConfig } | UserWorkspaceConfig): boolean {
+  if (config.test && 'coverage' in config.test && config.test.coverage?.enabled) {
+    return true
+  }
+  // vitest CLI `--coverage` / `--coverage.enabled`
+  return process.argv.some(arg => arg === '--coverage' || arg === '--coverage.enabled' || arg === '--coverage=true' || arg === '--coverage.enabled=true')
+}
+
 async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } | UserWorkspaceConfig>(config: T) {
   const overrides = config.test?.environmentOptions?.nuxt?.overrides || {}
   overrides.rootDir = config.test?.environmentOptions?.nuxt?.rootDir
+
+  // enable client-side sourcemaps when running with coverage
+  if (isCoverageEnabled(config)) {
+    if (overrides.sourcemap === undefined) {
+      overrides.sourcemap = { client: true }
+    }
+    else if (typeof overrides.sourcemap === 'object' && overrides.sourcemap.client === undefined) {
+      overrides.sourcemap.client = true
+    }
+  }
 
   if (config.test?.setupFiles && !Array.isArray(config.test.setupFiles)) {
     config.test.setupFiles = [config.test.setupFiles].filter(Boolean) as string[]

@@ -1,10 +1,13 @@
-import type { Nuxt } from '@nuxt/schema'
-import type { Unimport } from 'unimport'
+import type { Nuxt, NuxtHooks } from '@nuxt/schema'
 import { resolveIgnorePatterns } from '@nuxt/kit'
 
 import { createMockPlugin } from './plugins/mock'
 import type { MockPluginContext } from './plugins/mock'
 import { loadKit } from '../utils'
+
+function isTestPluginFile(src: string) {
+  return (src.includes('.spec.') || src.includes('.test.'))
+}
 
 /**
  * This module is a macro that transforms `mockNuxtImport()` to `vi.mock()`,
@@ -17,7 +20,7 @@ export async function setupImportMocking(nuxt: Nuxt) {
     imports: [],
   }
 
-  let importsCtx: Unimport
+  let importsCtx: Parameters<NuxtHooks['imports:context']>[0]
   nuxt.hook('imports:context', async (ctx) => {
     importsCtx = ctx
   })
@@ -44,6 +47,11 @@ export async function setupImportMocking(nuxt: Nuxt) {
       nuxt._ignore.add(`!${pattern}`)
     }
   }
+
+  // But do not register test files inside plugins/ as real Nuxt plugins
+  nuxt.hook('app:resolve', (app) => {
+    app.plugins = app.plugins.filter(plugin => !isTestPluginFile(plugin.src))
+  })
 
   addVitePlugin(createMockPlugin(ctx).vite())
 }
