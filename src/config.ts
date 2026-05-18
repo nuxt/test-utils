@@ -137,6 +137,7 @@ export async function getVitestConfigFromNuxt(
     {
       define: {
         'process.env.NODE_ENV': '"test"',
+        '__NUXT_VITEST_RESOLVED__': 'true',
       },
       resolve: {
         alias: {
