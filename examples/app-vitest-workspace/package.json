@@ -7,7 +7,11 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "dev:prepare": "nuxt prepare app1 && nuxt prepare app2 && nuxt prepare app3",
+    "dev:prepare": "pnpm run '/dev:prepare:.*/'",
+    "dev:prepare:app1": "nuxt prepare app1",
+    "dev:prepare:app2": "nuxt prepare app2",
+    "dev:prepare:app3": "nuxt prepare app3",
+    "dev:prepare:app4": "nuxt prepare app4",
     "postinstall": "pnpm dev:prepare",
     "test": "vitest run"
   },
