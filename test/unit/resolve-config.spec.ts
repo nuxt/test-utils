@@ -209,7 +209,7 @@ describe('resolve config', () => {
 
     const expected = {
       'nuxt-browser (chromium)': [
-        'app/components/bare-repro.test.ts',
+        'test/bare-repro.spec.ts',
       ],
     } as const
 

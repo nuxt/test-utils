@@ -9,7 +9,7 @@ export default defineConfig({
       await defineVitestProject({
         test: {
           name: 'nuxt-browser',
-          include: ['app/components/**/*.test.ts'],
+          include: ['test/**/*.spec.ts'],
           environment: 'nuxt',
           environmentOptions: {
             nuxt: {
