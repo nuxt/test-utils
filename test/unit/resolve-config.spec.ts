@@ -203,6 +203,32 @@ describe('resolve config', () => {
       })).toEqual(expected)
     }, TEST_TIMEOUT)
   })
+
+  describe('advised/browser-vite-environment-api-timeout', () => {
+    const fixtureDir = '../fixtures/advised/browser-vite-environment-api-timeout'
+
+    const expected = {
+      'nuxt-browser (chromium)': [
+        'app/components/bare-repro.test.ts',
+      ],
+    } as const
+
+    it('all', async () => {
+      expect(await globTestSpecifications(fixtureDir)).toEqual(expected)
+    }, TEST_TIMEOUT)
+
+    it('specific project', async () => {
+      expect(await globTestSpecifications(fixtureDir, {
+        project: 'nuxt-browser',
+      })).toEqual(expected)
+    }, TEST_TIMEOUT)
+
+    it('specific root', async () => {
+      expect(await globTestSpecifications('./', {
+        root: fixtureDir,
+      })).toEqual(expected)
+    }, TEST_TIMEOUT)
+  })
 })
 
 async function globTestSpecifications(path: string, cliOptions?: VitestCliOptions) {

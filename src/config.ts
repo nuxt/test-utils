@@ -374,6 +374,19 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
   resolvedConfig.plugins!.push(NuxtVitestEnvironmentOptionsPlugin(resolvedConfig.test.environmentOptions))
 
   if (resolvedConfig.test.browser?.enabled) {
+    resolvedConfig.plugins!.push({
+      name: 'nuxt:test-utils:browser-client-environment',
+      configEnvironment(name) {
+        if (name === 'client') {
+          return {
+            dev: {
+              moduleRunnerTransform: false,
+            },
+          }
+        }
+      },
+    })
+
     if (resolvedConfig.test.environment === 'nuxt') {
       resolvedConfig.test.setupFiles = Array.isArray(resolvedConfig.test.setupFiles)
         ? resolvedConfig.test.setupFiles
