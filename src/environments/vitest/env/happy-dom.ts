@@ -1,4 +1,4 @@
-import type { EnvironmentNuxt, NuxtWindow } from '../types'
+import type { EnvironmentNuxt, NuxtWindow } from '../types.ts'
 
 export default <EnvironmentNuxt> async function (_, { happyDom = {} }) {
   const { Window, GlobalWindow } = await import('happy-dom')

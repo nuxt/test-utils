@@ -4,12 +4,12 @@ import type { TestUserConfig as VitestConfig } from 'vitest/config'
 import { join, relative } from 'pathe'
 import { isCI } from 'std-env'
 
-import { setupImportMocking } from './module/mock'
-import { NuxtRootStubPlugin } from './module/plugins/entry'
-import { runInstallWizard } from './module/install-wizard'
-import { loadKit } from './utils'
-import { setupDevTools } from './devtools'
-import { vitestWrapper } from './vitest-wrapper/host'
+import { setupImportMocking } from './module/mock.ts'
+import { NuxtRootStubPlugin } from './module/plugins/entry.ts'
+import { runInstallWizard } from './module/install-wizard.ts'
+import { loadKit } from './utils.ts'
+import { setupDevTools } from './devtools.ts'
+import { vitestWrapper } from './vitest-wrapper/host.ts'
 
 import pkg from '../package.json' with { type: 'json' }
 
@@ -55,6 +55,14 @@ export default defineNuxtModule<NuxtVitestOptions>({
 
     nuxt.hook('prepare:types', (ctx) => {
       ctx.references.push({ types: 'vitest/import-meta' })
+      // TODO: drop once Nuxt enables this by default for source-pointing exports.
+      // `@nuxt/test-utils` exports resolve to `.ts` source at dev time, so consumer
+      // typechecks need this flag to follow them.
+      for (const tsConfig of [ctx.tsConfig, ctx.nodeTsConfig, ctx.sharedTsConfig]) {
+        if (!tsConfig) continue
+        tsConfig.compilerOptions ||= {}
+        tsConfig.compilerOptions.allowImportingTsExtensions = true
+      }
       if (ctx.nodeTsConfig) {
         ctx.nodeTsConfig.include ||= []
         ctx.nodeTsConfig.include.push(relative(nuxt.options.buildDir, join(nuxt.options.rootDir, 'vitest.config.*')))

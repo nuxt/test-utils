@@ -2,8 +2,8 @@ import defu from 'defu'
 import { test as base } from '@playwright/test'
 import type { Page, Response } from 'playwright-core'
 import { isWindows } from 'std-env'
-import type { GotoOptions, TestOptions as SetupOptions, TestHooks } from './e2e'
-import { createTest, url, waitForHydration } from './e2e'
+import type { GotoOptions, TestOptions as SetupOptions, TestHooks } from './e2e.ts'
+import { createTest, url, waitForHydration } from './e2e.ts'
 
 const FIXTURE_TIMEOUT = isWindows ? 120_000 : 60_000
 

@@ -1,4 +1,4 @@
-import type { TestHooks } from '../types'
+import type { TestHooks } from '../types.ts'
 
 export default async function setupCucumber(hooks: TestHooks) {
   const { After, AfterAll, Before, BeforeAll } = await import('@cucumber/cucumber')

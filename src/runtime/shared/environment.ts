@@ -1,11 +1,11 @@
 import { createFetch } from 'ofetch'
 import { joinURL } from 'ufo'
-import { defineEventHandler } from './h3'
+import { defineEventHandler } from './h3.ts'
 import { createRouter as createRadixRouter, exportMatcher, toRouteMatcher } from 'radix3'
-import type { NuxtWindow } from '../../vitest-environment'
-import type { NuxtEnvironmentOptions } from '../../config'
-import { createFetchForH3V1 } from './h3-v1'
-import { createFetchForH3V2 } from './h3-v2'
+import type { NuxtWindow } from '../../vitest-environment.ts'
+import type { NuxtEnvironmentOptions } from '../../config.ts'
+import { createFetchForH3V1 } from './h3-v1.ts'
+import { createFetchForH3V2 } from './h3-v2.ts'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: NuxtEnvironmentOptions, nuxtRuntimeConfig?: Record<string, any>, nuxtRouteRules?: Record<string, any> }) {

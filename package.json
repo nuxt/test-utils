@@ -8,15 +8,17 @@
   "description": "Test utilities for Nuxt",
   "license": "MIT",
   "type": "module",
+  "types": "./dist/e2e.d.mts",
   "exports": {
-    ".": "./dist/e2e.mjs",
-    "./config": "./dist/config.mjs",
-    "./e2e": "./dist/e2e.mjs",
-    "./playwright": "./dist/playwright.mjs",
-    "./experimental": "./dist/experimental.mjs",
-    "./module": "./dist/module.mjs",
-    "./runtime": "./dist/runtime-utils/index.mjs",
-    "./vitest-environment": "./dist/vitest-environment.mjs"
+    ".": "./src/e2e.ts",
+    "./config": "./src/config.ts",
+    "./e2e": "./src/e2e.ts",
+    "./playwright": "./src/playwright.ts",
+    "./experimental": "./src/experimental.ts",
+    "./module": "./src/module.ts",
+    "./runtime": "./src/runtime-utils/index.ts",
+    "./vitest-environment": "./src/vitest-environment.ts",
+    "./package.json": "./package.json"
   },
   "imports": {
     "#dirs": "./dirs.js"
@@ -62,9 +64,9 @@
     "test:engines": "pnpm installed-check --no-workspaces --ignore-dev",
     "test:types": "vue-tsc --noEmit && vitest --dir ./test/types --typecheck.only --run",
     "test:unit": "vitest --dir ./test/unit --run",
-    "build": "unbuild",
-    "prepack": "unbuild",
-    "dev:prepare": "nuxt prepare && unbuild --stub && pnpm -r dev:prepare"
+    "build": "tsdown",
+    "prepack": "tsdown",
+    "dev:prepare": "nuxt prepare && pnpm -r dev:prepare"
   },
   "dependencies": {
     "@clack/prompts": "1.5.1",
@@ -123,8 +125,8 @@
     "playwright-core": "1.60.0",
     "rollup": "4.61.1",
     "semver": "7.8.2",
+    "tsdown": "0.22.0",
     "typescript": "6.0.3",
-    "unbuild": "latest",
     "unimport": "6.3.0",
     "vite": "8.0.16",
     "vitest": "4.1.8",
@@ -177,5 +179,18 @@
   "engines": {
     "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
   },
-  "packageManager": "pnpm@11.5.2"
+  "packageManager": "pnpm@11.5.2",
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/e2e.mjs",
+      "./config": "./dist/config.mjs",
+      "./e2e": "./dist/e2e.mjs",
+      "./playwright": "./dist/playwright.mjs",
+      "./experimental": "./dist/experimental.mjs",
+      "./module": "./dist/module.mjs",
+      "./runtime": "./dist/runtime-utils/index.mjs",
+      "./vitest-environment": "./dist/vitest-environment.mjs",
+      "./package.json": "./package.json"
+    }
+  }
 }

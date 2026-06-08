@@ -1,4 +1,4 @@
-import { getVueWrapperPlugin } from './vue-wrapper-plugin'
+import { getVueWrapperPlugin } from './vue-wrapper-plugin.ts'
 
 export async function setupNuxt() {
   const { useRouter } = await import('#app/composables/router')

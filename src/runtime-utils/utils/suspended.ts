@@ -6,7 +6,7 @@ import type { ComponentMountingOptions } from '@vue/test-utils'
 import { tryUseNuxtApp, useRouter } from '#imports'
 import NuxtRoot from '#build/root-component.mjs'
 
-import { RouterLink } from '../components/RouterLink'
+import { RouterLink } from '../components/RouterLink.ts'
 
 // TODO: improve return types
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

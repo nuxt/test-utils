@@ -5,7 +5,7 @@ import { addDevServerHandler, useNuxt } from '@nuxt/kit'
 import { addCustomTab, refreshCustomTabs } from '@nuxt/devtools-kit'
 import type { ModuleCustomTab } from '@nuxt/devtools-kit/types'
 
-import type { VitestWrapper } from './vitest-wrapper/host'
+import type { VitestWrapper } from './vitest-wrapper/host.ts'
 
 export async function setupDevTools(
   vitestWrapper: VitestWrapper,

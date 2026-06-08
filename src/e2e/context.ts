@@ -3,7 +3,7 @@ import { defu } from 'defu'
 import { withTrailingSlash } from 'ufo'
 import type { DateString } from 'compatx'
 import { isBun, isWindows } from 'std-env'
-import type { TestContext, TestOptions } from './types'
+import type { TestContext, TestOptions } from './types.ts'
 
 let currentContext: TestContext | undefined
 

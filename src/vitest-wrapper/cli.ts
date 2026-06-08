@@ -4,11 +4,11 @@ import { getPort } from 'get-port-please'
 import {
   sendMessageToHost as sendMessage,
   listenHostMessages as listenMessages,
-} from './interface'
+} from './interface.ts'
 import type {
   SendToCliMessage as ReceiveMessage,
   SendToHostMessage as SendMessage,
-} from './interface'
+} from './interface.ts'
 
 function createCustomReporter(onVitestInit: (ctx: Vitest) => unknown): Reporter {
   let ctx: Vitest = undefined!

@@ -14,7 +14,7 @@ import type {
   RenderFunction,
   SetupContext,
 } from 'vue'
-import type { GenericApp } from '../vitest-environment'
+import type { GenericApp } from '../vitest-environment.ts'
 
 type Awaitable<T> = T | Promise<T>
 type OptionalFunction<T> = T | (() => Awaitable<T>)
