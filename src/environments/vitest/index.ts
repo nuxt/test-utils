@@ -4,10 +4,10 @@ import { indexedDB } from 'fake-indexeddb'
 import { joinURL } from 'ufo'
 import defu from 'defu'
 
-import { setupWindow } from '../../runtime/shared/environment'
-import type { NuxtBuiltinEnvironment } from './types'
-import happyDom from './env/happy-dom'
-import jsdom from './env/jsdom'
+import { setupWindow } from '../../runtime/shared/environment.ts'
+import type { NuxtBuiltinEnvironment } from './types.ts'
+import happyDom from './env/happy-dom.ts'
+import jsdom from './env/jsdom.ts'
 
 const environmentMap = {
   'happy-dom': happyDom,

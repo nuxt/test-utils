@@ -1,4 +1,5 @@
 import { resolve } from 'pathe'
+import type { ViteUserConfig } from 'vitest/config'
 import { distDir } from '#dirs'
 
 export interface RunTestOptions {
@@ -43,7 +44,7 @@ export async function runTests(opts: RunTestOptions) {
         },
       },
     },
-    // Vite options
+    // `ViteUserConfig` from `vitest/config` carries the `test` augment.
     {
       esbuild: {
         tsconfigRaw: '{}',
@@ -65,7 +66,7 @@ export async function runTests(opts: RunTestOptions) {
           ...opts.globalSetup ? [resolve(distDir, './runtime/global-setup')] : [],
         ],
       },
-    },
+    } satisfies ViteUserConfig,
   )
 
   if (!succeeded) {

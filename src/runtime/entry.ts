@@ -1,5 +1,5 @@
 import { beforeAll } from 'vitest'
-import { setupNuxt } from './shared/nuxt'
+import { setupNuxt } from './shared/nuxt.ts'
 
 if (
   typeof window !== 'undefined'

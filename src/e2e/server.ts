@@ -4,7 +4,7 @@ import type { $Fetch, FetchOptions } from 'ofetch'
 import { fetch as _fetch, createFetch } from 'ofetch'
 import { resolve } from 'pathe'
 import { joinURL } from 'ufo'
-import { useTestContext } from './context'
+import { useTestContext } from './context.ts'
 
 const globalFetch = globalThis.fetch || _fetch
 
@@ -37,7 +37,12 @@ export async function startServer(options: StartServerOptions = {}) {
     })
   }
   else {
-    const outputDir = ctx.nuxt ? ctx.nuxt.options.nitro.output!.dir! : ctx.options.nuxtConfig.nitro!.output!.dir!
+    // The `nitro` property is augmented onto NuxtOptions/NuxtConfig by
+    // `@nuxt/nitro-server`, which isn't a direct dependency.
+    type WithNitroOutput = { nitro?: { output?: { dir?: string } } }
+    const outputDir = ctx.nuxt
+      ? (ctx.nuxt.options as WithNitroOutput).nitro!.output!.dir!
+      : (ctx.options.nuxtConfig as WithNitroOutput).nitro!.output!.dir!
     ctx.serverProcess = x(
       'node',
       [resolve(outputDir, 'server/index.mjs')],

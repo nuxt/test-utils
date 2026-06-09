@@ -1,4 +1,4 @@
-import type { TestHooks } from '../types'
+import type { TestHooks } from '../types.ts'
 
 export default async function setupBun(hooks: TestHooks) {
   const bunTest = await import('bun:test')

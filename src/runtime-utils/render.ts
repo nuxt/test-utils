@@ -1,5 +1,5 @@
 import { h, nextTick } from 'vue'
-import type { WrapperSuspendedOptions, WrapperSuspendedResult } from './utils/suspended'
+import type { WrapperSuspendedOptions, WrapperSuspendedResult } from './utils/suspended.ts'
 
 import type { render } from '@testing-library/vue'
 
@@ -41,7 +41,7 @@ export async function renderSuspended<T>(
   component: T,
   options: WrapperOptions<T> = {},
 ): Promise<WrapperResult<T>> {
-  const { cleanupAll, wrapperSuspended } = await import('./utils/suspended')
+  const { cleanupAll, wrapperSuspended } = await import('./utils/suspended.ts')
 
   const wrapperId = 'test-wrapper'
   const suspendedHelperName = 'RenderHelper'

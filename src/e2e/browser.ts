@@ -1,6 +1,6 @@
 import type { Browser, BrowserContextOptions, Page, Response } from 'playwright-core'
-import { useTestContext } from './context'
-import { url } from './server'
+import { useTestContext } from './context.ts'
+import { url } from './server.ts'
 
 export async function createBrowser() {
   const ctx = useTestContext()

@@ -1,4 +1,4 @@
-import type { TestHooks } from '../types'
+import type { TestHooks } from '../types.ts'
 
 export default async function setupJest(hooks: TestHooks) {
   const { jest, test, beforeEach, afterAll, afterEach } = await import('@jest/globals')

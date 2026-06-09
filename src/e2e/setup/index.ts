@@ -1,12 +1,12 @@
-import { createTestContext, setTestContext } from '../context'
-import { buildFixture, loadFixture } from '../nuxt'
-import { startServer, stopServer } from '../server'
-import { createBrowser } from '../browser'
-import type { TestHooks, TestOptions } from '../types'
-import setupBun from './bun'
-import setupCucumber from './cucumber'
-import setupJest from './jest'
-import setupVitest from './vitest'
+import { createTestContext, setTestContext } from '../context.ts'
+import { buildFixture, loadFixture } from '../nuxt.ts'
+import { startServer, stopServer } from '../server.ts'
+import { createBrowser } from '../browser.ts'
+import type { TestHooks, TestOptions } from '../types.ts'
+import setupBun from './bun.ts'
+import setupCucumber from './cucumber.ts'
+import setupJest from './jest.ts'
+import setupVitest from './vitest.ts'
 
 export const setupMaps = {
   bun: setupBun,

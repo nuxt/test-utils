@@ -6,11 +6,11 @@ import {
   sendMessageToCli as sendMessage,
   listenCliMessages as listenMessages,
   createVitestTestSummary,
-} from './interface'
+} from './interface.ts'
 import type {
   SendToCliMessage as SendMessage,
   SendToHostMessage as ReceiveMessage,
-} from './interface'
+} from './interface.ts'
 
 import { distDir } from '#dirs'
 

@@ -1,4 +1,4 @@
-import type { GenericApp } from '../../vitest-environment'
+import type { GenericApp } from '../../vitest-environment.ts'
 
 export async function createFetchForH3V2() {
   const { H3 } = await import('h3-next/generic')
