@@ -53,11 +53,13 @@ export function wrapperSuspended<C, Fn extends WrapperFn<C>>(
     wrappedRender = fn => fn,
     suspendedHelperName,
     clonedComponentName,
+    stubRouterLink = true,
   }: {
     wrapperFn: NonNullable<Fn>
     wrappedRender?: (render: () => VNode) => () => VNode
     suspendedHelperName: string
     clonedComponentName: string
+    stubRouterLink?: boolean
   },
 ): Promise<{
   wrapper: WrapperSuspendedResult<Fn>
@@ -204,7 +206,10 @@ export function wrapperSuspended<C, Fn extends WrapperFn<C>>(
             [SuspendedHelper.name]: false,
             [ClonedComponent.name]: false,
           },
-          components: { ...vueApp._context.components, RouterLink },
+          components: {
+            ...vueApp._context.components,
+            ...(stubRouterLink ? { RouterLink } : {}),
+          },
         }),
       },
     ) as WrapperSuspendedResult<Fn>

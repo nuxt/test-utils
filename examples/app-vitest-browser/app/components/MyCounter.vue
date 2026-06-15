@@ -12,14 +12,6 @@
 </template>
 
 <script setup lang="ts">
-const count = ref(0)
 const config = useRuntimeConfig()
-
-const increment = () => {
-  count.value++
-}
-
-const decrement = () => {
-  count.value--
-}
+const { count, increment, decrement } = useCounter()
 </script>

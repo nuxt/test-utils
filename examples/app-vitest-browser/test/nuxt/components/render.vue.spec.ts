@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { render } from 'vitest-browser-vue'
 import { MyCounter } from '#components'
 
-describe('Component (MyCounter)', () => {
+describe('Render(vue) Component (MyCounter)', () => {
   it('renders', () => {
     const { getByText } = render(MyCounter)
     expect(getByText('Count: 0')).toBeInTheDocument()
@@ -24,6 +24,8 @@ describe('Component (MyCounter)', () => {
 
   it('can use Nuxt-specific composables', () => {
     const { getByText } = render(MyCounter)
-    expect(getByText('"buildAssetsDir": "/_nuxt/"')).toBeInTheDocument()
+    const config = getByText('Runtime Config:')
+    expect(config).toBeInTheDocument()
+    expect(config).toHaveTextContent(/"buildAssetsDir"\s*:\s*"\/_nuxt\/"/)
   })
 })

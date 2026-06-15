@@ -18,6 +18,8 @@
     "./module": "./src/module.ts",
     "./runtime": "./src/runtime-utils/index.ts",
     "./vitest-environment": "./src/vitest-environment.ts",
+    "./vitest-browser-nuxt": "./src/vitest-browser-nuxt/index.ts",
+    "./vitest-browser-nuxt/pure": "./src/vitest-browser-nuxt/pure.ts",
     "./package.json": "./package.json"
   },
   "imports": {
@@ -48,6 +50,12 @@
       ],
       "vitest-environment": [
         "./dist/vitest-environment.d.mts"
+      ],
+      "vitest-browser-nuxt": [
+        "./dist/vitest-browser-nuxt/index.d.mts"
+      ],
+      "vitest-browser-nuxt/pure": [
+        "./dist/vitest-browser-nuxt/pure.d.mts"
       ]
     }
   },
@@ -96,6 +104,7 @@
     "tinyexec": "^1.2.4",
     "ufo": "^1.6.4",
     "unplugin": "^3.0.0",
+    "vitest-browser-vue": "^2.1.0",
     "vitest-environment-nuxt": "workspace:*",
     "vue": "^3.5.38"
   },
@@ -142,7 +151,8 @@
     "happy-dom": ">=20.0.11",
     "jsdom": ">=27.4.0",
     "playwright-core": "^1.43.1",
-    "vitest": "^4.0.2"
+    "vitest": "^4.0.2",
+    "vitest-browser-vue": "^2.1.0"
   },
   "peerDependenciesMeta": {
     "@cucumber/cucumber": {
@@ -174,6 +184,9 @@
     },
     "vitest": {
       "optional": true
+    },
+    "vitest-browser-vue": {
+      "optional": true
     }
   },
   "engines": {
@@ -190,6 +203,8 @@
       "./module": "./dist/module.mjs",
       "./runtime": "./dist/runtime-utils/index.mjs",
       "./vitest-environment": "./dist/vitest-environment.mjs",
+      "./vitest-browser-nuxt": "./dist/vitest-browser-nuxt/index.mjs",
+      "./vitest-browser-nuxt/pure": "./dist/vitest-browser-nuxt/pure.mjs",
       "./package.json": "./package.json"
     }
   }
