@@ -1,7 +1,7 @@
 import type { DOMWindow, SupportedContentTypes, ConstructorOptions } from 'jsdom'
 import defu from 'defu'
 import type { EnvironmentOptions } from 'vitest/node'
-import type { EnvironmentNuxt, NuxtWindow } from '../types'
+import type { EnvironmentNuxt, NuxtWindow } from '../types.ts'
 
 export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
   const { CookieJar, JSDOM, ResourceLoader, VirtualConsole } = await import('jsdom') as typeof import('jsdom') & {

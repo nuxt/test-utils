@@ -1,9 +1,9 @@
 import type { Nuxt, NuxtHooks } from '@nuxt/schema'
 import { resolveIgnorePatterns } from '@nuxt/kit'
 
-import { createMockPlugin } from './plugins/mock'
-import type { MockPluginContext } from './plugins/mock'
-import { loadKit } from '../utils'
+import { createMockPlugin } from './plugins/mock.ts'
+import type { MockPluginContext } from './plugins/mock.ts'
+import { loadKit } from '../utils.ts'
 
 function isTestPluginFile(src: string) {
   return (src.includes('.spec.') || src.includes('.test.'))
@@ -34,7 +34,7 @@ export async function setupImportMocking(nuxt: Nuxt) {
 
   nuxt.hook('imports:sources', (presets) => {
     // because the native setInterval cannot be mocked
-    const idx = presets.findIndex(p => p.imports?.includes('setInterval'))
+    const idx = presets.findIndex(p => 'imports' in p && p.imports?.includes('setInterval'))
     if (idx !== -1) {
       presets.splice(idx, 1)
     }

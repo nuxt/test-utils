@@ -7,19 +7,23 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "dev:prepare": "nuxt prepare app1 && nuxt prepare app2",
+    "dev:prepare": "pnpm run '/dev:prepare:.*/'",
+    "dev:prepare:app1": "nuxt prepare app1",
+    "dev:prepare:app2": "nuxt prepare app2",
+    "dev:prepare:app3": "nuxt prepare app3",
+    "dev:prepare:app4": "nuxt prepare app4",
     "postinstall": "pnpm dev:prepare",
     "test": "vitest run"
   },
   "dependencies": {
-    "nuxt": "^4.4.2"
+    "nuxt": "^4.4.8"
   },
   "devDependencies": {
     "@nuxt/test-utils": "latest",
-    "@nuxt/ui": "4.7.0",
-    "happy-dom": "20.9.0",
-    "playwright-core": "1.59.1",
+    "@nuxt/ui": "4.8.2",
+    "happy-dom": "20.10.3",
+    "playwright-core": "1.60.0",
     "typescript": "6.0.3",
-    "vitest": "4.1.5"
+    "vitest": "4.1.8"
   }
 }

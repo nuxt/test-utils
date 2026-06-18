@@ -1,8 +1,8 @@
 import { $fetch as _$fetch, fetch as _fetch } from 'ofetch'
 import { resolve } from 'pathe'
 import { stringifyQuery } from 'ufo'
-import { useTestContext } from './e2e/context'
-import { $fetch } from './e2e/server'
+import { useTestContext } from './e2e/context.ts'
+import { $fetch } from './e2e/server.ts'
 
 /**
  * This is a function to render a component directly with the Nuxt server.

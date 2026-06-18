@@ -1,4 +1,4 @@
-import type { GenericApp } from '../../vitest-environment'
+import type { GenericApp } from '../../vitest-environment.ts'
 
 export async function createFetchForH3V1() {
   const [{ createApp, toNodeListener }, { fetchNodeRequestHandler }] = await Promise.all([

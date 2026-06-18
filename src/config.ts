@@ -11,8 +11,8 @@ import { createResolver, findPath } from '@nuxt/kit'
 import { resolveModulePath } from 'exsolve'
 import { getPackageInfoSync } from 'local-pkg'
 
-import { applyEnv, loadKit } from './utils'
-import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options'
+import { applyEnv, loadKit } from './utils.ts'
+import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options.ts'
 
 interface GetVitestConfigOptions {
   nuxt: Nuxt
@@ -137,6 +137,7 @@ export async function getVitestConfigFromNuxt(
     {
       define: {
         'process.env.NODE_ENV': '"test"',
+        '__NUXT_VITEST_RESOLVED__': 'true',
       },
       resolve: {
         alias: {

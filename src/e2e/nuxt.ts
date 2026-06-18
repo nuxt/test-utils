@@ -1,8 +1,8 @@
 import { existsSync, promises as fsp } from 'node:fs'
 import { resolve } from 'node:path'
 import { defu } from 'defu'
-import { useTestContext } from './context'
-import { loadKit } from '../utils'
+import { useTestContext } from './context.ts'
+import { loadKit } from '../utils.ts'
 
 const isNuxtApp = (dir: string) => {
   return existsSync(dir) && (

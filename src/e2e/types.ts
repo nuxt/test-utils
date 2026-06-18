@@ -1,7 +1,7 @@
 import type { Nuxt, NuxtConfig } from '@nuxt/schema'
 import type { Browser, LaunchOptions } from 'playwright-core'
 import type { exec } from 'tinyexec'
-import type { StartServerOptions } from './server'
+import type { StartServerOptions } from './server.ts'
 
 export type TestRunner = 'vitest' | 'jest' | 'cucumber' | 'bun'
 

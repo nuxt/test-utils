@@ -1,6 +1,6 @@
 import { consola } from 'consola'
 import type { LogType } from 'consola'
-import { useTestContext } from './context'
+import { useTestContext } from './context.ts'
 
 export function mockFn() {
   const ctx = useTestContext()

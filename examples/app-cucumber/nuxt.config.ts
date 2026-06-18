@@ -6,6 +6,9 @@ export default defineNuxtConfig({
     tsConfig: {
       compilerOptions: {
         rootDir: '.',
+        // TODO: drop once Nuxt enables this by default for source-pointing exports.
+        // `@nuxt/test-utils/e2e` resolves to `.ts` source via package exports.
+        allowImportingTsExtensions: true,
       },
     },
   },

@@ -592,17 +592,17 @@ it('element should be changed', async () => {
   expect(component.element.tagName).toBe('SPAN')
 })
 
-describe('composable state isolation', () => {
-  const { useCounterMock } = vi.hoisted(() => {
-    return {
-      useCounterMock: vi.fn(() => {
-        return {
-          isPositive: (): boolean => false,
-        }
-      }),
-    }
-  })
+const { useCounterMock } = vi.hoisted(() => {
+  return {
+    useCounterMock: vi.fn(() => {
+      return {
+        isPositive: (): boolean => false,
+      }
+    }),
+  }
+})
 
+describe('composable state isolation', () => {
   mockNuxtImport('useCounter', () => {
     return useCounterMock
   })
