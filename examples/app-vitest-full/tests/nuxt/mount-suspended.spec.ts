@@ -30,7 +30,7 @@ import ComponentWithCssVar from '~/components/ComponentWithCssVar.vue'
 import ComponentWithPluginProvidedValue from '~/components/ComponentWithPluginProvidedValue.vue'
 import GenericStateComponent from '~/components/GenericStateComponent.vue'
 
-import { BoundAttrs } from '#components'
+import { BoundAttrs, TestTeleport } from '#components'
 import DirectiveComponent from '~/components/DirectiveComponent.vue'
 import CustomComponent from '~/components/CustomComponent.vue'
 import WrapperElement from '~/components/WrapperElement.vue'
@@ -590,6 +590,16 @@ it('element should be changed', async () => {
   await component.setProps({ as: 'span' })
 
   expect(component.element.tagName).toBe('SPAN')
+})
+
+it('teleport should work', async () => {
+  expect(document.getElementById('teleport-title')).toBeFalsy()
+
+  const wrapper = await mountSuspended(TestTeleport)
+  expect(document.getElementById('teleport-title')).toBeTruthy()
+
+  wrapper.unmount()
+  expect(document.getElementById('teleport-title')).toBeFalsy()
 })
 
 const { useCounterMock } = vi.hoisted(() => {

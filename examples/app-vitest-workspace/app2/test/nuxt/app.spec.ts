@@ -10,4 +10,10 @@ describe('app', () => {
   it('useRuntimeConfig', () => {
     expect(useRuntimeConfig().icon).toBeDefined()
   })
+
+  it('should exist the app root element', () => {
+    const element = document.getElementById('nuxt-test')
+    expect(element).toBeTruthy()
+    expect(element?.tagName).toBe('DIV')
+  })
 })
