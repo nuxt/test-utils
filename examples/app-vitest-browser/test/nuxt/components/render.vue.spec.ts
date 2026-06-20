@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { render } from 'vitest-browser-vue'
 import { MyCounter } from '#components'
 
-describe('Render(vue) Component (MyCounter)', () => {
+describe('Render(vue) Component', () => {
   it('renders', () => {
     const { getByText } = render(MyCounter)
     expect(getByText('Count: 0')).toBeInTheDocument()
@@ -27,5 +27,13 @@ describe('Render(vue) Component (MyCounter)', () => {
     const config = getByText('Runtime Config:')
     expect(config).toBeInTheDocument()
     expect(config).toHaveTextContent(/"buildAssetsDir"\s*:\s*"\/_nuxt\/"/)
+  })
+
+  it('locator', async () => {
+    const screen = await render(defineComponent({
+      render: () => h('h1', {}, 'Hello Nuxt!'),
+    }))
+
+    expect(screen.locator.getByRole('heading')).toHaveTextContent('Hello Nuxt!')
   })
 })

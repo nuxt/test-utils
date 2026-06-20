@@ -47,9 +47,21 @@ export async function render<T>(
 
   cleanupAll()
 
+  const umountedFns: (() => void)[] = []
+  const wrapperId = window.crypto.randomUUID()
+
   const { wrapper: _wrapper, setProps } = await wrapperSuspended(component, options, {
     wrapperFn,
-    wrappedRender: render => () => h('div', {}, render()),
+    wrappedRender: render => () => h({
+      inheritAttrs: false,
+      unmounted: () => umountedFns.forEach(fn => fn()),
+      render: () => h('div', { id: wrapperId }, render()),
+    }),
+    overrideOptionsFn(options, vueApp) {
+      if (vueApp._container instanceof HTMLElement) {
+        options.container ??= vueApp._container
+      }
+    },
     suspendedHelperName,
     clonedComponentName,
     stubRouterLink: false,
@@ -61,6 +73,13 @@ export async function render<T>(
     setProps(props)
     await nextTick()
   }
+
+  // Unwrap render wrapper div element
+  const wrapperEl = document.getElementById(wrapperId)!
+  const unwrappedNodes = [...wrapperEl.childNodes]
+  wrapperEl.replaceWith(...unwrappedNodes)
+
+  umountedFns.push(() => unwrappedNodes.forEach(c => c.remove()))
 
   return wrapper
 }
