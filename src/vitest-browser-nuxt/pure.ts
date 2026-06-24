@@ -13,9 +13,9 @@ type WrapperOptions<C> = WrapperSuspendedOptions<WrapperFn<C>> & {
   container?: HTMLElement
   baseElement?: HTMLElement
 }
-type ComponentProps<T> = T extends new (...args: never) => {
+type ComponentProps<T> = T extends new (...args: never[]) => {
   $props: infer P
-} ? NonNullable<P> : T extends (props: infer P, ...args: never) => unknown ? P : object
+} ? NonNullable<P> : T extends (props: infer P, ...args: never[]) => unknown ? P : object
 
 export interface RenderResult<Props> extends LocatorSelectors {
   container: HTMLElement
@@ -69,6 +69,8 @@ export async function render<T>(
   component: T,
   options: WrapperOptions<T> = {},
 ): Promise<RenderResult<ComponentProps<T>>> {
+  const wrapperOptions = { ...options }
+
   const suspendedHelperName = 'RenderBrowserHelper'
   const clonedComponentName = 'RenderBrowserSuspendedComponent'
 
@@ -81,7 +83,7 @@ export async function render<T>(
   let container!: HTMLElement
   let baseElement!: HTMLElement
 
-  const { wrapper, setProps } = await wrapperSuspended(component, options, {
+  const { wrapper, setProps } = await wrapperSuspended(component, wrapperOptions, {
     wrapperFn,
     overrideOptionsFn(options, vueApp) {
       container ||= options.container || vueApp._container as HTMLElement
@@ -129,7 +131,7 @@ export function cleanup(): void {
   })
 }
 
-async function mark(locator: Locator, name: string, fn: (...args: never) => unknown) {
+async function mark(locator: Locator, name: string, fn: (...args: never[]) => unknown) {
   if (!locator.mark) {
     return
   }
