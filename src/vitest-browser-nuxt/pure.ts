@@ -1,6 +1,5 @@
 import type { Locator, LocatorSelectors, PrettyDOMOptions } from 'vitest/browser'
 import { page, server, utils } from 'vitest/browser'
-import type { VueWrapper } from '@vue/test-utils'
 import { mount as wrapperFn } from '@vue/test-utils'
 
 import type { WrapperSuspendedOptions } from '../runtime-utils/utils/suspended.ts'
@@ -8,29 +7,20 @@ import { cleanupAll, wrapperSuspended } from '../runtime-utils/utils/suspended.t
 
 export { config } from '@vue/test-utils'
 
-type WrapperFn<C> = typeof wrapperFn<C>
-type WrapperOptions<C> = WrapperSuspendedOptions<WrapperFn<C>> & {
-  container?: HTMLElement
-  baseElement?: HTMLElement
-}
+type OmitKey<T, K extends keyof T> = { [P in keyof T as P extends K ? never : P]: T[P] }
+
 type ComponentProps<T> = T extends new (...args: never[]) => {
   $props: infer P
 } ? NonNullable<P> : T extends (props: infer P, ...args: never[]) => unknown ? P : object
 
-export interface RenderResult<Props> extends LocatorSelectors {
-  container: HTMLElement
-  baseElement: HTMLElement
-  locator: Locator
-  debug(el?: HTMLElement | HTMLElement[] | Locator | Locator[], maxLength?: number, options?: PrettyDOMOptions): void
-  unmount(): Promise<void>
-  emitted<T = unknown>(): Record<string, T[]>
-  emitted<T = unknown[]>(eventName: string): undefined | T[]
-  rerender(props: Partial<Props>): Promise<void>
+type WrapperFn<C> = typeof wrapperFn<C>
+type WrapperOptions<C> = OmitKey<WrapperSuspendedOptions<WrapperFn<C>>, 'attachTo'> & {
+  /** Use this option instead of the `@vue/test-utils` `attachTo` option. */
+  container?: HTMLElement
+  baseElement?: HTMLElement
 }
 
-const { debug, getElementLocatorSelectors } = utils
-
-const mountedWrappers = new Set<Pick<VueWrapper, 'unmount'>>()
+const mountedWrappers = new Set<Pick<ReturnType<typeof wrapperFn>, 'unmount'>>()
 
 let idx = 0
 function ensureTestIdAttribute(element: HTMLElement) {
@@ -38,6 +28,23 @@ function ensureTestIdAttribute(element: HTMLElement) {
   if (!element.hasAttribute(attributeId)) {
     element.setAttribute(attributeId, `__vitest_${idx++}__`)
   }
+}
+
+export interface RenderResult<Props> extends LocatorSelectors {
+  container: HTMLElement
+  baseElement: HTMLElement
+  locator: Locator
+  debug(
+    el?: HTMLElement | HTMLElement[] | Locator | Locator[],
+    maxLength?: number, options?:
+    PrettyDOMOptions
+  ): void
+  /** Unmount the component. Also records a `nuxt.unmount` trace mark. */
+  unmount(): Promise<void>
+  emitted<T = unknown>(): Record<string, T[]>
+  emitted<T = unknown[]>(eventName: string): undefined | T[]
+  /** Re-render the component with new props. Also records a `nuxt.rerender` trace mark. */
+  rerender(props: Partial<Props>): Promise<void>
 }
 
 /**
@@ -69,39 +76,16 @@ export async function render<T>(
   component: T,
   options: WrapperOptions<T> = {},
 ): Promise<RenderResult<ComponentProps<T>>> {
-  const wrapperOptions = { ...options }
-
-  const suspendedHelperName = 'RenderBrowserHelper'
-  const clonedComponentName = 'RenderBrowserSuspendedComponent'
-
-  cleanupAll()
-
-  if (options.attachTo) {
-    throw new Error('`attachTo` is not supported, use `container` instead')
-  }
-
-  let container!: HTMLElement
-  let baseElement!: HTMLElement
-
-  const { wrapper, setProps } = await wrapperSuspended(component, wrapperOptions, {
-    wrapperFn,
-    overrideOptionsFn(options, vueApp) {
-      container ||= options.container || vueApp._container as HTMLElement
-      baseElement ||= options.baseElement || container || document.body
-      options.attachTo = container
-    },
-    suspendedHelperName,
-    clonedComponentName,
-    stubRouterLink: false,
-  })
-
-  Object.assign(wrapper, { __setProps: setProps })
-
-  mountedWrappers.add(wrapper)
+  const {
+    container,
+    baseElement,
+    wrapper,
+  } = await mountWrapperSuspended(component, options)
 
   ensureTestIdAttribute(container)
   ensureTestIdAttribute(baseElement)
-  unwrapNode(wrapper.element.parentElement)
+
+  const { debug, getElementLocatorSelectors } = utils
 
   const renderResult: RenderResult<ComponentProps<T>> = {
     container,
@@ -145,7 +129,59 @@ async function mark(locator: Locator, name: string, fn: (...args: never[]) => un
 }
 
 function unwrapNode(node: Element | null) {
-  if (node) {
+  if (node && typeof node.replaceWith === 'function') {
     node.replaceWith(...node.childNodes)
+  }
+}
+
+async function mountWrapperSuspended<T>(
+  component: T,
+  options: WrapperOptions<T> = {},
+) {
+  const wrapperOptions = { ...options }
+
+  cleanupAll()
+
+  let container!: HTMLElement
+  let baseElement!: HTMLElement
+  let createdContainer: HTMLElement | undefined
+
+  const { wrapper, setProps } = await wrapperSuspended(component, wrapperOptions, {
+    wrapperFn,
+    overrideOptionsFn(options, vueApp) {
+      baseElement = options.baseElement || document.body
+      if (options.container) {
+        container = options.container
+      }
+      else if (baseElement.contains(vueApp._container)) {
+        container = vueApp._container as HTMLElement
+      }
+      else {
+        container = baseElement.appendChild(document.createElement('div'))
+        createdContainer = container
+      }
+      options.attachTo = container
+    },
+    suspendedHelperName: 'BrowserSuspendedHelper',
+    clonedComponentName: 'BrowserSuspendedComponent',
+    stubRouterLink: false,
+  })
+
+  Object.assign(wrapper, { __setProps: setProps })
+
+  const _unmount = wrapper.unmount.bind(wrapper)
+  wrapper.unmount = () => {
+    _unmount()
+    createdContainer?.remove()
+  }
+
+  mountedWrappers.add(wrapper)
+  unwrapNode(wrapper.element.parentElement)
+
+  return {
+    container,
+    baseElement,
+    wrapper,
+    setProps,
   }
 }

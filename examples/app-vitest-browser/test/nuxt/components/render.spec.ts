@@ -29,6 +29,26 @@ describe('Render Component', () => {
     expect(config).toHaveTextContent(/"buildAssetsDir"\s*:\s*"\/_nuxt\/"/)
   })
 
+  it('rerender', async () => {
+    const screen = await render(defineComponent({
+      props: {
+        name: {
+          type: String,
+          default: 'Unknown',
+        },
+      },
+      setup(props) {
+        return () => h('h1', {}, `Hello ${props.name}!`)
+      },
+    }))
+
+    expect(screen.getByRole('heading')).toHaveTextContent('Hello Unknown!')
+
+    await screen.rerender({ name: 'Nuxt' })
+
+    expect(screen.getByRole('heading')).toHaveTextContent('Hello Nuxt!')
+  })
+
   it('locator', async () => {
     const screen = await render(defineComponent({
       render: () => h('h1', {}, 'Hello Nuxt!'),
@@ -37,22 +57,94 @@ describe('Render Component', () => {
     expect(screen.locator.getByRole('heading')).toHaveTextContent('Hello Nuxt!')
   })
 
-  it('baseElement', async () => {
+  it('baseElement(default)', async () => {
     const screen = await render(defineComponent({
       render: () => h('h1', {}, 'Hello Nuxt!'),
     }))
 
-    await expect.element(screen.baseElement).toHaveAttribute('id', 'nuxt-test')
-    expect(screen.baseElement.children[0]?.outerHTML).toBe('<h1>Hello Nuxt!</h1>')
+    expect(screen.getByRole('heading')).toHaveTextContent('Hello Nuxt!')
+
+    expect(screen.baseElement).toHaveTextContent('Hello Nuxt!')
   })
 
-  it('container', async () => {
+  it('baseElement(document.body)', async () => {
+    const screen = await render(defineComponent({
+      render: () => h('h1', {}, 'Hello Nuxt!'),
+    }), { baseElement: document.body })
+
+    expect(screen.getByRole('heading')).toHaveTextContent('Hello Nuxt!')
+
+    expect(screen.baseElement).toBe(document.body)
+    expect(screen.baseElement).toContainElement(screen.container)
+    expect(screen.baseElement).toHaveTextContent('Hello Nuxt!')
+
+    expect(screen.container).toHaveTextContent('Hello Nuxt!')
+
+    await screen.unmount()
+
+    expect(screen.baseElement).toContainElement(screen.container)
+  })
+
+  it('baseElement(custom element)', async ({ onTestFinished }) => {
+    const baseElement = document.body.appendChild(document.createElement('div'))
+    onTestFinished(() => baseElement.remove())
+
+    const screen = await render(defineComponent({
+      render: () => h('h1', {}, 'Hello Nuxt!'),
+    }), { baseElement })
+
+    expect(screen.getByRole('heading')).toHaveTextContent('Hello Nuxt!')
+
+    expect(screen.baseElement).toBe(baseElement)
+    expect(screen.baseElement).toContainElement(screen.container)
+    expect(screen.baseElement).toHaveTextContent('Hello Nuxt!')
+
+    expect(screen.container).toHaveTextContent('Hello Nuxt!')
+
+    await screen.unmount()
+
+    expect(screen.baseElement).not.toContainElement(screen.container)
+  })
+
+  it('container(default)', async () => {
     const screen = await render(defineComponent({
       render: () => h('h1', {}, 'Hello Nuxt!'),
     }))
 
-    await expect.element(screen.container).toHaveAttribute('id', 'nuxt-test')
-    expect(screen.container.children[0]?.outerHTML).toBe('<h1>Hello Nuxt!</h1>')
+    expect(screen.getByRole('heading')).toHaveTextContent('Hello Nuxt!')
+
+    expect(screen.baseElement).toBe(document.body)
+    expect(screen.baseElement).toContainElement(screen.container)
+    expect(screen.baseElement).toHaveTextContent('Hello Nuxt!')
+
+    expect(screen.container).toHaveTextContent('Hello Nuxt!')
+    expect(screen.container).toHaveAttribute('id', 'nuxt-test')
+
+    await screen.unmount()
+
+    expect(screen.baseElement).toContainElement(screen.container)
+  })
+
+  it('container(custom element)', async ({ onTestFinished }) => {
+    const container = document.body.appendChild(document.createElement('div'))
+    onTestFinished(() => container.remove())
+
+    const screen = await render(defineComponent({
+      render: () => h('h1', {}, 'Hello Nuxt!'),
+    }), { container })
+
+    expect(screen.getByRole('heading')).toHaveTextContent('Hello Nuxt!')
+
+    expect(screen.baseElement).toBe(document.body)
+    expect(screen.baseElement).toContainElement(screen.container)
+    expect(screen.baseElement).toHaveTextContent('Hello Nuxt!')
+
+    expect(screen.container).toBe(container)
+    expect(screen.container).toHaveTextContent('Hello Nuxt!')
+
+    await screen.unmount()
+
+    expect(screen.baseElement).toContainElement(screen.container)
   })
 
   it('umount', async () => {
@@ -66,8 +158,9 @@ describe('Render Component', () => {
 
     await screen.unmount()
 
-    await expect.element(screen.container).toHaveAttribute('id', 'nuxt-test')
-    expect(screen.container.children.length).toBe(0)
+    expect(screen.container).toHaveAttribute('id', 'nuxt-test')
+    expect(screen.container).toBeEmptyDOMElement()
+
     expect(onBeforeUnmountFn).toHaveBeenCalledOnce()
   })
 })
