@@ -3,7 +3,8 @@ import { defineVitestProject } from '@nuxt/test-utils/config'
 
 export default defineVitestProject({
   test: {
-    name: 'nuxt-app3',
+    name: 'nuxt-app3:nuxt',
+    include: ['test/nuxt/**/*.spec.ts'],
     environmentOptions: {
       nuxt: {
         rootDir: fileURLToPath(new URL('.', import.meta.url)),
