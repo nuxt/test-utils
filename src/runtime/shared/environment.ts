@@ -3,19 +3,20 @@ import { joinURL } from 'ufo'
 import { defineEventHandler } from './h3.ts'
 import { createRouter as createRadixRouter, exportMatcher, toRouteMatcher } from 'radix3'
 import type { NuxtWindow } from '../../vitest-environment.ts'
-import type { NuxtEnvironmentOptions } from '../../config.ts'
+import type { NuxtEnvironmentResolvedOptions } from '../../config.ts'
 import { createFetchForH3V1 } from './h3-v1.ts'
 import { createFetchForH3V2 } from './h3-v2.ts'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: NuxtEnvironmentOptions, nuxtRuntimeConfig?: Record<string, any>, nuxtRouteRules?: Record<string, any> }) {
+export async function setupWindow(win: NuxtWindow, environmentOptions: NuxtEnvironmentResolvedOptions) {
+  const nuxtConfig = environmentOptions.nuxtConfig
+
   win.__NUXT_VITEST_ENVIRONMENT__ = true
   win.__NUXT__ = {
     serverRendered: false,
     config: {
       public: {},
       app: { baseURL: '/' },
-      ...environmentOptions?.nuxtRuntimeConfig,
+      ...nuxtConfig?.runtimeConfig,
     },
     data: {},
     state: {},
@@ -29,10 +30,11 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
     return consoleInfo(...args)
   }
 
-  const app = win.document.createElement('div')
-  // this is a workaround for a happy-dom bug with ids beginning with _
-  app.id = environmentOptions.nuxt.rootId || 'nuxt-test'
-  win.document.body.appendChild(app)
+  createElementAndAppend(win, nuxtConfig?.app.rootTag || 'div', {
+    ...nuxtConfig?.app.rootAttrs,
+    id: environmentOptions.nuxt.rootId || 'nuxt-test',
+  })
+  createElementAndAppend(win, nuxtConfig?.app.teleportTag || 'div', nuxtConfig?.app.teleportAttrs)
 
   if (!win.fetch || !('Request' in win)) {
     await import('node-fetch-native/polyfill')
@@ -66,12 +68,12 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
   // App manifest support
   const timestamp = Date.now()
   const routeRulesMatcher = toRouteMatcher(
-    createRadixRouter({ routes: environmentOptions.nuxtRouteRules || {} }),
+    createRadixRouter({ routes: nuxtConfig?.routeRules || {} }),
   )
   const matcher = exportMatcher(routeRulesMatcher)
   const manifestOutputPath = joinURL(
-    environmentOptions?.nuxtRuntimeConfig?.app?.baseURL || '/',
-    environmentOptions?.nuxtRuntimeConfig?.app?.buildAssetsDir || '_nuxt',
+    nuxtConfig?.runtimeConfig?.app?.baseURL || '/',
+    nuxtConfig?.runtimeConfig?.app?.buildAssetsDir || '_nuxt',
     'builds',
   )
   const manifestBaseRoutePath = joinURL('/_', manifestOutputPath)
@@ -102,4 +104,25 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: { nuxt: N
   return () => {
     console.info = consoleInfo
   }
+}
+
+function createElementAndAppend(
+  win: NuxtWindow,
+  tag: string,
+  attrs: NonNullable<NuxtEnvironmentResolvedOptions['nuxtConfig']>['app']['rootAttrs']
+    | NonNullable<NuxtEnvironmentResolvedOptions['nuxtConfig']>['app']['teleportAttrs']
+    | undefined,
+) {
+  if (attrs?.id && win.document.getElementById(attrs.id)) {
+    return
+  }
+
+  const element = win.document.createElement(tag)
+  for (const [key, value] of Object.entries(attrs ?? {})) {
+    if (value !== false && value != null) {
+      element.setAttribute(key, value === true ? '' : String(value))
+    }
+  }
+
+  win.document.body.appendChild(element)
 }

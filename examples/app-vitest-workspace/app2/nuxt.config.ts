@@ -3,5 +3,10 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/color-mode', '@nuxt/ui'],
   pages: false,
   devtools: { enabled: true },
+  app: {
+    rootAttrs: {
+      id: undefined,
+    },
+  },
   compatibilityDate: '2024-04-03',
 })
