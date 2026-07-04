@@ -8,15 +8,13 @@ import { createFetchForH3V1 } from './h3-v1.ts'
 import { createFetchForH3V2 } from './h3-v2.ts'
 
 export async function setupWindow(win: NuxtWindow, environmentOptions: NuxtEnvironmentResolvedOptions) {
-  const nuxtConfig = environmentOptions.nuxtConfig
-
   win.__NUXT_VITEST_ENVIRONMENT__ = true
   win.__NUXT__ = {
     serverRendered: false,
     config: {
       public: {},
       app: { baseURL: '/' },
-      ...nuxtConfig?.runtimeConfig,
+      ...environmentOptions?.nuxtRuntimeConfig,
     },
     data: {},
     state: {},
@@ -30,11 +28,11 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: NuxtEnvir
     return consoleInfo(...args)
   }
 
-  createElementAndAppend(win, nuxtConfig?.app.rootTag || 'div', {
-    ...nuxtConfig?.app.rootAttrs,
+  createElementAndAppend(win, environmentOptions.nuxtConfig?.app.rootTag || 'div', {
+    ...environmentOptions.nuxtConfig?.app.rootAttrs,
     id: environmentOptions.nuxt.rootId || 'nuxt-test',
   })
-  createElementAndAppend(win, nuxtConfig?.app.teleportTag || 'div', nuxtConfig?.app.teleportAttrs)
+  createElementAndAppend(win, environmentOptions.nuxtConfig?.app.teleportTag || 'div', environmentOptions.nuxtConfig?.app.teleportAttrs)
 
   if (!win.fetch || !('Request' in win)) {
     await import('node-fetch-native/polyfill')
@@ -68,12 +66,12 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: NuxtEnvir
   // App manifest support
   const timestamp = Date.now()
   const routeRulesMatcher = toRouteMatcher(
-    createRadixRouter({ routes: nuxtConfig?.routeRules || {} }),
+    createRadixRouter({ routes: environmentOptions.nuxtRouteRules || {} }),
   )
   const matcher = exportMatcher(routeRulesMatcher)
   const manifestOutputPath = joinURL(
-    nuxtConfig?.runtimeConfig?.app?.baseURL || '/',
-    nuxtConfig?.runtimeConfig?.app?.buildAssetsDir || '_nuxt',
+    environmentOptions?.nuxtRuntimeConfig?.app?.baseURL || '/',
+    environmentOptions?.nuxtRuntimeConfig?.app?.buildAssetsDir || '_nuxt',
     'builds',
   )
   const manifestBaseRoutePath = joinURL('/_', manifestOutputPath)

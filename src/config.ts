@@ -150,19 +150,19 @@ export async function getVitestConfigFromNuxt(
       },
       test: {
         environmentOptions: {
+          nuxtRuntimeConfig: applyEnv(structuredClone(options.nuxt.options.runtimeConfig), {
+            prefix: 'NUXT_',
+            env: await setupDotenv(defu(loadNuxtOptions.dotenv, {
+              cwd: rootDir,
+              fileName: '.env.test',
+            })),
+          }),
+          nuxtRouteRules: defu(
+            {},
+            options.nuxt.options.routeRules,
+            options.nuxt.options.nitro?.routeRules,
+          ),
           nuxtConfig: {
-            runtimeConfig: applyEnv(structuredClone(options.nuxt.options.runtimeConfig), {
-              prefix: 'NUXT_',
-              env: await setupDotenv(defu(loadNuxtOptions.dotenv, {
-                cwd: rootDir,
-                fileName: '.env.test',
-              })),
-            }),
-            routeRules: defu(
-              {},
-              options.nuxt.options.routeRules,
-              options.nuxt.options.nitro?.routeRules,
-            ),
             app: {
               rootAttrs: options.nuxt.options.app.rootAttrs,
               rootTag: options.nuxt.options.app.rootTag,
@@ -437,13 +437,13 @@ export interface NuxtEnvironmentOptions {
  */
 export interface NuxtEnvironmentResolvedOptions {
   nuxt: NuxtEnvironmentOptions
+  nuxtRuntimeConfig?: NuxtConfig['runtimeConfig']
+  nuxtRouteRules?: NuxtConfig['routeRules']
   nuxtConfig?: {
     app: Pick<
       NonNullable<NuxtConfig['app']>,
       'rootAttrs' | 'rootTag' | 'teleportTag' | 'teleportAttrs'
     >
-    runtimeConfig: NuxtConfig['runtimeConfig']
-    routeRules: NuxtConfig['routeRules']
   }
 }
 
