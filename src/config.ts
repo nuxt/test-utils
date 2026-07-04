@@ -215,14 +215,10 @@ export async function getVitestConfigFromNuxt(
               },
             }
           },
-        },
-        {
-          // https://github.com/nuxt/test-utils/issues/1635
-          name: 'nuxt:test-utils:patch-ssr-conditions',
-          enforce: 'post',
-          configEnvironment(name, config) {
-            if (name === 'ssr' && config.resolve?.conditions) {
-              config.resolve.conditions = config.resolve.conditions.filter(x => x !== 'import')
+          configResolved(config) {
+            // https://github.com/nuxt/test-utils/issues/1635
+            if (config.ssr.resolve?.conditions) {
+              config.ssr.resolve.conditions = config.ssr.resolve.conditions.filter(x => x !== 'import')
             }
           },
         },
