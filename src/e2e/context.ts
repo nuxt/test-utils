@@ -27,7 +27,12 @@ export function createTestContext(options: Partial<TestOptions>): TestContext {
     browserOptions: {
       type: 'chromium' as const,
     },
+    captureServerLogs: true,
   } satisfies Partial<TestOptions>)
+
+  if (process.env.NUXT_TEST_LOG_LEVEL) {
+    _options.logLevel = Number(process.env.NUXT_TEST_LOG_LEVEL)
+  }
 
   if (!_options.dev) {
     _options.env!.NODE_ENV ||= 'production'
@@ -52,6 +57,7 @@ export function createTestContext(options: Partial<TestOptions>): TestContext {
   return setTestContext({
     options: _options as TestOptions,
     url: withTrailingSlash(_options.host),
+    serverLogs: [],
   })
 }
 

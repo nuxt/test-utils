@@ -77,6 +77,14 @@ export interface TestOptions {
    */
   port?: number
   env?: StartServerOptions['env']
+  /**
+   * Whether to capture server process output instead of inheriting stdio.
+   * When `true` (default), server stdout/stderr is suppressed from the console
+   * and accessible via `getServerLogs()`. Set to `false` to restore the old
+   * inherit-stdio behaviour (useful when debugging a test locally).
+   * @default true
+   */
+  captureServerLogs?: boolean
 }
 
 export interface TestContext {
@@ -86,6 +94,11 @@ export interface TestContext {
   url?: string
   serverProcess?: ReturnType<typeof exec>
   mockFn?: (...args: unknown[]) => unknown
+  /**
+   * Lines emitted to the server subprocess's stdout/stderr, in order.
+   * Only populated when `options.captureServerLogs` is `true`.
+   */
+  serverLogs: string[]
   /**
    * Functions to run on the vitest `afterAll` hook.
    * Useful for removing anything created during the test.
