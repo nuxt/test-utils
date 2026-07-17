@@ -10,26 +10,36 @@ const globalFetch = globalThis.fetch || _fetch
 
 export interface StartServerOptions {
   env?: Record<string, unknown>
+  /**
+   * Overrides the consola log level for the server subprocess.
+   * Defaults to `TestOptions.logLevel` (which itself defaults to `1`).
+   */
+  logLevel?: number
 }
 
 export async function startServer(options: StartServerOptions = {}) {
   const ctx = useTestContext()
   await stopServer()
+  ctx.serverLogs = []
   const host = '127.0.0.1'
   const port = ctx.options.port || (await getRandomPort(host))
   ctx.url = `http://${host}:${port}/`
+  const capture = ctx.options.captureServerLogs !== false
+  const stdio = capture ? 'pipe' : 'inherit'
+  const logLevel = String(options.logLevel ?? ctx.options.logLevel)
   if (ctx.options.dev) {
     ctx.serverProcess = x('nuxi', ['_dev'], {
       throwOnError: true,
       nodeOptions: {
         cwd: ctx.nuxt!.options.rootDir,
-        stdio: 'inherit',
+        stdio,
         env: {
           ...process.env,
           _PORT: String(port), // Used by internal _dev command
           PORT: String(port),
           HOST: host,
           NODE_ENV: 'development',
+          CONSOLA_LEVEL: logLevel,
           ...ctx.options.env,
           ...options.env,
         },
@@ -49,18 +59,27 @@ export async function startServer(options: StartServerOptions = {}) {
       {
         throwOnError: true,
         nodeOptions: {
-          stdio: 'inherit',
+          stdio,
           env: {
             ...process.env,
             PORT: String(port),
             HOST: host,
             NODE_ENV: 'test',
+            CONSOLA_LEVEL: logLevel,
             ...ctx.options.env,
             ...options.env,
           },
         },
       },
     )
+  }
+
+  if (capture) {
+    ;(async () => {
+      for await (const line of ctx.serverProcess!) {
+        ctx.serverLogs.push(line)
+      }
+    })().catch(() => {})
   }
 
   await waitForServer({ host, port, dev: ctx.options.dev })
@@ -135,6 +154,23 @@ export async function stopServer() {
     proc.kill('SIGKILL')
     await Promise.race([exited, sleep(5_000)])
   }
+}
+
+/**
+ * Returns the lines captured from the server subprocess's stdout/stderr since
+ * the last `startServer()` call (or `clearServerLogs()`).
+ * Only populated when `captureServerLogs` is `true` (the default).
+ */
+export function getServerLogs(): string[] {
+  return useTestContext().serverLogs
+}
+
+/**
+ * Clears the captured server log lines. Useful between requests when you want
+ * to assert only on the logs produced by a specific operation.
+ */
+export function clearServerLogs(): void {
+  useTestContext().serverLogs = []
 }
 
 export function fetch(path: string, options?: RequestInit) {
