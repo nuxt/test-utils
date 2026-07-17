@@ -264,9 +264,9 @@ export async function getVitestConfigFromNuxt(
 }
 
 export async function defineVitestProject(config: TestProjectInlineConfiguration): Promise<TestProjectInlineConfiguration> {
-  const resolvedConfig = await resolveConfig(config)
-
-  resolvedConfig.test.environment = 'nuxt'
+  const resolvedConfig = await resolveConfig<TestProjectInlineConfiguration>(
+    defu({ test: { environment: 'nuxt' } }, config),
+  )
 
   return resolvedConfig
 }
