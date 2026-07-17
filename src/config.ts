@@ -215,6 +215,12 @@ export async function getVitestConfigFromNuxt(
               },
             }
           },
+          configResolved(config) {
+            // https://github.com/nuxt/test-utils/issues/1635
+            if (config.ssr.resolve?.conditions) {
+              config.ssr.resolve.conditions = config.ssr.resolve.conditions.filter(x => x !== 'import')
+            }
+          },
         },
       ],
     } satisfies ViteUserConfig,
