@@ -50,7 +50,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
           const contents = await original(data)
           return contents
             .replace(/^import \{ useRuntimeConfig \} from ['"]nitropack\/runtime['"]\n?/m, '')
-            .replace(/const getAppConfig = \(\) => useRuntimeConfig\(\)\.app/, `const getAppConfig = () => (${inlineAppConfig})`)
+            .replace(/const getAppConfig = \(\) => useRuntimeConfig\(\)\.app/, () => `const getAppConfig = () => (${inlineAppConfig})`)
         }
       })
     }
