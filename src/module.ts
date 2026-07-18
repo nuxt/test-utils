@@ -37,6 +37,24 @@ export default defineNuxtModule<NuxtVitestOptions>({
       await setupImportMocking(nuxt)
     }
 
+    // inline runtime config the way dev builds do
+    if (nuxt.options.test && !nuxt.options.dev) {
+      nuxt.hook('app:templates', (app) => {
+        const template = app.templates.find(t => t.filename === 'paths.mjs')
+        if (!template?.getContents) {
+          return
+        }
+        const original = template.getContents
+        const inlineAppConfig = JSON.stringify(nuxt.options.app)
+        template.getContents = async (data) => {
+          const contents = await original(data)
+          return contents
+            .replace(/^import \{ useRuntimeConfig \} from ['"]nitropack\/runtime['"]\n?/m, '')
+            .replace(/const getAppConfig = \(\) => useRuntimeConfig\(\)\.app/, `const getAppConfig = () => (${inlineAppConfig})`)
+        }
+      })
+    }
+
     const { addVitePlugin } = await loadKit(nuxt.options.rootDir)
 
     const resolver = createResolver(import.meta.url)
