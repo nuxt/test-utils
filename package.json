@@ -85,16 +85,15 @@
     "defu": "^6.1.7",
     "destr": "^2.0.5",
     "estree-walker": "^3.0.3",
-    "exsolve": "^1.0.8",
+    "exsolve": "^1.1.0",
     "fake-indexeddb": "^6.2.5",
     "get-port-please": "^3.2.0",
     "h3": "^1.15.11",
-    "h3-next": "npm:h3@2.0.1-rc.22",
     "local-pkg": "^1.2.1",
     "magic-string": "^0.30.21",
     "node-fetch-native": "^1.6.7",
     "node-mock-http": "^1.0.4",
-    "nypm": "^0.6.7",
+    "nypm": "^0.6.8",
     "ofetch": "^1.5.1",
     "pathe": "^2.0.3",
     "perfect-debounce": "^2.1.0",
@@ -103,16 +102,16 @@
     "std-env": "^4.1.0",
     "tinyexec": "^1.2.4",
     "ufo": "^1.6.4",
-    "unplugin": "^3.0.0",
+    "unplugin": "^3.3.0",
     "vitest-environment-nuxt": "workspace:*",
-    "vue": "^3.5.38"
+    "vue": "^3.5.39"
   },
   "devDependencies": {
     "@cucumber/cucumber": "12.9.0",
     "@jest/globals": "30.4.1",
     "@nuxt/eslint-config": "1.16.0",
     "@nuxt/schema": "4.4.8",
-    "@playwright/test": "1.61.0",
+    "@playwright/test": "1.61.1",
     "@testing-library/vue": "8.1.0",
     "@types/bun": "1.3.14",
     "@types/estree": "1.0.9",
@@ -121,22 +120,23 @@
     "@types/semver": "7.7.1",
     "@vitest/browser-playwright": "4.1.9",
     "@vue/test-utils": "2.4.11",
+    "h3-next": "npm:h3@2.0.1-rc.22",
     "changelogen": "0.6.2",
     "compatx": "0.2.0",
-    "eslint": "10.5.0",
+    "eslint": "10.6.0",
     "installed-check": "10.0.1",
-    "knip": "6.17.1",
+    "knip": "6.23.0",
     "nitropack": "2.13.4",
     "nuxt": "4.4.8",
     "oxc-parser": "0.137.0",
     "pkg-pr-new": "0.0.75",
-    "playwright-core": "1.61.0",
+    "playwright-core": "1.61.1",
     "rollup": "4.62.2",
     "semver": "7.8.5",
     "tsdown": "0.22.3",
     "typescript": "6.0.3",
     "unimport": "6.3.0",
-    "vite": "8.0.16",
+    "vite": "8.1.0",
     "vitest": "4.1.9",
     "vue-router": "5.1.0",
     "vue-tsc": "3.3.5"
@@ -147,6 +147,7 @@
     "@playwright/test": "^1.43.1",
     "@testing-library/vue": "^8.0.1",
     "@vue/test-utils": "^2.4.2",
+    "h3-next": ">=2.0.1-rc.22",
     "happy-dom": ">=20.0.11",
     "jsdom": ">=27.4.0",
     "playwright-core": "^1.43.1",
@@ -171,6 +172,9 @@
     "@vue/test-utils": {
       "optional": true
     },
+    "h3-next": {
+      "optional": true
+    },
     "happy-dom": {
       "optional": true
     },
@@ -187,7 +191,7 @@
   "engines": {
     "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
   },
-  "packageManager": "pnpm@11.8.0",
+  "packageManager": "pnpm@11.9.0",
   "publishConfig": {
     "exports": {
       ".": "./dist/e2e.mjs",
