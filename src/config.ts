@@ -162,7 +162,15 @@ export async function getVitestConfigFromNuxt(
             options.nuxt.options.routeRules,
             options.nuxt.options.nitro?.routeRules,
           ),
-        },
+          nuxtConfig: {
+            app: {
+              rootAttrs: options.nuxt.options.app.rootAttrs,
+              rootTag: options.nuxt.options.app.rootTag,
+              teleportAttrs: options.nuxt.options.app.teleportAttrs,
+              teleportTag: options.nuxt.options.app.teleportTag,
+            },
+          },
+        } satisfies Omit<NuxtEnvironmentResolvedOptions, 'nuxt'>,
         server: {
           deps: {
             inline: [
@@ -231,14 +239,14 @@ export async function getVitestConfigFromNuxt(
       test: {
         environmentOptions: {
           nuxt: {
-            rootId: options.nuxt.options.app.rootId || undefined,
+            rootId: options.nuxt.options.app.rootAttrs?.id || undefined,
             h3Version: h3Info?.version?.startsWith('2.') ? 2 : 1,
             mock: {
               intersectionObserver: true,
               indexedDb: false,
             },
           },
-        },
+        } satisfies NuxtEnvironmentResolvedOptions,
       } satisfies VitestConfig,
     },
   ) as ViteUserConfig & { test: VitestConfig }
@@ -424,6 +432,7 @@ export interface NuxtEnvironmentOptions {
   /**
    * The id of the root div to which the app should be mounted. You should also set `app.rootId` to the same value.
    * @default 'nuxt-test'
+   * @deprecated Prefer `overrides.app.rootAttrs.id` instead
    */
   rootId?: string
   /**
@@ -439,6 +448,21 @@ export interface NuxtEnvironmentOptions {
   mock?: {
     intersectionObserver?: boolean
     indexedDb?: boolean
+  }
+}
+
+/**
+ * @internal
+ */
+export interface NuxtEnvironmentResolvedOptions {
+  nuxt: NuxtEnvironmentOptions
+  nuxtRuntimeConfig?: NuxtConfig['runtimeConfig']
+  nuxtRouteRules?: NuxtConfig['routeRules']
+  nuxtConfig?: {
+    app: Pick<
+      NonNullable<NuxtConfig['app']>,
+      'rootAttrs' | 'rootTag' | 'teleportTag' | 'teleportAttrs'
+    >
   }
 }
 
