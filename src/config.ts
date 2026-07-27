@@ -162,7 +162,13 @@ export async function getVitestConfigFromNuxt(
             options.nuxt.options.routeRules,
             options.nuxt.options.nitro?.routeRules,
           ),
-        },
+          nuxtAppConfig: {
+            rootAttrs: options.nuxt.options.app.rootAttrs,
+            rootTag: options.nuxt.options.app.rootTag,
+            teleportAttrs: options.nuxt.options.app.teleportAttrs,
+            teleportTag: options.nuxt.options.app.teleportTag,
+          },
+        } satisfies Omit<NuxtEnvironmentResolvedOptions, 'nuxt'>,
         server: {
           deps: {
             inline: [
@@ -231,14 +237,14 @@ export async function getVitestConfigFromNuxt(
       test: {
         environmentOptions: {
           nuxt: {
-            rootId: options.nuxt.options.app.rootId || undefined,
+            rootId: options.nuxt.options.app.rootAttrs?.id || undefined,
             h3Version: h3Info?.version?.startsWith('2.') ? 2 : 1,
             mock: {
               intersectionObserver: true,
               indexedDb: false,
             },
           },
-        },
+        } satisfies NuxtEnvironmentResolvedOptions,
       } satisfies VitestConfig,
     },
   ) as ViteUserConfig & { test: VitestConfig }
@@ -422,8 +428,9 @@ export interface NuxtEnvironmentOptions {
    */
   overrides?: NuxtConfig
   /**
-   * The id of the root div to which the app should be mounted. You should also set `app.rootId` to the same value.
-   * @default 'nuxt-test'
+   * The id of the root element to which the app should be mounted. Takes precedence over the id
+   * resolved from your Nuxt config, falling back to `'nuxt-test'` when neither is set.
+   * @deprecated Set `overrides.app.rootAttrs.id` (or `app.rootId` in your Nuxt config) instead
    */
   rootId?: string
   /**
@@ -440,6 +447,19 @@ export interface NuxtEnvironmentOptions {
     intersectionObserver?: boolean
     indexedDb?: boolean
   }
+}
+
+/**
+ * @internal
+ */
+export interface NuxtEnvironmentResolvedOptions {
+  nuxt: NuxtEnvironmentOptions
+  nuxtRuntimeConfig?: NuxtConfig['runtimeConfig']
+  nuxtRouteRules?: NuxtConfig['routeRules']
+  nuxtAppConfig?: Pick<
+    NonNullable<NuxtConfig['app']>,
+    'rootAttrs' | 'rootTag' | 'teleportTag' | 'teleportAttrs'
+  >
 }
 
 declare module 'vitest/node' {

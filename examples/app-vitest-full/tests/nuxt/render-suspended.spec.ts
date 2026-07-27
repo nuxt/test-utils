@@ -23,7 +23,7 @@ import CompostionApi from '~/components/TestComponentWithCompostionApi.vue'
 import OptionsApiWithData from '~/components/TestComponentWithOptionsApiWithData.vue'
 import OptionsApiWithSetup from '~/components/TestComponentWithOptionsApiWithSetup.vue'
 
-import { BoundAttrs, OptionsApiComputed, OptionsApiEmits, OptionsApiWatch, ScriptSetupEmits, ScriptSetupWatch } from '#components'
+import { BoundAttrs, OptionsApiComputed, OptionsApiEmits, OptionsApiWatch, ScriptSetupEmits, ScriptSetupWatch, TestTeleport } from '#components'
 
 const formats = {
   ExportDefaultComponent,
@@ -397,4 +397,14 @@ it('renders links correctly', async () => {
       <div><a href="/test"> Link with string to prop </a><a href="/test"> Link with object to prop </a></div>
     </div>"
   `)
+})
+
+it('teleport should work', async () => {
+  expect(document.getElementById('teleport-title')).toBeFalsy()
+
+  const wrapper = await renderSuspended(TestTeleport)
+  expect(document.getElementById('teleport-title')).toBeTruthy()
+
+  wrapper.unmount()
+  expect(document.getElementById('teleport-title')).toBeFalsy()
 })
