@@ -21,6 +21,10 @@ shellEmulator: true
 
 ignoreWorkspaceRootCheck: true
 
+minimumReleaseAgeExclude:
+  - '@nuxt/*'
+  - nuxt
+
 allowBuilds:
   "@parcel/watcher": false
   "@tailwindcss/oxide": true
