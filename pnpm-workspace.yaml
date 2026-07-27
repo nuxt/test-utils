@@ -5,7 +5,7 @@ packages:
 
 overrides:
   '@cucumber/cucumber': 12.9.0
-  '@nuxt/schema': 4.5.0
+  '@nuxt/schema': 4.5.1
   '@nuxt/test-utils': workspace:*
   '@types/node': 24.13.3
   rollup: 4.62.2
@@ -20,6 +20,10 @@ patchedDependencies:
 shellEmulator: true
 
 ignoreWorkspaceRootCheck: true
+
+minimumReleaseAgeExclude:
+  - '@nuxt/*'
+  - nuxt
 
 allowBuilds:
   "@parcel/watcher": false
