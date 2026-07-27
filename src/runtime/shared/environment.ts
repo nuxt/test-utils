@@ -28,11 +28,13 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: NuxtEnvir
     return consoleInfo(...args)
   }
 
-  createElementAndAppend(win, environmentOptions.nuxtConfig?.app.rootTag || 'div', {
-    ...environmentOptions.nuxtConfig?.app.rootAttrs,
-    id: environmentOptions.nuxt.rootId || 'nuxt-test',
+  const appConfig = environmentOptions.nuxtAppConfig
+
+  createElementAndAppend(win, appConfig?.rootTag || 'div', {
+    ...appConfig?.rootAttrs,
+    id: environmentOptions.nuxt.rootId || appConfig?.rootAttrs?.id || 'nuxt-test',
   })
-  createElementAndAppend(win, environmentOptions.nuxtConfig?.app.teleportTag || 'div', environmentOptions.nuxtConfig?.app.teleportAttrs)
+  createElementAndAppend(win, appConfig?.teleportTag || 'div', appConfig?.teleportAttrs || { id: 'teleports' })
 
   if (!win.fetch || !('Request' in win)) {
     await import('node-fetch-native/polyfill')
@@ -107,9 +109,7 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: NuxtEnvir
 function createElementAndAppend(
   win: NuxtWindow,
   tag: string,
-  attrs: NonNullable<NuxtEnvironmentResolvedOptions['nuxtConfig']>['app']['rootAttrs']
-    | NonNullable<NuxtEnvironmentResolvedOptions['nuxtConfig']>['app']['teleportAttrs']
-    | undefined,
+  attrs: NonNullable<NuxtEnvironmentResolvedOptions['nuxtAppConfig']>['rootAttrs'],
 ) {
   if (attrs?.id && win.document.getElementById(attrs.id)) {
     return
