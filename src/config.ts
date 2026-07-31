@@ -41,7 +41,8 @@ async function startNuxtAndGetViteConfig(rootDir = process.cwd(), options: LoadN
   const nuxt = await loadNuxt({
     cwd: rootDir,
     // https://github.com/nuxt/nuxt/blob/d52a4fdd7ad5feb035dcf3f56c3b2d0ab059b1d4/packages/kit/src/loader/nuxt.ts#L24
-    dev: options.overrides?.dev ?? options.nitroEnvironment ?? false,
+    // the nitro environment runner is only initialised in dev mode, so it takes precedence
+    dev: options.nitroEnvironment || (options.overrides?.dev ?? false),
     dotenv: defu(options.dotenv, {
       cwd: rootDir,
       fileName: '.env.test',

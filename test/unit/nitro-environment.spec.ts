@@ -69,6 +69,12 @@ describe('nitro vite environment', () => {
     expect(loadNuxt.mock.calls[0]![0].overrides.experimental.nitroViteEnvironment).toBe(true)
   })
 
+  it('should load nuxt in dev mode even when overrides disable it', async () => {
+    await getVitestConfigFromNuxt(undefined, { nitroEnvironment: true, overrides: { dev: false } })
+
+    expect(loadNuxt.mock.calls[0]![0].dev).toBe(true)
+  })
+
   it('should keep the nitro environment and close nitro once on teardown', async () => {
     const config = await getVitestConfigFromNuxt(undefined, { nitroEnvironment: true })
 
