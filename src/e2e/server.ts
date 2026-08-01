@@ -116,8 +116,10 @@ async function flushServerLogs() {
 
 function earlyExitError(ctx: TestContext, { dev, elapsed }: EarlyExitDetails) {
   const proc = ctx.serverProcess!
+  const signal = proc.process?.signalCode
   const details = [
-    `exit code: ${proc.exitCode ?? 'unknown'}`,
+    // a signalled process has no exit code, and the signal is the whole explanation
+    signal ? `signal: ${signal}` : `exit code: ${proc.exitCode ?? 'unknown'}`,
     `killed: ${proc.killed}`,
     `after ${elapsed}ms`,
     `mode: ${dev ? 'dev' : 'built'}`,
