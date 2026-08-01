@@ -23,7 +23,7 @@ type WrapperFnResult<Fn> = Fn extends (c: WrapperFnComponent<Fn>, o: WrapperFnOp
 export type WrapperSuspendedOptions<Fn> = WrapperFnOption<Fn> & {
   /**
    * The initial route, or false to skip the initial route change.
-   * @default '/''
+   * @default '/'
    */
   route?: RouteLocationRaw | false
   /**
