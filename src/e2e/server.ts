@@ -10,6 +10,9 @@ import type { TestContext } from './types.ts'
 
 const globalFetch = globalThis.fetch || _fetch
 
+/** Resolves once the server's output has been fully collected into `ctx.serverLogs`. */
+let serverLogsCollected: Promise<void> | undefined
+
 export interface StartServerOptions {
   env?: Record<string, unknown>
   /**
@@ -77,11 +80,14 @@ export async function startServer(options: StartServerOptions = {}) {
   }
 
   if (capture) {
-    ;(async () => {
+    serverLogsCollected = (async () => {
       for await (const line of ctx.serverProcess!) {
         ctx.serverLogs.push(line)
       }
     })().catch(() => {})
+  }
+  else {
+    serverLogsCollected = undefined
   }
 
   await waitForServer({ host, port, dev: ctx.options.dev })
@@ -98,6 +104,14 @@ const REPLAYED_LOG_LINES = 30
 interface EarlyExitDetails {
   dev: boolean
   elapsed: number
+}
+
+async function flushServerLogs() {
+  if (!serverLogsCollected) {
+    return
+  }
+  const timeout = new Promise<void>(resolve => setTimeout(resolve, 1_000))
+  await Promise.race([serverLogsCollected, timeout])
 }
 
 function earlyExitError(ctx: TestContext, { dev, elapsed }: EarlyExitDetails) {
@@ -133,6 +147,7 @@ async function waitForServer({ host, port, dev }: WaitForServerOptions) {
   let lastError: unknown
   while (Date.now() < deadline) {
     if (ctx.serverProcess && (ctx.serverProcess.killed || ctx.serverProcess.exitCode != null)) {
+      await flushServerLogs()
       throw earlyExitError(ctx, { dev, elapsed: Date.now() - startedAt })
     }
     try {
