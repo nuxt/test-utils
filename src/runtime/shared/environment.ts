@@ -89,7 +89,6 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: NuxtEnvir
   )
   const manifestBaseRoutePath = joinURL('/_', manifestOutputPath)
 
-  // @ts-expect-error untyped property
   const buildId = __NUXT__.config?.app.buildId || 'test'
 
   res.h3App.use(
