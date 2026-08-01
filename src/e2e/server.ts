@@ -174,6 +174,13 @@ async function waitForServer({ host, port, dev }: WaitForServerOptions) {
     await new Promise(resolve => setTimeout(resolve, 100))
   }
 
+  // a fetch can hang for 10s, so the process may have died after the last check;
+  // its diagnostics beat a bare timeout, and `stopServer()` below would mask it
+  if (ctx.serverProcess && (ctx.serverProcess.killed || ctx.serverProcess.exitCode != null)) {
+    await flushServerLogs()
+    throw earlyExitError(ctx, { dev, elapsed: Date.now() - startedAt })
+  }
+
   await stopServer()
   throw lastError instanceof Error
     ? lastError
