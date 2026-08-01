@@ -1,5 +1,6 @@
-import { x } from 'tinyexec'
+import { x, xSync } from 'tinyexec'
 import { getRandomPort, waitForPort } from 'get-port-please'
+import { isWindows } from 'std-env'
 import type { $Fetch, FetchOptions } from 'ofetch'
 import { fetch as _fetch, createFetch } from 'ofetch'
 import { resolve } from 'pathe'
@@ -132,6 +133,23 @@ async function waitForServer({ host, port, dev }: WaitForServerOptions) {
     : new Error(`Timeout (${ctx.options.serverStartTimeout}ms) waiting for ${dev ? 'dev' : 'built'} server to become ready at ${ctx.url}`)
 }
 
+/**
+ * On Windows there are no process groups, and tinyexec routes commands that
+ * resolve to a `.cmd` shim (such as `nuxi`) through `cmd.exe /d /s /c`.
+ * `taskkill /T /F` walks the tree and terminates the descendants too.
+ */
+function killProcessTree(pid: number) {
+  try {
+    xSync('taskkill', ['/pid', String(pid), '/T', '/F'], {
+      throwOnError: false,
+      nodeOptions: { stdio: 'ignore' },
+    })
+  }
+  catch {
+    // taskkill exits non-zero when the process is already gone
+  }
+}
+
 export async function stopServer() {
   const ctx = useTestContext()
   const proc = ctx.serverProcess
@@ -145,10 +163,17 @@ export async function stopServer() {
   const exited = Promise.resolve(proc).then(() => {}, () => {})
   const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms))
 
+  const pid = proc.pid
+  if (isWindows && pid !== undefined) {
+    killProcessTree(pid)
+    await Promise.race([exited, sleep(5_000)])
+    return
+  }
+
   proc.kill()
   // Wait for the child to actually exit, escalating to SIGKILL if it lingers.
-  // Without this, callers can race a still-running server and (on Windows
-  // especially) leave orphan processes holding the port.
+  // Without this, callers can race a still-running server and leave orphan
+  // processes holding the port.
   await Promise.race([exited, sleep(5_000)])
   if (proc.exitCode == null) {
     proc.kill('SIGKILL')
