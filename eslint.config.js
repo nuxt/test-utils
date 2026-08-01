@@ -21,5 +21,6 @@ export default createConfigForNuxt({
 }).append({
   rules: {
     '@typescript-eslint/no-invalid-void-type': 'off',
+    'vue/multi-word-component-names': 'off',
   },
 })

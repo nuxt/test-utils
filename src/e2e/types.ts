@@ -1,0 +1,119 @@
+import type { Nuxt, NuxtConfig } from '@nuxt/schema'
+import type { Browser, LaunchOptions } from 'playwright-core'
+import type { exec } from 'tinyexec'
+import type { StartServerOptions } from './server.ts'
+
+export type TestRunner = 'vitest' | 'jest' | 'cucumber' | 'bun'
+
+export interface TestOptions {
+  testDir: string
+  fixture: string
+  /**
+   * Name of the configuration file.
+   * @default 'nuxt.config'
+   */
+  configFile: string
+  /**
+   * Path to a directory with a Nuxt app to be put under test.
+   * @default '.'
+   */
+  rootDir: string
+  buildDir: string
+  nuxtConfig: NuxtConfig
+  /**
+   * Whether to run a separate build step.
+   * @default true // (`false` if `browser` or `server` is disabled, or if a `host` is provided)
+   */
+  build: boolean
+  dev: boolean
+  /**
+   * The amount of time (in milliseconds) to allow for `setupTest` to complete its work (which could include building or generating files for a Nuxt application, depending on the options that are passed).
+   * @default 120000 // or `240000` on windows
+   */
+  setupTimeout: number
+  /**
+   * The amount of time (in milliseconds) to allow tearing down the test environment, such as closing the browser.
+   * @default 30000
+   */
+  teardownTimeout: number
+  /**
+   * The amount of time (in milliseconds) to wait for the dev or built server to become ready (i.e. respond successfully on the configured base URL) before failing.
+   *
+   * This is bounded by `setupTimeout`, so increasing this is only useful in combination with a sufficiently large `setupTimeout`.
+   * @default 120000 // on windows; otherwise 60000
+   */
+  serverStartTimeout: number
+  waitFor: number
+  /**
+   * Under the hood, Nuxt test utils uses [`playwright`](https://playwright.dev) to carry out browser testing. If this option is set, a browser will be launched and can be controlled in the subsequent test suite.
+   * @default false
+   */
+  browser: boolean
+  /**
+   * Specify the runner for the test suite. One of `'vitest' | 'jest' | 'cucumber' | 'bun'`.
+   * @default 'vitest'
+   */
+  runner: TestRunner
+  logLevel: number
+  browserOptions: {
+    /** The type of browser to launch - either `chromium`, `firefox` or `webkit` */
+    type: 'chromium' | 'firefox' | 'webkit'
+    /** `object` of options that will be passed to playwright when launching the browser. See [full API reference](https://playwright.dev/docs/api/class-browsertype#browser-type-launch). */
+    launch?: LaunchOptions
+  }
+  /**
+   * Whether to launch a server to respond to requests in the test suite.
+   * @default true // (`false` if a `host` is provided)
+   */
+  server: boolean
+  /**
+   * If provided, a URL to use as the test target instead of building and running a new server. Useful for running "real" end-to-end tests against a deployed version of your application, or against an already running local server.
+   * @default undefined
+   */
+  host?: string
+  /**
+   * If provided, set the launched test server port to the value.
+   * @default undefined
+   */
+  port?: number
+  env?: StartServerOptions['env']
+  /**
+   * Whether to capture server process output instead of inheriting stdio.
+   * When `true` (default), server stdout/stderr is suppressed from the console
+   * and accessible via `getServerLogs()`. Set to `false` to restore the old
+   * inherit-stdio behaviour (useful when debugging a test locally).
+   * @default true
+   */
+  captureServerLogs?: boolean
+}
+
+export interface TestContext {
+  options: TestOptions
+  nuxt?: Nuxt
+  browser?: Browser
+  url?: string
+  serverProcess?: ReturnType<typeof exec>
+  mockFn?: (...args: unknown[]) => unknown
+  /**
+   * Lines emitted to the server subprocess's stdout/stderr, in order.
+   * Only populated when `options.captureServerLogs` is `true`.
+   */
+  serverLogs: string[]
+  /**
+   * Functions to run on the vitest `afterAll` hook.
+   * Useful for removing anything created during the test.
+   */
+  teardown?: (() => void)[]
+}
+
+export interface TestHooks {
+  beforeEach: () => void
+  afterEach: () => void
+  afterAll: () => Promise<void>
+  beforeAll: () => Promise<void>
+  /**
+   * @deprecated use `beforeAll` instead
+   */
+  setup: () => Promise<void>
+  ctx: TestContext
+}

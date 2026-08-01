@@ -1,11 +1,11 @@
 <template>
   <div>Index page</div>
-  <div>title: {{ posts[0].title }}</div>
+  <div>title: {{ post.title }}</div>
 </template>
 
 <script setup lang="ts">
 definePageMeta({
   value: 'set in index',
 })
-const posts = await queryContent('/').limit(1).find()
+const post = await queryCollection('pages').path('/').first()
 </script>

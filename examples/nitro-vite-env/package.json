@@ -1,0 +1,23 @@
+{
+  "name": "example-nitro-vite-env",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "nuxt": "npm:nuxt-nightly@5x"
+  },
+  "devDependencies": {
+    "@nuxt/test-utils": "latest",
+    "@vue/test-utils": "2.4.11",
+    "happy-dom": "20.11.1",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  }
+}

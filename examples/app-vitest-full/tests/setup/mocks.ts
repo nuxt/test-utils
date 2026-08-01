@@ -3,8 +3,7 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 vi.resetModules()
 
-mockNuxtImport<typeof useAutoImportSetupMocked>(
-  'useAutoImportSetupMocked',
+mockNuxtImport(useAutoImportSetupMocked,
   () =>
     vi.fn(() => {
       return 'mocked in setup'

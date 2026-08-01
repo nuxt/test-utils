@@ -5,18 +5,37 @@
     ":pinDevDependencies",
     ":widenPeerDependencies"
   ],
-  "ignoreDeps": [
-    "@nuxt/devtools"
+  "ignorePaths": [
+    "**/stubs/**"
   ],
   "packageRules": [
     {
       "groupName": "vitest",
       "matchPackageNames": [
         "vite-node",
-        "vitest"
-      ],
-      "matchPackagePatterns": [
-        "^@vitest/"
+        "vitest",
+        "/^@vitest//"
+      ]
+    },
+    {
+      "groupName": "node",
+      "matchPackageNames": [
+        "@types/node"
+      ]
+    },
+    {
+      "groupName": "typescript",
+      "matchPackageNames": [
+        "typescript"
+      ]
+    },
+    {
+      "groupName": "nitro",
+      "groupSlug": "nitro",
+      "matchPackageNames": [
+        "nitro",
+        "h3",
+        "ofetch"
       ]
     }
   ]

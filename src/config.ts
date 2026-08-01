@@ -1,37 +1,56 @@
-import type { Nuxt, NuxtConfig } from '@nuxt/schema'
-import type { InlineConfig as VitestConfig } from 'vitest'
-import { defineConfig } from 'vite'
+import process from 'node:process'
+import type { Nuxt, NuxtConfig, ViteConfig as NuxtViteConfig } from '@nuxt/schema'
+import type { UserWorkspaceConfig, InlineConfig as VitestConfig } from 'vitest/node'
+import type { TestProjectInlineConfiguration } from 'vitest/config'
 import { setupDotenv } from 'c12'
 import type { DotenvOptions } from 'c12'
-import type { InlineConfig } from 'vite'
-import { defu } from 'defu'
-import { createResolver } from '@nuxt/kit'
+import type { defineConfig, Plugin, UserConfigFnPromise, UserConfig as ViteUserConfig } from 'vite'
+import type { DateString } from 'compatx'
+import { createDefu, defu } from 'defu'
+import { createResolver, findPath } from '@nuxt/kit'
+import { resolveModulePath } from 'exsolve'
+import { getPackageInfoSync } from 'local-pkg'
 
-import { applyEnv } from './utils'
+import { applyEnv, loadKit } from './utils.ts'
+import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options.ts'
 
 interface GetVitestConfigOptions {
   nuxt: Nuxt
-  viteConfig: InlineConfig
+  viteConfig: NuxtViteConfig
+  nitro?: { current?: NitroLike }
 }
 
 interface LoadNuxtOptions {
   dotenv?: Partial<DotenvOptions>
   overrides?: Partial<NuxtConfig>
+  /**
+   * Keep Nuxt's nitro vite environment in the derived config, loading Nuxt in dev mode so
+   * nitro initialises its environment runner, and closing nitro when vite closes.
+   * @internal
+   */
+  nitroEnvironment?: boolean
+}
+
+interface NitroLike {
+  hooks: { callHook: (name: 'close') => Promise<unknown> }
 }
 
 // https://github.com/nuxt/framework/issues/6496
-async function startNuxtAndGetViteConfig(
-  rootDir = process.cwd(),
-  options: LoadNuxtOptions = {},
-) {
-  const { loadNuxt, buildNuxt } = await import('@nuxt/kit')
+async function startNuxtAndGetViteConfig(rootDir = process.cwd(), options: LoadNuxtOptions = {}) {
+  const { buildNuxt, loadNuxt } = await loadKit(rootDir)
   const nuxt = await loadNuxt({
     cwd: rootDir,
-    dev: false,
+    // https://github.com/nuxt/nuxt/blob/d52a4fdd7ad5feb035dcf3f56c3b2d0ab059b1d4/packages/kit/src/loader/nuxt.ts#L24
+    // the nitro environment runner is only initialised in dev mode, so it takes precedence
+    dev: options.nitroEnvironment || (options.overrides?.dev ?? false),
     dotenv: defu(options.dotenv, {
       cwd: rootDir,
       fileName: '.env.test',
     }),
+    defaults: {
+      // suppress compatibility date warning for runtime environment tests
+      compatibilityDate: '2024-04-03' as DateString,
+    },
     overrides: defu(
       {
         appId: 'nuxt-app',
@@ -41,6 +60,10 @@ async function startNuxtAndGetViteConfig(
         modules: ['@nuxt/test-utils/module'],
       },
       options.overrides,
+      // vitest always creates a dev server from this config, but the nitro vite environment
+      // only initialises its runner when Nuxt is loaded in dev mode, so it would throw
+      // `Env runner not initialized` when vite creates the environment
+      options.nitroEnvironment ? {} : DISABLE_NITRO_ENVIRONMENT,
     ),
   })
 
@@ -52,10 +75,20 @@ async function startNuxtAndGetViteConfig(
     )
   }
 
+  // the nitro instance may only be available after the client vite config resolves, so it is
+  // shared by reference rather than by value
+  const nitro: { current?: NitroLike } | undefined = options.nitroEnvironment ? {} : undefined
+  if (nitro) {
+    // `nitro:init` is provided by nitro's nuxt integration
+    ;(nuxt.hook as (name: string, fn: (instance: NitroLike) => void) => void)('nitro:init', (instance) => {
+      nitro.current = instance
+    })
+  }
+
   const promise = new Promise<GetVitestConfigOptions>((resolve, reject) => {
     nuxt.hook('vite:configResolved', (viteConfig, { isClient }) => {
       if (isClient) {
-        resolve({ nuxt, viteConfig })
+        resolve({ nuxt, viteConfig, nitro })
         throw new Error('_stop_')
       }
     })
@@ -69,20 +102,41 @@ async function startNuxtAndGetViteConfig(
   return promise
 }
 
+// `experimental.nitroViteEnvironment` is not typed in older versions of `@nuxt/schema`
+const DISABLE_NITRO_ENVIRONMENT = { experimental: { nitroViteEnvironment: false } } as NuxtConfig
+
+function nitroTeardownPlugin(nitro: { current?: NitroLike }): Plugin {
+  // `closeBundle` runs once per environment, but nitro must only be closed once
+  let closed: Promise<unknown> | undefined
+  return {
+    name: 'nuxt:test-utils:nitro-teardown',
+    async closeBundle() {
+      closed ||= nitro.current?.hooks.callHook('close') ?? Promise.resolve()
+      await closed
+    },
+  }
+}
+
 const excludedPlugins = [
   'nuxt:import-protection',
+  'nuxt:import-conditions',
+  'nuxt:devtools:rpc',
+  'nuxt:devtools:config-retriever',
   'vite-plugin-checker',
+  'vite-plugin-inspect',
+  'vite-plugin-vue-tracer',
 ]
 
 export async function getVitestConfigFromNuxt(
   options?: GetVitestConfigOptions,
   loadNuxtOptions: LoadNuxtOptions = {},
-): Promise<InlineConfig & { test: VitestConfig }> {
+): Promise<ViteUserConfig & { test: VitestConfig }> {
   const { rootDir = process.cwd(), ..._overrides } = loadNuxtOptions.overrides || {}
 
   if (!options) {
     options = await startNuxtAndGetViteConfig(rootDir, {
       dotenv: loadNuxtOptions.dotenv,
+      nitroEnvironment: loadNuxtOptions.nitroEnvironment,
       overrides: {
         test: true,
         ..._overrides,
@@ -90,21 +144,56 @@ export async function getVitestConfigFromNuxt(
     })
   }
 
+  // do not override vitest root
+  delete options.viteConfig.root
+
   options.viteConfig.plugins = (options.viteConfig.plugins || []).filter(p => !p || !('name' in p) || !excludedPlugins.includes(p.name))
 
+  // resolve nitro/h3 version (to support nitro v3)
+  const nuxtServerIntegration = getPackageInfoSync('@nuxt/nitro-server', {
+    paths: [options.nuxt.options.appDir],
+  })
+
+  let nitroPath: string | undefined
+  for (const nitroCandidate of [
+    ...nuxtServerIntegration?.packageJson.dependencies?.nitro
+      ? ['nitro', 'nitro-nightly']
+      : ['nitropack', 'nitropack-nightly'],
+  ]) {
+    nitroPath = resolveModulePath(nitroCandidate, { from: nuxtServerIntegration?.rootPath || options.nuxt.options.appDir, try: true })
+    if (nitroPath) {
+      break
+    }
+  }
+
+  const projectH3Path = resolveModulePath('h3/package.json', { from: rootDir, try: true })
+  const projectH3Info = projectH3Path ? getPackageInfoSync('h3', { paths: [projectH3Path] }) : undefined
+
+  const h3Info = projectH3Info || getPackageInfoSync('h3', {
+    paths: nitroPath ? [nitroPath] : options.nuxt.options.modulesDir,
+  })
+
+  const resolver = createResolver(import.meta.url)
   const resolvedConfig = defu(
     // overrides
     {
       define: {
-        ['process.env.NODE_ENV']: 'process.env.NODE_ENV',
+        'process.env.NODE_ENV': '"test"',
+        '__NUXT_VITEST_RESOLVED__': 'true',
+      },
+      resolve: {
+        alias: {
+          '@vue/devtools-kit': resolver.resolve('./runtime/mocks/vue-devtools'),
+          '@vue/devtools-core': resolver.resolve('./runtime/mocks/vue-devtools'),
+        },
+      },
+      optimizeDeps: {
+        noDiscovery: true,
       },
       test: {
-        dir: process.cwd(),
         environmentOptions: {
-          // @ts-expect-error will be available from nuxt@3.12.0
-          appId: options.nuxt.options.appId,
-          experimental: defu({}, options.nuxt.options.experimental),
-          future: defu({}, options.nuxt.options.future),
+          nuxtAppId: options.nuxt.options.appId,
+          nuxtFuture: defu({}, options.nuxt.options.future),
           nuxtRuntimeConfig: applyEnv(structuredClone(options.nuxt.options.runtimeConfig), {
             prefix: 'NUXT_',
             env: await setupDotenv(defu(loadNuxtOptions.dotenv, {
@@ -117,11 +206,13 @@ export async function getVitestConfigFromNuxt(
             options.nuxt.options.routeRules,
             options.nuxt.options.nitro?.routeRules,
           ),
-        },
-        environmentMatchGlobs: [
-          ['**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', 'nuxt'],
-          ['{test,tests}/nuxt/**.*', 'nuxt'],
-        ],
+          nuxtAppConfig: {
+            rootAttrs: options.nuxt.options.app.rootAttrs,
+            rootTag: options.nuxt.options.app.rootTag,
+            teleportAttrs: options.nuxt.options.app.teleportAttrs,
+            teleportTag: options.nuxt.options.app.teleportTag,
+          },
+        } satisfies Omit<NuxtEnvironmentResolvedOptions, 'nuxt'>,
         server: {
           deps: {
             inline: [
@@ -141,7 +232,7 @@ export async function getVitestConfigFromNuxt(
         },
         deps: {
           optimizer: {
-            web: {
+            client: {
               enabled: false,
             },
           },
@@ -152,6 +243,7 @@ export async function getVitestConfigFromNuxt(
       server: { middlewareMode: false },
       plugins: [
         {
+          // TODO: prefix with 'nuxt:test-utils:' in next major version
           name: 'disable-auto-execute',
           enforce: 'pre',
           transform(code, id) {
@@ -163,8 +255,26 @@ export async function getVitestConfigFromNuxt(
             }
           },
         },
+        ...options.nitro ? [nitroTeardownPlugin(options.nitro)] : [],
+        {
+          name: 'nuxt:test-utils:browser-conditions',
+          enforce: 'pre',
+          config() {
+            return {
+              resolve: {
+                conditions: ['web', 'import', 'module', 'default'],
+              },
+            }
+          },
+          configResolved(config) {
+            // https://github.com/nuxt/test-utils/issues/1635
+            if (config.ssr.resolve?.conditions) {
+              config.ssr.resolve.conditions = config.ssr.resolve.conditions.filter(x => x !== 'import')
+            }
+          },
+        },
       ],
-    } satisfies InlineConfig,
+    } satisfies ViteUserConfig,
     // resolved vite config
     options.viteConfig,
     // (overrideable) defaults
@@ -172,16 +282,17 @@ export async function getVitestConfigFromNuxt(
       test: {
         environmentOptions: {
           nuxt: {
-            rootId: options.nuxt.options.app.rootId || undefined,
+            rootId: options.nuxt.options.app.rootAttrs?.id || undefined,
+            h3Version: h3Info?.version?.startsWith('2.') ? 2 : 1,
             mock: {
               intersectionObserver: true,
               indexedDb: false,
             },
           },
-        },
+        } satisfies NuxtEnvironmentResolvedOptions,
       } satisfies VitestConfig,
     },
-  ) as InlineConfig & { test: VitestConfig }
+  ) as ViteUserConfig & { test: VitestConfig }
 
   // TODO: fix this by separating nuxt/node vitest configs
   // typescript currently checks this to determine if it can access the filesystem: https://github.com/microsoft/TypeScript/blob/d4fbc9b57d9aa7d02faac9b1e9bb7b37c687f6e9/src/compiler/core.ts#L2738-L2749
@@ -190,73 +301,224 @@ export async function getVitestConfigFromNuxt(
   // Remove built-in Nuxt logger: https://github.com/vitest-dev/vitest/issues/5211
   delete resolvedConfig.customLogger
 
+  // Remove SSR config to prevent conflicts with Vitest's client-side test environment
+  delete resolvedConfig.ssr
+
   if (!Array.isArray(resolvedConfig.test.setupFiles)) {
     resolvedConfig.test.setupFiles = [resolvedConfig.test.setupFiles].filter(Boolean) as string[]
   }
 
-  const resolver = createResolver(import.meta.url)
-  resolvedConfig.test.setupFiles.unshift(resolver.resolve('./runtime/entry'))
+  const entryPath = resolver.resolve('./runtime/entry')
+  resolvedConfig.test.setupFiles.unshift(await findPath(entryPath) ?? entryPath)
 
   return resolvedConfig
 }
 
-export function defineVitestConfig(config: InlineConfig & { test?: VitestConfig } = {}) {
-  // @ts-expect-error TODO: investigate type mismatch
-  return defineConfig(async () => {
-    // When Nuxt module calls `startVitest`, we don't need to call `getVitestConfigFromNuxt` again
-    if (process.env.__NUXT_VITEST_RESOLVED__) return config
+export async function defineVitestProject(config: TestProjectInlineConfiguration): Promise<TestProjectInlineConfiguration> {
+  const resolvedConfig = await resolveConfig<TestProjectInlineConfiguration>(
+    defu({ test: { environment: 'nuxt' } }, config),
+  )
 
-    const overrides = config.test?.environmentOptions?.nuxt?.overrides || {}
-    overrides.rootDir = config.test?.environmentOptions?.nuxt?.rootDir
+  return resolvedConfig
+}
 
-    if (config.test?.setupFiles && !Array.isArray(config.test.setupFiles)) {
-      config.test.setupFiles = [config.test.setupFiles].filter(Boolean) as string[]
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const defineViteConfig: typeof defineConfig = (config: any) => config
+
+export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfig } = {}): UserConfigFnPromise {
+  return defineViteConfig(async () => {
+    const resolvedConfig = await resolveConfig(config)
+
+    if (resolvedConfig.test.browser?.enabled) {
+      return resolvedConfig
     }
 
-    return defu(
-      config,
-      await getVitestConfigFromNuxt(undefined, {
-        dotenv: config.test?.environmentOptions?.nuxt?.dotenv,
-        overrides: structuredClone(overrides),
-      }),
-    )
+    if ('workspace' in resolvedConfig.test || 'projects' in resolvedConfig.test) {
+      throw new Error(
+        'The `projects` option is not supported with `defineVitestConfig`. Instead, use `defineVitestProject` to define each workspace project that uses the Nuxt environment.',
+      )
+    }
+
+    const defaultEnvironment = resolvedConfig.test.environment || 'node'
+    if (defaultEnvironment !== 'nuxt') {
+      const merge = createDefu((obj, key, value) => {
+        if (Array.isArray(value) && Array.isArray(obj[key])) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ;(obj[key] as any) = [...new Set([...value, ...obj[key]])]
+          return true
+        }
+      })
+
+      const nuxtProject = merge({
+        ...resolvedConfig,
+        test: {
+          ...resolvedConfig.test,
+          name: 'nuxt',
+          environment: 'nuxt',
+          include: [] as string[],
+        },
+      }, resolvedConfig)
+
+      nuxtProject.test.include = [
+        '**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+        '{test,tests}/nuxt/**.*',
+      ]
+
+      const defaultProject = merge({
+        ...resolvedConfig,
+        test: {
+          ...resolvedConfig.test,
+          name: defaultEnvironment,
+          environment: defaultEnvironment,
+          exclude: [
+            '**/node_modules/**',
+            '**/dist/**',
+            '**/cypress/**',
+            '**/.{idea,git,cache,output,temp}/**',
+            '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
+            './**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+            './{test,tests}/nuxt/**.*',
+          ],
+        },
+      }, resolvedConfig)
+
+      delete resolvedConfig.test.name
+      delete resolvedConfig.test.environment
+      delete resolvedConfig.test.include
+      delete resolvedConfig.test.exclude
+
+      resolvedConfig.test.projects = [nuxtProject, defaultProject]
+    }
+
+    return resolvedConfig
   })
 }
 
-declare module 'vitest' {
-  interface EnvironmentOptions {
-    nuxt?: {
-      rootDir?: string
-      /**
-       * The starting URL for your Nuxt window environment
-       * @default {http://localhost:3000}
-       */
-      url?: string
-      /**
-       * You can define how environment options are read when loading the Nuxt configuration.
-       */
-      dotenv?: Partial<DotenvOptions>
-      /**
-       * Configuration that will override the values in your `nuxt.config` file.
-       */
-      overrides?: NuxtConfig
-      /**
-       * The id of the root div to which the app should be mounted. You should also set `app.rootId` to the same value.
-       * @default {nuxt-test}
-       */
-      rootId?: string
-      /**
-       * The name of the DOM environment to use.
-       *
-       * It also needs to be installed as a dev dependency in your project.
-       * @default {happy-dom}
-       */
-      domEnvironment?: 'happy-dom' | 'jsdom'
+function isCoverageEnabled(config: ViteUserConfig & { test?: VitestConfig } | UserWorkspaceConfig): boolean {
+  if (config.test && 'coverage' in config.test && config.test.coverage?.enabled) {
+    return true
+  }
+  // vitest CLI `--coverage` / `--coverage.enabled`
+  return process.argv.some(arg => arg === '--coverage' || arg === '--coverage.enabled' || arg === '--coverage=true' || arg === '--coverage.enabled=true')
+}
 
-      mock?: {
-        intersectionObserver?: boolean
-        indexedDb?: boolean
-      }
+async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } | UserWorkspaceConfig>(config: T) {
+  const overrides = config.test?.environmentOptions?.nuxt?.overrides || {}
+  overrides.rootDir = config.test?.environmentOptions?.nuxt?.rootDir
+
+  // enable client-side sourcemaps when running with coverage
+  if (isCoverageEnabled(config)) {
+    if (overrides.sourcemap === undefined) {
+      overrides.sourcemap = { client: true }
     }
+    else if (typeof overrides.sourcemap === 'object' && overrides.sourcemap.client === undefined) {
+      overrides.sourcemap.client = true
+    }
+  }
+
+  if (config.test?.setupFiles && !Array.isArray(config.test.setupFiles)) {
+    config.test.setupFiles = [config.test.setupFiles].filter(Boolean) as string[]
+  }
+
+  const resolvedConfig = defu(
+    config satisfies T,
+    await getVitestConfigFromNuxt(undefined, {
+      dotenv: config.test?.environmentOptions?.nuxt?.dotenv,
+      nitroEnvironment: config.test?.environmentOptions?.nuxt?.nitroEnvironment,
+      overrides: structuredClone(overrides),
+    }) satisfies ViteUserConfig & { test: NonNullable<T['test']> },
+  ) as T & { test: NonNullable<T['test']> }
+
+  resolvedConfig.plugins!.push(NuxtVitestEnvironmentOptionsPlugin(resolvedConfig.test.environmentOptions))
+
+  if (resolvedConfig.test.browser?.enabled) {
+    resolvedConfig.plugins!.push({
+      name: 'nuxt:test-utils:browser-client-environment',
+      configEnvironment(name) {
+        if (name === 'client') {
+          return {
+            dev: {
+              moduleRunnerTransform: false,
+            },
+          }
+        }
+      },
+    })
+
+    if (resolvedConfig.test.environment === 'nuxt') {
+      resolvedConfig.test.setupFiles = Array.isArray(resolvedConfig.test.setupFiles)
+        ? resolvedConfig.test.setupFiles
+        : [resolvedConfig.test.setupFiles].filter(Boolean) as string[]
+      const resolver = createResolver(import.meta.url)
+      const browserEntry = await findPath(resolver.resolve('./runtime/browser-entry')) || resolver.resolve('./runtime/browser-entry')
+      resolvedConfig.test.setupFiles.unshift(browserEntry)
+    }
+  }
+
+  return resolvedConfig
+}
+
+export interface NuxtEnvironmentOptions {
+  rootDir?: string
+  /**
+   * The starting URL for your Nuxt window environment
+   * @default 'http://localhost:3000'
+   */
+  url?: string
+  /**
+   * You can define how environment options are read when loading the Nuxt configuration.
+   */
+  dotenv?: Partial<DotenvOptions>
+  /**
+   * Configuration that will override the values in your `nuxt.config` file.
+   */
+  overrides?: NuxtConfig
+  /**
+   * The id of the root element to which the app should be mounted. Takes precedence over the id
+   * resolved from your Nuxt config, falling back to `'nuxt-test'` when neither is set.
+   * @deprecated Set `overrides.app.rootAttrs.id` (or `app.rootId` in your Nuxt config) instead
+   */
+  rootId?: string
+  /**
+   * The name of the DOM environment to use.
+   *
+   * It also needs to be installed as a dev dependency in your project.
+   * @default 'happy-dom'
+   */
+  domEnvironment?: 'happy-dom' | 'jsdom'
+
+  h3Version?: 1 | 2
+
+  /**
+   * Keep Nuxt's nitro vite environment available to the test project (required by a nitro/server
+   * test environment). Nuxt is loaded in dev mode and nitro is closed when vite closes.
+   * @internal
+   */
+  nitroEnvironment?: boolean
+
+  mock?: {
+    intersectionObserver?: boolean
+    indexedDb?: boolean
+  }
+}
+
+/**
+ * @internal
+ */
+export interface NuxtEnvironmentResolvedOptions {
+  nuxt: NuxtEnvironmentOptions
+  nuxtRuntimeConfig?: NuxtConfig['runtimeConfig']
+  nuxtRouteRules?: NuxtConfig['routeRules']
+  nuxtAppConfig?: Pick<
+    NonNullable<NuxtConfig['app']>,
+    'rootAttrs' | 'rootTag' | 'teleportTag' | 'teleportAttrs'
+  >
+  nuxtAppId?: NuxtConfig['appId']
+  nuxtFuture?: NuxtConfig['future']
+}
+
+declare module 'vitest/node' {
+  interface EnvironmentOptions {
+    nuxt?: NuxtEnvironmentOptions
   }
 }

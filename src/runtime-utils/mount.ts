@@ -1,23 +1,10 @@
-import { mount } from '@vue/test-utils'
-import type { ComponentMountingOptions } from '@vue/test-utils'
-import { Suspense, h, isReadonly, nextTick, reactive, unref } from 'vue'
-import type { DefineComponent, SetupContext } from 'vue'
-import { defu } from 'defu'
-import type { RouteLocationRaw } from 'vue-router'
+import { mount as wrapperFn } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils'
+import type { WrapperSuspendedOptions, WrapperSuspendedResult } from './utils/suspended.ts'
 
-import { RouterLink } from './components/RouterLink'
-
-// @ts-expect-error virtual file
-import NuxtRoot from '#build/root-component.mjs'
-import { tryUseNuxtApp, useRouter } from '#imports'
-
-export type MountSuspendedOptions<T> = ComponentMountingOptions<T> & {
-  route?: RouteLocationRaw
-}
-
-// TODO: improve return types
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SetupState = Record<string, any>
+type WrapperFn<C> = typeof wrapperFn<C>
+type WrapperOptions<C> = WrapperSuspendedOptions<WrapperFn<C>>
+type WrapperResult<C> = WrapperSuspendedResult<WrapperFn<C>>
 
 /**
  * `mountSuspended` allows you to mount any vue component within the Nuxt environment, allowing async setup and access to injections from your Nuxt plugins. For example:
@@ -47,121 +34,67 @@ type SetupState = Record<string, any>
  */
 export async function mountSuspended<T>(
   component: T,
-  options?: MountSuspendedOptions<T>,
-): Promise<ReturnType<typeof mount<T>> & { setupState: SetupState }> {
-  const {
-    props = {},
-    attrs = {},
-    slots = {} as ComponentMountingOptions<T>['slots'],
-    route = '/',
-    ..._options
-  } = options || {}
+  options: WrapperOptions<T> = {},
+): Promise<WrapperResult<T>> {
+  const { cleanupAll, wrapperSuspended } = await import('./utils/suspended.ts')
 
-  const vueApp = tryUseNuxtApp()?.vueApp
-    // @ts-expect-error untyped global __unctx__
-    || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
-  const { render, setup } = component as DefineComponent<Record<string, unknown>, Record<string, unknown>>
+  const suspendedHelperName = 'MountSuspendedHelper'
+  const clonedComponentName = 'MountSuspendedComponent'
 
-  let setupContext: SetupContext
-  let setupState: Record<string, unknown>
-  const setProps = reactive<Record<string, unknown>>({})
+  cleanupAll()
 
-  let passedProps: Record<string, unknown>
-  const wrappedSetup = async (
-    props: Record<string, unknown>,
-    setupContext: SetupContext,
-  ) => {
-    passedProps = props
-    if (setup) {
-      const result = await setup(props, setupContext)
-      setupState = result && typeof result === 'object' ? result : {}
-      return result
-    }
-  }
+  const { wrapper, setProps } = await wrapperSuspended(component, options, {
+    wrapperFn,
+    suspendedHelperName,
+    clonedComponentName,
+  })
 
-  return new Promise<ReturnType<typeof mount<T>> & { setupState: Record<string, unknown> }>(
-    (resolve) => {
-      const vm = mount(
-        {
-          setup: (props: Record<string, unknown>, ctx: SetupContext) => {
-            setupContext = ctx
-            return NuxtRoot.setup(props, {
-              ...ctx,
-              expose: () => {},
-            })
-          },
-          render: (renderContext: Record<string, unknown>) =>
-            h(
-              Suspense,
-              {
-                onResolve: () =>
-                  nextTick().then(() => {
-                    (vm as unknown as AugmentedVueInstance).setupState = setupState;
-                    (vm as unknown as AugmentedVueInstance).__setProps = (props: Record<string, unknown>) => {
-                      Object.assign(setProps, props)
-                    }
-                    resolve(vm as ReturnType<typeof mount<T>> & { setupState: Record<string, unknown> })
-                  }),
-              },
-              {
-                default: () =>
-                  h({
-                    name: 'MountSuspendedHelper',
-                    async setup() {
-                      const router = useRouter()
-                      await router.replace(route)
+  Object.assign(wrapper, { __setProps: setProps })
 
-                      // Proxy top-level setup/render context so test wrapper resolves child component
-                      const clonedComponent = {
-                        name: 'MountSuspendedComponent',
-                        ...component,
-                        render: render
-                          ? function (this: unknown, _ctx: Record<string, unknown>, ...args: unknown[]) {
-                            for (const key in setupState || {}) {
-                              renderContext[key] = isReadonly(setupState[key]) ? unref(setupState[key]) : setupState[key]
-                            }
-                            for (const key in props || {}) {
-                              renderContext[key] = _ctx[key]
-                            }
-                            for (const key in passedProps || {}) {
-                              renderContext[key] = passedProps[key]
-                            }
-                            return render.call(this, renderContext, ...args)
-                          }
-                          : undefined,
-                        setup: setup ? (props: Record<string, unknown>) => wrappedSetup(props, setupContext) : undefined,
-                      }
+  const clonedComponent = wrapper.findComponent({ name: clonedComponentName })
 
-                      return () => h(clonedComponent, { ...defu(setProps, props) as typeof props, ...attrs }, slots)
-                    },
-                  }),
-              },
-            ),
-        },
-        defu(
-          _options,
-          {
-            slots,
-            global: {
-              config: {
-                globalProperties: vueApp.config.globalProperties,
-              },
-              provide: vueApp._context.provides,
-              stubs: {
-                Suspense: false,
-                MountSuspendedHelper: false,
-                [component && typeof component === 'object' && 'name' in component && typeof component.name === 'string' ? component.name : 'MountSuspendedComponent']: false,
-              },
-              components: { RouterLink },
-            },
-          } satisfies ComponentMountingOptions<T>,
-        ) as ComponentMountingOptions<T>,
-      )
-    },
-  )
+  return wrappedMountedWrapper(wrapper, clonedComponent)
 }
 
-interface AugmentedVueInstance {
-  setupState?: Record<string, unknown>
-  __setProps?: (props: Record<string, unknown>) => void
+function wrappedMountedWrapper<T>(wrapper: WrapperResult<T>, component: VueWrapper) {
+  const wrapperProps: (string | symbol)[] = [
+    'setProps', 'emitted', 'setupState', 'unmount',
+  ] satisfies (keyof typeof wrapper)[]
+  return new Proxy(wrapper, {
+    get: (_, prop, receiver) => {
+      if (prop === 'getCurrentComponent') return getCurrentComponentPatchedProxy
+      const target = wrapperProps.includes(prop)
+        ? wrapper
+        : Reflect.has(component, prop) ? component : wrapper
+      const value = Reflect.get(target, prop, receiver)
+      return typeof value === 'function' ? value.bind(target) : value
+    },
+  })
+
+  // for compatibity for nuxt/test-utils v3.20.0
+  // cannot access setupState data via the proxy in original mount()
+  function getCurrentComponentPatchedProxy() {
+    const currentComponent = component.getCurrentComponent()
+    return new Proxy(currentComponent, {
+      get: (target, prop, receiver) => {
+        const value = Reflect.get(target, prop, receiver)
+        if (prop === 'proxy' && value) {
+          return new Proxy(value, {
+            get(o, p, r) {
+              if (!Reflect.has(currentComponent.props, p)) {
+                const setupState = wrapper.setupState
+                if (setupState && typeof setupState === 'object') {
+                  if (Reflect.has(setupState, p)) {
+                    return Reflect.get(setupState, p, r)
+                  }
+                }
+              }
+              return Reflect.get(o, p, r)
+            },
+          })
+        }
+        return value
+      },
+    })
+  }
 }

@@ -1,0 +1,17 @@
+diff --git a/dist/index.d.mts b/dist/index.d.mts
+index 8e3c18d3c60427217933885ae59e5bedc7b6cf8a..fcccc13bfd36e4752f06429a00eaf09e2b73475b 100644
+--- a/dist/index.d.mts
++++ b/dist/index.d.mts
+@@ -20,9 +20,9 @@ declare class Socket extends Duplex implements NodeNet.Socket {
+     readonly pending: boolean;
+     readonly localAddress: string;
+     readonly localPort: number;
+-    readonly remoteAddress?: string;
+-    readonly remoteFamily?: string;
+-    readonly remotePort?: number;
++    readonly remoteAddress: string | undefined;
++    readonly remoteFamily: string | undefined;
++    readonly remotePort: number | undefined;
+     readonly autoSelectFamilyAttemptedAddresses: never[];
+     readonly readyState: NodeNet.SocketReadyState;
+     constructor(_options?: NodeNet.SocketConstructorOpts);

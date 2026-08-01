@@ -3,12 +3,12 @@ import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 
 import App from '~/app.vue'
 
-// Example usage: queryContent('/').limit(1).find()
-mockNuxtImport('queryContent', () => (_id: string) => ({
-  limit: (_limit: number) => ({
-    find: () => [{
+// Example usage: queryCollection(pages).path('/').first()
+mockNuxtImport('queryCollection', () => (_id: string) => ({
+  path: (_path: string) => ({
+    first: () => ({
       title: 'My page',
-    }],
+    }),
   }),
 }))
 

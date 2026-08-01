@@ -6,7 +6,7 @@ import App from '~/app.vue'
 
 describe('routing', () => {
   it('defaults to index page', async () => {
-    expect(useRoute().matched[0].meta).toMatchInlineSnapshot(`
+    expect(useRoute().matched[0]!.meta).toMatchInlineSnapshot(`
       {
         "value": "set in index",
       }

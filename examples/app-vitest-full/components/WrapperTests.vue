@@ -10,7 +10,7 @@ function testExpose() {
 
 const someRef = ref('thing')
 
-const modelValue = defineModel({ default: false })
+const modelValue = defineModel({ type: Boolean, default: false })
 
 defineExpose({
   testExpose,
@@ -29,6 +29,8 @@ defineExpose({
     <button
       id="changeModelValue"
       @click="modelValue = true"
-    />
+    >
+      Change model!
+    </button>
   </div>
 </template>

@@ -3,10 +3,6 @@ import { defineVitestConfig } from '@nuxt/test-utils/config'
 
 export default defineVitestConfig({
   test: {
-    dir: 'tests',
-    coverage: {
-      reportsDirectory: 'coverage',
-    },
     includeSource: ['../pages/index.vue'],
     environmentOptions: {
       nuxt: {
@@ -19,5 +15,10 @@ export default defineVitestConfig({
     },
     setupFiles: './tests/setup/mocks.ts',
     globals: true,
+    onConsoleLog(log) {
+      if (log.includes('<Suspense> is an experimental feature')) {
+        return false
+      }
+    },
   },
 })

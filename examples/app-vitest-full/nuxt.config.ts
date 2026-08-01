@@ -1,7 +1,18 @@
+import { defineNuxtConfig } from 'nuxt/config'
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
-  devtools: { enabled: true },
   modules: ['@nuxt/test-utils/module', '~/modules/custom'],
+  imports: {
+    injectAtEnd: true,
+  },
+  devtools: { enabled: true },
+  runtimeConfig: {
+    public: {
+      hello: 'world',
+      testValue: 'default',
+    },
+  },
+  compatibilityDate: '2024-04-03',
   vite: {
     vue: {
       script: {
@@ -21,15 +32,6 @@ export default defineNuxtConfig({
           },
         },
       },
-    },
-  },
-  imports: {
-    injectAtEnd: true,
-  },
-  runtimeConfig: {
-    public: {
-      hello: 'world',
-      testValue: 'default',
     },
   },
 })

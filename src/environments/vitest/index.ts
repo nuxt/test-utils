@@ -1,16 +1,13 @@
-import type { Environment } from 'vitest'
-import { createFetch } from 'ofetch'
+import type { Environment } from 'vitest/environments'
+import { resolveModulePath } from 'exsolve'
 import { indexedDB } from 'fake-indexeddb'
 import { joinURL } from 'ufo'
-import { createApp, defineEventHandler, toNodeListener } from 'h3'
 import defu from 'defu'
-import { createRouter as createRadixRouter, exportMatcher, toRouteMatcher } from 'radix3'
-import { populateGlobal } from 'vitest/environments'
-import { createCall, createFetch as createLocalFetch } from 'unenv/runtime/fetch/index'
 
-import type { NuxtBuiltinEnvironment } from './types'
-import happyDom from './env/happy-dom'
-import jsdom from './env/jsdom'
+import { setupWindow } from '../../runtime/shared/environment.ts'
+import type { NuxtBuiltinEnvironment } from './types.ts'
+import happyDom from './env/happy-dom.ts'
+import jsdom from './env/jsdom.ts'
 
 const environmentMap = {
   'happy-dom': happyDom,
@@ -19,148 +16,66 @@ const environmentMap = {
 
 export default <Environment>{
   name: 'nuxt',
-  transformMode: 'web',
+  viteEnvironment: 'client',
   async setup(global, environmentOptions) {
-    const url = joinURL('http://localhost:3000', environmentOptions?.nuxtRuntimeConfig.app?.baseURL || '/')
+    const { populateGlobal } = await importVitestEnvironments()
 
-    const environmentName = environmentOptions.nuxt.domEnvironment as NuxtBuiltinEnvironment
+    const url = joinURL(
+      environmentOptions.nuxt?.url ?? 'http://localhost:3000',
+      environmentOptions.nuxtRuntimeConfig?.app?.baseURL || '/',
+    )
+
+    const environmentName = environmentOptions.nuxt?.domEnvironment as NuxtBuiltinEnvironment
     const environment = environmentMap[environmentName] || environmentMap['happy-dom']
     const { window: win, teardown } = await environment(global, defu(environmentOptions, {
       happyDom: { url },
       jsdom: { url },
     }))
 
-    win.__NUXT_VITEST_ENVIRONMENT__ = true
-
-    const __NUXT__ = {
-      serverRendered: false,
-      config: {
-        public: {},
-        app: { baseURL: '/' },
-        ...environmentOptions?.nuxtRuntimeConfig,
-      },
-      data: {},
-      state: {},
+    if (environmentOptions.nuxt?.mock?.intersectionObserver) {
+      win.IntersectionObserver ||= IntersectionObserver
     }
 
-    const multiApp = (environmentOptions?.future.multiApp as boolean) || false
-    if (!multiApp) {
-      win.__NUXT__ = __NUXT__
-    }
-    else {
-      const appId = environmentOptions?.appId || 'nuxt-app'
-      win.__NUXT__ = {
-        [appId]: __NUXT__,
-      }
-    }
-
-    const app = win.document.createElement('div')
-    // this is a workaround for a happy-dom bug with ids beginning with _
-    app.id = environmentOptions.nuxt.rootId
-    win.document.body.appendChild(app)
-
-    if (environmentOptions?.nuxt?.mock?.intersectionObserver) {
-      win.IntersectionObserver
-        = win.IntersectionObserver
-        || class IntersectionObserver {
-          observe() {}
-          unobserve() {}
-          disconnect() {}
-        }
-    }
-
-    if (environmentOptions?.nuxt?.mock?.indexedDb) {
+    if (environmentOptions.nuxt?.mock?.indexedDb) {
       // @ts-expect-error win.indexedDB is read-only
       win.indexedDB = indexedDB
     }
 
-    const h3App = createApp()
-
-    if (!win.fetch) {
-      await import('node-fetch-native/polyfill')
-      // @ts-expect-error URLSearchParams is not a proeprty of window
-      win.URLSearchParams = globalThis.URLSearchParams
-    }
-
-    // @ts-expect-error TODO: fix in h3
-    const localCall = createCall(toNodeListener(h3App))
-    const localFetch = createLocalFetch(localCall, win.fetch)
-
-    const registry = new Set<string>()
-
-    win.fetch = (init, options) => {
-      if (typeof init === 'string') {
-        const base = init.split('?')[0]
-        if (registry.has(base) || registry.has(init)) {
-          init = '/_' + init
-        }
-      }
-      return localFetch(init.toString(), {
-        ...options,
-        headers: Array.isArray(options?.headers) ? new Headers(options?.headers) : options?.headers,
-      })
-    }
-
-    win.$fetch = createFetch({ fetch: win.fetch, Headers: win.Headers })
-
-    win.__registry = registry
-    win.__app = h3App
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const teardownWindow = await setupWindow(win, environmentOptions as any)
     const { keys, originals } = populateGlobal(global, win, {
       bindFunctions: true,
+      additionalKeys: ['fetch', 'Request'],
     })
-
-    // App manifest support
-    const timestamp = Date.now()
-    const routeRulesMatcher = toRouteMatcher(
-      createRadixRouter({ routes: environmentOptions.nuxtRouteRules || {} }),
-    )
-    const matcher = exportMatcher(routeRulesMatcher)
-    const manifestOutputPath = joinURL(
-      '/',
-      environmentOptions?.nuxtRuntimeConfig.app?.buildAssetsDir || '_nuxt',
-      'builds',
-    )
-    const manifestBaseRoutePath = joinURL('/_', manifestOutputPath)
-
-    h3App.use(
-      `${manifestBaseRoutePath}/latest.json`,
-      defineEventHandler(() => ({
-        id: 'test',
-        timestamp,
-      })),
-    )
-    h3App.use(
-      `${manifestBaseRoutePath}/meta/test.json`,
-      defineEventHandler(() => ({
-        id: 'test',
-        timestamp,
-        matcher,
-        prerendered: [],
-      })),
-    )
-    h3App.use(
-      `${manifestBaseRoutePath}/meta/dev.json`,
-      defineEventHandler(() => ({
-        id: 'test',
-        timestamp,
-        matcher,
-        prerendered: [],
-      })),
-    )
-
-    registry.add(`${manifestOutputPath}/latest.json`)
-    registry.add(`${manifestOutputPath}/meta/test.json`)
-    registry.add(`${manifestOutputPath}/meta/dev.json`)
 
     return {
       // called after all tests with this env have been run
       teardown() {
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         keys.forEach(key => delete global[key])
+        teardownWindow()
         originals.forEach((v, k) => (global[k] = v))
+
+        // Stub to prevent errors from delayed callbacks
+        if (!global.IntersectionObserver) {
+          global.IntersectionObserver = IntersectionObserver
+        }
+
         teardown()
       },
     }
   },
+}
+
+// This can be removed when dropping support for vitest 4.0.x (We can static import from 'vitest/runtime')
+async function importVitestEnvironments() {
+  const pkg = resolveModulePath('vitest/runtime', { try: true }) ? 'vitest/runtime' : 'vitest/environments'
+  return await import(pkg) as typeof import('vitest/environments')
+}
+
+class IntersectionObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() { return [] }
 }

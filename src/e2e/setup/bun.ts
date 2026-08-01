@@ -1,0 +1,13 @@
+import type { TestHooks } from '../types.ts'
+
+export default async function setupBun(hooks: TestHooks) {
+  const bunTest = await import('bun:test')
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  hooks.ctx.mockFn = bunTest.mock as any
+
+  bunTest.beforeAll(hooks.beforeAll, hooks.ctx.options.setupTimeout)
+  bunTest.beforeEach(hooks.beforeEach)
+  bunTest.afterEach(hooks.afterEach)
+  bunTest.afterAll(hooks.afterAll, hooks.ctx.options.teardownTimeout)
+}

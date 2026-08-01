@@ -3,6 +3,12 @@
     <h1>ExportDefaultComponent</h1>
     <pre>{{ myProp }}</pre>
     <pre>{{ setupMyProp }}</pre>
+    <span
+      v-for="item in myArrayProp"
+      :key="item"
+    >{{ item }}
+    </span>
+    <span>myObjProp: {{ JSON.stringify(myObjProp) }}</span>
   </div>
 </template>
 
@@ -21,6 +27,14 @@ export default {
     myProp: {
       type: String,
       required: true,
+    },
+    myArrayProp: {
+      type: Array as PropType<string[]>,
+      default: () => ([]),
+    },
+    myObjProp: {
+      type: [Object, null, {}] as PropType<{ title: string } | null | object>,
+      default: () => ({}),
     },
   },
   setup(props) {
