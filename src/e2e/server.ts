@@ -6,6 +6,7 @@ import { fetch as _fetch, createFetch } from 'ofetch'
 import { resolve } from 'pathe'
 import { joinURL } from 'ufo'
 import { useTestContext } from './context.ts'
+import type { TestContext } from './types.ts'
 
 const globalFetch = globalThis.fetch || _fetch
 
@@ -92,10 +93,39 @@ interface WaitForServerOptions {
   dev: boolean
 }
 
+const REPLAYED_LOG_LINES = 30
+
+interface EarlyExitDetails {
+  dev: boolean
+  elapsed: number
+}
+
+function earlyExitError(ctx: TestContext, { dev, elapsed }: EarlyExitDetails) {
+  const proc = ctx.serverProcess!
+  const details = [
+    `exit code: ${proc.exitCode ?? 'unknown'}`,
+    `killed: ${proc.killed}`,
+    `after ${elapsed}ms`,
+    `mode: ${dev ? 'dev' : 'built'}`,
+  ].join(', ')
+
+  const message = `Server process exited before becoming ready (${details})`
+  const output = ctx.serverLogs.slice(-REPLAYED_LOG_LINES).join('\n')
+
+  if (output) {
+    return new Error(`${message}\n--- last output from the server process ---\n${output}`)
+  }
+  if (ctx.options.captureServerLogs === false) {
+    return new Error(`${message}\n(no output captured: \`captureServerLogs\` is disabled)`)
+  }
+  return new Error(`${message}\n(the server process produced no output)`)
+}
+
 async function waitForServer({ host, port, dev }: WaitForServerOptions) {
   const ctx = useTestContext()
   const baseURL = ctx.nuxt?.options.app.baseURL ?? '/'
   const deadline = Date.now() + ctx.options.serverStartTimeout
+  const startedAt = Date.now()
 
   // Brief opportunistic port wait; the fetch loop below owns the real readiness budget.
   await waitForPort(port, { retries: 8, host }).catch(() => {})
@@ -103,7 +133,7 @@ async function waitForServer({ host, port, dev }: WaitForServerOptions) {
   let lastError: unknown
   while (Date.now() < deadline) {
     if (ctx.serverProcess && (ctx.serverProcess.killed || ctx.serverProcess.exitCode != null)) {
-      throw new Error(`Server process exited before becoming ready (exit code: ${ctx.serverProcess.exitCode ?? 'unknown'})`)
+      throw earlyExitError(ctx, { dev, elapsed: Date.now() - startedAt })
     }
     try {
       const res = await globalFetch(joinURL(ctx.url!, baseURL), { signal: AbortSignal.timeout(10_000) })
