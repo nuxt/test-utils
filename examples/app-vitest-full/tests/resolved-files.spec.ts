@@ -15,10 +15,15 @@ test('it should include nuxt spec files', { timeout: 30000 }, async ({ onTestFin
     await vitest.close()
   })
 
-  const testFiles = await vitest.globTestSpecifications()
-  const nuxtSpecFiles = testFiles.filter(file => file.project.name === 'nuxt')
-  const regularSpecFiles = testFiles.filter(file => file.project.name === 'node')
+  const testFiles = await vitest.collect()
 
-  expect(nuxtSpecFiles.length).toEqual(26)
+  const nuxtSpecFiles = testFiles.testModules.filter(file => file.project.name === 'nuxt')
+  const regularSpecFiles = testFiles.testModules.filter(file => file.project.name === 'node')
+
+  expect(nuxtSpecFiles.length).toEqual(30)
   expect(regularSpecFiles.length).toEqual(3)
+
+  // Test files using `@vitest-environment node`
+  const nuxtNodeSpecFiles = nuxtSpecFiles.filter(file => file.viteEnvironment?.name === 'ssr')
+  expect(nuxtNodeSpecFiles.length).toEqual(2)
 })

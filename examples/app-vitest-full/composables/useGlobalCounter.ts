@@ -9,3 +9,17 @@ export default function useGlobalCounter() {
     },
   }
 }
+
+if (import.meta.vitest) {
+  const { it, expect } = import.meta.vitest
+
+  it(useGlobalCounter, () => {
+    const { count, increment } = useGlobalCounter()
+    const incremented = count.value + 1
+    expect(increment()).toBe(incremented)
+  })
+
+  it('window', () => {
+    expect(typeof window).toBe('object')
+  })
+}

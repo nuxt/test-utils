@@ -385,6 +385,9 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
       delete resolvedConfig.test.include
       delete resolvedConfig.test.exclude
 
+      delete resolvedConfig.test.includeSource
+      delete defaultProject.test.includeSource
+
       resolvedConfig.test.projects = [nuxtProject, defaultProject]
     }
 

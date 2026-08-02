@@ -1,3 +1,20 @@
 <template>
   <div>About page</div>
 </template>
+
+<script lang="ts">
+if (import.meta.vitest) {
+  // @vitest-environment node
+  const { it, expect } = import.meta.vitest
+
+  it('add', () => {
+    expect(add()).toBe(0)
+    expect(add(1)).toBe(1)
+    expect(add(1, 2, 3)).toBe(6)
+  })
+
+  it('window', () => {
+    expect(typeof window).toBe('undefined')
+  })
+}
+</script>
