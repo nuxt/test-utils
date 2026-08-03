@@ -192,6 +192,8 @@ export async function getVitestConfigFromNuxt(
       },
       test: {
         environmentOptions: {
+          nuxtAppId: options.nuxt.options.appId,
+          nuxtFuture: defu({}, options.nuxt.options.future),
           nuxtRuntimeConfig: applyEnv(structuredClone(options.nuxt.options.runtimeConfig), {
             prefix: 'NUXT_',
             env: await setupDotenv(defu(loadNuxtOptions.dotenv, {
@@ -511,6 +513,8 @@ export interface NuxtEnvironmentResolvedOptions {
     NonNullable<NuxtConfig['app']>,
     'rootAttrs' | 'rootTag' | 'teleportTag' | 'teleportAttrs'
   >
+  nuxtAppId?: NuxtConfig['appId']
+  nuxtFuture?: NuxtConfig['future']
 }
 
 declare module 'vitest/node' {
