@@ -13,6 +13,6 @@ if (import.meta.vitest) {
   })
 
   it('window', () => {
-    expect(typeof window).toBe('undefined')
+    expect(globalThis.window).toBeUndefined()
   })
 }

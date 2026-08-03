@@ -19,7 +19,7 @@ if (import.meta.vitest) {
   })
 
   it('window', () => {
-    expect(typeof window).toBe('object')
+    expect(globalThis.window).toBeDefined()
   })
 
   it('useNuxtApp', () => {
