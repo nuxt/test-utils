@@ -4,4 +4,9 @@ export default defineNuxtConfig({
     multiApp: true,
   },
   compatibilityDate: '2024-04-03',
+  typescript: {
+    tsConfig: {
+      include: ['../test/browser/**/*.spec.ts'],
+    },
+  },
 })
