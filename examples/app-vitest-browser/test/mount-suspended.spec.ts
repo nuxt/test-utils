@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 
-import { MyCounter } from '#components'
+import { MyCounter, CustomRandom } from '#components'
 
 describe('Component (MyCounter)', () => {
   it('renders', async () => {
@@ -12,7 +12,7 @@ describe('Component (MyCounter)', () => {
 
   it('can be interacted with (increment)', async () => {
     const component = await mountSuspended(MyCounter)
-    const incrementButton = component.findAll('button').filter(btn => btn.text().includes('Increment'))[0]
+    const incrementButton = component.findAll('button').filter(btn => btn.text().includes('Increment'))[0]!
     incrementButton.element.click()
     await nextTick()
     expect(component.text()).toContain('Count: 1')
@@ -20,7 +20,7 @@ describe('Component (MyCounter)', () => {
 
   it('can be interacted with (decrement)', async () => {
     const component = await mountSuspended(MyCounter)
-    const decrementButton = component.findAll('button').filter(btn => btn.text().includes('Decrement'))[0]
+    const decrementButton = component.findAll('button').filter(btn => btn.text().includes('Decrement'))[0]!
     decrementButton.element.click()
     await nextTick()
     expect(component.text()).toContain('Count: -1')
@@ -29,5 +29,33 @@ describe('Component (MyCounter)', () => {
   it('can use Nuxt-specific composables', async () => {
     const component = await mountSuspended(MyCounter)
     expect(component.text()).toContain('"buildAssetsDir": "/_nuxt/"')
+  })
+
+  it('can spy component setup state', async () => {
+    const wrapper = await mountSuspended(CustomRandom, {
+      spy: true,
+    })
+
+    vi.mocked(wrapper.setupState.getRandom).mockImplementation(() => 200)
+
+    await wrapper.find('#random').trigger('click')
+
+    expect(wrapper.setupState.getRandom).toHaveBeenCalled()
+    expect(wrapper.setupState.random).toHaveBeenCalledWith(200)
+    expect(wrapper.setupState.input.value).toBe(400)
+  })
+
+  it('can spy component exposed via setupState', async () => {
+    const wrapper = await mountSuspended(CustomRandom, {
+      spy: true,
+    })
+
+    vi.mocked(wrapper.setupState.getRandom2).mockImplementation(() => 200)
+
+    await wrapper.find('#random2').trigger('click')
+
+    expect(wrapper.setupState.getRandom2).toHaveBeenCalled()
+    expect(wrapper.setupState.random2).toHaveBeenCalledWith(200)
+    expect(wrapper.setupState.input.value).toBe(400)
   })
 })
