@@ -3,7 +3,7 @@ import { defineVitestConfig } from '@nuxt/test-utils/config'
 
 export default defineVitestConfig({
   test: {
-    includeSource: ['../pages/index.vue'],
+    includeSource: ['./pages/*.vue', './composables/*.ts'],
     environmentOptions: {
       nuxt: {
         rootDir: fileURLToPath(new URL('./', import.meta.url)),
