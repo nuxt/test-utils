@@ -15,6 +15,27 @@ export const setupMaps = {
   vitest: setupVitest,
 }
 
+function withTimeout<T>(label: string, ms: number, promise: Promise<T>): Promise<T | undefined> {
+  let timedOut = false
+  let timer: ReturnType<typeof setTimeout>
+  const timeout = new Promise<undefined>((resolve) => {
+    timer = setTimeout(() => {
+      timedOut = true
+      console.warn(`[@nuxt/test-utils] Timed out after ${ms}ms ${label} during teardown. Continuing; some processes or file handles may still be held.`)
+      resolve(undefined)
+    }, ms)
+  })
+  const guarded = promise.catch((error) => {
+    if (timedOut) {
+      console.warn(`[@nuxt/test-utils] Error ${label} during teardown:`, error)
+      return undefined
+    }
+    throw error
+  }).finally(() => clearTimeout(timer))
+
+  return Promise.race([guarded, timeout])
+}
+
 export function createTest(options: Partial<TestOptions>): TestHooks {
   const ctx = createTestContext(options)
 
@@ -27,19 +48,24 @@ export function createTest(options: Partial<TestOptions>): TestHooks {
   }
 
   const afterAll = async () => {
+    // Every step is bounded against a single shared budget so that a shutdown
+    // that never settles degrades to a warning instead of failing the run.
+    const deadline = Date.now() + ctx.options.teardownTimeout
+    const remaining = () => Math.max(1_000, deadline - Date.now())
+
     if (ctx.serverProcess) {
       setTestContext(ctx)
       await stopServer()
       setTestContext(undefined)
     }
     if (ctx.nuxt && ctx.nuxt.options.dev) {
-      await ctx.nuxt.close()
+      await withTimeout('closing the Nuxt instance', remaining(), ctx.nuxt.close())
     }
     if (ctx.browser) {
-      await ctx.browser.close()
+      await withTimeout('closing the browser', remaining(), ctx.browser.close())
     }
     // clear side effects
-    await Promise.all(!ctx.teardown ? [] : ctx.teardown.map(fn => fn()))
+    await withTimeout('running teardown hooks', remaining(), Promise.all(!ctx.teardown ? [] : ctx.teardown.map(fn => fn())))
   }
 
   const beforeAll = async () => {
