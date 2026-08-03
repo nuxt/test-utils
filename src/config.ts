@@ -4,7 +4,7 @@ import type { UserWorkspaceConfig, InlineConfig as VitestConfig } from 'vitest/n
 import type { TestProjectInlineConfiguration } from 'vitest/config'
 import { setupDotenv } from 'c12'
 import type { DotenvOptions } from 'c12'
-import type { defineConfig, UserConfigFnPromise, UserConfig as ViteUserConfig } from 'vite'
+import type { defineConfig, Plugin, UserConfigFnPromise, UserConfig as ViteUserConfig } from 'vite'
 import type { DateString } from 'compatx'
 import { createDefu, defu } from 'defu'
 import { createResolver, findPath } from '@nuxt/kit'
@@ -17,11 +17,22 @@ import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options.ts'
 interface GetVitestConfigOptions {
   nuxt: Nuxt
   viteConfig: NuxtViteConfig
+  nitro?: { current?: NitroLike }
 }
 
 interface LoadNuxtOptions {
   dotenv?: Partial<DotenvOptions>
   overrides?: Partial<NuxtConfig>
+  /**
+   * Keep Nuxt's nitro vite environment in the derived config, loading Nuxt in dev mode so
+   * nitro initialises its environment runner, and closing nitro when vite closes.
+   * @internal
+   */
+  nitroEnvironment?: boolean
+}
+
+interface NitroLike {
+  hooks: { callHook: (name: 'close') => Promise<unknown> }
 }
 
 // https://github.com/nuxt/framework/issues/6496
@@ -30,7 +41,8 @@ async function startNuxtAndGetViteConfig(rootDir = process.cwd(), options: LoadN
   const nuxt = await loadNuxt({
     cwd: rootDir,
     // https://github.com/nuxt/nuxt/blob/d52a4fdd7ad5feb035dcf3f56c3b2d0ab059b1d4/packages/kit/src/loader/nuxt.ts#L24
-    dev: options.overrides?.dev ?? false,
+    // the nitro environment runner is only initialised in dev mode, so it takes precedence
+    dev: options.nitroEnvironment || (options.overrides?.dev ?? false),
     dotenv: defu(options.dotenv, {
       cwd: rootDir,
       fileName: '.env.test',
@@ -48,6 +60,10 @@ async function startNuxtAndGetViteConfig(rootDir = process.cwd(), options: LoadN
         modules: ['@nuxt/test-utils/module'],
       },
       options.overrides,
+      // vitest always creates a dev server from this config, but the nitro vite environment
+      // only initialises its runner when Nuxt is loaded in dev mode, so it would throw
+      // `Env runner not initialized` when vite creates the environment
+      options.nitroEnvironment ? {} : DISABLE_NITRO_ENVIRONMENT,
     ),
   })
 
@@ -59,10 +75,20 @@ async function startNuxtAndGetViteConfig(rootDir = process.cwd(), options: LoadN
     )
   }
 
+  // the nitro instance may only be available after the client vite config resolves, so it is
+  // shared by reference rather than by value
+  const nitro: { current?: NitroLike } | undefined = options.nitroEnvironment ? {} : undefined
+  if (nitro) {
+    // `nitro:init` is provided by nitro's nuxt integration
+    ;(nuxt.hook as (name: string, fn: (instance: NitroLike) => void) => void)('nitro:init', (instance) => {
+      nitro.current = instance
+    })
+  }
+
   const promise = new Promise<GetVitestConfigOptions>((resolve, reject) => {
     nuxt.hook('vite:configResolved', (viteConfig, { isClient }) => {
       if (isClient) {
-        resolve({ nuxt, viteConfig })
+        resolve({ nuxt, viteConfig, nitro })
         throw new Error('_stop_')
       }
     })
@@ -74,6 +100,21 @@ async function startNuxtAndGetViteConfig(rootDir = process.cwd(), options: LoadN
   }).finally(() => nuxt.close())
 
   return promise
+}
+
+// `experimental.nitroViteEnvironment` is not typed in older versions of `@nuxt/schema`
+const DISABLE_NITRO_ENVIRONMENT = { experimental: { nitroViteEnvironment: false } } as NuxtConfig
+
+function nitroTeardownPlugin(nitro: { current?: NitroLike }): Plugin {
+  // `closeBundle` runs once per environment, but nitro must only be closed once
+  let closed: Promise<unknown> | undefined
+  return {
+    name: 'nuxt:test-utils:nitro-teardown',
+    async closeBundle() {
+      closed ||= nitro.current?.hooks.callHook('close') ?? Promise.resolve()
+      await closed
+    },
+  }
 }
 
 const excludedPlugins = [
@@ -95,6 +136,7 @@ export async function getVitestConfigFromNuxt(
   if (!options) {
     options = await startNuxtAndGetViteConfig(rootDir, {
       dotenv: loadNuxtOptions.dotenv,
+      nitroEnvironment: loadNuxtOptions.nitroEnvironment,
       overrides: {
         test: true,
         ..._overrides,
@@ -162,7 +204,13 @@ export async function getVitestConfigFromNuxt(
             options.nuxt.options.routeRules,
             options.nuxt.options.nitro?.routeRules,
           ),
-        },
+          nuxtAppConfig: {
+            rootAttrs: options.nuxt.options.app.rootAttrs,
+            rootTag: options.nuxt.options.app.rootTag,
+            teleportAttrs: options.nuxt.options.app.teleportAttrs,
+            teleportTag: options.nuxt.options.app.teleportTag,
+          },
+        } satisfies Omit<NuxtEnvironmentResolvedOptions, 'nuxt'>,
         server: {
           deps: {
             inline: [
@@ -205,6 +253,7 @@ export async function getVitestConfigFromNuxt(
             }
           },
         },
+        ...options.nitro ? [nitroTeardownPlugin(options.nitro)] : [],
         {
           name: 'nuxt:test-utils:browser-conditions',
           enforce: 'pre',
@@ -231,14 +280,14 @@ export async function getVitestConfigFromNuxt(
       test: {
         environmentOptions: {
           nuxt: {
-            rootId: options.nuxt.options.app.rootId || undefined,
+            rootId: options.nuxt.options.app.rootAttrs?.id || undefined,
             h3Version: h3Info?.version?.startsWith('2.') ? 2 : 1,
             mock: {
               intersectionObserver: true,
               indexedDb: false,
             },
           },
-        },
+        } satisfies NuxtEnvironmentResolvedOptions,
       } satisfies VitestConfig,
     },
   ) as ViteUserConfig & { test: VitestConfig }
@@ -336,6 +385,9 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
       delete resolvedConfig.test.include
       delete resolvedConfig.test.exclude
 
+      delete resolvedConfig.test.includeSource
+      delete defaultProject.test.includeSource
+
       resolvedConfig.test.projects = [nuxtProject, defaultProject]
     }
 
@@ -373,6 +425,7 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
     config satisfies T,
     await getVitestConfigFromNuxt(undefined, {
       dotenv: config.test?.environmentOptions?.nuxt?.dotenv,
+      nitroEnvironment: config.test?.environmentOptions?.nuxt?.nitroEnvironment,
       overrides: structuredClone(overrides),
     }) satisfies ViteUserConfig & { test: NonNullable<T['test']> },
   ) as T & { test: NonNullable<T['test']> }
@@ -380,6 +433,19 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
   resolvedConfig.plugins!.push(NuxtVitestEnvironmentOptionsPlugin(resolvedConfig.test.environmentOptions))
 
   if (resolvedConfig.test.browser?.enabled) {
+    resolvedConfig.plugins!.push({
+      name: 'nuxt:test-utils:browser-client-environment',
+      configEnvironment(name) {
+        if (name === 'client') {
+          return {
+            dev: {
+              moduleRunnerTransform: false,
+            },
+          }
+        }
+      },
+    })
+
     if (resolvedConfig.test.environment === 'nuxt') {
       resolvedConfig.test.setupFiles = Array.isArray(resolvedConfig.test.setupFiles)
         ? resolvedConfig.test.setupFiles
@@ -409,8 +475,9 @@ export interface NuxtEnvironmentOptions {
    */
   overrides?: NuxtConfig
   /**
-   * The id of the root div to which the app should be mounted. You should also set `app.rootId` to the same value.
-   * @default 'nuxt-test'
+   * The id of the root element to which the app should be mounted. Takes precedence over the id
+   * resolved from your Nuxt config, falling back to `'nuxt-test'` when neither is set.
+   * @deprecated Set `overrides.app.rootAttrs.id` (or `app.rootId` in your Nuxt config) instead
    */
   rootId?: string
   /**
@@ -423,10 +490,30 @@ export interface NuxtEnvironmentOptions {
 
   h3Version?: 1 | 2
 
+  /**
+   * Keep Nuxt's nitro vite environment available to the test project (required by a nitro/server
+   * test environment). Nuxt is loaded in dev mode and nitro is closed when vite closes.
+   * @internal
+   */
+  nitroEnvironment?: boolean
+
   mock?: {
     intersectionObserver?: boolean
     indexedDb?: boolean
   }
+}
+
+/**
+ * @internal
+ */
+export interface NuxtEnvironmentResolvedOptions {
+  nuxt: NuxtEnvironmentOptions
+  nuxtRuntimeConfig?: NuxtConfig['runtimeConfig']
+  nuxtRouteRules?: NuxtConfig['routeRules']
+  nuxtAppConfig?: Pick<
+    NonNullable<NuxtConfig['app']>,
+    'rootAttrs' | 'rootTag' | 'teleportTag' | 'teleportAttrs'
+  >
 }
 
 declare module 'vitest/node' {

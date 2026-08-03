@@ -30,7 +30,7 @@ import ComponentWithCssVar from '~/components/ComponentWithCssVar.vue'
 import ComponentWithPluginProvidedValue from '~/components/ComponentWithPluginProvidedValue.vue'
 import GenericStateComponent from '~/components/GenericStateComponent.vue'
 
-import { BoundAttrs } from '#components'
+import { BoundAttrs, TestTeleport, CustomRandom } from '#components'
 import DirectiveComponent from '~/components/DirectiveComponent.vue'
 import CustomComponent from '~/components/CustomComponent.vue'
 import WrapperElement from '~/components/WrapperElement.vue'
@@ -592,6 +592,16 @@ it('element should be changed', async () => {
   expect(component.element.tagName).toBe('SPAN')
 })
 
+it('teleport should work', async () => {
+  expect(document.getElementById('teleport-title')).toBeFalsy()
+
+  const wrapper = await mountSuspended(TestTeleport)
+  expect(document.getElementById('teleport-title')).toBeTruthy()
+
+  wrapper.unmount()
+  expect(document.getElementById('teleport-title')).toBeFalsy()
+})
+
 const { useCounterMock } = vi.hoisted(() => {
   return {
     useCounterMock: vi.fn(() => {
@@ -665,5 +675,33 @@ describe('watcher cleanup validation', () => {
     await nextTick()
 
     expect(watcherCallCount).toBe(1)
+  })
+
+  it('can spy component setup state via setupState', async () => {
+    const wrapper = await mountSuspended(CustomRandom, {
+      spy: true,
+    })
+
+    vi.mocked(wrapper.setupState.getRandom).mockImplementation(() => 200)
+
+    await wrapper.find('#random').trigger('click')
+
+    expect(wrapper.setupState.getRandom).toHaveBeenCalled()
+    expect(wrapper.setupState.random).toHaveBeenCalledWith(200)
+    expect(wrapper.setupState.input.value).toBe(400)
+  })
+
+  it('can spy component exposed via setupState', async () => {
+    const wrapper = await mountSuspended(CustomRandom, {
+      spy: true,
+    })
+
+    vi.mocked(wrapper.setupState.getRandom2).mockImplementation(() => 200)
+
+    await wrapper.find('#random2').trigger('click')
+
+    expect(wrapper.setupState.getRandom2).toHaveBeenCalled()
+    expect(wrapper.setupState.random2).toHaveBeenCalledWith(200)
+    expect(wrapper.setupState.input.value).toBe(400)
   })
 })

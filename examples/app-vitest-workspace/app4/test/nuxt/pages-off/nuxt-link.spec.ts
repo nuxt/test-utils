@@ -37,6 +37,6 @@ describe('NuxtLink without pages', () => {
       },
     })
 
-    expect(wrapper.text()).toBe('Home:undefined:undefined')
+    expect(wrapper.text()).toBe('Home:false:false')
   })
 })

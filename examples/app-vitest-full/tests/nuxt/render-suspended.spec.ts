@@ -23,7 +23,16 @@ import CompostionApi from '~/components/TestComponentWithCompostionApi.vue'
 import OptionsApiWithData from '~/components/TestComponentWithOptionsApiWithData.vue'
 import OptionsApiWithSetup from '~/components/TestComponentWithOptionsApiWithSetup.vue'
 
-import { BoundAttrs, OptionsApiComputed, OptionsApiEmits, OptionsApiWatch, ScriptSetupEmits, ScriptSetupWatch } from '#components'
+import {
+  BoundAttrs,
+  CustomRandom,
+  OptionsApiComputed,
+  OptionsApiEmits,
+  OptionsApiWatch,
+  ScriptSetupEmits,
+  ScriptSetupWatch,
+  TestTeleport,
+} from '#components'
 
 const formats = {
   ExportDefaultComponent,
@@ -397,4 +406,42 @@ it('renders links correctly', async () => {
       <div><a href="/test"> Link with string to prop </a><a href="/test"> Link with object to prop </a></div>
     </div>"
   `)
+})
+
+it('teleport should work', async () => {
+  expect(document.getElementById('teleport-title')).toBeFalsy()
+
+  const wrapper = await renderSuspended(TestTeleport)
+  expect(document.getElementById('teleport-title')).toBeTruthy()
+
+  wrapper.unmount()
+  expect(document.getElementById('teleport-title')).toBeFalsy()
+})
+
+it('can spy component setup state via setupState', async () => {
+  const wrapper = await renderSuspended(CustomRandom, {
+    spy: true,
+  })
+
+  vi.mocked(wrapper.setupState.getRandom).mockImplementation(() => 200)
+
+  await fireEvent.click(wrapper.getByRole('button', { name: 'Random' }))
+
+  expect(wrapper.setupState.getRandom).toHaveBeenCalled()
+  expect(wrapper.setupState.random).toHaveBeenCalledWith(200)
+  expect(wrapper.setupState.input.value).toBe(400)
+})
+
+it('can spy component exposed via setupState', async () => {
+  const wrapper = await renderSuspended(CustomRandom, {
+    spy: true,
+  })
+
+  vi.mocked(wrapper.setupState.getRandom2).mockImplementation(() => 200)
+
+  await fireEvent.click(wrapper.getByRole('button', { name: 'Random2' }))
+
+  expect(wrapper.setupState.getRandom2).toHaveBeenCalled()
+  expect(wrapper.setupState.random2).toHaveBeenCalledWith(200)
+  expect(wrapper.setupState.input.value).toBe(400)
 })

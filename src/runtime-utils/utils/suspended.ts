@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import { Suspense, effectScope, h, nextTick, reactive, getCurrentInstance, onErrorCaptured } from 'vue'
 import type { App, ComponentInternalInstance, DefineComponent, SetupContext, VNode } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
@@ -22,11 +23,30 @@ type WrapperFnResult<Fn> = Fn extends (c: WrapperFnComponent<Fn>, o: WrapperFnOp
 type VueApp = App<Element> & Record<string, unknown>
 
 export type WrapperSuspendedOptions<Fn> = WrapperFnOption<Fn> & {
+  /**
+   * The initial route, or false to skip the initial route change.
+   * @default '/'
+   */
   route?: RouteLocationRaw | false
+  /**
+   * Enable spy component setup state.
+   * @default false
+   * @example
+   * ```ts
+   * const wrapper = await mountSuspended(CustomRandom, { spy: true })
+   * vi.mocked(wrapper.setupState.getRandom).mockImplementation(() => 200)
+   * await wrapper.find('#random').trigger('click')
+   * expect(wrapper.setupState.getRandom).toHaveBeenCalled()
+   * ```
+   */
+  spy?: boolean
   scoped?: boolean
 }
 
 export type WrapperSuspendedResult<Fn> = WrapperFnResult<Fn> & {
+  /**
+   * The return value of the component setup.
+   */
   setupState: SetupState
 }
 
@@ -80,7 +100,7 @@ export function wrapperSuspended<
   overrideOptionsFn(options, vueApp)
 
   const { props = {}, attrs = {} } = options as ComponentMountingOptions<C>
-  const { route = '/', scoped = false, ...wrapperFnOptions } = options as ComponentMountingOptions<C>
+  const { route = '/', scoped = false, spy = false, ...wrapperFnOptions } = options as ComponentMountingOptions<C>
 
   const {
     render: componentRender,
@@ -118,7 +138,7 @@ export function wrapperSuspended<
 
       if (!componentSetup) return
 
-      const result = scoped
+      let result = scoped
         ? await runEffectScope(() => componentSetup(props, setupContext))
         : await componentSetup(props, setupContext)
 
@@ -126,7 +146,15 @@ export function wrapperSuspended<
         instanceContext.expose(wrappedInstance.exposed)
       }
 
-      setupState = result && typeof result === 'object' ? result : {}
+      if (result && typeof result === 'object') {
+        if (spy) {
+          result = vi.mockObject(result, { spy: true })
+        }
+        setupState = result
+      }
+      else {
+        setupState = {}
+      }
 
       return result
     },
