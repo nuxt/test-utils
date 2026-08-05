@@ -55,6 +55,46 @@ export function applyEnv(obj: Record<string, any>, opts: EnvOptions, parentKey =
   return obj
 }
 
+/**
+ * Deep-copy plain objects and arrays, passing anything else through by reference.
+ *
+ * `structuredClone` throws `DataCloneError` on proxies and functions, both of which turn up in
+ * `nuxt.options` (module mutation tracking wraps options in proxies) and in user-provided config
+ * overrides. Only plain containers need copying here; the clone exists to avoid mutating the
+ * caller's objects.
+ */
+export function deepCopy<T>(input: T, seen = new WeakMap<object, any>()): T {
+  if (typeof input !== 'object' || input === null) {
+    return input
+  }
+
+  const proto = Object.getPrototypeOf(input)
+  if (proto !== Object.prototype && proto !== Array.prototype && proto !== null) {
+    return input
+  }
+
+  const existing = seen.get(input)
+  if (existing) {
+    return existing
+  }
+
+  if (Array.isArray(input)) {
+    const copy: any[] = []
+    seen.set(input, copy)
+    for (const item of input) {
+      copy.push(deepCopy(item, seen))
+    }
+    return copy as T
+  }
+
+  const copy: Record<string, any> = {}
+  seen.set(input, copy)
+  for (const key in input) {
+    copy[key] = deepCopy((input as Record<string, any>)[key], seen)
+  }
+  return copy as T
+}
+
 export async function loadKit(rootDir: string): Promise<typeof import('@nuxt/kit')> {
   try {
     const kitPath = resolveModulePath('@nuxt/kit', { from: tryResolveNuxt(rootDir) || rootDir })
