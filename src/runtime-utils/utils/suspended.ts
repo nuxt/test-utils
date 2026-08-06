@@ -20,6 +20,8 @@ type WrapperFnComponent<Fn> = Fn extends (c: infer C, o: infer _) => infer _ ? C
 type WrapperFnOption<Fn> = Fn extends (c: WrapperFnComponent<Fn>, o: infer O) => infer _ ? O : never
 type WrapperFnResult<Fn> = Fn extends (c: WrapperFnComponent<Fn>, o: WrapperFnOption<Fn>) => infer R ? R : never
 
+type VueApp = App<Element> & Record<string, unknown>
+
 export type WrapperSuspendedOptions<Fn> = WrapperFnOption<Fn> & {
   /**
    * The initial route, or false to skip the initial route change.
@@ -65,30 +67,41 @@ function runEffectScope<T>(fn: () => T) {
   return scope.run(fn)
 }
 
-export function wrapperSuspended<C, Fn extends WrapperFn<C>>(
+export function wrapperSuspended<
+  C,
+  Fn extends WrapperFn<C>,
+  Opts extends WrapperSuspendedOptions<Fn>,
+>(
   component: C,
-  options: WrapperSuspendedOptions<Fn>,
+  options: Opts,
   {
     wrapperFn,
     wrappedRender = fn => fn,
+    overrideOptionsFn = () => {},
     suspendedHelperName,
     clonedComponentName,
+    stubRouterLink = true,
   }: {
     wrapperFn: NonNullable<Fn>
     wrappedRender?: (render: () => VNode) => () => VNode
+    overrideOptionsFn?: (options: Opts, vueApp: VueApp) => void
     suspendedHelperName: string
     clonedComponentName: string
+    stubRouterLink?: boolean
   },
 ): Promise<{
   wrapper: WrapperSuspendedResult<Fn>
   setProps: (props: object) => void
 }> {
-  const { props = {}, attrs = {} } = options as ComponentMountingOptions<C>
-  const { route = '/', scoped = false, spy = false, ...wrapperFnOptions } = options as ComponentMountingOptions<C>
-
   const vueApp: App<Element> & Record<string, unknown> = tryUseNuxtApp()?.vueApp
     // @ts-expect-error untyped global __unctx__
     || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
+
+  overrideOptionsFn(options, vueApp)
+
+  const { props = {}, attrs = {} } = options as ComponentMountingOptions<C>
+  const { route = '/', scoped = false, spy = false, ...wrapperFnOptions } = options as ComponentMountingOptions<C>
+
   const {
     render: componentRender,
     setup: componentSetup,
@@ -232,7 +245,10 @@ export function wrapperSuspended<C, Fn extends WrapperFn<C>>(
             [SuspendedHelper.name]: false,
             [ClonedComponent.name]: false,
           },
-          components: { ...vueApp._context.components, RouterLink },
+          components: {
+            ...vueApp._context.components,
+            ...(stubRouterLink ? { RouterLink } : {}),
+          },
         }),
       },
     ) as WrapperSuspendedResult<Fn>

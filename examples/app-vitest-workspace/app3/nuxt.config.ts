@@ -4,5 +4,13 @@ export default defineNuxtConfig({
     autoImport: false,
   },
   devtools: { enabled: true },
+  app: {
+    rootId: false,
+  },
   compatibilityDate: '2024-04-03',
+  typescript: {
+    tsConfig: {
+      include: ['../test/browser/**/*'],
+    },
+  },
 })
