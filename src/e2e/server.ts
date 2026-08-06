@@ -6,8 +6,12 @@ import { fetch as _fetch, createFetch } from 'ofetch'
 import { resolve } from 'pathe'
 import { joinURL } from 'ufo'
 import { useTestContext } from './context.ts'
+import type { TestContext } from './types.ts'
 
 const globalFetch = globalThis.fetch || _fetch
+
+/** Resolves once the server's output has been fully collected into `ctx.serverLogs`. */
+let serverLogsCollected: Promise<void> | undefined
 
 export interface StartServerOptions {
   env?: Record<string, unknown>
@@ -76,11 +80,14 @@ export async function startServer(options: StartServerOptions = {}) {
   }
 
   if (capture) {
-    ;(async () => {
+    serverLogsCollected = (async () => {
       for await (const line of ctx.serverProcess!) {
         ctx.serverLogs.push(line)
       }
     })().catch(() => {})
+  }
+  else {
+    serverLogsCollected = undefined
   }
 
   await waitForServer({ host, port, dev: ctx.options.dev })
@@ -92,10 +99,49 @@ interface WaitForServerOptions {
   dev: boolean
 }
 
+const REPLAYED_LOG_LINES = 30
+
+interface EarlyExitDetails {
+  dev: boolean
+  elapsed: number
+}
+
+async function flushServerLogs() {
+  if (!serverLogsCollected) {
+    return
+  }
+  const timeout = new Promise<void>(resolve => setTimeout(resolve, 1_000))
+  await Promise.race([serverLogsCollected, timeout])
+}
+
+function earlyExitError(ctx: TestContext, { dev, elapsed }: EarlyExitDetails) {
+  const proc = ctx.serverProcess!
+  const signal = proc.process?.signalCode
+  const details = [
+    // a signalled process has no exit code, and the signal is the whole explanation
+    signal ? `signal: ${signal}` : `exit code: ${proc.exitCode ?? 'unknown'}`,
+    `killed: ${proc.killed}`,
+    `after ${elapsed}ms`,
+    `mode: ${dev ? 'dev' : 'built'}`,
+  ].join(', ')
+
+  const message = `Server process exited before becoming ready (${details})`
+  const output = ctx.serverLogs.slice(-REPLAYED_LOG_LINES).join('\n')
+
+  if (output) {
+    return new Error(`${message}\n--- last output from the server process ---\n${output}`)
+  }
+  if (ctx.options.captureServerLogs === false) {
+    return new Error(`${message}\n(no output captured: \`captureServerLogs\` is disabled)`)
+  }
+  return new Error(`${message}\n(the server process produced no output)`)
+}
+
 async function waitForServer({ host, port, dev }: WaitForServerOptions) {
   const ctx = useTestContext()
   const baseURL = ctx.nuxt?.options.app.baseURL ?? '/'
   const deadline = Date.now() + ctx.options.serverStartTimeout
+  const startedAt = Date.now()
 
   // Brief opportunistic port wait; the fetch loop below owns the real readiness budget.
   await waitForPort(port, { retries: 8, host }).catch(() => {})
@@ -103,7 +149,8 @@ async function waitForServer({ host, port, dev }: WaitForServerOptions) {
   let lastError: unknown
   while (Date.now() < deadline) {
     if (ctx.serverProcess && (ctx.serverProcess.killed || ctx.serverProcess.exitCode != null)) {
-      throw new Error(`Server process exited before becoming ready (exit code: ${ctx.serverProcess.exitCode ?? 'unknown'})`)
+      await flushServerLogs()
+      throw earlyExitError(ctx, { dev, elapsed: Date.now() - startedAt })
     }
     try {
       const res = await globalFetch(joinURL(ctx.url!, baseURL), { signal: AbortSignal.timeout(10_000) })
@@ -125,6 +172,13 @@ async function waitForServer({ host, port, dev }: WaitForServerOptions) {
       lastError = e
     }
     await new Promise(resolve => setTimeout(resolve, 100))
+  }
+
+  // a fetch can hang for 10s, so the process may have died after the last check;
+  // its diagnostics beat a bare timeout, and `stopServer()` below would mask it
+  if (ctx.serverProcess && (ctx.serverProcess.killed || ctx.serverProcess.exitCode != null)) {
+    await flushServerLogs()
+    throw earlyExitError(ctx, { dev, elapsed: Date.now() - startedAt })
   }
 
   await stopServer()
