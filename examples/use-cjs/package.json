@@ -1,0 +1,27 @@
+{
+  "name": "example-use-cjs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "example-use-cjs-cjs-pure": "file:./libs/cjs-pure",
+    "example-use-cjs-cjs-wrapper": "file:./libs/cjs-wrapper"
+  },
+  "devDependencies": {
+    "@nuxt/test-utils": "latest",
+    "@vitest/browser": "4.1.10",
+    "@vitest/browser-playwright": "4.1.10",
+    "@vue/test-utils": "2.4.11",
+    "nuxt": "4.5.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10",
+    "vitest-browser-vue": "2.1.0"
+  }
+}

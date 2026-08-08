@@ -188,7 +188,13 @@ export async function getVitestConfigFromNuxt(
         },
       },
       optimizeDeps: {
-        noDiscovery: true,
+        include: ['@testing-library/vue'],
+        rolldownOptions: {
+          external: [
+            '#components',
+            '#app/nuxt-vitest-app-entry',
+          ],
+        },
       },
       test: {
         environmentOptions: {
