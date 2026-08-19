@@ -96,7 +96,7 @@ export interface TestContext {
   url?: string
   serverProcess?: ReturnType<typeof exec>
   /**
-   * Set once `afterAll` has run. A late-resolving `beforeAll` (for example one
+   * Set when `afterAll` begins tearing down. A late-resolving `beforeAll` (for example one
    * abandoned after a setup timeout) checks this so it does not orphan a
    * server process after teardown.
    */
