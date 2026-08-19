@@ -28,6 +28,8 @@ export interface TestOptions {
   dev: boolean
   /**
    * The amount of time (in milliseconds) to allow for `setupTest` to complete its work (which could include building or generating files for a Nuxt application, depending on the options that are passed).
+   *
+   * This is also the effective deadline for the `@nuxt/test-utils/playwright` worker fixture.
    * @default 120000 // or `240000` on windows
    */
   setupTimeout: number
@@ -39,7 +41,7 @@ export interface TestOptions {
   /**
    * The amount of time (in milliseconds) to wait for the dev or built server to become ready (i.e. respond successfully on the configured base URL) before failing.
    *
-   * This is bounded by `setupTimeout`, so increasing this is only useful in combination with a sufficiently large `setupTimeout`.
+   * This is bounded by `setupTimeout` (including in Playwright mode), so increasing this is only useful in combination with a sufficiently large `setupTimeout`.
    * @default 120000 // on windows; otherwise 60000
    */
   serverStartTimeout: number
@@ -93,6 +95,12 @@ export interface TestContext {
   browser?: Browser
   url?: string
   serverProcess?: ReturnType<typeof exec>
+  /**
+   * Set once `afterAll` has run. A late-resolving `beforeAll` (for example one
+   * abandoned after a setup timeout) checks this so it does not orphan a
+   * server process after teardown.
+   */
+  disposed?: boolean
   mockFn?: (...args: unknown[]) => unknown
   /**
    * Lines emitted to the server subprocess's stdout/stderr, in order.

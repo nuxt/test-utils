@@ -48,6 +48,7 @@ export function createTest(options: Partial<TestOptions>): TestHooks {
   }
 
   const afterAll = async () => {
+    ctx.disposed = true
     // Every step is bounded against a single shared budget so that a shutdown
     // that never settles degrades to a warning instead of failing the run.
     const deadline = Date.now() + ctx.options.teardownTimeout
