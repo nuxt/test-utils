@@ -100,6 +100,11 @@ export interface TestContext {
    */
   serverLogs: string[]
   /**
+   * Resolves once the server subprocess's output has been fully collected into
+   * `serverLogs`. Only set when `options.captureServerLogs` is `true`.
+   */
+  serverLogsCollected?: Promise<void>
+  /**
    * Functions to run on the vitest `afterAll` hook.
    * Useful for removing anything created during the test.
    */
