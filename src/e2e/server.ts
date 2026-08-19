@@ -10,6 +10,12 @@ import type { TestContext } from './types.ts'
 
 const globalFetch = globalThis.fetch || _fetch
 
+/**
+ * Per-context promise that resolves once the server subprocess's output has
+ * been fully collected into `ctx.serverLogs`. Absent when log capture is off.
+ */
+const serverLogsCollected = new WeakMap<TestContext, Promise<void>>()
+
 export interface StartServerOptions {
   env?: Record<string, unknown>
   /**
@@ -26,7 +32,7 @@ export async function startServer(options: StartServerOptions = {}) {
   const host = '127.0.0.1'
   const port = ctx.options.port || (await getRandomPort(host))
   ctx.url = `http://${host}:${port}/`
-  ctx.serverLogsCollected = undefined
+  serverLogsCollected.delete(ctx)
   const capture = ctx.options.captureServerLogs !== false
   const stdio = capture ? 'pipe' : 'inherit'
   const logLevel = String(options.logLevel ?? ctx.options.logLevel)
@@ -79,11 +85,11 @@ export async function startServer(options: StartServerOptions = {}) {
   }
 
   if (capture) {
-    ctx.serverLogsCollected = (async () => {
+    serverLogsCollected.set(ctx, (async () => {
       for await (const line of ctx.serverProcess!) {
         ctx.serverLogs.push(line)
       }
-    })().catch(() => {})
+    })().catch(() => {}))
   }
 
   await waitForServer({ host, port, startedAt })
@@ -109,7 +115,8 @@ function hasExited(proc: TestContext['serverProcess']): boolean {
 }
 
 async function flushServerLogs(ctx: TestContext) {
-  if (!ctx.serverLogsCollected) {
+  const collected = serverLogsCollected.get(ctx)
+  if (!collected) {
     return
   }
   let timer: ReturnType<typeof setTimeout> | undefined
@@ -117,7 +124,7 @@ async function flushServerLogs(ctx: TestContext) {
     timer = setTimeout(resolve, 1_000)
   })
   try {
-    await Promise.race([ctx.serverLogsCollected, timeout])
+    await Promise.race([collected, timeout])
   }
   finally {
     clearTimeout(timer)
@@ -141,7 +148,7 @@ function earlyExitError(ctx: TestContext, elapsed: number) {
   if (output) {
     return new Error(`${message}\n--- last output from the server process ---\n${output}`)
   }
-  if (!ctx.serverLogsCollected) {
+  if (!serverLogsCollected.has(ctx)) {
     return new Error(`${message}\n(no output captured: \`captureServerLogs\` is disabled)`)
   }
   return new Error(`${message}\n(the server process produced no output)`)
