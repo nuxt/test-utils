@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     projects: [
       '*/vitest*.config.ts',
-      import('./app5/bare.vitest.config').then(r => r.default()),
+      import('./app5/bare.vitest.config.ts').then(r => r.default()),
     ],
     onConsoleLog(log) {
       if (log.includes('<Suspense> is an experimental feature')) {

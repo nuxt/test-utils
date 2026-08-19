@@ -5,14 +5,14 @@ packages:
 
 overrides:
   '@cucumber/cucumber': 12.9.0
-  '@nuxt/schema': 4.5.1
+  '@nuxt/schema': 4.5.2
   '@nuxt/test-utils': workspace:*
   '@types/node': 24.13.3
-  rollup: 4.62.3
-  vite: 8.1.5
+  rollup: 4.62.4
+  vite: 8.2.1
   vite-node: 6.0.0
   vitest: 4.1.10
-  vue: ^3.5.40
+  vue: ^3.5.41
 
 patchedDependencies:
   node-mock-http: patches/node-mock-http.patch
@@ -24,6 +24,9 @@ ignoreWorkspaceRootCheck: true
 minimumReleaseAgeExclude:
   - '@nuxt/*'
   - nuxt
+  - nuxt-nightly
+  - vue
+  - '@vue/*'
 
 allowBuilds:
   "@parcel/watcher": false
