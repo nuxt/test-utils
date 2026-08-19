@@ -167,7 +167,9 @@ async function waitForServer({ host, port, startedAt }: WaitForServerOptions) {
   while (Date.now() < deadline) {
     if (hasExited(ctx.serverProcess)) {
       await flushServerLogs(ctx)
-      throw earlyExitError(ctx, Date.now() - startedAt)
+      const error = earlyExitError(ctx, Date.now() - startedAt)
+      await stopServer()
+      throw error
     }
     try {
       const res = await globalFetch(joinURL(ctx.url!, baseURL), { signal: AbortSignal.timeout(10_000) })
@@ -198,9 +200,7 @@ async function waitForServer({ host, port, startedAt }: WaitForServerOptions) {
     error = earlyExitError(ctx, Date.now() - startedAt)
   }
   else {
-    error = lastError instanceof Error
-      ? lastError
-      : new Error(`Timeout (${ctx.options.serverStartTimeout}ms) waiting for ${dev ? 'dev' : 'built'} server to become ready at ${ctx.url}`, { cause: lastError })
+    error = new Error(`Timeout (${ctx.options.serverStartTimeout}ms) waiting for ${dev ? 'dev' : 'built'} server to become ready at ${ctx.url}`, { cause: lastError })
   }
 
   await stopServer()
