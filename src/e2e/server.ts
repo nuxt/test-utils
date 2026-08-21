@@ -28,6 +28,9 @@ export interface StartServerOptions {
 export async function startServer(options: StartServerOptions = {}) {
   const ctx = useTestContext()
   await stopServer()
+  if (ctx.disposed) {
+    throw new Error('Test context has been torn down; refusing to start a server.')
+  }
   ctx.serverLogs = []
   const host = '127.0.0.1'
   const port = ctx.options.port || (await getRandomPort(host))
@@ -90,6 +93,13 @@ export async function startServer(options: StartServerOptions = {}) {
         ctx.serverLogs.push(line)
       }
     })().catch(() => {}))
+  }
+
+  // The context can be disposed while a caller was still building, in which
+  // case the process we just spawned would be orphaned.
+  if (ctx.disposed) {
+    await stopServer()
+    throw new Error('Test context has been torn down; server was stopped again.')
   }
 
   await waitForServer({ host, port, startedAt })
@@ -164,7 +174,16 @@ async function waitForServer({ host, port, startedAt }: WaitForServerOptions) {
   await waitForPort(port, { retries: 8, host }).catch(() => {})
 
   let lastError: unknown
+  let scannedLogs = 0
   while (Date.now() < deadline) {
+    // `nuxi _dev` silently falls back to another port when the requested one is
+    // taken, so follow it rather than polling a URL nothing is listening on.
+    while (scannedLogs < ctx.serverLogs.length) {
+      const match = /Port \d+ is in use, using port (\d+) instead/.exec(ctx.serverLogs[scannedLogs++]!)
+      if (match) {
+        ctx.url = `http://${host}:${match[1]}/`
+      }
+    }
     if (hasExited(ctx.serverProcess)) {
       await flushServerLogs(ctx)
       const error = earlyExitError(ctx, Date.now() - startedAt)
@@ -200,7 +219,13 @@ async function waitForServer({ host, port, startedAt }: WaitForServerOptions) {
     error = earlyExitError(ctx, Date.now() - startedAt)
   }
   else {
-    error = new Error(`Timeout (${ctx.options.serverStartTimeout}ms) waiting for ${dev ? 'dev' : 'built'} server to become ready at ${ctx.url}`, { cause: lastError })
+    await flushServerLogs(ctx)
+    const output = ctx.serverLogs.slice(-REPLAYED_LOG_LINES).join('\n')
+    error = new Error(
+      `Timeout (${ctx.options.serverStartTimeout}ms) waiting for ${dev ? 'dev' : 'built'} server to become ready at ${ctx.url}`
+      + (output ? `\n--- last output from the server process ---\n${output}` : ''),
+      { cause: lastError },
+    )
   }
 
   await stopServer()

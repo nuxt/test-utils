@@ -1,11 +1,20 @@
 import defu from 'defu'
 import { test as base } from '@playwright/test'
 import type { Page, Response } from 'playwright-core'
-import { isWindows } from 'std-env'
 import type { GotoOptions, TestOptions as SetupOptions, TestHooks } from './e2e.ts'
 import { createTest, url, waitForHydration } from './e2e.ts'
 
-const FIXTURE_TIMEOUT = isWindows ? 120_000 : 60_000
+// Playwright fixture options must be static, so they cannot read the resolved
+// `setupTimeout`. This is only a backstop: the fixture below races its own
+// `setupTimeout` deadline, which is what consumers actually configure. It has to
+// stay above any plausible `setupTimeout` so Playwright never aborts us first,
+// because Playwright skips fixture teardown when a fixture times out (which would
+// orphan the dev server).
+const FIXTURE_TIMEOUT_BACKSTOP = 30 * 60_000
+
+// How long to wait for an abandoned `beforeAll` to settle before giving up on
+// cleaning up whatever it spawned.
+const ABANDONED_SETUP_GRACE = 30_000
 
 export type ConfigOptions = {
   nuxt: Partial<SetupOptions> | undefined
@@ -44,10 +53,33 @@ export const test = base.extend<TestOptions, WorkerOptions & ConfigOptions>({
   _nuxtHooks: [
     async ({ nuxt, defaults }, use) => {
       const hooks = createTest(defu(nuxt || {}, defaults.nuxt || {}))
-      await hooks.beforeAll()
+      const { setupTimeout } = hooks.ctx.options
+
+      const setup = hooks.beforeAll()
+      let timer: ReturnType<typeof setTimeout> | undefined
+      const timedOut = await Promise.race([
+        setup.then(() => false),
+        new Promise<true>((resolve) => {
+          timer = setTimeout(() => resolve(true), setupTimeout)
+        }),
+      ]).finally(() => clearTimeout(timer))
+
+      if (timedOut) {
+        // The abandoned setup may still spawn a server after this teardown, so
+        // wait for it to settle and tear down once more.
+        await hooks.afterAll()
+        await Promise.race([
+          setup.catch(() => {}),
+          new Promise(resolve => setTimeout(resolve, ABANDONED_SETUP_GRACE)),
+        ])
+        await hooks.afterAll()
+        const logs = hooks.ctx.serverLogs.slice(-50).join('\n')
+        throw new Error(`Nuxt test setup timed out after ${setupTimeout}ms. Increase \`setupTimeout\` in your \`nuxt\` fixture options if this is expected.${logs ? `\n\nServer output:\n${logs}` : ''}`)
+      }
+
       await use(hooks)
       await hooks.afterAll()
-    }, { scope: 'worker', timeout: FIXTURE_TIMEOUT },
+    }, { scope: 'worker', timeout: FIXTURE_TIMEOUT_BACKSTOP },
   ],
   baseURL: async ({ _nuxtHooks }, use) => {
     _nuxtHooks.beforeEach()
