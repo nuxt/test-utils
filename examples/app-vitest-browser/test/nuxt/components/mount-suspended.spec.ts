@@ -28,7 +28,7 @@ describe('Component (MyCounter)', () => {
 
   it('can use Nuxt-specific composables', async () => {
     const component = await mountSuspended(MyCounter)
-    expect(component.text()).toContain('"buildAssetsDir": "/_nuxt/"')
+    expect(component.text()).toMatch(/"buildAssetsDir"\s*:\s*"\/_nuxt\/"/)
   })
 
   it('can spy component setup state', async () => {
