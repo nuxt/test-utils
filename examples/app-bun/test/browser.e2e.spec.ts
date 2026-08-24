@@ -3,17 +3,12 @@ import { describe, it, expect } from 'bun:test'
 import { createPage, setup } from '@nuxt/test-utils/e2e'
 import { isWindows } from 'std-env'
 
-// Skip tests on windows because playwright cannot be launched with bun.
-// See: https://github.com/oven-sh/bun/issues/15679
+await setup({
+  rootDir: fileURLToPath(new URL('../', import.meta.url)),
+  browser: true,
+})
 
-if (!isWindows) {
-  await setup({
-    rootDir: fileURLToPath(new URL('../', import.meta.url)),
-    browser: true,
-  })
-}
-
-describe.skipIf(isWindows)('browser', () => {
+describe('browser', () => {
   it('runs a test', async () => {
     const page = await createPage('/')
     const text = await page.getByRole('heading', { name: 'Get started' }).textContent()
