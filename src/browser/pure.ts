@@ -7,14 +7,12 @@ import { cleanupAll, patchWrapperSetProps, resolveVueApp, wrapperSuspended } fro
 
 export { config } from '@vue/test-utils'
 
-type OmitKey<T, K extends keyof T> = { [P in keyof T as P extends K ? never : P]: T[P] }
-
 type ComponentProps<T> = T extends new (...args: never[]) => {
   $props: infer P
 } ? NonNullable<P> : T extends (props: infer P, ...args: never[]) => unknown ? P : object
 
 type WrapperFn<C> = typeof wrapperFn<C>
-type WrapperOptions<C> = OmitKey<WrapperSuspendedOptions<WrapperFn<C>>, 'attachTo'> & {
+type WrapperOptions<C> = Omit<WrapperSuspendedOptions<WrapperFn<C>>, 'attachTo'> & {
   /** Use this option instead of the `@vue/test-utils` `attachTo` option. */
   container?: HTMLElement
   baseElement?: HTMLElement
@@ -104,7 +102,7 @@ export async function render<T>(
       mountedWrappers.delete(wrapper)
       await mark(renderResult.locator, 'nuxt.unmount', renderResult.unmount)
     },
-    emitted: ((name?: string) => wrapper.emitted(name!)) as never,
+    emitted: ((eventName?: string) => wrapper.emitted(eventName as string)) as RenderResult<ComponentProps<T>>['emitted'],
     rerender: async (props) => {
       await wrapper.setProps(props as never)
       await mark(renderResult.locator, 'nuxt.rerender', renderResult.rerender)
@@ -196,6 +194,5 @@ async function mountWrapperSuspended<T>(
     container,
     baseElement,
     wrapper,
-    setProps,
   }
 }
