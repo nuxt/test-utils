@@ -22,6 +22,12 @@ type WrapperFnResult<Fn> = Fn extends (c: WrapperFnComponent<Fn>, o: WrapperFnOp
 
 type VueApp = App<Element> & Record<string, unknown>
 
+export function resolveVueApp(): VueApp {
+  return tryUseNuxtApp()?.vueApp
+    // @ts-expect-error untyped global __unctx__
+    || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
+}
+
 /**
  * `wrapper.setProps` delegates to this `@vue/test-utils` internal when the wrapper is the mount
  * root, which is the case for the component we mount around the suspended component.
@@ -85,14 +91,12 @@ export function wrapperSuspended<
   {
     wrapperFn,
     wrappedRender = fn => fn,
-    overrideOptionsFn = () => {},
     suspendedHelperName,
     clonedComponentName,
     stubRouterLink = true,
   }: {
     wrapperFn: NonNullable<Fn>
     wrappedRender?: (render: () => VNode) => () => VNode
-    overrideOptionsFn?: (options: Opts, vueApp: VueApp) => void
     suspendedHelperName: string
     clonedComponentName: string
     stubRouterLink?: boolean
@@ -101,11 +105,7 @@ export function wrapperSuspended<
   wrapper: WrapperSuspendedResult<Fn>
   setProps: (props: object) => void
 }> {
-  const vueApp: App<Element> & Record<string, unknown> = tryUseNuxtApp()?.vueApp
-    // @ts-expect-error untyped global __unctx__
-    || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
-
-  overrideOptionsFn(options, vueApp)
+  const vueApp = resolveVueApp()
 
   const { props = {}, attrs = {} } = options as ComponentMountingOptions<C>
   const { route = '/', scoped = false, spy = false, ...wrapperFnOptions } = options as ComponentMountingOptions<C>

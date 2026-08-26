@@ -3,7 +3,7 @@ import { page, server, utils } from 'vitest/browser'
 import { mount as wrapperFn } from '@vue/test-utils'
 
 import type { WrapperSuspendedOptions } from '../runtime-utils/utils/suspended.ts'
-import { cleanupAll, patchWrapperSetProps, wrapperSuspended } from '../runtime-utils/utils/suspended.ts'
+import { cleanupAll, patchWrapperSetProps, resolveVueApp, wrapperSuspended } from '../runtime-utils/utils/suspended.ts'
 
 export { config } from '@vue/test-utils'
 
@@ -138,30 +138,31 @@ async function mountWrapperSuspended<T>(
   component: T,
   options: WrapperOptions<T> = {},
 ) {
-  const wrapperOptions = { ...options }
+  const { container: containerOption, baseElement: baseElementOption, ...wrapperOptions } = options
 
   cleanupAll()
 
-  let container!: HTMLElement
-  let baseElement!: HTMLElement
+  const vueApp = resolveVueApp()
+  const baseElement = baseElementOption || document.body
+
+  let container: HTMLElement
   let createdContainer: HTMLElement | undefined
 
-  const { wrapper, setProps } = await wrapperSuspended(component, wrapperOptions, {
+  if (containerOption) {
+    container = containerOption
+  }
+  else if (baseElement.contains(vueApp._container as Node)) {
+    container = vueApp._container as HTMLElement
+  }
+  else {
+    container = baseElement.appendChild(document.createElement('div'))
+    createdContainer = container
+  }
+
+  const suspendedOptions: WrapperSuspendedOptions<WrapperFn<T>> = { ...wrapperOptions, attachTo: container }
+
+  const { wrapper, setProps } = await wrapperSuspended(component, suspendedOptions, {
     wrapperFn,
-    overrideOptionsFn(options, vueApp) {
-      baseElement = options.baseElement || document.body
-      if (options.container) {
-        container = options.container
-      }
-      else if (baseElement.contains(vueApp._container)) {
-        container = vueApp._container as HTMLElement
-      }
-      else {
-        container = baseElement.appendChild(document.createElement('div'))
-        createdContainer = container
-      }
-      options.attachTo = container
-    },
     suspendedHelperName: 'BrowserSuspendedHelper',
     clonedComponentName: 'BrowserSuspendedComponent',
     stubRouterLink: false,
