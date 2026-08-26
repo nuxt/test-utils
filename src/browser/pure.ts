@@ -136,6 +136,11 @@ async function mark(locator: Locator, name: string, fn: (...args: never[]) => un
   return locator.mark(name, error)
 }
 
+/**
+ * `@vue/test-utils` mounts into a `div` of its own inside `attachTo`. Removing that div keeps the
+ * rendered markup a direct child of the container, so locators and snapshots see the component's
+ * own DOM.
+ */
 function unwrapNode(node: Element | null) {
   if (node && typeof node.replaceWith === 'function') {
     node.replaceWith(...node.childNodes)

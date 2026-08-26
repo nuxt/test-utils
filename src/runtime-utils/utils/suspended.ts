@@ -93,6 +93,10 @@ export function wrapperSuspended<
     wrappedRender = fn => fn,
     suspendedHelperName,
     clonedComponentName,
+    /**
+     * Replace `RouterLink` with a stub that renders an anchor without navigating. Environments that
+     * can handle real navigation (the browser) should keep the router's own component instead.
+     */
     stubRouterLink = true,
   }: {
     wrapperFn: NonNullable<Fn>
