@@ -69,6 +69,33 @@ describe('Render Component', () => {
     expect(screen.setupState).toEqual({})
   })
 
+  it('keeps earlier renders reactive', async ({ onTestFinished }) => {
+    const Watcher = defineComponent({
+      setup() {
+        const count = ref(0)
+        const seen = ref<number[]>([])
+        watch(count, value => seen.value.push(value))
+        return () => h('div', {}, [
+          h('button', { onClick: () => count.value++ }, 'Increment'),
+          h('span', {}, `Seen: ${seen.value.join(',')}`),
+        ])
+      },
+    })
+
+    const containers = [
+      document.body.appendChild(document.createElement('div')),
+      document.body.appendChild(document.createElement('div')),
+    ]
+    onTestFinished(() => containers.forEach(container => container.remove()))
+
+    const first = await render(Watcher, { scoped: true, container: containers[0] })
+    await render(Watcher, { scoped: true, container: containers[1] })
+
+    await first.getByText('Increment').click()
+
+    await expect.element(first.getByText(/^Seen:/)).toHaveTextContent('Seen: 1')
+  })
+
   it('locator', async () => {
     const screen = await render(defineComponent({
       render: () => h('h1', {}, 'Hello Nuxt!'),

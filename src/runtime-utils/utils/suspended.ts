@@ -75,9 +75,16 @@ function addCleanup(fn: () => unknown) {
   window.__cleanup.push(fn)
 }
 
-function runEffectScope<T>(fn: () => T) {
+function removeCleanup(fn: () => unknown) {
+  const index = window.__cleanup?.indexOf(fn) ?? -1
+  if (index !== -1) {
+    window.__cleanup!.splice(index, 1)
+  }
+}
+
+function runEffectScope<T>(fn: () => T, register: (fn: () => unknown) => void) {
   const scope = effectScope()
-  addCleanup(() => scope.stop())
+  register(() => scope.stop())
   return scope.run(fn)
 }
 
@@ -108,8 +115,27 @@ export function wrapperSuspended<
 ): Promise<{
   wrapper: WrapperSuspendedResult<Fn>
   setProps: (props: object) => void
+  /**
+   * Stop only the effect scopes created by this call, leaving those of other mounted components
+   * alone. `cleanupAll` remains the way to release everything at a test boundary.
+   */
+  cleanup: () => void
 }> {
   const vueApp = resolveVueApp()
+
+  const ownCleanups: Array<() => unknown> = []
+
+  function registerCleanup(fn: () => unknown) {
+    ownCleanups.push(fn)
+    addCleanup(fn)
+  }
+
+  function cleanup() {
+    for (const fn of ownCleanups.splice(0)) {
+      removeCleanup(fn)
+      fn()
+    }
+  }
 
   const { props = {}, attrs = {} } = options as ComponentMountingOptions<C>
   const { route = '/', scoped = false, spy = false, ...wrapperFnOptions } = options as ComponentMountingOptions<C>
@@ -151,7 +177,7 @@ export function wrapperSuspended<
       if (!componentSetup) return
 
       let result = scoped
-        ? await runEffectScope(() => componentSetup(props, setupContext))
+        ? await runEffectScope(() => componentSetup(props, setupContext), registerCleanup)
         : await componentSetup(props, setupContext)
 
       if (wrappedInstance?.exposed) {
@@ -202,6 +228,7 @@ export function wrapperSuspended<
               ...ctx,
               expose: () => {},
             }),
+            registerCleanup,
           )
 
           onErrorCaptured((error, ...args) => {
@@ -234,6 +261,7 @@ export function wrapperSuspended<
                   setProps: (props) => {
                     Object.assign(setProps, props)
                   },
+                  cleanup,
                 })
               }),
           },

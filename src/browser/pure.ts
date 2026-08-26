@@ -151,8 +151,6 @@ async function mountWrapperSuspended<T>(
 ) {
   const { container: containerOption, baseElement: baseElementOption, ...wrapperOptions } = options
 
-  cleanupAll()
-
   const vueApp = resolveVueApp()
   const baseElement = baseElementOption || document.body
 
@@ -172,7 +170,7 @@ async function mountWrapperSuspended<T>(
 
   const suspendedOptions: WrapperSuspendedOptions<WrapperFn<T>> = { ...wrapperOptions, attachTo: container }
 
-  const { wrapper, setProps } = await wrapperSuspended(component, suspendedOptions, {
+  const { wrapper, setProps, cleanup } = await wrapperSuspended(component, suspendedOptions, {
     wrapperFn,
     suspendedHelperName: 'BrowserSuspendedHelper',
     clonedComponentName: 'BrowserSuspendedComponent',
@@ -184,6 +182,7 @@ async function mountWrapperSuspended<T>(
   const _unmount = wrapper.unmount.bind(wrapper)
   wrapper.unmount = () => {
     _unmount()
+    cleanup()
     createdContainer?.remove()
   }
 
