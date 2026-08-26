@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
-import { satisfies } from 'semver'
+import { satisfies } from 'verkit/range'
 import { version as nuxtVersion } from 'nuxt/package.json'
 
 import type { VueWrapper } from '@vue/test-utils'
