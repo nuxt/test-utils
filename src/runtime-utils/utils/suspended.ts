@@ -22,7 +22,7 @@ type WrapperFnResult<Fn> = Fn extends (c: WrapperFnComponent<Fn>, o: WrapperFnOp
 
 type VueApp = App<Element> & Record<string, unknown>
 
-export function resolveVueApp(): VueApp {
+function resolveVueApp(): VueApp {
   return tryUseNuxtApp()?.vueApp
     // @ts-expect-error untyped global __unctx__
     || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
