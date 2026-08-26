@@ -22,6 +22,14 @@ type WrapperFnResult<Fn> = Fn extends (c: WrapperFnComponent<Fn>, o: WrapperFnOp
 
 type VueApp = App<Element> & Record<string, unknown>
 
+/**
+ * `wrapper.setProps` delegates to this `@vue/test-utils` internal when the wrapper is the mount
+ * root, which is the case for the component we mount around the suspended component.
+ */
+export function patchWrapperSetProps(wrapper: object, setProps: (props: object) => void): void {
+  Object.assign(wrapper, { __setProps: setProps })
+}
+
 export type WrapperSuspendedOptions<Fn> = WrapperFnOption<Fn> & {
   /**
    * The initial route, or false to skip the initial route change.

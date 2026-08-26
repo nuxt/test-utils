@@ -3,7 +3,7 @@ import { page, server, utils } from 'vitest/browser'
 import { mount as wrapperFn } from '@vue/test-utils'
 
 import type { WrapperSuspendedOptions } from '../runtime-utils/utils/suspended.ts'
-import { cleanupAll, wrapperSuspended } from '../runtime-utils/utils/suspended.ts'
+import { cleanupAll, patchWrapperSetProps, wrapperSuspended } from '../runtime-utils/utils/suspended.ts'
 
 export { config } from '@vue/test-utils'
 
@@ -167,7 +167,7 @@ async function mountWrapperSuspended<T>(
     stubRouterLink: false,
   })
 
-  Object.assign(wrapper, { __setProps: setProps })
+  patchWrapperSetProps(wrapper, setProps)
 
   const _unmount = wrapper.unmount.bind(wrapper)
   wrapper.unmount = () => {
