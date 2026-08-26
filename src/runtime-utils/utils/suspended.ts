@@ -11,7 +11,7 @@ import { RouterLink } from '../components/RouterLink.ts'
 
 // TODO: improve return types
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SetupState = Record<string, any>
+export type SetupState = Record<string, any>
 
 type BaseOptions<C> = Pick<ComponentMountingOptions<C>, 'global'>
 

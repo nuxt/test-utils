@@ -2,7 +2,7 @@ import type { Locator, LocatorSelectors, PrettyDOMOptions } from 'vitest/browser
 import { page, server, utils } from 'vitest/browser'
 import { mount as wrapperFn } from '@vue/test-utils'
 
-import type { WrapperSuspendedOptions } from '../runtime-utils/utils/suspended.ts'
+import type { SetupState, WrapperSuspendedOptions } from '../runtime-utils/utils/suspended.ts'
 import { cleanupAll, patchWrapperSetProps, resolveVueApp, wrapperSuspended } from '../runtime-utils/utils/suspended.ts'
 
 export { config } from '@vue/test-utils'
@@ -34,6 +34,10 @@ export interface RenderResult<Props> extends LocatorSelectors {
   container: HTMLElement
   baseElement: HTMLElement
   locator: Locator
+  /**
+   * The return value of the component setup, mocked when the `spy` option is enabled.
+   */
+  setupState: SetupState
   debug(
     el?: HTMLElement | HTMLElement[] | Locator | Locator[],
     maxLength?: number, options?:
@@ -91,6 +95,9 @@ export async function render<T>(
     container,
     baseElement,
     locator: page.elementLocator(container),
+    get setupState() {
+      return wrapper.setupState
+    },
     debug: (el = container, maxLength, options) => debug(el, maxLength, options),
     unmount: async () => {
       wrapper.unmount()

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render } from '@nuxt/test-utils/browser'
-import { MyCounter } from '#components'
+import { CustomRandom, MyCounter } from '#components'
 
 describe('Render Component', () => {
   it('renders', async () => {
@@ -47,6 +47,18 @@ describe('Render Component', () => {
     await screen.rerender({ name: 'Nuxt' })
 
     expect(screen.getByRole('heading')).toHaveTextContent('Hello Nuxt!')
+  })
+
+  it('can spy component setup state via setupState', async () => {
+    const screen = await render(CustomRandom, { spy: true })
+
+    vi.mocked(screen.setupState.getRandom).mockImplementation(() => 200)
+
+    await screen.getByRole('button', { name: 'Random', exact: true }).click()
+
+    expect(screen.setupState.getRandom).toHaveBeenCalled()
+    expect(screen.setupState.random).toHaveBeenCalledWith(200)
+    expect(screen.setupState.input.value).toBe(400)
   })
 
   it('locator', async () => {
