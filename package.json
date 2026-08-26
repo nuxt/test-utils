@@ -65,7 +65,7 @@
     "test:types": "vue-tsc --noEmit && vitest --dir ./test/types --typecheck.only --run",
     "test:unit": "vitest --dir ./test/unit --run",
     "build": "tsdown",
-    "prepack": "tsdown",
+    "prepack": "nuxt prepare && tsdown",
     "dev:prepare": "nuxt prepare && pnpm -r dev:prepare"
   },
   "dependencies": {
@@ -109,7 +109,6 @@
     "@types/estree": "1.0.9",
     "@types/jsdom": "30.0.0",
     "@types/node": "24.13.3",
-    "@types/semver": "7.8.0",
     "@vitest/browser-playwright": "4.1.11",
     "@vue/test-utils": "2.4.11",
     "h3-next": "npm:h3@2.0.1-rc.22",
@@ -124,7 +123,6 @@
     "pkg-pr-new": "0.0.88",
     "playwright-core": "1.62.1",
     "rollup": "4.62.5",
-    "semver": "7.8.5",
     "tsdown": "0.22.14",
     "typescript": "6.0.3",
     "unimport": "6.4.0",
