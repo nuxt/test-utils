@@ -3,7 +3,7 @@ import { page, server, utils } from 'vitest/browser'
 import { mount as wrapperFn } from '@vue/test-utils'
 
 import type { SetupState, WrapperSuspendedOptions } from '../runtime-utils/utils/suspended.ts'
-import { cleanupAll, patchWrapperSetProps, resolveVueApp, wrapperSuspended } from '../runtime-utils/utils/suspended.ts'
+import { cleanupAll, patchWrapperSetProps, wrapperSuspended } from '../runtime-utils/utils/suspended.ts'
 
 export { config } from '@vue/test-utils'
 
@@ -151,22 +151,9 @@ async function mountWrapperSuspended<T>(
 ) {
   const { container: containerOption, baseElement: baseElementOption, ...wrapperOptions } = options
 
-  const vueApp = resolveVueApp()
   const baseElement = baseElementOption || document.body
-
-  let container: HTMLElement
-  let createdContainer: HTMLElement | undefined
-
-  if (containerOption) {
-    container = containerOption
-  }
-  else if (baseElement.contains(vueApp._container as Node)) {
-    container = vueApp._container as HTMLElement
-  }
-  else {
-    container = baseElement.appendChild(document.createElement('div'))
-    createdContainer = container
-  }
+  const createdContainer = containerOption ? undefined : baseElement.appendChild(document.createElement('div'))
+  const container = containerOption || createdContainer!
 
   const suspendedOptions: WrapperSuspendedOptions<WrapperFn<T>> = { ...wrapperOptions, attachTo: container }
 

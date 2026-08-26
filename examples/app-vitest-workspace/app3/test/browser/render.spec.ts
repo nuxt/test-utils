@@ -48,7 +48,7 @@ describe('render', () => {
 
     await screen.unmount()
 
-    await expect.element(screen.container).toHaveAttribute('id', 'nuxt-test')
-    await expect.element(screen.container).toBeEmptyDOMElement()
+    expect(screen.container).toBeEmptyDOMElement()
+    expect(document.body).not.toContainElement(screen.container)
   })
 })

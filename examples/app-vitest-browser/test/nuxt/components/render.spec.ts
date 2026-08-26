@@ -69,7 +69,7 @@ describe('Render Component', () => {
     expect(screen.setupState).toEqual({})
   })
 
-  it('keeps earlier renders reactive', async ({ onTestFinished }) => {
+  it('keeps earlier renders reactive', async () => {
     const Watcher = defineComponent({
       setup() {
         const count = ref(0)
@@ -82,18 +82,24 @@ describe('Render Component', () => {
       },
     })
 
-    const containers = [
-      document.body.appendChild(document.createElement('div')),
-      document.body.appendChild(document.createElement('div')),
-    ]
-    onTestFinished(() => containers.forEach(container => container.remove()))
-
-    const first = await render(Watcher, { scoped: true, container: containers[0] })
-    await render(Watcher, { scoped: true, container: containers[1] })
+    const first = await render(Watcher, { scoped: true })
+    await render(Watcher, { scoped: true })
 
     await first.getByText('Increment').click()
 
     await expect.element(first.getByText(/^Seen:/)).toHaveTextContent('Seen: 1')
+  })
+
+  it('gives each render its own container', async () => {
+    const first = await render(MyCounter)
+    const second = await render(MyCounter)
+
+    expect(first.container).not.toBe(second.container)
+
+    await first.getByText('Increment').click()
+
+    expect(first.getByText('Count: 1')).toBeInTheDocument()
+    expect(second.getByText('Count: 0')).toBeInTheDocument()
   })
 
   it('locator', async () => {
@@ -129,7 +135,7 @@ describe('Render Component', () => {
 
     await screen.unmount()
 
-    expect(screen.baseElement).toContainElement(screen.container)
+    expect(screen.baseElement).not.toContainElement(screen.container)
   })
 
   it('baseElement(custom element)', async ({ onTestFinished }) => {
@@ -165,11 +171,10 @@ describe('Render Component', () => {
     expect(screen.baseElement).toHaveTextContent('Hello Nuxt!')
 
     expect(screen.container).toHaveTextContent('Hello Nuxt!')
-    expect(screen.container).toHaveAttribute('id', 'nuxt-test')
 
     await screen.unmount()
 
-    expect(screen.baseElement).toContainElement(screen.container)
+    expect(screen.baseElement).not.toContainElement(screen.container)
   })
 
   it('container(custom element)', async ({ onTestFinished }) => {
@@ -205,8 +210,8 @@ describe('Render Component', () => {
 
     await screen.unmount()
 
-    expect(screen.container).toHaveAttribute('id', 'nuxt-test')
     expect(screen.container).toBeEmptyDOMElement()
+    expect(document.body).not.toContainElement(screen.container)
 
     expect(onBeforeUnmountFn).toHaveBeenCalledOnce()
   })
