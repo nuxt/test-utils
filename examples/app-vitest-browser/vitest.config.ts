@@ -9,6 +9,6 @@ export default defineVitestConfig({
       instances: [{ browser: 'chromium' }],
     },
     environment: 'nuxt',
-    setupFiles: ['@nuxt/test-utils/vitest-browser-nuxt'],
+    setupFiles: ['@nuxt/test-utils/browser'],
   },
 })

@@ -52,7 +52,7 @@ export interface RenderResult<Props> extends LocatorSelectors {
  *
  * ```ts
  * import { page } from 'vitest/browser'
- * import { render } from '@nuxt/test-utils/vitest-browser-nuxt'
+ * import { render } from '@nuxt/test-utils/browser'
  *
  * it('can render', async () => {
  *   const screen = await render(App, { route: '/' })

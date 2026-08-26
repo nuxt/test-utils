@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { page } from 'vitest/browser'
 
-import { render } from '@nuxt/test-utils/vitest-browser-nuxt'
+import { render } from '@nuxt/test-utils/browser'
 
 import { defineComponent, h } from '#imports'
 import { Counter } from '#components'

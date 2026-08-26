@@ -1,6 +1,6 @@
 import { describe, it, expect, afterAll } from 'vitest'
 import { registerEndpoint } from '@nuxt/test-utils/runtime'
-import { render } from '@nuxt/test-utils/vitest-browser-nuxt'
+import { render } from '@nuxt/test-utils/browser'
 
 import { MyHello } from '#components'
 

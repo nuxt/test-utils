@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render } from '@nuxt/test-utils/vitest-browser-nuxt'
+import { render } from '@nuxt/test-utils/browser'
 import { MyCounter } from '#components'
 
 describe('Render Component', () => {
