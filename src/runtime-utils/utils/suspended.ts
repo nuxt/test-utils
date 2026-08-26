@@ -122,7 +122,7 @@ export function wrapperSuspended<
 
   let wrappedInstance: ComponentInternalInstance | null = null
   let setupContext: SetupContext
-  let setupState: SetupState
+  let setupState: SetupState = {}
 
   const setProps = reactive<Record<string, unknown>>({})
 

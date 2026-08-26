@@ -61,6 +61,14 @@ describe('Render Component', () => {
     expect(screen.setupState.input.value).toBe(400)
   })
 
+  it('exposes an empty setupState for components without setup', async () => {
+    const screen = await render(defineComponent({
+      render: () => h('h1', {}, 'Hello Nuxt!'),
+    }))
+
+    expect(screen.setupState).toEqual({})
+  })
+
   it('locator', async () => {
     const screen = await render(defineComponent({
       render: () => h('h1', {}, 'Hello Nuxt!'),
