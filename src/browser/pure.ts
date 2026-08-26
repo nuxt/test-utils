@@ -113,6 +113,7 @@ export function cleanup(): void {
     wrapper.unmount()
     mountedWrappers.delete(wrapper)
   })
+  cleanupAll()
 }
 
 async function mark(locator: Locator, name: string, fn: (...args: never[]) => unknown) {
