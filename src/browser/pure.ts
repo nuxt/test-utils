@@ -95,7 +95,7 @@ export async function render<T>(
     unmount: async () => {
       wrapper.unmount()
       mountedWrappers.delete(wrapper)
-      await mark(renderResult.locator, 'nuxt.unmount', renderResult.rerender)
+      await mark(renderResult.locator, 'nuxt.unmount', renderResult.unmount)
     },
     emitted: ((name?: string) => wrapper.emitted(name!)) as never,
     rerender: async (props) => {
