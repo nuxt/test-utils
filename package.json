@@ -18,6 +18,8 @@
     "./module": "./src/module.ts",
     "./runtime": "./src/runtime-utils/index.ts",
     "./vitest-environment": "./src/vitest-environment.ts",
+    "./browser": "./src/browser/index.ts",
+    "./browser/pure": "./src/browser/pure.ts",
     "./package.json": "./package.json"
   },
   "imports": {
@@ -48,6 +50,12 @@
       ],
       "vitest-environment": [
         "./dist/vitest-environment.d.mts"
+      ],
+      "browser": [
+        "./dist/browser/index.d.mts"
+      ],
+      "browser/pure": [
+        "./dist/browser/pure.d.mts"
       ]
     }
   },
@@ -192,6 +200,8 @@
       "./module": "./dist/module.mjs",
       "./runtime": "./dist/runtime-utils/index.mjs",
       "./vitest-environment": "./dist/vitest-environment.mjs",
+      "./browser": "./dist/browser/index.mjs",
+      "./browser/pure": "./dist/browser/pure.mjs",
       "./package.json": "./package.json"
     }
   }

@@ -677,6 +677,14 @@ describe('watcher cleanup validation', () => {
     expect(watcherCallCount).toBe(1)
   })
 
+  it('exposes an empty setupState for components without setup', async () => {
+    const wrapper = await mountSuspended(defineComponent({
+      render: () => h('h1', {}, 'Hello Nuxt!'),
+    }))
+
+    expect(wrapper.setupState).toEqual({})
+  })
+
   it('can spy component setup state via setupState', async () => {
     const wrapper = await mountSuspended(CustomRandom, {
       spy: true,

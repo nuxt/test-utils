@@ -11,7 +11,7 @@ import { RouterLink } from '../components/RouterLink.ts'
 
 // TODO: improve return types
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SetupState = Record<string, any>
+export type SetupState = Record<string, any>
 
 type BaseOptions<C> = Pick<ComponentMountingOptions<C>, 'global'>
 
@@ -19,6 +19,22 @@ type WrapperFn<C> = (c: C, o?: BaseOptions<C>) => unknown
 type WrapperFnComponent<Fn> = Fn extends (c: infer C, o: infer _) => infer _ ? C : never
 type WrapperFnOption<Fn> = Fn extends (c: WrapperFnComponent<Fn>, o: infer O) => infer _ ? O : never
 type WrapperFnResult<Fn> = Fn extends (c: WrapperFnComponent<Fn>, o: WrapperFnOption<Fn>) => infer R ? R : never
+
+type VueApp = App<Element> & Record<string, unknown>
+
+function resolveVueApp(): VueApp {
+  return tryUseNuxtApp()?.vueApp
+    // @ts-expect-error untyped global __unctx__
+    || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
+}
+
+/**
+ * `wrapper.setProps` delegates to this `@vue/test-utils` internal when the wrapper is the mount
+ * root, which is the case for the component we mount around the suspended component.
+ */
+export function patchWrapperSetProps(wrapper: object, setProps: (props: object) => void): void {
+  Object.assign(wrapper, { __setProps: setProps })
+}
 
 export type WrapperSuspendedOptions<Fn> = WrapperFnOption<Fn> & {
   /**
@@ -59,36 +75,71 @@ function addCleanup(fn: () => unknown) {
   window.__cleanup.push(fn)
 }
 
-function runEffectScope<T>(fn: () => T) {
+function removeCleanup(fn: () => unknown) {
+  const index = window.__cleanup?.indexOf(fn) ?? -1
+  if (index !== -1) {
+    window.__cleanup!.splice(index, 1)
+  }
+}
+
+function runEffectScope<T>(fn: () => T, register: (fn: () => unknown) => void) {
   const scope = effectScope()
-  addCleanup(() => scope.stop())
+  register(() => scope.stop())
   return scope.run(fn)
 }
 
-export function wrapperSuspended<C, Fn extends WrapperFn<C>>(
+export function wrapperSuspended<
+  C,
+  Fn extends WrapperFn<C>,
+  Opts extends WrapperSuspendedOptions<Fn>,
+>(
   component: C,
-  options: WrapperSuspendedOptions<Fn>,
+  options: Opts,
   {
     wrapperFn,
     wrappedRender = fn => fn,
     suspendedHelperName,
     clonedComponentName,
+    /**
+     * Replace `RouterLink` with a stub that renders an anchor without navigating. Environments that
+     * can handle real navigation (the browser) should keep the router's own component instead.
+     */
+    stubRouterLink = true,
   }: {
     wrapperFn: NonNullable<Fn>
     wrappedRender?: (render: () => VNode) => () => VNode
     suspendedHelperName: string
     clonedComponentName: string
+    stubRouterLink?: boolean
   },
 ): Promise<{
   wrapper: WrapperSuspendedResult<Fn>
   setProps: (props: object) => void
+  /**
+   * Stop only the effect scopes created by this call, leaving those of other mounted components
+   * alone. `cleanupAll` remains the way to release everything at a test boundary.
+   */
+  cleanup: () => void
 }> {
+  const vueApp = resolveVueApp()
+
+  const ownCleanups: Array<() => unknown> = []
+
+  function registerCleanup(fn: () => unknown) {
+    ownCleanups.push(fn)
+    addCleanup(fn)
+  }
+
+  function cleanup() {
+    for (const fn of ownCleanups.splice(0)) {
+      removeCleanup(fn)
+      fn()
+    }
+  }
+
   const { props = {}, attrs = {} } = options as ComponentMountingOptions<C>
   const { route = '/', scoped = false, spy = false, ...wrapperFnOptions } = options as ComponentMountingOptions<C>
 
-  const vueApp: App<Element> & Record<string, unknown> = tryUseNuxtApp()?.vueApp
-    // @ts-expect-error untyped global __unctx__
-    || globalThis.__unctx__.get('nuxt-app').tryUse().vueApp
   const {
     render: componentRender,
     setup: componentSetup,
@@ -97,7 +148,7 @@ export function wrapperSuspended<C, Fn extends WrapperFn<C>>(
 
   let wrappedInstance: ComponentInternalInstance | null = null
   let setupContext: SetupContext
-  let setupState: SetupState
+  let setupState: SetupState = {}
 
   const setProps = reactive<Record<string, unknown>>({})
 
@@ -126,7 +177,7 @@ export function wrapperSuspended<C, Fn extends WrapperFn<C>>(
       if (!componentSetup) return
 
       let result = scoped
-        ? await runEffectScope(() => componentSetup(props, setupContext))
+        ? await runEffectScope(() => componentSetup(props, setupContext), registerCleanup)
         : await componentSetup(props, setupContext)
 
       if (wrappedInstance?.exposed) {
@@ -177,6 +228,7 @@ export function wrapperSuspended<C, Fn extends WrapperFn<C>>(
               ...ctx,
               expose: () => {},
             }),
+            registerCleanup,
           )
 
           onErrorCaptured((error, ...args) => {
@@ -209,6 +261,7 @@ export function wrapperSuspended<C, Fn extends WrapperFn<C>>(
                   setProps: (props) => {
                     Object.assign(setProps, props)
                   },
+                  cleanup,
                 })
               }),
           },
@@ -232,7 +285,10 @@ export function wrapperSuspended<C, Fn extends WrapperFn<C>>(
             [SuspendedHelper.name]: false,
             [ClonedComponent.name]: false,
           },
-          components: { ...vueApp._context.components, RouterLink },
+          components: {
+            ...vueApp._context.components,
+            ...(stubRouterLink ? { RouterLink } : {}),
+          },
         }),
       },
     ) as WrapperSuspendedResult<Fn>

@@ -4,5 +4,12 @@ export default defineNuxtConfig({
   app: {
     rootId: 'nuxt-test',
   },
+  runtimeConfig: {
+    public: {
+      site: {
+        title: 'Vitest Browser Mode',
+      },
+    },
+  },
   compatibilityDate: '2024-04-03',
 })
