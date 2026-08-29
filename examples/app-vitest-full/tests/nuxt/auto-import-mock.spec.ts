@@ -1,5 +1,6 @@
 import { expect, it, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { unmockNuxtImport } from '../../../../src/runtime-utils/mock'
 
 mockNuxtImport(useAutoImportedTarget, () => {
   return () => 'mocked!'
@@ -34,4 +35,24 @@ it('should mock composable from external package', () => {
   expect(useCustomModuleAutoImportedNonTarget()).toMatchInlineSnapshot(
     '"the original"',
   )
+})
+
+unmockNuxtImport(useAutoImportNestedSetupOverridenMocked)
+mockNuxtImport(useAutoImportedNestedTargetChild, () => () => 'mocked!')
+mockNuxtImport(useAutoImportNestedSetupOverridenMockedChild, () => () => 'mocked in test file')
+
+it('should mock child useAutoImportedNestedTarget', async () => {
+  expect(useAutoImportedNestedTarget()).toBe('mocked!')
+})
+
+it('should mock child useAutoImportedNestedNonTarget', () => {
+  expect(useAutoImportedNestedNonTarget()).toBe('the original')
+})
+
+it('should mock child useAutoImportNestedSetupMocked', () => {
+  expect(useAutoImportNestedSetupMocked()).toBe('mocked in setup')
+})
+
+it('should mock child useAutoImportNestedSetupOverridenMocked', () => {
+  expect(useAutoImportNestedSetupOverridenMocked()).toBe('mocked in test file')
 })

@@ -54,22 +54,25 @@ describe('mocking', () => {
       const expected = `
         "import {vi} from "vitest";
 
-        vi.hoisted(() => { 
-                if(!globalThis.__NUXT_VITEST_MOCKS){
-                  vi.stubGlobal("__NUXT_VITEST_MOCKS", {})
-                }
-              });
+        vi.hoisted(() => {
+          if(!globalThis.__NUXT_VITEST_MOCKS){
+            vi.stubGlobal("__NUXT_VITEST_MOCKS", {})
+          }
+        });
 
         vi.mock("bob", async (importOriginal) => {
-          if (!globalThis.__NUXT_VITEST_MOCKS["bob"]) {
-            const original = await importOriginal("bob")
-            globalThis.__NUXT_VITEST_MOCKS["bob"] = { ...original }
+          if (!globalThis.__NUXT_VITEST_MOCKS["bob"] || false) {
+            const original = await importOriginal()
+            const previous = (globalThis.__NUXT_VITEST_MOCKS["bob"] ?? {}).__NUXT_VITEST_MOCKS_PREVIOUS ?? {}
+            globalThis.__NUXT_VITEST_MOCKS["bob"] = { ...original, ...previous }
             globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_ORIGINAL = { ...original }
+            globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_PREVIOUS = {}
           }
           globalThis.__NUXT_VITEST_MOCKS["bob"]["useSomeExport"] = await (() => {
                   return () => 'mocked'
-                })(globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_ORIGINAL["useSomeExport"]);
-          return globalThis.__NUXT_VITEST_MOCKS["bob"] 
+                })(globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_ORIGINAL["useSomeExport"])
+          globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_PREVIOUS["useSomeExport"] = globalThis.__NUXT_VITEST_MOCKS["bob"]["useSomeExport"]
+          return globalThis.__NUXT_VITEST_MOCKS["bob"]
         });
 
                 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
@@ -110,20 +113,23 @@ describe('mocking', () => {
       expect(code).toMatchInlineSnapshot(`
         "
                 import { expect, vi, it } from 'vitest'
-        vi.hoisted(() => { 
-                if(!globalThis.__NUXT_VITEST_MOCKS){
-                  vi.stubGlobal("__NUXT_VITEST_MOCKS", {})
-                }
-              });
+        vi.hoisted(() => {
+          if(!globalThis.__NUXT_VITEST_MOCKS){
+            vi.stubGlobal("__NUXT_VITEST_MOCKS", {})
+          }
+        });
 
         vi.mock("bob", async (importOriginal) => {
-          if (!globalThis.__NUXT_VITEST_MOCKS["bob"]) {
-            const original = await importOriginal("bob")
-            globalThis.__NUXT_VITEST_MOCKS["bob"] = { ...original }
+          if (!globalThis.__NUXT_VITEST_MOCKS["bob"] || false) {
+            const original = await importOriginal()
+            const previous = (globalThis.__NUXT_VITEST_MOCKS["bob"] ?? {}).__NUXT_VITEST_MOCKS_PREVIOUS ?? {}
+            globalThis.__NUXT_VITEST_MOCKS["bob"] = { ...original, ...previous }
             globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_ORIGINAL = { ...original }
+            globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_PREVIOUS = {}
           }
-          globalThis.__NUXT_VITEST_MOCKS["bob"]["useSomeExport"] = await (() => 'bob')(globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_ORIGINAL["useSomeExport"]);
-          return globalThis.__NUXT_VITEST_MOCKS["bob"] 
+          globalThis.__NUXT_VITEST_MOCKS["bob"]["useSomeExport"] = await (() => 'bob')(globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_ORIGINAL["useSomeExport"])
+          globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_PREVIOUS["useSomeExport"] = globalThis.__NUXT_VITEST_MOCKS["bob"]["useSomeExport"]
+          return globalThis.__NUXT_VITEST_MOCKS["bob"]
         });
 
                 
@@ -137,12 +143,97 @@ describe('mocking', () => {
       `)
       expect(code).not.toContain('import {vi} from "vitest";')
 
-      expect(code.split('\n')[22]?.substring(10)).toBe('expect(1).toBe(1)')
+      expect(code.split('\n')[25]?.substring(10)).toBe('expect(1).toBe(1)')
       expect(source.split('\n')[6]?.substring(10)).toBe('expect(1).toBe(1)')
-      expect(sourcemap.findEntry(22, 10)).toMatchObject({
-        generatedLine: 22,
+      expect(sourcemap.findEntry(25, 10)).toMatchObject({
+        generatedLine: 25,
         generatedColumn: 10,
         originalLine: 6,
+        originalColumn: 10,
+        originalSource: '/some/file.ts',
+      })
+    })
+
+    it('should transform code with unmock imports', async () => {
+      pluginContext.imports = [{
+        name: 'useParent1',
+        from: 'parent',
+      }, {
+        name: 'useParent2',
+        from: 'parent',
+      }, {
+        name: 'useChild',
+        from: 'child',
+      }]
+      const source = `
+        import { mockNuxtImport, unmockNuxtImport } from '@nuxt/test-utils/runtime'
+        unmockNuxtImport(useParent1)
+        mockNuxtImport(useChild, () => 'child')
+        mockNuxtImport(useParent2, () => 'parent2')
+        
+        it('test', () => {
+          const a = vi.fn()
+          expect(1).toBe(1)
+        })
+      `
+      const { code, sourcemap } = await getTransformResult(source)
+      expect(code).toMatchInlineSnapshot(`
+        "import {vi} from "vitest";
+
+        vi.hoisted(() => {
+          if(!globalThis.__NUXT_VITEST_MOCKS){
+            vi.stubGlobal("__NUXT_VITEST_MOCKS", {})
+          }
+        });
+
+        vi.unmock("parent");
+        vi.mock("child", async (importOriginal) => {
+          if (!globalThis.__NUXT_VITEST_MOCKS["child"] || false) {
+            const original = await importOriginal()
+            const previous = (globalThis.__NUXT_VITEST_MOCKS["child"] ?? {}).__NUXT_VITEST_MOCKS_PREVIOUS ?? {}
+            globalThis.__NUXT_VITEST_MOCKS["child"] = { ...original, ...previous }
+            globalThis.__NUXT_VITEST_MOCKS["child"].__NUXT_VITEST_MOCKS_ORIGINAL = { ...original }
+            globalThis.__NUXT_VITEST_MOCKS["child"].__NUXT_VITEST_MOCKS_PREVIOUS = {}
+          }
+          globalThis.__NUXT_VITEST_MOCKS["child"]["useChild"] = await (() => 'child')(globalThis.__NUXT_VITEST_MOCKS["child"].__NUXT_VITEST_MOCKS_ORIGINAL["useChild"])
+          globalThis.__NUXT_VITEST_MOCKS["child"].__NUXT_VITEST_MOCKS_PREVIOUS["useChild"] = globalThis.__NUXT_VITEST_MOCKS["child"]["useChild"]
+          return globalThis.__NUXT_VITEST_MOCKS["child"]
+        });
+        vi.mock("parent", async (importOriginal) => {
+          if (!globalThis.__NUXT_VITEST_MOCKS["parent"] || true) {
+            const original = await importOriginal()
+            const previous = (globalThis.__NUXT_VITEST_MOCKS["parent"] ?? {}).__NUXT_VITEST_MOCKS_PREVIOUS ?? {}
+            globalThis.__NUXT_VITEST_MOCKS["parent"] = { ...original, ...previous }
+            globalThis.__NUXT_VITEST_MOCKS["parent"].__NUXT_VITEST_MOCKS_ORIGINAL = { ...original }
+            globalThis.__NUXT_VITEST_MOCKS["parent"].__NUXT_VITEST_MOCKS_PREVIOUS = {}
+          }
+          globalThis.__NUXT_VITEST_MOCKS["parent"]["useParent2"] = await (() => 'parent2')(globalThis.__NUXT_VITEST_MOCKS["parent"].__NUXT_VITEST_MOCKS_ORIGINAL["useParent2"])
+          globalThis.__NUXT_VITEST_MOCKS["parent"].__NUXT_VITEST_MOCKS_PREVIOUS["useParent2"] = globalThis.__NUXT_VITEST_MOCKS["parent"]["useParent2"]
+          globalThis.__NUXT_VITEST_MOCKS["parent"]["useParent1"] = globalThis.__NUXT_VITEST_MOCKS["parent"].__NUXT_VITEST_MOCKS_ORIGINAL["useParent1"]
+          globalThis.__NUXT_VITEST_MOCKS["parent"].__NUXT_VITEST_MOCKS_PREVIOUS["useParent1"] = globalThis.__NUXT_VITEST_MOCKS["parent"]["useParent1"]
+          return globalThis.__NUXT_VITEST_MOCKS["parent"]
+        });
+
+                import { mockNuxtImport, unmockNuxtImport } from '@nuxt/test-utils/runtime'
+                
+                
+                
+                
+                it('test', () => {
+                  const a = vi.fn()
+                  expect(1).toBe(1)
+                })
+              
+         import "child";
+         import "parent";"
+      `)
+
+      expect(code.split('\n')[43]?.substring(10)).toBe('expect(1).toBe(1)')
+      expect(source.split('\n')[8]?.substring(10)).toBe('expect(1).toBe(1)')
+      expect(sourcemap.findEntry(43, 10)).toMatchObject({
+        generatedLine: 43,
+        generatedColumn: 10,
+        originalLine: 8,
         originalColumn: 10,
         originalSource: '/some/file.ts',
       })
@@ -174,11 +265,11 @@ describe('mocking', () => {
       expect(code).toMatchInlineSnapshot(`
         "import {vi} from "vitest";
 
-        vi.hoisted(() => { 
-                if(!globalThis.__NUXT_VITEST_MOCKS){
-                  vi.stubGlobal("__NUXT_VITEST_MOCKS", {})
-                }
-              });
+        vi.hoisted(() => {
+          if(!globalThis.__NUXT_VITEST_MOCKS){
+            vi.stubGlobal("__NUXT_VITEST_MOCKS", {})
+          }
+        });
 
         vi.mock("MyComponent", async () => {
           const factory = (() => import('./MockComponent.vue'));
