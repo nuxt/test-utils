@@ -30,12 +30,7 @@ const HELPERS_NAME = [
 interface MockImportInfo {
   name: string
   import: Import
-  factory?: string
-}
-
-interface UnmockImportInfo {
-  name: string
-  import: Import
+  factory: string | undefined
 }
 
 interface MockComponentInfo {
@@ -68,7 +63,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
 
         const s = new MagicString(code)
         const mocksImport: MockImportInfo[] = []
-        const unmocksImport: UnmockImportInfo[] = []
+        const unmocksFrom: Set<string> = new Set()
         const mocksComponent: MockComponentInfo[] = []
         const importPathsList: Set<string> = new Set()
 
@@ -156,7 +151,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
               if (node.arguments.length !== 1) {
                 return this.error(
                   new Error(
-                    `${HELPER_UNMOCK_IMPORT}() should have exactly 1 arguments`,
+                    `${HELPER_UNMOCK_IMPORT}() should have exactly 1 argument`,
                   ),
                   startOf(node),
                 )
@@ -169,9 +164,13 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
 
               removeCallExpression(node.arguments[0]!)
 
-              unmocksImport.push({
+              unmocksFrom.add(importItem.from)
+
+              // factory is not set, restore to original
+              mocksImport.push({
                 name,
                 import: importItem,
+                factory: undefined,
               })
             }
             // mockComponent
@@ -215,28 +214,21 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
           },
         })
 
-        if (mocksImport.length === 0 && unmocksImport.length === 0 && mocksComponent.length === 0) return
+        if (mocksImport.length === 0 && mocksComponent.length === 0) return
 
         const mockLines: string[] = []
 
-        const mockImportMap = mapGroupBy(mocksImport, mock => mock.import.from)
-        const unmockImportMap = mapGroupBy(unmocksImport, mock => mock.import.from)
-
-        for (const [from, mocks] of unmockImportMap) {
+        for (const from of unmocksFrom) {
           mockLines.push(`vi.unmock(${JSON.stringify(from)});`)
-          if (!mockImportMap.has(from)) {
-            mockImportMap.set(from, [])
-          }
-          mockImportMap.get(from)!.push(...mocks)
         }
 
-        for (const [from, mocks] of mockImportMap) {
+        for (const [from, mocks] of mapGroupBy(mocksImport, mock => mock.import.from)) {
           importPathsList.add(from)
           const quotedFrom = JSON.stringify(from)
           const mockModuleEntry = `globalThis.${HELPER_MOCK_HOIST}[${quotedFrom}]`
           mockLines.push(
             `vi.mock(${quotedFrom}, async (importOriginal) => {`,
-            `  if (!${mockModuleEntry} || ${unmockImportMap.has(from)}) {`,
+            `  if (!${mockModuleEntry} || ${unmocksFrom.has(from)}) {`,
             `    const original = await importOriginal()`,
             `    const previous = (${mockModuleEntry} ?? {}).${HELPER_MOCK_HOIST_PREVIOUS} ?? {}`,
             `    ${mockModuleEntry} = { ...original, ...previous }`,
