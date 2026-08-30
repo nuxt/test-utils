@@ -1,6 +1,5 @@
 import { expect, it, vi } from 'vitest'
-import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { unmockNuxtImport } from '../../../../src/runtime-utils/mock'
+import { mockNuxtImport, unmockNuxtImport } from '@nuxt/test-utils/runtime'
 
 mockNuxtImport(useAutoImportedTarget, () => {
   return () => 'mocked!'
