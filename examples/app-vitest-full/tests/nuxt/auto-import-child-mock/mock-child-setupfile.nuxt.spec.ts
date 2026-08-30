@@ -9,7 +9,7 @@ it('should apply mock of child composable using setup file', () => {
 })
 
 it('should call mocked child composable defined in setup file', () => {
-  const message = useMassageParent()
+  const message = useMessageParent()
   expect(message.get1()).toBe('setupfile child1 message')
   expect(message.get2()).toBe('setupfile child2 message')
 })

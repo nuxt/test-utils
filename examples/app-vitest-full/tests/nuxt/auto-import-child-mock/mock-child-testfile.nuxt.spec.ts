@@ -1,7 +1,7 @@
 import { it, expect } from 'vitest'
 import { mockNuxtImport, unmockNuxtImport } from '@nuxt/test-utils/runtime'
 
-unmockNuxtImport(useMassageParent)
+unmockNuxtImport(useMessageParent)
 mockNuxtImport(useMessageChild1, () => () => ({
   get: () => 'testfile child1 message',
 }))
@@ -15,7 +15,7 @@ it('should apply mock of child composable using test file', () => {
 })
 
 it('should apply mock of child composable using test file with call', () => {
-  const message = useMassageParent()
+  const message = useMessageParent()
   expect(message.get1()).toBe('testfile child1 message')
   expect(message.get2()).toBe('original child2 message')
 })

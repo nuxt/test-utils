@@ -30,7 +30,7 @@ mockNuxtImport(useAutoImportNestedSetupOverridenMocked,
     }),
 )
 
-mockNuxtImport(useMassageParent, () => () => ({
+mockNuxtImport(useMessageParent, () => () => ({
   get1: () => 'setupfile child1 message',
   get2: () => 'setupfile child2 message',
 }))

@@ -1,7 +1,7 @@
 import { it, expect } from 'vitest'
 import { mockNuxtImport, unmockNuxtImport } from '@nuxt/test-utils/runtime'
 
-unmockNuxtImport(useMassageParent)
+unmockNuxtImport(useMessageParent)
 mockNuxtImport(useMessageChild1, () => () => ({
   get: () => 'testfile child1 message',
 }))
