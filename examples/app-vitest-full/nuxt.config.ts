@@ -4,6 +4,11 @@ export default defineNuxtConfig({
   modules: ['@nuxt/test-utils/module', '~/modules/custom'],
   imports: {
     injectAtEnd: true,
+    imports: [
+      { name: 'useAliasExport1', as: 'useAliasExport1As', from: '~/composables/internal/use-alias-export.ts' },
+      { name: 'useAliasExport2', as: 'useAliasExport2As', from: '~/composables/internal/use-alias-export.ts' },
+      { name: 'useAliasExport3', as: 'useAliasExport3As', from: '~/composables/internal/use-alias-export.ts' },
+    ],
   },
   devtools: { enabled: true },
   runtimeConfig: {

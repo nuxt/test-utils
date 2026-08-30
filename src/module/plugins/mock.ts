@@ -238,7 +238,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
           )
 
           for (const mock of mocks) {
-            const quotedName = JSON.stringify(mock.import.name === 'default' ? 'default' : mock.name)
+            const quotedName = JSON.stringify(mock.import.name)
             const original = `${mockModuleEntry}.${HELPER_MOCK_HOIST_ORIGINAL}[${quotedName}]`
             const factory = mock.factory ? `await (${mock.factory})(${original})` : original
             mockLines.push(

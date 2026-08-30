@@ -63,3 +63,18 @@ it('should mock child useAutoImportNestedSetupMocked', () => {
 it('should mock child useAutoImportNestedSetupOverridenMocked', () => {
   expect(useAutoImportNestedSetupOverridenMocked()).toBe('mocked in test file')
 })
+
+unmockNuxtImport(useAliasExport2As)
+mockNuxtImport(useAliasExport3As, () => () => 'mocked!')
+
+it('should mock aliased import via setup file', () => {
+  expect(useAliasExport1As()).toBe('mocked in setup')
+})
+
+it('should unmock aliased import', () => {
+  expect(useAliasExport2As()).toBe('the original')
+})
+
+it('should mock aliased import via test file', () => {
+  expect(useAliasExport3As()).toBe('mocked!')
+})
