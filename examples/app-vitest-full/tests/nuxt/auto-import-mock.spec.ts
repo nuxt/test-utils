@@ -19,21 +19,29 @@ mockNuxtImport<typeof useAutoImportSetupOverridenMocked>(
   },
 )
 
-it('should mock', () => {
+it('should mock useAutoImportedTarget', () => {
   vi.fn()
-  expect(useAutoImportedTarget()).toMatchInlineSnapshot('"mocked!"')
-  expect(useAutoImportedNonTarget()).toMatchInlineSnapshot('"the original"')
-  expect(useAutoImportSetupOverridenMocked()).toMatchInlineSnapshot(
-    '"mocked in test file"',
-  )
-  expect(useAutoImportSetupMocked()).toMatchInlineSnapshot('"mocked in setup"')
+  expect(useAutoImportedTarget()).toBe('mocked!')
 })
 
-it('should mock composable from external package', () => {
-  expect(useCustomModuleAutoImportedTarget()).toMatchInlineSnapshot('"mocked!"')
-  expect(useCustomModuleAutoImportedNonTarget()).toMatchInlineSnapshot(
-    '"the original"',
-  )
+it('should mock useAutoImportedNonTarget', () => {
+  expect(useAutoImportedNonTarget()).toBe('the original')
+})
+
+it('should mock useAutoImportSetupOverridenMocked', () => {
+  expect(useAutoImportSetupOverridenMocked()).toBe('mocked in test file')
+})
+
+it('should mock useAutoImportSetupMocked', () => {
+  expect(useAutoImportSetupMocked()).toBe('mocked in setup')
+})
+
+it('should mock composable from external package useCustomModuleAutoImportedTarget', () => {
+  expect(useCustomModuleAutoImportedTarget()).toBe('mocked!')
+})
+
+it('should mock composable from external package useCustomModuleAutoImportedNonTarget', () => {
+  expect(useCustomModuleAutoImportedNonTarget()).toBe('the original')
 })
 
 unmockNuxtImport(useAutoImportNestedSetupOverridenMocked)
