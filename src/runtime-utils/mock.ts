@@ -165,7 +165,7 @@ export function mockNuxtImport<T = unknown>(
  * unmockNuxtImport(useStorage)
  * ```
  */
-function unmockNuxtImport<T = unknown>(
+export function unmockNuxtImport<T = unknown>(
   _target: string | T,
 ): void {
   throw new Error(
