@@ -1,6 +1,6 @@
 import { it, expect } from 'vitest'
 
-it('should apply mock of child composable to plugin using setup file', () => {
+it('should apply child mock to plugin from setup file', () => {
   const { $messageStorePlugin } = useNuxtApp()
   expect($messageStorePlugin.store.value).toEqual([
     'setupfile child1 message',
@@ -8,7 +8,7 @@ it('should apply mock of child composable to plugin using setup file', () => {
   ])
 })
 
-it('should call mock of child composable to plugin using setup file', () => {
+it('should call child mock in plugin from setup file', () => {
   const { $messageStorePlugin } = useNuxtApp()
   $messageStorePlugin.push1()
   $messageStorePlugin.push2()

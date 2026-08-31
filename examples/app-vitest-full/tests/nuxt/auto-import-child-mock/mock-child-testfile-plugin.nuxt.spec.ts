@@ -6,7 +6,7 @@ mockNuxtImport(useMessageChild1, () => () => ({
   get: () => 'testfile child1 message',
 }))
 
-it('should apply mock of child composable to plugin using test file', () => {
+it('should apply child mock to plugin in test file', () => {
   const { $messageStorePlugin } = useNuxtApp()
   expect($messageStorePlugin.store.value).toEqual([
     'testfile child1 message',
@@ -14,7 +14,7 @@ it('should apply mock of child composable to plugin using test file', () => {
   ])
 })
 
-it('should call mock of child composable to plugin using test file', () => {
+it('should call child mock in plugin in test file', () => {
   const { $messageStorePlugin } = useNuxtApp()
   $messageStorePlugin.push1()
   $messageStorePlugin.push2()
