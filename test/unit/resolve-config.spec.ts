@@ -319,7 +319,7 @@ async function collectTestSpecifications(path: string, cliOptions?: VitestCliOpt
   return runWithVitest(path, cliOptions ?? {}, async (vitest) => {
     const result: Record<string, string[]> = {}
 
-    const collects = await vitest.collect()
+    const collects = await vitest.collect([], { staticParse: false })
     for (const testModule of collects.testModules) {
       const project = testModule.project.name || testModule.project.config.environment
       const viteEnvName = testModule.viteEnvironment?.name || ''
