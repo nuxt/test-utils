@@ -36,7 +36,7 @@ export async function mountSuspended<T>(
   component: T,
   options: WrapperOptions<T> = {},
 ): Promise<WrapperResult<T>> {
-  const { cleanupAll, wrapperSuspended } = await import('./utils/suspended.ts')
+  const { cleanupAll, patchWrapperSetProps, wrapperSuspended } = await import('./utils/suspended.ts')
 
   const suspendedHelperName = 'MountSuspendedHelper'
   const clonedComponentName = 'MountSuspendedComponent'
@@ -49,7 +49,7 @@ export async function mountSuspended<T>(
     clonedComponentName,
   })
 
-  Object.assign(wrapper, { __setProps: setProps })
+  patchWrapperSetProps(wrapper, setProps)
 
   const clonedComponent = wrapper.findComponent({ name: clonedComponentName })
 

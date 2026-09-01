@@ -1,0 +1,61 @@
+import { describe, it, expect, vi } from 'vitest'
+
+import { mountSuspended } from '@nuxt/test-utils/runtime'
+
+import { MyCounter, CustomRandom } from '#components'
+
+describe('Component (MyCounter)', () => {
+  it('renders', async () => {
+    const component = await mountSuspended(MyCounter)
+    expect(component.text()).toContain('Count: 0')
+  })
+
+  it('can be interacted with (increment)', async () => {
+    const component = await mountSuspended(MyCounter)
+    const incrementButton = component.findAll('button').filter(btn => btn.text().includes('Increment'))[0]!
+    incrementButton.element.click()
+    await nextTick()
+    expect(component.text()).toContain('Count: 1')
+  })
+
+  it('can be interacted with (decrement)', async () => {
+    const component = await mountSuspended(MyCounter)
+    const decrementButton = component.findAll('button').filter(btn => btn.text().includes('Decrement'))[0]!
+    decrementButton.element.click()
+    await nextTick()
+    expect(component.text()).toContain('Count: -1')
+  })
+
+  it('can use Nuxt-specific composables', async () => {
+    const component = await mountSuspended(MyCounter)
+    expect(component.text()).toMatch(/"buildAssetsDir"\s*:\s*"\/_nuxt\/"/)
+  })
+
+  it('can spy component setup state', async () => {
+    const wrapper = await mountSuspended(CustomRandom, {
+      spy: true,
+    })
+
+    vi.mocked(wrapper.setupState.getRandom).mockImplementation(() => 200)
+
+    await wrapper.find('#random').trigger('click')
+
+    expect(wrapper.setupState.getRandom).toHaveBeenCalled()
+    expect(wrapper.setupState.random).toHaveBeenCalledWith(200)
+    expect(wrapper.setupState.input.value).toBe(400)
+  })
+
+  it('can spy component exposed via setupState', async () => {
+    const wrapper = await mountSuspended(CustomRandom, {
+      spy: true,
+    })
+
+    vi.mocked(wrapper.setupState.getRandom2).mockImplementation(() => 200)
+
+    await wrapper.find('#random2').trigger('click')
+
+    expect(wrapper.setupState.getRandom2).toHaveBeenCalled()
+    expect(wrapper.setupState.random2).toHaveBeenCalledWith(200)
+    expect(wrapper.setupState.input.value).toBe(400)
+  })
+})

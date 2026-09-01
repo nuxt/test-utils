@@ -6,8 +6,15 @@ import { fetch as _fetch, createFetch } from 'ofetch'
 import { resolve } from 'pathe'
 import { joinURL } from 'ufo'
 import { useTestContext } from './context.ts'
+import type { TestContext } from './types.ts'
 
 const globalFetch = globalThis.fetch || _fetch
+
+/**
+ * Per-context promise that resolves once the server subprocess's output has
+ * been fully collected into `ctx.serverLogs`. Absent when log capture is off.
+ */
+const serverLogsCollected = new WeakMap<TestContext, Promise<void>>()
 
 export interface StartServerOptions {
   env?: Record<string, unknown>
@@ -21,13 +28,18 @@ export interface StartServerOptions {
 export async function startServer(options: StartServerOptions = {}) {
   const ctx = useTestContext()
   await stopServer()
+  if (ctx.disposed) {
+    throw new Error('Test context has been torn down; refusing to start a server.')
+  }
   ctx.serverLogs = []
   const host = '127.0.0.1'
   const port = ctx.options.port || (await getRandomPort(host))
   ctx.url = `http://${host}:${port}/`
+  serverLogsCollected.delete(ctx)
   const capture = ctx.options.captureServerLogs !== false
   const stdio = capture ? 'pipe' : 'inherit'
   const logLevel = String(options.logLevel ?? ctx.options.logLevel)
+  const startedAt = Date.now()
   if (ctx.options.dev) {
     ctx.serverProcess = x('nuxi', ['_dev'], {
       throwOnError: true,
@@ -76,24 +88,85 @@ export async function startServer(options: StartServerOptions = {}) {
   }
 
   if (capture) {
-    ;(async () => {
+    serverLogsCollected.set(ctx, (async () => {
       for await (const line of ctx.serverProcess!) {
         ctx.serverLogs.push(line)
       }
-    })().catch(() => {})
+    })().catch(() => {}))
   }
 
-  await waitForServer({ host, port, dev: ctx.options.dev })
+  // The context can be disposed while a caller was still building, in which
+  // case the process we just spawned would be orphaned.
+  if (ctx.disposed) {
+    await stopServer()
+    throw new Error('Test context has been torn down; server was stopped again.')
+  }
+
+  await waitForServer({ host, port, startedAt })
 }
 
 interface WaitForServerOptions {
   host: string
   port: number
-  dev: boolean
+  startedAt: number
 }
 
-async function waitForServer({ host, port, dev }: WaitForServerOptions) {
+const REPLAYED_LOG_LINES = 30
+
+// `signalCode` is not part of tinyexec's `Result` surface, so read it off the
+// underlying child: a process reaped by an external signal (OOM killer, CI
+// runner) reports neither `killed` nor an `exitCode`.
+function signalCode(proc: NonNullable<TestContext['serverProcess']>) {
+  return proc.process?.signalCode ?? null
+}
+
+function hasExited(proc: TestContext['serverProcess']): boolean {
+  return !!proc && (proc.killed || proc.exitCode != null || signalCode(proc) !== null)
+}
+
+async function flushServerLogs(ctx: TestContext) {
+  const collected = serverLogsCollected.get(ctx)
+  if (!collected) {
+    return
+  }
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<void>((resolve) => {
+    timer = setTimeout(resolve, 1_000)
+  })
+  try {
+    await Promise.race([collected, timeout])
+  }
+  finally {
+    clearTimeout(timer)
+  }
+}
+
+function earlyExitError(ctx: TestContext, elapsed: number) {
+  const proc = ctx.serverProcess!
+  const signal = signalCode(proc)
+  const details = [
+    // a signalled process has no exit code, and the signal is the whole explanation
+    signal ? `signal: ${signal}` : `exit code: ${proc.exitCode ?? 'unknown'}`,
+    `killed: ${proc.killed}`,
+    `after ${elapsed}ms`,
+    `mode: ${ctx.options.dev ? 'dev' : 'built'}`,
+  ].join(', ')
+
+  const message = `Server process exited before becoming ready (${details})`
+  const output = ctx.serverLogs.slice(-REPLAYED_LOG_LINES).join('\n')
+
+  if (output) {
+    return new Error(`${message}\n--- last output from the server process ---\n${output}`)
+  }
+  if (!serverLogsCollected.has(ctx)) {
+    return new Error(`${message}\n(no output captured: \`captureServerLogs\` is disabled)`)
+  }
+  return new Error(`${message}\n(the server process produced no output)`)
+}
+
+async function waitForServer({ host, port, startedAt }: WaitForServerOptions) {
   const ctx = useTestContext()
+  const dev = ctx.options.dev
   const baseURL = ctx.nuxt?.options.app.baseURL ?? '/'
   const deadline = Date.now() + ctx.options.serverStartTimeout
 
@@ -101,9 +174,21 @@ async function waitForServer({ host, port, dev }: WaitForServerOptions) {
   await waitForPort(port, { retries: 8, host }).catch(() => {})
 
   let lastError: unknown
+  let scannedLogs = 0
   while (Date.now() < deadline) {
-    if (ctx.serverProcess && (ctx.serverProcess.killed || ctx.serverProcess.exitCode != null)) {
-      throw new Error(`Server process exited before becoming ready (exit code: ${ctx.serverProcess.exitCode ?? 'unknown'})`)
+    // `nuxi _dev` silently falls back to another port when the requested one is
+    // taken, so follow it rather than polling a URL nothing is listening on.
+    while (scannedLogs < ctx.serverLogs.length) {
+      const match = /Port \d+ is in use, using port (\d+) instead/.exec(ctx.serverLogs[scannedLogs++]!)
+      if (match) {
+        ctx.url = `http://${host}:${match[1]}/`
+      }
+    }
+    if (hasExited(ctx.serverProcess)) {
+      await flushServerLogs(ctx)
+      const error = earlyExitError(ctx, Date.now() - startedAt)
+      await stopServer()
+      throw error
     }
     try {
       const res = await globalFetch(joinURL(ctx.url!, baseURL), { signal: AbortSignal.timeout(10_000) })
@@ -127,10 +212,24 @@ async function waitForServer({ host, port, dev }: WaitForServerOptions) {
     await new Promise(resolve => setTimeout(resolve, 100))
   }
 
+  // a fetch can hang for 10s, so the process may have died since the last check
+  let error: Error
+  if (hasExited(ctx.serverProcess)) {
+    await flushServerLogs(ctx)
+    error = earlyExitError(ctx, Date.now() - startedAt)
+  }
+  else {
+    await flushServerLogs(ctx)
+    const output = ctx.serverLogs.slice(-REPLAYED_LOG_LINES).join('\n')
+    error = new Error(
+      `Timeout (${ctx.options.serverStartTimeout}ms) waiting for ${dev ? 'dev' : 'built'} server to become ready at ${ctx.url}`
+      + (output ? `\n--- last output from the server process ---\n${output}` : ''),
+      { cause: lastError },
+    )
+  }
+
   await stopServer()
-  throw lastError instanceof Error
-    ? lastError
-    : new Error(`Timeout (${ctx.options.serverStartTimeout}ms) waiting for ${dev ? 'dev' : 'built'} server to become ready at ${ctx.url}`)
+  throw error
 }
 
 /**

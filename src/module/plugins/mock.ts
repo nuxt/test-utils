@@ -250,7 +250,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
 
         return {
           code: s.toString(),
-          map: s.generateMap(),
+          map: s.generateMap({ hires: true }),
         }
       },
       // Place Vitest's mock plugin after all Nuxt plugins

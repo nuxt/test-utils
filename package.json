@@ -1,6 +1,6 @@
 {
   "name": "@nuxt/test-utils",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nuxt/test-utils.git"
@@ -18,6 +18,8 @@
     "./module": "./src/module.ts",
     "./runtime": "./src/runtime-utils/index.ts",
     "./vitest-environment": "./src/vitest-environment.ts",
+    "./browser": "./src/browser/index.ts",
+    "./browser/pure": "./src/browser/pure.ts",
     "./package.json": "./package.json"
   },
   "imports": {
@@ -48,6 +50,12 @@
       ],
       "vitest-environment": [
         "./dist/vitest-environment.d.mts"
+      ],
+      "browser": [
+        "./dist/browser/index.d.mts"
+      ],
+      "browser/pure": [
+        "./dist/browser/pure.d.mts"
       ]
     }
   },
@@ -65,13 +73,13 @@
     "test:types": "vue-tsc --noEmit && vitest --dir ./test/types --typecheck.only --run",
     "test:unit": "vitest --dir ./test/unit --run",
     "build": "tsdown",
-    "prepack": "tsdown",
+    "prepack": "nuxt prepare && tsdown",
     "dev:prepare": "nuxt prepare && pnpm -r dev:prepare"
   },
   "dependencies": {
     "@clack/prompts": "1.7.0",
     "@nuxt/devtools-kit": "^2.7.0",
-    "@nuxt/kit": "^3.21.10",
+    "@nuxt/kit": "^3.21.11",
     "c12": "^3.3.4",
     "consola": "^3.4.2",
     "defu": "^6.1.7",
@@ -82,7 +90,7 @@
     "get-port-please": "^3.2.0",
     "h3": "^1.15.11",
     "local-pkg": "^1.2.1",
-    "magic-string": "^1.1.0",
+    "magic-string": "^1.2.3",
     "node-fetch-native": "^1.6.7",
     "node-mock-http": "^1.0.5",
     "nypm": "^0.6.9",
@@ -96,42 +104,40 @@
     "ufo": "^1.6.4",
     "unplugin": "^3.3.0",
     "vitest-environment-nuxt": "workspace:*",
-    "vue": "^3.5.40"
+    "vue": "^3.5.42"
   },
   "devDependencies": {
     "@cucumber/cucumber": "12.9.0",
-    "@jest/globals": "30.4.1",
-    "@nuxt/eslint-config": "1.16.0",
-    "@nuxt/schema": "4.5.1",
+    "@jest/globals": "30.5.0",
+    "@nuxt/eslint-config": "1.17.0",
+    "@nuxt/schema": "4.5.2",
     "@playwright/test": "1.62.1",
     "@testing-library/vue": "8.1.0",
-    "@types/bun": "1.3.14",
+    "@types/bun": "1.4.0",
     "@types/estree": "1.0.9",
-    "@types/jsdom": "28.0.3",
-    "@types/node": "latest",
-    "@types/semver": "7.8.0",
-    "@vitest/browser-playwright": "4.1.10",
-    "@vue/test-utils": "2.4.11",
+    "@types/jsdom": "30.0.0",
+    "@types/node": "24.13.3",
+    "@vitest/browser-playwright": "4.1.11",
+    "@vue/test-utils": "2.5.0",
     "h3-next": "npm:h3@2.0.1-rc.22",
     "changelogen": "0.6.2",
     "compatx": "0.2.0",
-    "eslint": "10.8.0",
-    "installed-check": "10.0.1",
-    "knip": "6.31.0",
+    "eslint": "10.9.1",
+    "installed-check": "11.0.0",
+    "knip": "6.33.0",
     "nitropack": "2.13.4",
-    "nuxt": "4.5.1",
-    "oxc-parser": "0.142.0",
-    "pkg-pr-new": "0.0.86",
+    "nuxt": "4.5.2",
+    "oxc-parser": "0.147.0",
+    "pkg-pr-new": "0.0.88",
     "playwright-core": "1.62.1",
-    "rollup": "4.62.4",
-    "semver": "7.8.5",
+    "rollup": "4.63.1",
     "tsdown": "0.22.14",
     "typescript": "6.0.3",
     "unimport": "6.4.0",
-    "vite": "8.2.0",
-    "vitest": "4.1.10",
-    "vue-router": "5.2.0",
-    "vue-tsc": "3.3.9"
+    "vite": "8.2.2",
+    "vitest": "4.1.11",
+    "vue-router": "5.3.0",
+    "vue-tsc": "3.3.11"
   },
   "peerDependencies": {
     "@cucumber/cucumber": ">=11.0.0",
@@ -183,7 +189,7 @@
   "engines": {
     "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
   },
-  "packageManager": "pnpm@11.18.0",
+  "packageManager": "pnpm@11.25.0",
   "publishConfig": {
     "exports": {
       ".": "./dist/e2e.mjs",
@@ -194,6 +200,8 @@
       "./module": "./dist/module.mjs",
       "./runtime": "./dist/runtime-utils/index.mjs",
       "./vitest-environment": "./dist/vitest-environment.mjs",
+      "./browser": "./dist/browser/index.mjs",
+      "./browser/pure": "./dist/browser/pure.mjs",
       "./package.json": "./package.json"
     }
   }

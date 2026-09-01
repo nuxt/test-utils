@@ -9,7 +9,7 @@
         "src/runtime/**/*.{js,ts,mjs,vue}",
         "src/experimental.ts",
         "src/vitest-environment.ts",
-        "test/fixtures/**/*.ts"
+        "test/fixtures/**/*.{js,ts,mjs,vue}"
       ],
       "ignoreFiles": [
         "test/unit/__snapshots__/**/*"
@@ -30,7 +30,8 @@
         "happy-dom",
         "jsdom",
         "playwright-core",
-        "vitest"
+        "vitest",
+        "vitest-browser-vue"
       ]
     }
   },

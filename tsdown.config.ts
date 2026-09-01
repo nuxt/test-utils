@@ -26,6 +26,8 @@ export default defineConfig([
       'src/vitest-environment.ts',
       'src/vitest-wrapper/cli.ts',
       'src/runtime-utils/index.ts',
+      'src/browser/index.ts',
+      'src/browser/pure.ts',
     ],
     deps: {
       onlyBundle: [],

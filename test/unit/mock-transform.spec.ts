@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
+import Module from 'node:module'
 import { rollup } from 'rollup'
 import type { InputPluginOption } from 'rollup'
 import { createMockPlugin } from '../../src/module/plugins/mock'
@@ -7,7 +8,7 @@ import type { MockPluginContext } from '../../src/module/plugins/mock'
 describe('mocking', () => {
   const pluginContext: MockPluginContext = { imports: [], components: [] }
   const plugin = createMockPlugin(pluginContext)
-  const getResult = (code: string) => new Promise<string>((resolve) => {
+  const getTransformResult = (code: string) => new Promise<{ code: string, sourcemap: Module.SourceMap }>((resolve, reject) => {
     const input = '/some/file.ts'
     rollup({
       input,
@@ -22,16 +23,22 @@ describe('mocking', () => {
           name: 'resolve',
           transform: {
             order: 'post',
-            handler: (code) => {
-              resolve(code)
+            handler(code, _) {
+              const sourcemap = this.getCombinedSourcemap()
+              resolve({
+                code,
+                sourcemap: new Module.SourceMap(sourcemap as unknown as Module.SourceMapPayload),
+              })
               // suppress any errors from rollup itself
               return 'export default 42'
             },
           },
         },
       ],
-    })
+    }).catch(reject)
   })
+
+  const getResult = (code: string) => getTransformResult(code).then(r => r.code)
 
   beforeEach(() => {
     pluginContext.components = []
@@ -90,14 +97,16 @@ describe('mocking', () => {
         name: 'useSomeExport',
         from: 'bob',
       }]
-      const code = await getResult(`
+      const source = `
         import { expect, vi, it } from 'vitest'
         mockNuxtImport('useSomeExport', () => 'bob')
         
         it('test', () => {
           const a = vi.fn()
+          expect(1).toBe(1)
         })
-      `)
+      `
+      const { code, sourcemap } = await getTransformResult(source)
       expect(code).toMatchInlineSnapshot(`
         "
                 import { expect, vi, it } from 'vitest'
@@ -121,11 +130,22 @@ describe('mocking', () => {
                 
                 it('test', () => {
                   const a = vi.fn()
+                  expect(1).toBe(1)
                 })
               
          import "bob";"
       `)
       expect(code).not.toContain('import {vi} from "vitest";')
+
+      expect(code.split('\n')[22]?.substring(10)).toBe('expect(1).toBe(1)')
+      expect(source.split('\n')[6]?.substring(10)).toBe('expect(1).toBe(1)')
+      expect(sourcemap.findEntry(22, 10)).toMatchObject({
+        generatedLine: 22,
+        generatedColumn: 10,
+        originalLine: 6,
+        originalColumn: 10,
+        originalSource: '/some/file.ts',
+      })
     })
   })
 
@@ -141,10 +161,17 @@ describe('mocking', () => {
         shortPath: 'thing.vue',
         filePath: '/test/thing.vue',
       }]
-      expect(await getResult(`
+      const source = `
         import { mockComponent } from '@nuxt/test-utils/runtime'
         mockComponent('MyComponent', () => import('./MockComponent.vue'))
-      `)).toMatchInlineSnapshot(`
+
+        it('test', () => {
+          const a = vi.fn()
+          expect(1).toBe(1)
+        })
+      `
+      const { code, sourcemap } = await getTransformResult(source)
+      expect(code).toMatchInlineSnapshot(`
         "import {vi} from "vitest";
 
         vi.hoisted(() => { 
@@ -161,8 +188,23 @@ describe('mocking', () => {
 
                 import { mockComponent } from '@nuxt/test-utils/runtime'
                 
+
+                it('test', () => {
+                  const a = vi.fn()
+                  expect(1).toBe(1)
+                })
               "
       `)
+
+      expect(code.split('\n')[19]?.substring(10)).toBe('expect(1).toBe(1)')
+      expect(source.split('\n')[6]?.substring(10)).toBe('expect(1).toBe(1)')
+      expect(sourcemap.findEntry(19, 10)).toMatchObject({
+        generatedLine: 19,
+        generatedColumn: 10,
+        originalLine: 6,
+        originalColumn: 10,
+        originalSource: '/some/file.ts',
+      })
     })
   })
 })

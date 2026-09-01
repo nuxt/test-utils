@@ -11,7 +11,7 @@ import { createResolver, findPath } from '@nuxt/kit'
 import { resolveModulePath } from 'exsolve'
 import { getPackageInfoSync } from 'local-pkg'
 
-import { applyEnv, loadKit } from './utils.ts'
+import { applyEnv, deepCopy, loadKit } from './utils.ts'
 import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options.ts'
 
 interface GetVitestConfigOptions {
@@ -194,7 +194,7 @@ export async function getVitestConfigFromNuxt(
         environmentOptions: {
           nuxtAppId: options.nuxt.options.appId,
           nuxtFuture: defu({}, options.nuxt.options.future),
-          nuxtRuntimeConfig: applyEnv(structuredClone(options.nuxt.options.runtimeConfig), {
+          nuxtRuntimeConfig: applyEnv(deepCopy(options.nuxt.options.runtimeConfig), {
             prefix: 'NUXT_',
             env: await setupDotenv(defu(loadNuxtOptions.dotenv, {
               cwd: rootDir,
@@ -387,6 +387,9 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
       delete resolvedConfig.test.include
       delete resolvedConfig.test.exclude
 
+      delete resolvedConfig.test.includeSource
+      delete defaultProject.test.includeSource
+
       resolvedConfig.test.projects = [nuxtProject, defaultProject]
     }
 
@@ -425,7 +428,7 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
     await getVitestConfigFromNuxt(undefined, {
       dotenv: config.test?.environmentOptions?.nuxt?.dotenv,
       nitroEnvironment: config.test?.environmentOptions?.nuxt?.nitroEnvironment,
-      overrides: structuredClone(overrides),
+      overrides: deepCopy(overrides),
     }) satisfies ViteUserConfig & { test: NonNullable<T['test']> },
   ) as T & { test: NonNullable<T['test']> }
 
