@@ -66,7 +66,7 @@ describe('mocking', () => {
             const previous = (globalThis.__NUXT_VITEST_MOCKS["bob"] ?? {}).__NUXT_VITEST_MOCKS_PREVIOUS ?? {}
             globalThis.__NUXT_VITEST_MOCKS["bob"] = { ...original, ...previous }
             globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_ORIGINAL = { ...original }
-            globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_PREVIOUS = {}
+            globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_PREVIOUS = { ...previous }
           }
           globalThis.__NUXT_VITEST_MOCKS["bob"]["useSomeExport"] = await (() => {
                   return () => 'mocked'
@@ -125,7 +125,7 @@ describe('mocking', () => {
             const previous = (globalThis.__NUXT_VITEST_MOCKS["bob"] ?? {}).__NUXT_VITEST_MOCKS_PREVIOUS ?? {}
             globalThis.__NUXT_VITEST_MOCKS["bob"] = { ...original, ...previous }
             globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_ORIGINAL = { ...original }
-            globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_PREVIOUS = {}
+            globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_PREVIOUS = { ...previous }
           }
           globalThis.__NUXT_VITEST_MOCKS["bob"]["useSomeExport"] = await (() => 'bob')(globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_ORIGINAL["useSomeExport"])
           globalThis.__NUXT_VITEST_MOCKS["bob"].__NUXT_VITEST_MOCKS_PREVIOUS["useSomeExport"] = globalThis.__NUXT_VITEST_MOCKS["bob"]["useSomeExport"]
@@ -193,10 +193,10 @@ describe('mocking', () => {
             const previous = (globalThis.__NUXT_VITEST_MOCKS["parent"] ?? {}).__NUXT_VITEST_MOCKS_PREVIOUS ?? {}
             globalThis.__NUXT_VITEST_MOCKS["parent"] = { ...original, ...previous }
             globalThis.__NUXT_VITEST_MOCKS["parent"].__NUXT_VITEST_MOCKS_ORIGINAL = { ...original }
-            globalThis.__NUXT_VITEST_MOCKS["parent"].__NUXT_VITEST_MOCKS_PREVIOUS = {}
+            globalThis.__NUXT_VITEST_MOCKS["parent"].__NUXT_VITEST_MOCKS_PREVIOUS = { ...previous }
           }
           globalThis.__NUXT_VITEST_MOCKS["parent"]["useParent1"] = globalThis.__NUXT_VITEST_MOCKS["parent"].__NUXT_VITEST_MOCKS_ORIGINAL["useParent1"]
-          globalThis.__NUXT_VITEST_MOCKS["parent"].__NUXT_VITEST_MOCKS_PREVIOUS["useParent1"] = globalThis.__NUXT_VITEST_MOCKS["parent"]["useParent1"]
+          delete globalThis.__NUXT_VITEST_MOCKS["parent"].__NUXT_VITEST_MOCKS_PREVIOUS["useParent1"]
           globalThis.__NUXT_VITEST_MOCKS["parent"]["useParent2"] = await (() => 'parent2')(globalThis.__NUXT_VITEST_MOCKS["parent"].__NUXT_VITEST_MOCKS_ORIGINAL["useParent2"])
           globalThis.__NUXT_VITEST_MOCKS["parent"].__NUXT_VITEST_MOCKS_PREVIOUS["useParent2"] = globalThis.__NUXT_VITEST_MOCKS["parent"]["useParent2"]
           return globalThis.__NUXT_VITEST_MOCKS["parent"]
@@ -207,7 +207,7 @@ describe('mocking', () => {
             const previous = (globalThis.__NUXT_VITEST_MOCKS["child"] ?? {}).__NUXT_VITEST_MOCKS_PREVIOUS ?? {}
             globalThis.__NUXT_VITEST_MOCKS["child"] = { ...original, ...previous }
             globalThis.__NUXT_VITEST_MOCKS["child"].__NUXT_VITEST_MOCKS_ORIGINAL = { ...original }
-            globalThis.__NUXT_VITEST_MOCKS["child"].__NUXT_VITEST_MOCKS_PREVIOUS = {}
+            globalThis.__NUXT_VITEST_MOCKS["child"].__NUXT_VITEST_MOCKS_PREVIOUS = { ...previous }
           }
           globalThis.__NUXT_VITEST_MOCKS["child"]["useChild"] = await (() => 'child')(globalThis.__NUXT_VITEST_MOCKS["child"].__NUXT_VITEST_MOCKS_ORIGINAL["useChild"])
           globalThis.__NUXT_VITEST_MOCKS["child"].__NUXT_VITEST_MOCKS_PREVIOUS["useChild"] = globalThis.__NUXT_VITEST_MOCKS["child"]["useChild"]

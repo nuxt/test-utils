@@ -233,18 +233,25 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
             `    const previous = (${mockModuleEntry} ?? {}).${HELPER_MOCK_HOIST_PREVIOUS} ?? {}`,
             `    ${mockModuleEntry} = { ...original, ...previous }`,
             `    ${mockModuleEntry}.${HELPER_MOCK_HOIST_ORIGINAL} = { ...original }`,
-            `    ${mockModuleEntry}.${HELPER_MOCK_HOIST_PREVIOUS} = {}`,
+            `    ${mockModuleEntry}.${HELPER_MOCK_HOIST_PREVIOUS} = { ...previous }`,
             `  }`,
           )
 
           for (const mock of mocks) {
             const quotedName = JSON.stringify(mock.import.name)
             const original = `${mockModuleEntry}.${HELPER_MOCK_HOIST_ORIGINAL}[${quotedName}]`
-            const factory = mock.factory ? `await (${mock.factory})(${original})` : original
-            mockLines.push(
-              `  ${mockModuleEntry}[${quotedName}] = ${factory}`,
-              `  ${mockModuleEntry}.${HELPER_MOCK_HOIST_PREVIOUS}[${quotedName}] = ${mockModuleEntry}[${quotedName}]`,
-            )
+            if (mock.factory === undefined) {
+              mockLines.push(
+                `  ${mockModuleEntry}[${quotedName}] = ${original}`,
+                `  delete ${mockModuleEntry}.${HELPER_MOCK_HOIST_PREVIOUS}[${quotedName}]`,
+              )
+            }
+            else {
+              mockLines.push(
+                `  ${mockModuleEntry}[${quotedName}] = await (${mock.factory})(${original})`,
+                `  ${mockModuleEntry}.${HELPER_MOCK_HOIST_PREVIOUS}[${quotedName}] = ${mockModuleEntry}[${quotedName}]`,
+              )
+            }
           }
           mockLines.push(`  return ${mockModuleEntry}`)
           mockLines.push(`});`)
