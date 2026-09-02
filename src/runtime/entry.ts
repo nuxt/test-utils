@@ -1,4 +1,4 @@
-import { beforeAll } from 'vitest'
+import { beforeAll, vi } from 'vitest'
 import { setupNuxt } from './shared/nuxt.ts'
 
 if (
@@ -6,6 +6,7 @@ if (
   // @ts-expect-error undefined property
   && window.__NUXT_VITEST_ENVIRONMENT__
 ) {
+  vi.resetModules()
   beforeAll(async () => {
     await setupNuxt()
   })

@@ -1,8 +1,6 @@
 import { vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
-vi.resetModules()
-
 mockNuxtImport(useAutoImportSetupMocked,
   () =>
     vi.fn(() => {
@@ -17,3 +15,25 @@ mockNuxtImport<typeof useAutoImportSetupOverridenMocked>(
       return 'mocked in setup'
     }),
 )
+
+mockNuxtImport(useAutoImportNestedSetupMocked,
+  () =>
+    vi.fn(() => {
+      return 'mocked in setup'
+    }),
+)
+
+mockNuxtImport(useAutoImportNestedSetupOverridenMocked,
+  () =>
+    vi.fn(() => {
+      return 'mocked in setup'
+    }),
+)
+
+mockNuxtImport(useMessageParent, () => () => ({
+  get1: () => 'setupfile child1 message',
+  get2: () => 'setupfile child2 message',
+}))
+
+mockNuxtImport(useAliasExport1As, () => () => 'mocked in setup')
+mockNuxtImport(useAliasExport2As, () => () => 'mocked in setup')
