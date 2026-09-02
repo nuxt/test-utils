@@ -359,7 +359,7 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
 
       nuxtProject.test.include = [
         '**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-        '{test,tests}/nuxt/**.*',
+        '{test,tests}/nuxt/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       ]
 
       const defaultProject = merge({
@@ -374,8 +374,7 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
             '**/cypress/**',
             '**/.{idea,git,cache,output,temp}/**',
             '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
-            './**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-            './{test,tests}/nuxt/**.*',
+            ...nuxtProject.test.include,
           ],
         },
       }, resolvedConfig)
