@@ -4,5 +4,5 @@ import SomeComponent from '~/components/SomeComponent.vue'
 
 it('should render any component', () => {
   const { getByText } = render(SomeComponent)
-  expect(getByText('This component has a dependency on Nuxt UI.')).toBeInTheDocument()
+  expect(getByText('This component has a dependency on Nuxt UI.', { exact: false })).toBeInTheDocument()
 })

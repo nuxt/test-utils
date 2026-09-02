@@ -1,5 +1,6 @@
-import type { Environment } from 'vitest/environments'
+import type { Environment } from 'vitest/runtime'
 import { resolveModulePath } from 'exsolve'
+import { getPackageInfoSync } from 'local-pkg'
 import { indexedDB } from 'fake-indexeddb'
 import { joinURL } from 'ufo'
 import defu from 'defu'
@@ -13,6 +14,8 @@ const environmentMap = {
   'happy-dom': happyDom,
   jsdom,
 }
+
+const vitestMajor = Number(getPackageInfoSync('vitest')?.version?.split('.')[0])
 
 export default <Environment>{
   name: 'nuxt',
@@ -54,7 +57,13 @@ export default <Environment>{
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         keys.forEach(key => delete global[key])
         teardownWindow()
-        originals.forEach((v, k) => (global[k] = v))
+        // vitest 5 `populateGlobal` returns property descriptors in `originals`
+        if (vitestMajor >= 5) {
+          originals.forEach((descriptor, k) => Object.defineProperty(global, k, descriptor))
+        }
+        else {
+          originals.forEach((v, k) => (global[k] = v))
+        }
 
         // Stub to prevent errors from delayed callbacks
         if (!global.IntersectionObserver) {
@@ -70,7 +79,7 @@ export default <Environment>{
 // This can be removed when dropping support for vitest 4.0.x (We can static import from 'vitest/runtime')
 async function importVitestEnvironments() {
   const pkg = resolveModulePath('vitest/runtime', { try: true }) ? 'vitest/runtime' : 'vitest/environments'
-  return await import(pkg) as typeof import('vitest/environments')
+  return await import(pkg) as typeof import('vitest/runtime')
 }
 
 class IntersectionObserver {

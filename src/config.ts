@@ -1,5 +1,6 @@
 import process from 'node:process'
 import type { Nuxt, NuxtConfig, ViteConfig as NuxtViteConfig } from '@nuxt/schema'
+import { version as vitestVersion } from 'vitest/node'
 import type { UserWorkspaceConfig, InlineConfig as VitestConfig } from 'vitest/node'
 import type { TestProjectInlineConfiguration } from 'vitest/config'
 import { setupDotenv } from 'c12'
@@ -312,10 +313,19 @@ export async function getVitestConfigFromNuxt(
   return resolvedConfig
 }
 
+const vitestMajor = Number(vitestVersion.split('.')[0])
+
+// vitest 5 inline projects extend the root config by default, which would register
+// the plugins from the resolved nuxt config a second time. the typecast exists
+// because vitest 4 defines it as `string | true`, it just ignores `false`.
+const optOutOfExtends = false as unknown as undefined
+
 export async function defineVitestProject(config: TestProjectInlineConfiguration): Promise<TestProjectInlineConfiguration> {
   const resolvedConfig = await resolveConfig<TestProjectInlineConfiguration>(
     defu({ test: { environment: 'nuxt' } }, config),
   )
+
+  resolvedConfig.extends ??= optOutOfExtends
 
   return resolvedConfig
 }
@@ -349,6 +359,7 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
 
       const nuxtProject = merge({
         ...resolvedConfig,
+        extends: optOutOfExtends,
         test: {
           ...resolvedConfig.test,
           name: 'nuxt',
@@ -364,6 +375,7 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
 
       const defaultProject = merge({
         ...resolvedConfig,
+        extends: optOutOfExtends,
         test: {
           ...resolvedConfig.test,
           name: defaultEnvironment,
@@ -432,6 +444,17 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
   resolvedConfig.plugins!.push(NuxtVitestEnvironmentOptionsPlugin(resolvedConfig.test.environmentOptions))
 
   if (resolvedConfig.test.browser?.enabled) {
+    // browser mode in vitest 5 reuses the project's Vite server: dependency
+    // discovery must stay on so vitest's CJS internals are prebundled, and deps
+    // imported through nuxt virtual modules are listed upfront because they
+    // can't be found by vite automatically which reloads the page
+    if (vitestMajor >= 5) {
+      delete resolvedConfig.optimizeDeps?.noDiscovery
+      resolvedConfig.optimizeDeps ??= {}
+      resolvedConfig.optimizeDeps.include ??= []
+      resolvedConfig.optimizeDeps.include.push('@testing-library/vue', 'h3-next/generic')
+    }
+
     resolvedConfig.plugins!.push({
       name: 'nuxt:test-utils:browser-client-environment',
       configEnvironment(name) {
