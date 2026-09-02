@@ -24,9 +24,11 @@ describe('Render(vue) Component', () => {
 
   it('can use Nuxt-specific composables', () => {
     const { getByText } = render(MyCounter)
-    const config = getByText('Runtime Config:')
+    const config = getByText('Runtime Config:', { exact: false })
     expect(config).toBeInTheDocument()
-    expect(config).toHaveTextContent(/"buildAssetsDir"\s*:\s*"\/_nuxt\/"/)
+    // vitest 5 adds `toMatchTextContent` instead, but tests run against version 4
+    // and vitest's `main` in vitest's ecosystem CI
+    expect(config.element().textContent).toMatch(/"buildAssetsDir"\s*:\s*"\/_nuxt\/"/)
   })
 
   it('locator', async () => {
