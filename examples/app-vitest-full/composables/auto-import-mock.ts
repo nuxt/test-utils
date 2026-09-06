@@ -13,3 +13,19 @@ export function useAutoImportSetupMocked() {
 export function useAutoImportSetupOverridenMocked() {
   return 'the original'
 }
+
+export function useAutoImportedNestedTarget() {
+  return useAutoImportedNestedTargetChild()
+}
+
+export function useAutoImportedNestedNonTarget() {
+  return useAutoImportedNestedNonTargetChild()
+}
+
+export function useAutoImportNestedSetupMocked() {
+  return useAutoImportNestedSetupMockedChild()
+}
+
+export function useAutoImportNestedSetupOverridenMocked() {
+  return useAutoImportNestedSetupOverridenMockedChild()
+}

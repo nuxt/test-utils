@@ -153,6 +153,27 @@ export function mockNuxtImport<T = unknown>(
 }
 
 /**
+ * `unmockNuxtImport` allows you to unmock Nuxt's auto import functionality.
+ * @param _target - name of an import to unmock or unmocked target.
+ * @example
+ * ```ts
+ * import { unmockNuxtImport } from '@nuxt/test-utils/runtime'
+ *
+ * unmockNuxtImport('useStorage')
+ *
+ * // With mocked target
+ * unmockNuxtImport(useStorage)
+ * ```
+ */
+export function unmockNuxtImport<T = unknown>(
+  _target: string | T,
+): void {
+  throw new Error(
+    'unmockNuxtImport() is a macro and it did not get transpiled. This may be an internal bug of @nuxt/test-utils.',
+  )
+}
+
+/**
  * `mockComponent` allows you to mock Nuxt's component.
  * @param path - component name in PascalCase, or the relative path of the component.
  * @param setup - factory function that returns the mocked component.
