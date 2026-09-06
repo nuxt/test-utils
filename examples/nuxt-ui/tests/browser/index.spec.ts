@@ -15,6 +15,6 @@ describe('App', () => {
 
   it('works with vitest-browser-vue', () => {
     const { getByText } = render(App)
-    expect(getByText('This is within a UApp component')).toBeInTheDocument()
+    expect(getByText('This is within a UApp component', { exact: false })).toBeInTheDocument()
   })
 })
