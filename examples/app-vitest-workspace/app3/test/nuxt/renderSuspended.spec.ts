@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { fireEvent, cleanup } from '@testing-library/vue'
 import { renderSuspended } from '@nuxt/test-utils/runtime'
 
-import App from '~~/app.vue'
+import App from '~/app.vue'
 import { Counter } from '#components'
 
 describe('renderSuspended', () => {

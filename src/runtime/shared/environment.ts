@@ -9,7 +9,7 @@ import { createFetchForH3V2 } from './h3-v2.ts'
 
 export async function setupWindow(win: NuxtWindow, environmentOptions: NuxtEnvironmentResolvedOptions) {
   win.__NUXT_VITEST_ENVIRONMENT__ = true
-  win.__NUXT__ = {
+  const __NUXT__ = {
     serverRendered: false,
     config: {
       public: {},
@@ -18,6 +18,17 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: NuxtEnvir
     },
     data: {},
     state: {},
+  }
+
+  const multiApp = environmentOptions.nuxtFuture?.multiApp || false
+  if (!multiApp) {
+    win.__NUXT__ = __NUXT__
+  }
+  else {
+    const appId = environmentOptions?.nuxtAppId || 'nuxt-app'
+    win.__NUXT__ = {
+      [appId]: __NUXT__,
+    }
   }
 
   const consoleInfo = console.info
@@ -78,8 +89,7 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: NuxtEnvir
   )
   const manifestBaseRoutePath = joinURL('/_', manifestOutputPath)
 
-  // @ts-expect-error untyped property
-  const buildId = win.__NUXT__.config?.app.buildId || 'test'
+  const buildId = __NUXT__.config?.app.buildId || 'test'
 
   res.h3App.use(
     `${manifestBaseRoutePath}/latest.json`,
