@@ -69,7 +69,7 @@
     "test": "pnpm test:types && pnpm test:unit && pnpm test:examples",
     "test:examples": "pnpm --filter '!@nuxt/test-utils' --filter '!example-app-cucumber' --filter '!example-app-jest' --filter '!example-app-bun' -r test && pnpm --filter example-app-cucumber -r test",
     "test:knip": "knip",
-    "test:engines": "pnpm installed-check --no-workspaces --ignore-dev",
+    "test:engines": "pnpm installed-check --no-workspaces --ignore-dev --ignore @cucumber/cucumber",
     "test:types": "vue-tsc --noEmit && vitest --dir ./test/types --typecheck.only --run",
     "test:unit": "vitest --dir ./test/unit --run",
     "build": "tsdown",
@@ -107,7 +107,7 @@
     "vue": "^3.5.42"
   },
   "devDependencies": {
-    "@cucumber/cucumber": "12.9.0",
+    "@cucumber/cucumber": "13.2.1",
     "@jest/globals": "30.5.0",
     "@nuxt/eslint-config": "1.17.0",
     "@nuxt/schema": "4.5.2",
