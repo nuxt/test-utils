@@ -13,8 +13,8 @@ describe('App', () => {
     `)
   })
 
-  it('works with vitest-browser-vue', () => {
-    const { getByText } = render(App)
+  it('works with vitest-browser-vue', async () => {
+    const { getByText } = await render(App)
     expect(getByText('This is within a UApp component', { exact: false })).toBeInTheDocument()
   })
 })
