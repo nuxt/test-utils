@@ -40,7 +40,6 @@ export default defineConfig([
     entry: ['src/runtime/**/*.ts', '!src/runtime/**/*.d.ts'],
     outDir: 'dist/runtime',
     deps: {
-      skipNodeModulesBundle: true,
       neverBundle: NEVER_BUNDLE,
     },
   },
