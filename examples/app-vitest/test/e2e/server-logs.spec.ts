@@ -3,7 +3,7 @@ import { $fetch, clearServerLogs, getServerLogs, setup } from '@nuxt/test-utils/
 import { describe, expect, it, vi } from 'vitest'
 
 await setup({
-  rootDir: fileURLToPath(new URL('../', import.meta.url)),
+  rootDir: fileURLToPath(new URL('../../', import.meta.url)),
 })
 
 describe('server log capture', () => {
