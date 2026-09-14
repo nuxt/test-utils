@@ -523,6 +523,11 @@ export interface NuxtEnvironmentOptions {
     intersectionObserver?: boolean
     indexedDb?: boolean
   }
+
+  /**
+   * @experimental
+   */
+  setupScope?: 'worker'
 }
 
 /**

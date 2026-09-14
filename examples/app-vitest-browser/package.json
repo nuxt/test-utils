@@ -8,7 +8,9 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "test": "vitest"
+    "test": "pnpm run '/test:.*/'",
+    "test:isolate": "vitest",
+    "test:no-isolate": "VITEST_ISOLATE=false vitest"
   },
   "devDependencies": {
     "@nuxt/test-utils": "latest",
