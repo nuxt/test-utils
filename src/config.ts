@@ -453,6 +453,10 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
       resolvedConfig.optimizeDeps ??= {}
       resolvedConfig.optimizeDeps.include ??= []
       resolvedConfig.optimizeDeps.include.push('@testing-library/vue', 'h3-next/generic')
+
+      // aliased to mocks, excluded from pre-bundling to avoid runtime discovery
+      resolvedConfig.optimizeDeps.exclude ??= []
+      resolvedConfig.optimizeDeps.exclude.push('@vue/devtools-kit', '@vue/devtools-core')
     }
 
     resolvedConfig.plugins!.push({
