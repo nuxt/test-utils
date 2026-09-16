@@ -1,23 +1,22 @@
 // @ts-expect-error virtual file
 import environmentOptions from 'nuxt-vitest-environment-options'
+import { tryUseNuxtApp } from '#imports'
 import type { NuxtWindow } from '../vitest-environment.ts'
 import { setupNuxt } from './shared/nuxt.ts'
 import { setupWindow } from './shared/environment.ts'
 
-async function setup() {
-  const win = window as unknown as NuxtWindow
+const win = window as unknown as NuxtWindow
 
-  const setupNuxtApp = async () => {
-    await setupWindow(win, environmentOptions)
-    await setupNuxt()
-  }
+win.__NUXT_VITEST_ENVIRONMENT_BROWSER_ENTRY__ = true
 
-  win.__NUXT_VITEST_NUXT_SETUP_PROMISE__ ??= setupNuxtApp().catch((err) => {
-    delete win.__NUXT_VITEST_NUXT_SETUP_PROMISE__
-    throw err
-  })
-
-  return win.__NUXT_VITEST_NUXT_SETUP_PROMISE__
+if (!win.__NUXT_VITEST_ENVIRONMENT__) {
+  await setupWindow(win, environmentOptions)
 }
 
-await setup()
+win.__NUXT_VITEST_ENVIRONMENT_PROMISE__ ??= setupNuxt().catch((err) => {
+  tryUseNuxtApp()?.vueApp?.unmount()
+  delete win.__NUXT_VITEST_ENVIRONMENT_PROMISE__
+  throw err
+})
+
+await win.__NUXT_VITEST_ENVIRONMENT_PROMISE__
