@@ -47,7 +47,7 @@ describe('nuxt setup entry', () => {
     const setupCalls = collectSetupCalls(result.stdout)
     expect(setupCalls.total).not.toBe(0)
     expect(setupCalls.total).toBe(setupCalls.byWorker.size)
-    expect(setupCalls.byWorker.values().every(c => c === 1)).toBe(true)
+    expect([...setupCalls.byWorker.values()].every(c => c === 1)).toBe(true)
   }, TEST_TIMEOUT)
 
   it.each([
