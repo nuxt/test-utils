@@ -16,7 +16,7 @@ describe('nuxt setup entry', () => {
   it.each([
     [[]],
     [['--browser.enabled']],
-  ])('should run nuxt setup once per test file with --isolate %s', async (args) => {
+  ])('should call nuxt setup once per test file with --isolate %s', async (args) => {
     const result = await x('vitest', ['run', ...args, '--isolate', '--no-color', '.'], {
       nodeOptions: {
         cwd: fixtureDir,
@@ -33,7 +33,7 @@ describe('nuxt setup entry', () => {
     [2, []],
     [1, ['--browser.enabled']],
     [2, ['--browser.enabled']],
-  ])('should run nuxt setup once per worker with --no-isolate (maxWorkers=%d) %s', async (maxWorkers, args = []) => {
+  ])('should call nuxt setup once per worker with --no-isolate --maxWorkers=%d %s', async (maxWorkers, args = []) => {
     const result = await x('vitest', [
       'run', ...args, '--no-isolate', `--maxWorkers=${maxWorkers}`, '--no-color', '.',
     ], {
