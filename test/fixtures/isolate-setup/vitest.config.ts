@@ -41,7 +41,9 @@ export default defineVitestConfig({
 export async function setupNuxt(...args) {
   window.__setup_calls__ ??= 0
   window.__setup_calls__ += 1
-  console.log(\`### setupNuxt called ### \${window.__setup_calls__}\`)
+
+  const workerId = import.meta.env.VITEST_WORKER_ID ?? 'undefined'
+  console.log(\`### setupNuxt called ### \${window.__setup_calls__}:\${workerId}\`)
   
   if (window.__setup_calls__ === 1) {
     if (${failOnSetupBefore}) {
