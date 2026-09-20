@@ -1,5 +1,8 @@
 import { it, describe, expect, beforeEach, vi } from 'vitest'
-import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { mockNuxtImport, runRouteMiddleware } from '@nuxt/test-utils/runtime'
+import type { RouteMiddleware } from 'nuxt/app'
+
+import counterMiddleware from '~/middleware/01.global-counter.global'
 
 const {
   incrementMock,
@@ -54,5 +57,63 @@ describe('middleware', () => {
     expect(route.path).toBe('/')
     expect(incrementMock).toHaveBeenCalledOnce()
     expect(navigateToMock).toHaveBeenLastCalledWith('/count/just/1000')
+  })
+
+  it('can run a route middleware without navigating', async () => {
+    const route = useRoute()
+    const currentPath = route.fullPath
+
+    incrementMock.mockImplementation(() => 1000)
+
+    const result = await runRouteMiddleware(counterMiddleware, {
+      to: '/',
+      from: route,
+    })
+
+    expect(result).toBe('/count/just/1000')
+    expect(route.fullPath).toBe(currentPath)
+    expect(incrementMock).toHaveBeenCalledOnce()
+  })
+
+  it('normalizes the to and from routes', async () => {
+    let routes: Parameters<RouteMiddleware> | undefined
+    const middleware = defineNuxtRouteMiddleware((...args) => {
+      routes = args
+    })
+
+    await runRouteMiddleware(middleware, {
+      to: '/other/example?tab=settings',
+      from: '/about',
+    })
+
+    expect(routes?.[0]).toMatchObject({
+      path: '/other/example',
+      fullPath: '/other/example?tab=settings',
+      params: { slug: 'example' },
+      query: { tab: 'settings' },
+    })
+    expect(routes?.[1]).toMatchObject({
+      path: '/about',
+      fullPath: '/about',
+    })
+  })
+
+  it('supports aborting navigation', async () => {
+    const middleware = defineNuxtRouteMiddleware(() => abortNavigation())
+
+    await expect(runRouteMiddleware(middleware, { to: '/about' })).resolves.toBe(false)
+  })
+
+  it('restores the middleware context when middleware throws', async () => {
+    const nuxtApp = useNuxtApp()
+    const middleware = defineNuxtRouteMiddleware(() => {
+      return abortNavigation({ statusCode: 403, statusMessage: 'Forbidden' })
+    })
+
+    await expect(runRouteMiddleware(middleware, { to: '/about' })).rejects.toMatchObject({
+      statusCode: 403,
+      statusMessage: 'Forbidden',
+    })
+    expect(nuxtApp._processingMiddleware).toBeUndefined()
   })
 })
