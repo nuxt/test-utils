@@ -15,6 +15,8 @@ export interface NuxtWindow extends Window {
   __app?: GenericApp
   __registry: Set<string>
   __NUXT_VITEST_ENVIRONMENT__?: boolean
+  __NUXT_VITEST_ENVIRONMENT_PROMISE__?: Promise<void>
+  __NUXT_VITEST_ENVIRONMENT_BROWSER_ENTRY__?: boolean
   __NUXT__: Record<string, unknown>
   $fetch: $Fetch
   fetch: ((input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>)
