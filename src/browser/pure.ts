@@ -1,6 +1,7 @@
 import type { Locator, LocatorSelectors, PrettyDOMOptions } from 'vitest/browser'
 import { page, server, utils } from 'vitest/browser'
-import { mount as wrapperFn, type MountingOptions } from '@vue/test-utils'
+import type { MountingOptions } from '@vue/test-utils'
+import { mount as wrapperFn } from '@vue/test-utils'
 
 import type { SetupState, WrapperSuspendedAddtionalOptions, WrapperSuspendedOptions } from '../runtime-utils/utils/suspended.ts'
 import { cleanupAll, patchWrapperSetProps, wrapperSuspended } from '../runtime-utils/utils/suspended.ts'
