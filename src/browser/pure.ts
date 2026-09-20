@@ -3,7 +3,7 @@ import { page, server, utils } from 'vitest/browser'
 import type { MountingOptions } from '@vue/test-utils'
 import { mount as wrapperFn } from '@vue/test-utils'
 
-import type { SetupState, WrapperSuspendedAddtionalOptions, WrapperSuspendedOptions } from '../runtime-utils/utils/suspended.ts'
+import type { SetupState, WrapperSuspendedAdditionalOptions, WrapperSuspendedOptions } from '../runtime-utils/utils/suspended.ts'
 import { cleanupAll, patchWrapperSetProps, wrapperSuspended } from '../runtime-utils/utils/suspended.ts'
 
 export { config } from '@vue/test-utils'
@@ -15,7 +15,7 @@ type ComponentProps<T> = T extends new (...args: never[]) => {
 type WrapperFn<C> = typeof wrapperFn<C>
 type WrapperOptions<C> = Pick<
   WrapperSuspendedOptions<WrapperFn<C>>,
-  Exclude<keyof MountingOptions<object>, 'attachTo'> | keyof WrapperSuspendedAddtionalOptions
+  Exclude<keyof MountingOptions<object>, 'attachTo'> | keyof WrapperSuspendedAdditionalOptions
 > & {
   /** Use this option instead of the `@vue/test-utils` `attachTo` option. */
   container?: HTMLElement

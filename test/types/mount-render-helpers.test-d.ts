@@ -38,13 +38,13 @@ const Component = defineComponent({
   },
 })
 
-type SuspendedAdditinalOptions = {
+type SuspendedAdditionalOptions = {
   route?: RouteLocationRaw | false
   spy?: boolean
   scoped?: boolean
 }
 
-type SuspendedAdditinalResult = {
+type SuspendedAdditionalResult = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setupState: Record<string, any>
 }
@@ -60,8 +60,8 @@ describe('mountSuspended', () => {
     })
 
     it('has suspended additional options', () => {
-      expectTypeOf<Pick<Options, keyof SuspendedAdditinalOptions>>()
-        .toEqualTypeOf<SuspendedAdditinalOptions>()
+      expectTypeOf<Pick<Options, keyof SuspendedAdditionalOptions>>()
+        .toEqualTypeOf<SuspendedAdditionalOptions>()
     })
 
     it('has mount fn options', () => {
@@ -79,8 +79,8 @@ describe('mountSuspended', () => {
     type Result = Awaited<ReturnType<typeof mountSuspended<ComponentType>>>
 
     it('has additional property', () => {
-      expectTypeOf<Pick<Result, keyof SuspendedAdditinalResult>>()
-        .toEqualTypeOf<SuspendedAdditinalResult>()
+      expectTypeOf<Pick<Result, keyof SuspendedAdditionalResult>>()
+        .toEqualTypeOf<SuspendedAdditionalResult>()
     })
 
     it('has mount property', () => {
@@ -100,8 +100,8 @@ describe('renderSuspended', () => {
     })
 
     it('has suspended additional options', () => {
-      expectTypeOf<Pick<Options, keyof SuspendedAdditinalOptions>>()
-        .toEqualTypeOf<SuspendedAdditinalOptions>()
+      expectTypeOf<Pick<Options, keyof SuspendedAdditionalOptions>>()
+        .toEqualTypeOf<SuspendedAdditionalOptions>()
     })
 
     it('has render fn options', () => {
@@ -120,8 +120,8 @@ describe('renderSuspended', () => {
     type Result = Awaited<ReturnType<typeof renderSuspended<ComponentType>>>
 
     it('has additional property', () => {
-      expectTypeOf<Pick<Result, keyof SuspendedAdditinalResult>>()
-        .toEqualTypeOf<SuspendedAdditinalResult>()
+      expectTypeOf<Pick<Result, keyof SuspendedAdditionalResult>>()
+        .toEqualTypeOf<SuspendedAdditionalResult>()
     })
 
     it('has mount property', () => {
@@ -141,8 +141,8 @@ describe('browser.render', () => {
     })
 
     it('has suspended additional options', () => {
-      expectTypeOf<Pick<Options, keyof SuspendedAdditinalOptions>>()
-        .toEqualTypeOf<SuspendedAdditinalOptions>()
+      expectTypeOf<Pick<Options, keyof SuspendedAdditionalOptions>>()
+        .toEqualTypeOf<SuspendedAdditionalOptions>()
     })
 
     it('has render additional options', () => {
@@ -171,8 +171,8 @@ describe('browser.render', () => {
     type Result = Awaited<ReturnType<typeof render<ComponentType>>>
 
     it('has additional property', () => {
-      expectTypeOf<Pick<Result, keyof SuspendedAdditinalResult>>()
-        .toEqualTypeOf<SuspendedAdditinalResult>()
+      expectTypeOf<Pick<Result, keyof SuspendedAdditionalResult>>()
+        .toEqualTypeOf<SuspendedAdditionalResult>()
     })
 
     it('has LocatorSelectors property', () => {
