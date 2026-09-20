@@ -1,8 +1,8 @@
 import type { Locator, LocatorSelectors, PrettyDOMOptions } from 'vitest/browser'
 import { page, server, utils } from 'vitest/browser'
-import { mount as wrapperFn } from '@vue/test-utils'
+import { mount as wrapperFn, type MountingOptions } from '@vue/test-utils'
 
-import type { SetupState, WrapperSuspendedOptions } from '../runtime-utils/utils/suspended.ts'
+import type { SetupState, WrapperSuspendedAddtionalOptions, WrapperSuspendedOptions } from '../runtime-utils/utils/suspended.ts'
 import { cleanupAll, patchWrapperSetProps, wrapperSuspended } from '../runtime-utils/utils/suspended.ts'
 
 export { config } from '@vue/test-utils'
@@ -12,7 +12,10 @@ type ComponentProps<T> = T extends new (...args: never[]) => {
 } ? NonNullable<P> : T extends (props: infer P, ...args: never[]) => unknown ? P : object
 
 type WrapperFn<C> = typeof wrapperFn<C>
-type WrapperOptions<C> = Omit<WrapperSuspendedOptions<WrapperFn<C>>, 'attachTo'> & {
+type WrapperOptions<C> = Pick<
+  WrapperSuspendedOptions<WrapperFn<C>>,
+  Exclude<keyof MountingOptions<object>, 'attachTo'> | keyof WrapperSuspendedAddtionalOptions
+> & {
   /** Use this option instead of the `@vue/test-utils` `attachTo` option. */
   container?: HTMLElement
   baseElement?: HTMLElement

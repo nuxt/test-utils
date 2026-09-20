@@ -36,7 +36,7 @@ export function patchWrapperSetProps(wrapper: object, setProps: (props: object) 
   Object.assign(wrapper, { __setProps: setProps })
 }
 
-export type WrapperSuspendedOptions<Fn> = WrapperFnOption<Fn> & {
+export type WrapperSuspendedAddtionalOptions = {
   /**
    * The initial route, or false to skip the initial route change.
    * @default '/'
@@ -56,6 +56,8 @@ export type WrapperSuspendedOptions<Fn> = WrapperFnOption<Fn> & {
   spy?: boolean
   scoped?: boolean
 }
+
+export type WrapperSuspendedOptions<Fn> = WrapperFnOption<Fn> & WrapperSuspendedAddtionalOptions
 
 export type WrapperSuspendedResult<Fn> = WrapperFnResult<Fn> & {
   /**
