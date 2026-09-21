@@ -56,12 +56,14 @@ export async function loadFixture() {
 
   // TODO: share Nuxt instance with running Nuxt if possible
   if (ctx.options.build) {
-    const { loadNuxt } = await loadKit(ctx.options.rootDir)
+    const { loadNuxt, logger } = await loadKit(ctx.options.rootDir)
     ctx.nuxt = await loadNuxt({
       cwd: ctx.options.rootDir,
       dev: ctx.options.dev,
       overrides: ctx.options.nuxtConfig,
       configFile: ctx.options.configFile,
+    }).finally(() => {
+      logger.restoreAll()
     })
 
     const buildDir = ctx.nuxt.options.buildDir
@@ -81,6 +83,8 @@ export async function buildFixture() {
   // Hide build info for test
   const prevLevel = logger.level
   logger.level = ctx.options.logLevel
-  await buildNuxt(ctx.nuxt!)
-  logger.level = prevLevel
+  await buildNuxt(ctx.nuxt!).finally(() => {
+    logger.level = prevLevel
+    logger.restoreAll()
+  })
 }
