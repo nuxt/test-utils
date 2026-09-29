@@ -69,7 +69,7 @@
     "test": "pnpm test:types && pnpm test:unit && pnpm test:examples",
     "test:examples": "pnpm --filter '!@nuxt/test-utils' --filter '!example-app-cucumber' --filter '!example-app-jest' --filter '!example-app-bun' -r test && pnpm --filter example-app-cucumber -r test",
     "test:knip": "knip",
-    "test:engines": "pnpm installed-check --no-workspaces --ignore-dev --ignore @cucumber/cucumber --ignore vitest",
+    "test:engines": "pnpm installed-check --no-workspaces --ignore-dev --ignore @cucumber/cucumber --ignore nuxt --ignore vitest",
     "test:types": "vue-tsc --noEmit && vitest --dir ./test/types --typecheck.only --run",
     "test:unit": "vitest --dir ./test/unit --run",
     "build": "tsdown",
@@ -143,6 +143,7 @@
     "h3-next": ">=2.0.1-rc.22",
     "happy-dom": ">=20.0.11",
     "jsdom": ">=27.4.0",
+    "nuxt": "^3.21.0 || ^4.0.0 || ^5.0.0-0",
     "playwright-core": "^1.43.1",
     "vitest": "^4.0.2 || ^5.0.0"
   },
@@ -172,6 +173,9 @@
       "optional": true
     },
     "jsdom": {
+      "optional": true
+    },
+    "nuxt": {
       "optional": true
     },
     "playwright-core": {
