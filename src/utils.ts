@@ -4,8 +4,6 @@
 // TODO: improve types upstream
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import destr from 'destr'
-import { snakeCase } from 'scule'
 import { pathToFileURL } from 'node:url'
 import { resolveModulePath } from 'exsolve'
 
@@ -17,10 +15,47 @@ type EnvOptions = {
 
 function getEnv(key: string, opts: EnvOptions) {
   const env = opts.env ?? process.env
-  const envKey = snakeCase(key).toUpperCase()
-  return destr(
+  const envKey = toEnvKey(key)
+  return parseEnvValue(
     env[opts.prefix + envKey] ?? env[opts.altPrefix + envKey],
   )
+}
+
+function toEnvKey(key: string) {
+  return key
+    .replace(/([a-z])([A-Z])/g, '$1_$2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+    .replace(/[-./\s]+/g, '_')
+    .toUpperCase()
+}
+
+const JSON_SIGNATURE_RE = /^\s*["[{]|^\s*-?\d{1,16}(?:\.\d{1,17})?(?:e[+-]?\d+)?\s*$/i
+
+function parseEnvValue(value: unknown): unknown {
+  if (typeof value !== 'string') {
+    return value
+  }
+  if (value[0] === '"' && value.at(-1) === '"' && !value.includes('\\')) {
+    return value.slice(1, -1)
+  }
+  switch (value.trim().toLowerCase()) {
+    case 'true': return true
+    case 'false': return false
+    case 'undefined': return undefined
+    case 'null': return null
+    case 'nan': return Number.NaN
+    case 'infinity': return Number.POSITIVE_INFINITY
+    case '-infinity': return Number.NEGATIVE_INFINITY
+  }
+  if (!JSON_SIGNATURE_RE.test(value)) {
+    return value
+  }
+  try {
+    return JSON.parse(value, (key, val) => key === '__proto__' || (key === 'constructor' && val && typeof val === 'object' && 'prototype' in val) ? undefined : val)
+  }
+  catch {
+    return value
+  }
 }
 
 function _isObject(input: unknown) {
