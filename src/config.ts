@@ -10,9 +10,9 @@ import type { DateString } from 'compatx'
 import { createDefu, defu } from 'defu'
 import { createResolver, findPath } from '@nuxt/kit'
 import { resolveModulePath } from 'exsolve'
-import { getPackageInfoSync } from 'local-pkg'
+import { dirname } from 'pathe'
 
-import { applyEnv, deepCopy, loadKit } from './utils.ts'
+import { applyEnv, deepCopy, getPackageInfo, loadKit } from './utils.ts'
 import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options.ts'
 
 interface GetVitestConfigOptions {
@@ -151,9 +151,7 @@ export async function getVitestConfigFromNuxt(
   options.viteConfig.plugins = (options.viteConfig.plugins || []).filter(p => !p || !('name' in p) || !excludedPlugins.includes(p.name))
 
   // resolve nitro/h3 version (to support nitro v3)
-  const nuxtServerIntegration = getPackageInfoSync('@nuxt/nitro-server', {
-    paths: [options.nuxt.options.appDir],
-  })
+  const nuxtServerIntegration = getPackageInfo('@nuxt/nitro-server', options.nuxt.options.appDir)
 
   let nitroPath: string | undefined
   for (const nitroCandidate of [
@@ -167,12 +165,8 @@ export async function getVitestConfigFromNuxt(
     }
   }
 
-  const projectH3Path = resolveModulePath('h3/package.json', { from: rootDir, try: true })
-  const projectH3Info = projectH3Path ? getPackageInfoSync('h3', { paths: [projectH3Path] }) : undefined
-
-  const h3Info = projectH3Info || getPackageInfoSync('h3', {
-    paths: nitroPath ? [nitroPath] : options.nuxt.options.modulesDir,
-  })
+  const h3Info = getPackageInfo('h3', rootDir)
+    || getPackageInfo('h3', nitroPath ? dirname(nitroPath) : options.nuxt.options.modulesDir)
 
   const resolver = createResolver(import.meta.url)
   const resolvedConfig = defu(

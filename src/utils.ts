@@ -4,7 +4,10 @@
 // TODO: improve types upstream
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import process from 'node:process'
+import { existsSync, readFileSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
+import { dirname, join } from 'pathe'
 import { resolveModulePath } from 'exsolve'
 
 type EnvOptions = {
@@ -164,4 +167,26 @@ function tryResolveNuxt(rootDir: string) {
     }
   }
   return null
+}
+
+export function getPackageInfo(name: string, dirs: string | string[] = process.cwd()): { rootPath: string, version?: string, packageJson: Record<string, any> } | undefined {
+  const bases = (Array.isArray(dirs) ? dirs : [dirs]).map(dir => dir.endsWith('/') ? dir : `${dir}/`)
+  const entry = resolveModulePath(`${name}/package.json`, { from: bases, try: true })
+    ?? resolveModulePath(name, { from: bases, try: true })
+  if (!entry) {
+    return
+  }
+  let dir = dirname(entry)
+  while (true) {
+    const packageJsonPath = join(dir, 'package.json')
+    if (existsSync(packageJsonPath)) {
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'))
+      return { rootPath: dir, version: packageJson.version, packageJson }
+    }
+    const parent = dirname(dir)
+    if (parent === dir) {
+      return
+    }
+    dir = parent
+  }
 }
