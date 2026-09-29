@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+  merge_group:
 
 # https://github.com/vitejs/vite/blob/main/.github/workflows/ci.yml
 env:
@@ -25,7 +26,7 @@ concurrency:
 jobs:
   lint:
     # autofix workflow will be triggered instead for PRs
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
