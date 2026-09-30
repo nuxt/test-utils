@@ -1,7 +1,8 @@
 import type { GenericApp } from '../../vitest-environment.ts'
 
 export async function createFetchForH3V2() {
-  const { H3 } = await import('h3-next/generic')
+  // @ts-expect-error resolved to the project's h3 by the vitest config
+  const { H3 } = await (import('#nuxt-test-utils/h3') as Promise<typeof import('h3-next/generic')>)
 
   const h3App = new H3()
   const registry = new Set<string>()

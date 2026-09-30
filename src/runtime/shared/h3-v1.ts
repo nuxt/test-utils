@@ -2,7 +2,8 @@ import type { GenericApp } from '../../vitest-environment.ts'
 
 export async function createFetchForH3V1() {
   const [{ createApp, toNodeListener }, { fetchNodeRequestHandler }] = await Promise.all([
-    import('h3'),
+    // @ts-expect-error resolved to the project's h3 by the vitest config
+    import('#nuxt-test-utils/h3') as Promise<typeof import('h3')>,
     import('node-mock-http'),
   ])
 

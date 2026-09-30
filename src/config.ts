@@ -167,6 +167,8 @@ export async function getVitestConfigFromNuxt(
 
   const h3Info = getPackageInfo('h3', rootDir)
     || getPackageInfo('h3', nitroPath ? dirname(nitroPath) : options.nuxt.options.modulesDir)
+  const h3Version = h3Info?.version?.startsWith('2.') ? 2 : 1
+  const h3Entry = h3Info && resolveModulePath(h3Version === 2 ? 'h3/generic' : 'h3', { from: `${h3Info.rootPath}/`, try: true })
 
   const resolver = createResolver(import.meta.url)
   const resolvedConfig = defu(
@@ -180,6 +182,7 @@ export async function getVitestConfigFromNuxt(
         alias: {
           '@vue/devtools-kit': resolver.resolve('./runtime/mocks/vue-devtools'),
           '@vue/devtools-core': resolver.resolve('./runtime/mocks/vue-devtools'),
+          ...h3Entry && { '#nuxt-test-utils/h3': h3Entry },
         },
       },
       optimizeDeps: {
@@ -276,7 +279,7 @@ export async function getVitestConfigFromNuxt(
         environmentOptions: {
           nuxt: {
             rootId: options.nuxt.options.app.rootAttrs?.id || undefined,
-            h3Version: h3Info?.version?.startsWith('2.') ? 2 : 1,
+            h3Version,
             mock: {
               intersectionObserver: true,
               indexedDb: false,
@@ -446,7 +449,7 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
       delete resolvedConfig.optimizeDeps?.noDiscovery
       resolvedConfig.optimizeDeps ??= {}
       resolvedConfig.optimizeDeps.include ??= []
-      resolvedConfig.optimizeDeps.include.push('@testing-library/vue', 'h3-next/generic')
+      resolvedConfig.optimizeDeps.include.push('@testing-library/vue', '#nuxt-test-utils/h3')
     }
 
     resolvedConfig.plugins!.push({
