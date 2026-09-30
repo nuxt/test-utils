@@ -3,16 +3,16 @@ import type { Nuxt, NuxtConfig, ViteConfig as NuxtViteConfig } from '@nuxt/schem
 import { version as vitestVersion } from 'vitest/node'
 import type { UserWorkspaceConfig, InlineConfig as VitestConfig } from 'vitest/node'
 import type { TestProjectInlineConfiguration } from 'vitest/config'
-import { setupDotenv } from 'c12'
-import type { DotenvOptions } from 'c12'
+import { setupDotenv } from './dotenv.ts'
+import type { DotenvOptions } from './dotenv.ts'
 import type { defineConfig, Plugin, UserConfigFnPromise, UserConfig as ViteUserConfig } from 'vite'
 import type { DateString } from 'compatx'
 import { createDefu, defu } from 'defu'
 import { createResolver, findPath } from '@nuxt/kit'
 import { resolveModulePath } from 'exsolve'
-import { getPackageInfoSync } from 'local-pkg'
+import { dirname } from 'pathe'
 
-import { applyEnv, deepCopy, loadKit } from './utils.ts'
+import { applyEnv, deepCopy, getPackageInfo, loadKit } from './utils.ts'
 import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options.ts'
 
 interface GetVitestConfigOptions {
@@ -151,9 +151,7 @@ export async function getVitestConfigFromNuxt(
   options.viteConfig.plugins = (options.viteConfig.plugins || []).filter(p => !p || !('name' in p) || !excludedPlugins.includes(p.name))
 
   // resolve nitro/h3 version (to support nitro v3)
-  const nuxtServerIntegration = getPackageInfoSync('@nuxt/nitro-server', {
-    paths: [options.nuxt.options.appDir],
-  })
+  const nuxtServerIntegration = getPackageInfo('@nuxt/nitro-server', options.nuxt.options.appDir)
 
   let nitroPath: string | undefined
   for (const nitroCandidate of [
@@ -167,12 +165,10 @@ export async function getVitestConfigFromNuxt(
     }
   }
 
-  const projectH3Path = resolveModulePath('h3/package.json', { from: rootDir, try: true })
-  const projectH3Info = projectH3Path ? getPackageInfoSync('h3', { paths: [projectH3Path] }) : undefined
-
-  const h3Info = projectH3Info || getPackageInfoSync('h3', {
-    paths: nitroPath ? [nitroPath] : options.nuxt.options.modulesDir,
-  })
+  const h3Info = getPackageInfo('h3', rootDir)
+    || getPackageInfo('h3', nitroPath ? dirname(nitroPath) : options.nuxt.options.modulesDir)
+  const h3Version = h3Info?.version?.startsWith('2.') ? 2 : 1
+  const h3Entry = h3Info && resolveModulePath(h3Version === 2 ? 'h3/generic' : 'h3', { from: `${h3Info.rootPath}/`, try: true })
 
   const resolver = createResolver(import.meta.url)
   const resolvedConfig = defu(
@@ -186,6 +182,7 @@ export async function getVitestConfigFromNuxt(
         alias: {
           '@vue/devtools-kit': resolver.resolve('./runtime/mocks/vue-devtools'),
           '@vue/devtools-core': resolver.resolve('./runtime/mocks/vue-devtools'),
+          ...h3Entry && { '#nuxt-test-utils/h3': h3Entry },
         },
       },
       optimizeDeps: {
@@ -282,7 +279,7 @@ export async function getVitestConfigFromNuxt(
         environmentOptions: {
           nuxt: {
             rootId: options.nuxt.options.app.rootAttrs?.id || undefined,
-            h3Version: h3Info?.version?.startsWith('2.') ? 2 : 1,
+            h3Version,
             mock: {
               intersectionObserver: true,
               indexedDb: false,
@@ -452,7 +449,7 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
       delete resolvedConfig.optimizeDeps?.noDiscovery
       resolvedConfig.optimizeDeps ??= {}
       resolvedConfig.optimizeDeps.include ??= []
-      resolvedConfig.optimizeDeps.include.push('@testing-library/vue', 'h3-next/generic')
+      resolvedConfig.optimizeDeps.include.push('@testing-library/vue', '#nuxt-test-utils/h3')
 
       // aliased to mocks, excluded from pre-bundling to avoid runtime discovery
       resolvedConfig.optimizeDeps.exclude ??= []

@@ -1,9 +1,9 @@
 import type { Environment } from 'vitest/runtime'
 import { resolveModulePath } from 'exsolve'
-import { getPackageInfoSync } from 'local-pkg'
 import { indexedDB } from 'fake-indexeddb'
 import { joinURL } from 'ufo'
 import defu from 'defu'
+import { getPackageInfo } from '../../utils.ts'
 
 import { setupWindow } from '../../runtime/shared/environment.ts'
 import type { NuxtBuiltinEnvironment } from './types.ts'
@@ -15,7 +15,7 @@ const environmentMap = {
   jsdom,
 }
 
-const vitestMajor = Number(getPackageInfoSync('vitest')?.version?.split('.')[0])
+const vitestMajor = Number(getPackageInfo('vitest')?.version?.split('.')[0])
 
 export default <Environment>{
   name: 'nuxt',

@@ -37,10 +37,9 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: NuxtEnvir
   createElementAndAppend(win, appConfig?.teleportTag || 'div', appConfig?.teleportAttrs || { id: 'teleports' })
 
   if (!win.fetch || !('Request' in win)) {
-    await import('node-fetch-native/polyfill')
-    // @ts-expect-error fetch polyfill
+    // @ts-expect-error missing from window types
     win.URLSearchParams = globalThis.URLSearchParams
-    // @ts-expect-error fetch polyfill
+    // @ts-expect-error missing from window types
     win.Request ??= class Request extends globalThis.Request {
       constructor(input: RequestInfo, init?: RequestInit) {
         if (typeof input === 'string') {

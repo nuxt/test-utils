@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 
 import { listen } from 'listhen'
-import { createApp, eventHandler, toNodeListener, readBody, getHeaders, getQuery } from 'h3'
+import { createApp, eventHandler, toNodeListener, readBody, getHeaders, getQuery, setCookie } from 'h3'
 
 import FetchComponent from '~/components/FetchComponent.vue'
 
@@ -41,6 +41,17 @@ describe('server mocks and data fetching', () => {
     ).toMatchObject({
       title: 'mocked',
     })
+  })
+
+  it('can set cookies from mocked endpoints', async () => {
+    registerEndpoint('/with-cookies', eventHandler((event) => {
+      setCookie(event, 'first', '1')
+      setCookie(event, 'second', '2')
+      return 'ok'
+    }))
+    const response = await fetch('/with-cookies')
+    expect(response.headers.getSetCookie()).toStrictEqual(['first=1; Path=/', 'second=2; Path=/'])
+    expect(await response.text()).toBe('ok')
   })
 
   it('can override and remove request mocks', async () => {

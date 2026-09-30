@@ -2,6 +2,7 @@ import { defineConfig } from 'tsdown'
 
 const NEVER_BUNDLE = [
   '#dirs',
+  '#nuxt-test-utils/h3',
   'vite',
   'bun:test',
   /^#app(\/|$)/,

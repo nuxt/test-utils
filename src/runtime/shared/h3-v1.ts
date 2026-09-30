@@ -1,13 +1,11 @@
 import type { GenericApp } from '../../vitest-environment.ts'
 
 export async function createFetchForH3V1() {
-  const [{ createApp, toNodeListener }, { fetchNodeRequestHandler }] = await Promise.all([
-    import('h3'),
-    import('node-mock-http'),
-  ])
+  // @ts-expect-error resolved to the project's h3 by the vitest config
+  const { createApp, toWebHandler } = await (import('#nuxt-test-utils/h3') as Promise<typeof import('h3')>)
 
   const h3App = createApp()
-  const nodeHandler = toNodeListener(h3App)
+  const webHandler = toWebHandler(h3App)
 
   const registry = new Set<string>()
   const _fetch = fetch
@@ -35,8 +33,7 @@ export async function createFetchForH3V1() {
       url = '/_' + url
     }
     if (url.startsWith('/')) {
-      const response = await fetchNodeRequestHandler(nodeHandler, url, init)
-      return normalizeFetchResponse(response)
+      return webHandler(new Request(new URL(url, 'http://localhost'), init))
     }
     return _fetch(input, _init)
   }) as typeof fetch
@@ -46,40 +43,4 @@ export async function createFetchForH3V1() {
     registry,
     fetch: h3Fetch,
   }
-}
-
-/** utils from nitro */
-
-function normalizeFetchResponse(response: Response) {
-  if (!response.headers.has('set-cookie')) {
-    return response
-  }
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: normalizeCookieHeaders(response.headers),
-  })
-}
-
-function normalizeCookieHeader(header: number | string | string[] = '') {
-  return splitCookiesString(joinHeaders(header))
-}
-
-function normalizeCookieHeaders(headers: Headers) {
-  const outgoingHeaders = new Headers()
-  for (const [name, header] of headers) {
-    if (name === 'set-cookie') {
-      for (const cookie of normalizeCookieHeader(header)) {
-        outgoingHeaders.append('set-cookie', cookie)
-      }
-    }
-    else {
-      outgoingHeaders.set(name, joinHeaders(header))
-    }
-  }
-  return outgoingHeaders
-}
-
-function joinHeaders(value: number | string | string[]) {
-  return Array.isArray(value) ? value.join(', ') : String(value)
 }

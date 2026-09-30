@@ -1,7 +1,6 @@
 import type { Import } from 'unimport'
-import { walk } from 'estree-walker'
-import type { CallExpression, Expression, ExpressionStatement, Identifier, ImportDeclaration, ImportSpecifier, Literal, Node, SpreadElement } from 'estree'
-import type { AstNode } from 'rollup'
+import { walk } from 'oxc-walker'
+import type { Argument, BigIntLiteral, BooleanLiteral, CallExpression, ExpressionStatement, IdentifierReference, ImportDeclaration, ImportSpecifier, Node, NullLiteral, NumericLiteral, Program, RegExpLiteral, StringLiteral } from '@oxc-project/types'
 import MagicString from 'magic-string'
 import type { Component } from '@nuxt/schema'
 import type { Plugin } from 'vite'
@@ -27,6 +26,8 @@ const HELPERS_NAME = [
   HELPER_MOCK_COMPONENT,
 ]
 
+type Literal = BooleanLiteral | NullLiteral | NumericLiteral | StringLiteral | BigIntLiteral | RegExpLiteral
+
 interface MockImportInfo {
   name: string
   import: Import
@@ -47,12 +48,9 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
         if (!HELPERS_NAME.some(n => code.includes(n))) return
         if (id.includes('/node_modules/')) return
 
-        let ast: AstNode
+        let ast: Program
         try {
-          ast = this.parse(code, {
-            // @ts-expect-error compatibility with rollup v3
-            sourceType: 'module', ecmaVersion: 'latest', ranges: true,
-          })
+          ast = this.parse(code)
         }
         catch {
           return
@@ -67,19 +65,18 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
         const mocksComponent: MockComponentInfo[] = []
         const importPathsList: Set<string> = new Set()
 
-        // @ts-expect-error mismatch between acorn/estree types
         walk(ast, {
           enter: (node, parent) => {
             const removeCallExpression = (start: Node, end = start) => s.overwrite(
               isExpressionStatement(parent)
-                ? startOf(parent)
-                : startOf(start),
+                ? parent.start
+                : start.start,
               isExpressionStatement(parent)
-                ? endOf(parent)
-                : endOf(end),
+                ? parent.end
+                : end.end,
               '')
 
-            const parseMockImportTarget = (importTarget: Expression | SpreadElement, helperName: string) => {
+            const parseMockImportTarget = (importTarget: Argument, helperName: string) => {
               const name = isLiteral(importTarget)
                 ? importTarget.value
                 : isIdentifier(importTarget) ? importTarget.name : undefined
@@ -88,7 +85,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
                   new Error(
                     `The first argument of ${helperName}() must be a string literal or mocked target`,
                   ),
-                  startOf(importTarget),
+                  importTarget.start,
                 )
               }
               return {
@@ -105,7 +102,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
                     isImportSpecifier(i) && i.imported.type === 'Identifier' && i.imported.name === 'vi',
                 )
                 if (viImport) {
-                  insertionPoint = endOf(node)
+                  insertionPoint = node.end
                   hasViImport = true
                 }
                 return
@@ -123,7 +120,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
                   new Error(
                     `${HELPER_MOCK_IMPORT}() should have exactly 2 arguments`,
                   ),
-                  startOf(node),
+                  node.start,
                 )
               }
 
@@ -138,8 +135,8 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
                 name,
                 import: importItem,
                 factory: code.slice(
-                  startOf(node.arguments[1]!),
-                  endOf(node.arguments[1]!),
+                  node.arguments[1]!.start,
+                  node.arguments[1]!.end,
                 ),
               })
             }
@@ -153,7 +150,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
                   new Error(
                     `${HELPER_UNMOCK_IMPORT}() should have exactly 1 argument`,
                   ),
-                  startOf(node),
+                  node.start,
                 )
               }
 
@@ -183,7 +180,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
                   new Error(
                     `${HELPER_MOCK_COMPONENT}() should have exactly 2 arguments`,
                   ),
-                  startOf(node),
+                  node.start,
                 )
               }
               const componentName = node.arguments[0]!
@@ -192,7 +189,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
                   new Error(
                     `The first argument of ${HELPER_MOCK_COMPONENT}() must be a string literal`,
                   ),
-                  startOf(componentName),
+                  componentName.start,
                 )
               }
               const pathOrName = componentName.value
@@ -206,8 +203,8 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
               mocksComponent.push({
                 path: path,
                 factory: code.slice(
-                  startOf(node.arguments[1]!),
-                  endOf(node.arguments[1]!),
+                  node.arguments[1]!.start,
+                  node.arguments[1]!.end,
                 ),
               })
             }
@@ -338,21 +335,14 @@ function isImportSpecifier(node: Node): node is ImportSpecifier {
 function isCallExpression(node: Node): node is CallExpression {
   return node.type === 'CallExpression'
 }
-function isIdentifier(node: Node): node is Identifier {
+function isIdentifier(node: Node): node is IdentifierReference {
   return node.type === 'Identifier'
 }
-function isLiteral(node: Node | Expression): node is Literal {
+function isLiteral(node: Node): node is Literal {
   return node.type === 'Literal'
 }
 function isExpressionStatement(node: Node | null): node is ExpressionStatement {
   return node?.type === 'ExpressionStatement'
-}
-// TODO: need to fix in rollup types, probably
-function startOf(node: Node) {
-  return 'range' in node && node.range ? node.range[0] : ('start' in node ? node.start as number : undefined as never)
-}
-function endOf(node: Node) {
-  return 'range' in node && node.range ? node.range[1] : ('end' in node ? node.end as number : undefined as never)
 }
 function mapGroupBy<K, T>(items: Iterable<T>, keySelector: (item: T) => K) {
   const map = new Map<K, T[]>()
