@@ -1,8 +1,8 @@
 import { registerEndpoint } from '@nuxt/test-utils/runtime'
 import { it, expect, describe, vi } from 'vitest'
 
-import { readBody, getQuery } from 'h3-next'
-import type { H3Event } from 'h3-next'
+import { readBody, getQuery } from 'h3'
+import type { H3Event } from 'h3'
 
 function getHeaders(event: H3Event) {
   return Object.fromEntries(event.req.headers.entries())

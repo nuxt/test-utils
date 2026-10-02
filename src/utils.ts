@@ -190,3 +190,26 @@ export function getPackageInfo(name: string, dirs: string | string[] = process.c
     dir = parent
   }
 }
+
+export function resolveH3Package(rootDir: string, appDir: string, modulesDir: string[]): { rootPath: string, version: 1 | 2, packageJson: Record<string, any> } | undefined {
+  const nuxtServerIntegration = getPackageInfo('@nuxt/nitro-server', appDir)
+
+  let nitroPath: string | undefined
+  for (const nitroCandidate of [
+    ...nuxtServerIntegration?.packageJson.dependencies?.nitro
+      ? ['nitro', 'nitro-nightly']
+      : ['nitropack', 'nitropack-nightly'],
+  ]) {
+    nitroPath = resolveModulePath(nitroCandidate, { from: nuxtServerIntegration?.rootPath || appDir, try: true })
+    if (nitroPath) {
+      break
+    }
+  }
+
+  const h3Info = getPackageInfo('h3', rootDir)
+    || getPackageInfo('h3', nitroPath ? dirname(nitroPath) : modulesDir)
+  if (!h3Info) {
+    return
+  }
+  return { ...h3Info, version: h3Info.version?.startsWith('2.') ? 2 : 1 }
+}
