@@ -8,6 +8,12 @@ export default defineConfig({
         test: {
           name: 'nuxt',
           include: ['**/nuxt/*.spec.ts'],
+          typecheck: {
+            enabled: true,
+            include: ['**/nuxt/*.test-d.ts'],
+            tsconfig: '.nuxt/tsconfig.app.json',
+            ignoreSourceErrors: true,
+          },
         },
       }),
       {

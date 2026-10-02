@@ -10,9 +10,8 @@ import type { DateString } from 'compatx'
 import { createDefu, defu } from 'defu'
 import { createResolver, findPath } from '@nuxt/kit'
 import { resolveModulePath } from 'exsolve'
-import { dirname } from 'pathe'
 
-import { applyEnv, deepCopy, getPackageInfo, loadKit } from './utils.ts'
+import { applyEnv, deepCopy, loadKit, resolveH3Package } from './utils.ts'
 import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options.ts'
 
 interface GetVitestConfigOptions {
@@ -150,24 +149,8 @@ export async function getVitestConfigFromNuxt(
 
   options.viteConfig.plugins = (options.viteConfig.plugins || []).filter(p => !p || !('name' in p) || !excludedPlugins.includes(p.name))
 
-  // resolve nitro/h3 version (to support nitro v3)
-  const nuxtServerIntegration = getPackageInfo('@nuxt/nitro-server', options.nuxt.options.appDir)
-
-  let nitroPath: string | undefined
-  for (const nitroCandidate of [
-    ...nuxtServerIntegration?.packageJson.dependencies?.nitro
-      ? ['nitro', 'nitro-nightly']
-      : ['nitropack', 'nitropack-nightly'],
-  ]) {
-    nitroPath = resolveModulePath(nitroCandidate, { from: nuxtServerIntegration?.rootPath || options.nuxt.options.appDir, try: true })
-    if (nitroPath) {
-      break
-    }
-  }
-
-  const h3Info = getPackageInfo('h3', rootDir)
-    || getPackageInfo('h3', nitroPath ? dirname(nitroPath) : options.nuxt.options.modulesDir)
-  const h3Version = h3Info?.version?.startsWith('2.') ? 2 : 1
+  const h3Info = resolveH3Package(rootDir, options.nuxt.options.appDir, options.nuxt.options.modulesDir)
+  const h3Version = h3Info?.version ?? 1
   const h3Entry = h3Info && resolveModulePath(h3Version === 2 ? 'h3/generic' : 'h3', { from: `${h3Info.rootPath}/`, try: true })
 
   const resolver = createResolver(import.meta.url)

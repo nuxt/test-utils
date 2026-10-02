@@ -1,7 +1,11 @@
 import type { H3Event as H3V1Event } from 'h3'
-import type { H3Event as H3V2Event } from 'h3-next'
 import type { $Fetch } from 'nitropack'
 import type { EnvironmentOptions } from 'vitest/node'
+
+interface H3V2Event {
+  url: URL
+  method: string
+}
 
 export type NuxtBuiltinEnvironment = 'happy-dom' | 'jsdom'
 interface GenericAppUse {

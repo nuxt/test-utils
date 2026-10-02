@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import type { EventHandler as H3V1EventHandler, H3Event as H3V1Event } from 'h3'
-import type { EventHandler as H3V2EventHandler, H3Event as H3V2Event, HTTPMethod } from 'h3-next'
+import type { EventHandler as FallbackEventHandler, H3Event, HTTPMethod as FallbackHTTPMethod } from 'h3'
 import type {
   ComponentInjectOptions,
   ComponentOptionsMixin,
@@ -19,10 +18,15 @@ import type { GenericApp } from '../vitest-environment.ts'
 type Awaitable<T> = T | Promise<T>
 type OptionalFunction<T> = T | (() => Awaitable<T>)
 
-type Handler = H3V1EventHandler | H3V2EventHandler
+/** h3 types for `registerEndpoint`, augmented by the `@nuxt/test-utils` module. */
+export interface RegisterEndpointH3Types {}
+
+type EventHandler = RegisterEndpointH3Types extends { EventHandler: infer T } ? T : FallbackEventHandler
+type HTTPMethod = RegisterEndpointH3Types extends { HTTPMethod: infer T } ? T : FallbackHTTPMethod
+
 type EndpointConfig = {
   url: string
-  handler: Handler
+  handler: EventHandler
   method?: HTTPMethod
   once?: boolean
 }
@@ -69,7 +73,7 @@ function findEndpointRegistryHandlers(url: string) {
  * ```
  * @see https://nuxt.com/docs/getting-started/testing#registerendpoint
  */
-export function registerEndpoint(url: string, options: H3V1EventHandler | { handler: H3V1EventHandler, method?: HTTPMethod, once?: boolean }) {
+export function registerEndpoint(url: string, options: EventHandler | { handler: EventHandler, method?: HTTPMethod, once?: boolean }) {
   // @ts-expect-error private property
   const app: GenericApp = window.__app
 
@@ -307,10 +311,10 @@ export function mockComponent(_path: string, _component: unknown): void {
   )
 }
 
-const handler = Object.assign(async (event: H3V1Event | H3V2Event) => {
+const handler = Object.assign(async (event: H3Event | { url: URL, method: string }) => {
   const url = 'url' in event && event.url
     ? (event.url.pathname + event.url.search).replace(/^\/_/, '')
-    : event.path.replace(/^\/_/, '')
+    : (event as H3Event).path.replace(/^\/_/, '')
   const registeredHandlers = findEndpointRegistryHandlers(url)
   const latestHandler = [...registeredHandlers || []].reverse().find(config => config.method ? event.method === config.method : true)
   if (!latestHandler) return
@@ -339,7 +343,7 @@ function registerGlobalHandler(app: GenericApp) {
       const url = typeof eventOrPath === 'string'
         ? eventOrPath.replace(/^\/_/, '')
         : (eventOrPath.url.pathname + eventOrPath.url.search).replace(/^\/_/, '')
-      const event = _event as H3V1Event | H3V2Event | undefined
+      const event = _event as { method: string } | undefined
       const registeredHandlers = findEndpointRegistryHandlers(url)
       return registeredHandlers?.some(config => config.method ? event?.method === config.method : true) ?? false
     },
