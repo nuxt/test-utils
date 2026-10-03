@@ -4,6 +4,7 @@ import type { TestUserConfig as VitestConfig } from 'vitest/config'
 import { join, relative } from 'pathe'
 import { isCI } from 'std-env'
 
+import { setupNuxtIgnore } from './module/ignore.ts'
 import { setupImportMocking } from './module/mock.ts'
 import { NuxtRootStubPlugin } from './module/plugins/entry.ts'
 import { runInstallWizard } from './module/install-wizard.ts'
@@ -17,6 +18,8 @@ export interface NuxtVitestOptions {
   startOnBoot?: boolean
   logToConsole?: boolean
   vitestConfig?: VitestConfig
+  /** @internal */
+  _fromVitestConfig?: boolean
 }
 
 export default defineNuxtModule<NuxtVitestOptions>({
@@ -33,12 +36,16 @@ export default defineNuxtModule<NuxtVitestOptions>({
     await runInstallWizard(nuxt)
   },
   async setup(options, nuxt) {
+    if (nuxt.options.test && options._fromVitestConfig) {
+      setupNuxtIgnore(nuxt)
+    }
+
     if (nuxt.options.test || nuxt.options.dev) {
       await setupImportMocking(nuxt)
     }
 
-    // inline runtime config the way dev builds do
     if (nuxt.options.test && !nuxt.options.dev) {
+      // inline runtime config the way dev builds do
       nuxt.hook('app:templates', (app) => {
         const template = app.templates.find(t => t.filename === 'paths.mjs')
         if (!template?.getContents) {
