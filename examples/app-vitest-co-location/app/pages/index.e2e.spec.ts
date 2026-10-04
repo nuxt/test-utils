@@ -7,14 +7,13 @@ await setup({
   browser: true,
 })
 
-it('runs e2e browser test', { timeout: 20000 }, async () => {
+it('runs e2e browser test', { timeout: 20000 }, async ({ onTestFinished }) => {
   const page = await createPage('/')
+  onTestFinished(() => page.close())
 
   const title = page.getByRole('heading', { level: 1 })
   await expect(title.textContent()).resolves.toContain('Index Page')
 
   const paragraph = page.getByRole('paragraph')
   await expect(paragraph.textContent()).resolves.toContain('foo: bar')
-
-  await page.close()
 })

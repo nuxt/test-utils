@@ -36,7 +36,6 @@ export default defineConfig({
             instances: [{ browser: 'chromium' }],
           },
           include: ['**/*.browser.{test,spec}.ts'],
-          setupFiles: ['@nuxt/test-utils/browser'],
         },
       }),
     ],

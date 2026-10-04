@@ -1,7 +1,7 @@
 export default defineNuxtPlugin((nuxt) => {
   return {
     provide: {
-      get message() {
+      message() {
         return `Hello Nuxt (${nuxt.$router.currentRoute.value.path})`
       },
     },
