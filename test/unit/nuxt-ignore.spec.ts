@@ -129,27 +129,42 @@ describe('nuxtignore', () => {
     ])
   })
 
-  it('should remove test files from plugins', () => {
+  it('should remove test files from plugins and middleware', () => {
     const nuxt = createNuxt()
     const app = {
       plugins: [
-        'app/plugins/plugin.ts',
-        'app/plugins/plugin.spec.ts',
-        'app/plugins/plugin.test.ts',
-        'app/plugins/plugin.spec-d.ts',
-        'app/plugins/plugin.test-d.ts',
-        'app/plugins/plugin.special.ts',
-        'app/plugins/plugin.testable.ts',
+        'app/plugins/example.ts',
+        'app/plugins/example.spec.ts',
+        'app/plugins/example.test.ts',
+        'app/plugins/example.spec-d.ts',
+        'app/plugins/example.test-d.ts',
+        'app/plugins/example.special.ts',
+        'app/plugins/example.testable.ts',
       ].map(src => ({ src })),
+      middleware: [
+        'app/middleware/example.ts',
+        'app/middleware/example.spec.ts',
+        'app/middleware/example.test.ts',
+        'app/middleware/example.spec-d.ts',
+        'app/middleware/example.test-d.ts',
+        'app/middleware/example.special.ts',
+        'app/middleware/example.testable.ts',
+      ].map(path => ({ path })),
     }
 
     setupNuxtIgnore(nuxt)
     hooks['app:resolve'].at(-1)?.(app)
 
     expect(app.plugins.map(({ src }) => src)).toEqual([
-      'app/plugins/plugin.ts',
-      'app/plugins/plugin.special.ts',
-      'app/plugins/plugin.testable.ts',
+      'app/plugins/example.ts',
+      'app/plugins/example.special.ts',
+      'app/plugins/example.testable.ts',
+    ])
+
+    expect(app.middleware.map(({ path }) => path)).toEqual([
+      'app/middleware/example.ts',
+      'app/middleware/example.special.ts',
+      'app/middleware/example.testable.ts',
     ])
   })
 })

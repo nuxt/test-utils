@@ -22,6 +22,7 @@ export async function setupNuxtIgnore(nuxt: Nuxt) {
   nuxt.options.ignore = nuxt.options.ignore.filter(i => !isTestFileIgnorePattern(i))
   nuxt.hook('modules:done', () => {
     if (!nuxt._ignore) return
+    // And add negative patterns to nuxt._ignore for test files (e.g. from .nuxtignore)
     for (const pattern of resolveIgnorePatterns()) {
       if (isTestFileIgnorePattern(pattern)) {
         nuxt._ignore.add(`!${pattern}`)
@@ -29,8 +30,9 @@ export async function setupNuxtIgnore(nuxt: Nuxt) {
     }
   })
 
-  // But do not register test files inside plugins/ as real Nuxt plugins
   nuxt.hook('app:resolve', (app) => {
+    // But do not register test files inside plugins/ and middleware/ as real Nuxt plugins or middleware
     app.plugins = app.plugins.filter(plugin => !isTestPluginFile(plugin.src))
+    app.middleware = app.middleware.filter(middleware => !isTestPluginFile(middleware.path))
   })
 }

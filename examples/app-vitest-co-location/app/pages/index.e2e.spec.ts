@@ -14,6 +14,6 @@ it('runs e2e browser test', { timeout: 20000 }, async ({ onTestFinished }) => {
   const title = page.getByRole('heading', { level: 1 })
   await expect(title.textContent()).resolves.toContain('Index Page')
 
-  const paragraph = page.getByRole('paragraph')
+  const paragraph = page.locator('#app-config')
   await expect(paragraph.textContent()).resolves.toContain('foo: bar')
 })
