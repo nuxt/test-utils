@@ -1,3 +1,4 @@
+import { resolveIgnorePatterns } from '@nuxt/kit'
 import type { Nuxt } from '@nuxt/schema'
 
 const testIgnorePatterns = [
@@ -18,10 +19,15 @@ function isTestPluginFile(src: string) {
 
 export async function setupNuxtIgnore(nuxt: Nuxt) {
   // We want to run Nuxt plugins on test files
-  const testIgnores = new Set(nuxt.options.ignore.filter(isTestFileIgnorePattern))
-  if (testIgnores.size) {
-    nuxt.options.ignore = nuxt.options.ignore.filter(i => !testIgnores.has(i))
-  }
+  nuxt.options.ignore = nuxt.options.ignore.filter(i => !isTestFileIgnorePattern(i))
+  nuxt.hook('modules:done', () => {
+    if (!nuxt._ignore) return
+    for (const pattern of resolveIgnorePatterns()) {
+      if (isTestFileIgnorePattern(pattern)) {
+        nuxt._ignore.add(`!${pattern}`)
+      }
+    }
+  })
 
   // But do not register test files inside plugins/ as real Nuxt plugins
   nuxt.hook('app:resolve', (app) => {
