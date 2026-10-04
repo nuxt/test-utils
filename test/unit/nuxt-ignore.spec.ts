@@ -1,23 +1,25 @@
-import { relative, join } from 'pathe'
-import { fileURLToPath } from 'node:url'
-import { rm } from 'node:fs/promises'
-import { afterAll, describe, expect, it } from 'vitest'
-import { loadNuxt, buildNuxt, logger } from '@nuxt/kit'
+import { describe, expect, it } from 'vitest'
+import type { Nuxt } from 'nuxt/schema'
 import { setupNuxtIgnore } from '../../src/module/ignore'
 
-const TEST_TIMEOUT = process.env.CI ? 60_000 : 30_000
+type Hook = (...args: unknown[]) => unknown
+let hooks: Record<string, Hook[]>
+
+function createNuxt() {
+  hooks = {}
+  const nuxt = {
+    hook: (name: string, fn: Hook) => {
+      (hooks[name] ||= []).push(fn)
+    },
+    options: {},
+  } as Nuxt
+  nuxt.options.ignore = []
+  return nuxt
+}
 
 describe('nuxtignore', () => {
-  const fixtureDir = fileURLToPath(new URL('../fixtures/nuxt-ignore', import.meta.url))
-
-  afterAll(async () => {
-    await rm(join(fixtureDir, '.nuxt'), { recursive: true, force: true })
-  })
-
   it('should remove test file pattern from ignore', async () => {
-    const nuxt = await loadNuxt({
-      cwd: fixtureDir,
-    })
+    const nuxt = createNuxt()
 
     nuxt.options.ignore = [
       '**/*.stories.{js,cts,mts,ts,jsx,tsx}',
@@ -72,63 +74,25 @@ describe('nuxtignore', () => {
     ])
   })
 
-  it('should ignore test files in runtime dirs', async () => {
-    const nuxt = await loadNuxt({ cwd: fixtureDir })
-
-    const normalize = (paths: string[]) => paths
-      .map(p => relative(fixtureDir, p))
-      .filter(p => !p.includes('node_modules/') && !p.includes('../') && !p.includes('.nuxt/'))
-      .toSorted()
-
-    const scans = {
-      pages: [] as string[],
-      imports: [] as string[],
-      components: [] as string[],
-      plugins: [] as string[],
-      middlewares: [] as string[],
-      serverHandlers: [] as string[],
-    }
-
-    nuxt.addHooks({
-      'pages:extend'(pages) {
-        scans.pages = normalize(pages.flatMap(p => p.file!))
-      },
-      'imports:extend'(imports) {
-        scans.imports = normalize(imports.map(p => p.from))
-      },
-      'components:extend'(components) {
-        scans.components = normalize(components.map(p => p.filePath))
-      },
-      'app:resolve': (app) => {
-        scans.plugins = normalize(app.plugins.map(p => p.src))
-        scans.middlewares = normalize(app.middleware.map(p => p.path))
-      },
-      'nitro:build:before'(nitro) {
-        scans.serverHandlers = normalize(nitro.scannedHandlers.map(p => p.handler))
-      },
-    })
-
-    await buildNuxt(nuxt).finally(() => logger.restoreAll())
-
-    expect(scans).toEqual({
-      pages: [
-        'app/pages/index.vue',
-      ],
-      imports: [
-        'app/composables/useMessage.ts',
-      ],
-      components: [
-        'app/components/Message.vue',
-      ],
+  it('should remove test files from plugins', async () => {
+    const nuxt = createNuxt()
+    setupNuxtIgnore(nuxt)
+    const app = {
       plugins: [
-        'app/plugins/message.ts',
-      ],
-      middlewares: [
-        'app/middleware/logger.global.ts',
-      ],
-      serverHandlers: [
-        'server/api/hello.get.ts',
-      ],
-    } satisfies typeof scans)
-  }, TEST_TIMEOUT)
+        'app/plugins/plugin.ts',
+        'app/plugins/plugin.spec.ts',
+        'app/plugins/plugin.test.ts',
+        'app/plugins/plugin.spec-d.ts',
+        'app/plugins/plugin.test-d.ts',
+        'app/plugins/plugin.special.ts',
+        'app/plugins/plugin.testable.ts',
+      ].map(src => ({ src })),
+    }
+    hooks['app:resolve']?.at(-1)?.(app)
+    expect(app.plugins.map(({ src }) => src)).toEqual([
+      'app/plugins/plugin.ts',
+      'app/plugins/plugin.special.ts',
+      'app/plugins/plugin.testable.ts',
+    ])
+  })
 })

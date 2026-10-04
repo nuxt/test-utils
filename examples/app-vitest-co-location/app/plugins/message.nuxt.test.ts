@@ -8,5 +8,3 @@ it('plugin', () => {
     },
   })
 })
-
-export default defineNuxtPlugin({})

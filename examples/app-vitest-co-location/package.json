@@ -1,0 +1,26 @@
+{
+  "name": "example-app-vitest-co-location",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "nuxt": "^4.5.2"
+  },
+  "devDependencies": {
+    "@nuxt/test-utils": "latest",
+    "@vitest/browser-playwright": "5.0.2",
+    "@vue/test-utils": "2.5.1",
+    "happy-dom": "20.14.5",
+    "playwright-core": "1.63.0",
+    "tinyglobby": "0.2.17",
+    "typescript": "6.0.3",
+    "vitest": "5.0.2"
+  }
+}
