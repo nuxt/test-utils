@@ -36,15 +36,15 @@ export default defineNuxtModule<NuxtVitestOptions>({
     await runInstallWizard(nuxt)
   },
   async setup(options, nuxt) {
+    const { addTypeTemplate, addVitePlugin } = await loadKit(nuxt.options.rootDir)
+
+    const resolver = createResolver(import.meta.url)
+
+    // Setup for Vitest
     if (options._fromVitestConfig) {
       setupNuxtIgnore(nuxt)
-    }
-
-    if (nuxt.options.test || nuxt.options.dev) {
       await setupImportMocking(nuxt)
-    }
 
-    if (nuxt.options.test && !nuxt.options.dev) {
       // inline runtime config the way dev builds do
       nuxt.hook('app:templates', (app) => {
         const template = app.templates.find(t => t.filename === 'paths.mjs')
@@ -60,12 +60,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
             .replace(/const getAppConfig = \(\) => useRuntimeConfig\(\)\.app/, () => `const getAppConfig = () => (${inlineAppConfig})`)
         }
       })
-    }
 
-    const { addTypeTemplate, addVitePlugin } = await loadKit(nuxt.options.rootDir)
-
-    const resolver = createResolver(import.meta.url)
-    if (nuxt.options.test || nuxt.options.dev) {
       addVitePlugin(NuxtRootStubPlugin({
         entry: await resolvePath('#app/entry', { alias: nuxt.options.alias }),
         rootStubPath: await resolvePath(resolver.resolve('./runtime/nuxt-root')),
