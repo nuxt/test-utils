@@ -10,6 +10,8 @@ await setup({
 it('should keep ignore test files in runtime dirs', async () => {
   expect(await $fetch('/api/collect-scans')).toEqual({
     pages: [
+      'app/pages/about.vue',
+      'app/pages/about/index.vue',
       'app/pages/index.vue',
     ],
     imports: [

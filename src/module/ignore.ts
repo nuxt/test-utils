@@ -14,6 +14,16 @@ function isTestFile(src: string) {
   return IS_TEST_FILE_RE.test(src)
 }
 
+function dropTestFiles<T>(items: T[], toPath: (item: T) => string | undefined) {
+  const filtered = items.filter((item) => {
+    const path = toPath(item)
+    return !path || !isTestFile(path)
+  })
+  if (filtered.length !== items.length) {
+    items.splice(0, items.length, ...filtered)
+  }
+}
+
 export async function setupNuxtIgnore(nuxt: Nuxt) {
   // We want to run Nuxt plugins on test files
   // so remove Nuxt's default ignore pattern
@@ -29,9 +39,24 @@ export async function setupNuxtIgnore(nuxt: Nuxt) {
     }
   })
 
-  nuxt.hook('app:resolve', (app) => {
-    // But do not register test files inside plugins/ and middleware/ as real Nuxt plugins or middleware
-    app.plugins = app.plugins.filter(plugin => !isTestFile(plugin.src))
-    app.middleware = app.middleware.filter(middleware => !isTestFile(middleware.path))
+  // But do not register test files into the Nuxt app
+  nuxt.addHooks({
+    'app:resolve'(app) {
+      dropTestFiles(app.plugins, v => v.src)
+      dropTestFiles(app.middleware, v => v.path)
+    },
+    'components:extend'(components) {
+      dropTestFiles(components, v => v.filePath)
+    },
+    'imports:extend'(imports) {
+      dropTestFiles(imports, v => v.from)
+    },
+    'pages:extend'(_pages) {
+      const dropTestPages = (pages: typeof _pages) => {
+        dropTestFiles(pages, p => p.file)
+        pages.forEach(p => dropTestPages(p.children ?? []))
+      }
+      dropTestPages(_pages)
+    },
   })
 }

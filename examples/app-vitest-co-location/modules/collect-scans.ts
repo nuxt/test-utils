@@ -40,8 +40,18 @@ export default defineNuxtModule({
     })
 
     nuxt.addHooks({
-      'pages:extend'(pages) {
-        scans.pages = normalize(pages.map(p => p.file))
+      'pages:extend'(_pages) {
+        const getPaths = (pages: typeof _pages, paths: string[] = []) => {
+          for (const p of pages) {
+            if (p.file) {
+              paths.push(p.file)
+            }
+            getPaths(p.children ?? [], paths)
+          }
+          return paths
+        }
+
+        scans.pages = normalize(getPaths(_pages))
       },
       'imports:extend'(imports) {
         scans.imports = normalize(imports.map(p => p.from))

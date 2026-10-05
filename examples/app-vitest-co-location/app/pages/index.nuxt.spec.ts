@@ -17,9 +17,25 @@ it('should ignore plugins and middlewares', async () => {
   const wrapper = await mountSuspended(Page)
   const scans: TestCollectScans = JSON.parse(wrapper.find('#scans').text())
 
-  expect(scans.plugins).toContain('app/plugins/message.ts')
-  expect(scans.plugins).not.toContain('app/plugins/message.nuxt.test.ts')
-
-  expect(scans.middlewares).toContain('app/middleware/logger.global.ts')
-  expect(scans.middlewares).not.toContain('app/middleware/logger.global.nuxt.spec.ts')
+  expect(scans).toEqual({
+    pages: [
+      'app/pages/about.vue',
+      'app/pages/about/index.vue',
+      'app/pages/index.vue',
+    ],
+    imports: [
+      'app/composables/useMessage.ts',
+    ],
+    components: [
+      'app/components/Message.vue',
+    ],
+    plugins: [
+      'app/plugins/message.ts',
+    ],
+    middlewares: [
+      'app/middleware/logger.global.ts',
+    ],
+    // empty because client environment
+    serverHandlers: [],
+  })
 })
