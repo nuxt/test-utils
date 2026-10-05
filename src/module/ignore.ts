@@ -1,38 +1,37 @@
-import { resolveIgnorePatterns } from '@nuxt/kit'
 import type { Nuxt } from '@nuxt/schema'
 
-const testIgnorePatterns = [
-  /\/__tests__\//,
-  /\.\{(?:spec|test)(?:-d)?(?:,(spec|test)(?:-d)?)*\}\.\{[cm]?[tj]sx?(?:,[cm]?[tj]sx?)*\}$/,
-  /\.\{(?:spec|test)(?:-d)?(?:,(spec|test)(?:-d)?)*\}\.[cm]?[tj]sx?$/,
-  /\.(?:spec|test)(?:-d)?\.\{[cm]?[tj]sx?(?:,[cm]?[tj]sx?)*\}$/,
-  /\.(?:spec|test)(?:-d)?\.[cm]?[tj]sx?$/,
-] as const
+const TEST_FILE_PATTERN = {
+  modifiers: ['test', 'test-d', 'spec', 'spec-d'],
+  extensions: [
+    'ts', 'cts', 'mts', 'tsx', 'ctsx', 'mtsx',
+    'js', 'cjs', 'mjs', 'jsx', 'cjsx', 'mjsx',
+  ],
+} as const
 
-function isTestFileIgnorePattern(src: string) {
-  return !src.startsWith('!') && testIgnorePatterns.some(p => p.test(src))
-}
+const IS_TEST_FILE_RE = /\.(?:test|spec)(?:-d)?\.[cm]?[tj]sx?$/
 
-function isTestPluginFile(src: string) {
-  return /\.(?:spec|test)(?:-d)?\.[cm]?[tj]sx?$/.test(src)
+function isTestFile(src: string) {
+  return IS_TEST_FILE_RE.test(src)
 }
 
 export async function setupNuxtIgnore(nuxt: Nuxt) {
   // We want to run Nuxt plugins on test files
-  nuxt.options.ignore = nuxt.options.ignore.filter(i => !isTestFileIgnorePattern(i))
+  // so remove Nuxt's default ignore pattern
+  nuxt.options.ignore = nuxt.options.ignore.filter(i => i !== '**/*.{spec,test}.{js,cts,mts,ts,jsx,tsx}')
   nuxt.hook('modules:done', () => {
     if (!nuxt._ignore) return
-    // And add negative patterns to nuxt._ignore for test files (e.g. from .nuxtignore)
-    for (const pattern of resolveIgnorePatterns()) {
-      if (isTestFileIgnorePattern(pattern)) {
-        nuxt._ignore.add(`!${pattern}`)
+    // And add negated common test file patterns to `nuxt._ignore`
+    // so that custom ignore patterns are covered
+    for (const modifier of TEST_FILE_PATTERN.modifiers) {
+      for (const extension of TEST_FILE_PATTERN.extensions) {
+        nuxt._ignore.add(`!**/*.${modifier}.${extension}`)
       }
     }
   })
 
   nuxt.hook('app:resolve', (app) => {
     // But do not register test files inside plugins/ and middleware/ as real Nuxt plugins or middleware
-    app.plugins = app.plugins.filter(plugin => !isTestPluginFile(plugin.src))
-    app.middleware = app.middleware.filter(middleware => !isTestPluginFile(middleware.path))
+    app.plugins = app.plugins.filter(plugin => !isTestFile(plugin.src))
+    app.middleware = app.middleware.filter(middleware => !isTestFile(middleware.path))
   })
 }
