@@ -400,12 +400,8 @@ async function performSetup(nuxt: Nuxt, answers: WizardAnswers): Promise<void> {
 
 async function addDevDependencies(packages: string[], cwd: string): Promise<void> {
   const agent = (await detect({ cwd }).catch(() => null))?.agent || 'npm'
-  const args = [
-    ...agent === 'pnpm' && existsSync(join(cwd, 'pnpm-workspace.yaml')) ? ['--workspace-root'] : [],
-    '-D',
-    ...agent === 'deno' ? packages.map(name => `npm:${name}`) : packages,
-  ]
-  const { command, args: resolvedArgs } = resolveCommand(agent, 'add', args) || { command: 'npm', args: ['i', ...args] }
+  const args = ['-D', ...packages]
+  const { command, args: resolvedArgs } = resolveCommand(agent, 'add', args, { ignoreWorkspaceRootCheck: true }) || { command: 'npm', args: ['i', ...args] }
   if (command === 'pnpm') {
     resolvedArgs.push('--config.confirm-modules-purge=false', '--config.strict-dep-builds=false')
   }
