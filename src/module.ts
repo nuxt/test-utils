@@ -4,7 +4,6 @@ import type { TestUserConfig as VitestConfig } from 'vitest/config'
 import { join, relative } from 'pathe'
 import { isCI } from 'std-env'
 
-import { setupNuxtIgnore } from './module/ignore.ts'
 import { setupImportMocking } from './module/mock.ts'
 import { NuxtRootStubPlugin } from './module/plugins/entry.ts'
 import { runInstallWizard } from './module/install-wizard.ts'
@@ -42,7 +41,6 @@ export default defineNuxtModule<NuxtVitestOptions>({
 
     // Setup for Vitest
     if (options._fromVitestConfig) {
-      setupNuxtIgnore(nuxt)
       await setupImportMocking(nuxt)
 
       // inline runtime config the way dev builds do

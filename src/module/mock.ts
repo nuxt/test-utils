@@ -1,4 +1,5 @@
 import type { Nuxt, NuxtHooks } from '@nuxt/schema'
+import { resolveIgnorePatterns } from '@nuxt/kit'
 
 import { createMockPlugin } from './plugins/mock.ts'
 import type { MockPluginContext } from './plugins/mock.ts'
@@ -33,6 +34,22 @@ export async function setupImportMocking(nuxt: Nuxt) {
     if (idx !== -1) {
       presets.splice(idx, 1)
     }
+  })
+
+  const ignorePatterns: string[] = []
+  nuxt.hook('vite:configResolved', (_, { isClient }) => {
+    if (!isClient) return
+    ignorePatterns.push(...resolveIgnorePatterns())
+  })
+  addVitePlugin({
+    name: 'nuxt:vitest:un-ignore-for-testing',
+    configureVitest() {
+      // We want to run Nuxt plugins on test files, so un-ignore all patterns
+      for (const pattern of new Set(ignorePatterns)) {
+        if (pattern.startsWith('!')) continue
+        nuxt._ignore?.add(`!${pattern}`)
+      }
+    },
   })
 
   addVitePlugin(createMockPlugin(ctx).vite())
