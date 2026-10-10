@@ -278,8 +278,9 @@ async function runWithVitest<T>(path: string, cliOptions: VitestCliOptions, acti
   try {
     process.chdir(workdir)
 
-    vitest = await createVitest('test', {
+    vitest = await createVitest({
       ...cliOptions,
+      mode: 'test',
       filesOnly: true,
       run: false,
       watch: false,

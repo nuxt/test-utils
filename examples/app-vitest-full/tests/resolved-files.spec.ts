@@ -3,7 +3,8 @@ import { test, expect } from 'vitest'
 import { createVitest } from 'vitest/node'
 
 test('it should include nuxt spec files', { timeout: 30000 }, async ({ onTestFinished }) => {
-  const vitest = await createVitest('test', {
+  const vitest = await createVitest({
+    mode: 'test',
     config: fileURLToPath(new URL('../vitest.config.ts', import.meta.url)),
     dir: fileURLToPath(new URL('../', import.meta.url)),
     filesOnly: true,
