@@ -2,3 +2,5 @@ export { registerEndpoint, mockNuxtImport, mockComponent, unmockNuxtImport } fro
 export type { RegisterEndpointH3Types } from './mock.ts'
 export { mountSuspended } from './mount.ts'
 export { renderSuspended } from './render.ts'
+export { runRouteMiddleware } from './middleware.ts'
+export type { RouteMiddlewareLocation, RunRouteMiddlewareOptions } from './middleware.ts'
