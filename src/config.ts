@@ -130,6 +130,7 @@ const excludedPlugins = [
 export async function getVitestConfigFromNuxt(
   options?: GetVitestConfigOptions,
   loadNuxtOptions: LoadNuxtOptions = {},
+  testConfig: VitestConfig = {},
 ): Promise<ViteUserConfig & { test: VitestConfig }> {
   const { rootDir = process.cwd(), ..._overrides } = loadNuxtOptions.overrides || {}
 
@@ -239,6 +240,7 @@ export async function getVitestConfigFromNuxt(
           name: 'nuxt:test-utils:browser-conditions',
           enforce: 'pre',
           config() {
+            if (testConfig.browser?.enabled) return
             return {
               resolve: {
                 conditions: ['web', 'import', 'module', 'default'],
@@ -250,6 +252,20 @@ export async function getVitestConfigFromNuxt(
             if (config.ssr.resolve?.conditions) {
               config.ssr.resolve.conditions = config.ssr.resolve.conditions.filter(x => x !== 'import')
             }
+          },
+          configEnvironment: {
+            order: 'post',
+            handler(name) {
+              if (name === 'client') {
+                if (testConfig.browser?.enabled) {
+                  return {
+                    dev: {
+                      moduleRunnerTransform: false,
+                    },
+                  }
+                }
+              }
+            },
           },
         },
       ],
@@ -418,7 +434,7 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
       dotenv: config.test?.environmentOptions?.nuxt?.dotenv,
       nitroEnvironment: config.test?.environmentOptions?.nuxt?.nitroEnvironment,
       overrides: deepCopy(overrides),
-    }) satisfies ViteUserConfig & { test: NonNullable<T['test']> },
+    }, config.test) satisfies ViteUserConfig & { test: NonNullable<T['test']> },
   ) as T & { test: NonNullable<T['test']> }
 
   resolvedConfig.plugins!.push(NuxtVitestEnvironmentOptionsPlugin(resolvedConfig.test.environmentOptions))
@@ -438,19 +454,6 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
       resolvedConfig.optimizeDeps.exclude ??= []
       resolvedConfig.optimizeDeps.exclude.push('@vue/devtools-kit', '@vue/devtools-core')
     }
-
-    resolvedConfig.plugins!.push({
-      name: 'nuxt:test-utils:browser-client-environment',
-      configEnvironment(name) {
-        if (name === 'client') {
-          return {
-            dev: {
-              moduleRunnerTransform: false,
-            },
-          }
-        }
-      },
-    })
 
     if (resolvedConfig.test.environment === 'nuxt') {
       resolvedConfig.test.setupFiles = Array.isArray(resolvedConfig.test.setupFiles)
