@@ -58,6 +58,9 @@ async function startNuxtAndGetViteConfig(rootDir = process.cwd(), options: LoadN
         ssr: false,
         test: true,
         modules: ['@nuxt/test-utils/module'],
+        testUtils: {
+          _fromVitestConfig: true,
+        },
       },
       options.overrides,
       // vitest always creates a dev server from this config, but the nitro vite environment

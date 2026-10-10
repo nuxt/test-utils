@@ -17,6 +17,8 @@ export interface NuxtVitestOptions {
   startOnBoot?: boolean
   logToConsole?: boolean
   vitestConfig?: VitestConfig
+  /** @internal */
+  _fromVitestConfig?: boolean
 }
 
 export default defineNuxtModule<NuxtVitestOptions>({
@@ -33,12 +35,15 @@ export default defineNuxtModule<NuxtVitestOptions>({
     await runInstallWizard(nuxt)
   },
   async setup(options, nuxt) {
-    if (nuxt.options.test || nuxt.options.dev) {
-      await setupImportMocking(nuxt)
-    }
+    const { addTypeTemplate, addVitePlugin } = await loadKit(nuxt.options.rootDir)
 
-    // inline runtime config the way dev builds do
-    if (nuxt.options.test && !nuxt.options.dev) {
+    const resolver = createResolver(import.meta.url)
+
+    // Setup for Vitest
+    if (options._fromVitestConfig) {
+      await setupImportMocking(nuxt)
+
+      // inline runtime config the way dev builds do
       nuxt.hook('app:templates', (app) => {
         const template = app.templates.find(t => t.filename === 'paths.mjs')
         if (!template?.getContents) {
@@ -53,12 +58,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
             .replace(/const getAppConfig = \(\) => useRuntimeConfig\(\)\.app/, () => `const getAppConfig = () => (${inlineAppConfig})`)
         }
       })
-    }
 
-    const { addTypeTemplate, addVitePlugin } = await loadKit(nuxt.options.rootDir)
-
-    const resolver = createResolver(import.meta.url)
-    if (nuxt.options.test || nuxt.options.dev) {
       addVitePlugin(NuxtRootStubPlugin({
         entry: await resolvePath('#app/entry', { alias: nuxt.options.alias }),
         rootStubPath: await resolvePath(resolver.resolve('./runtime/nuxt-root')),
