@@ -4,9 +4,10 @@
 // TODO: improve types upstream
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import destr from 'destr'
-import { snakeCase } from 'scule'
+import process from 'node:process'
+import { existsSync, readFileSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
+import { dirname, join } from 'pathe'
 import { resolveModulePath } from 'exsolve'
 
 type EnvOptions = {
@@ -17,10 +18,47 @@ type EnvOptions = {
 
 function getEnv(key: string, opts: EnvOptions) {
   const env = opts.env ?? process.env
-  const envKey = snakeCase(key).toUpperCase()
-  return destr(
+  const envKey = toEnvKey(key)
+  return parseEnvValue(
     env[opts.prefix + envKey] ?? env[opts.altPrefix + envKey],
   )
+}
+
+function toEnvKey(key: string) {
+  return key
+    .replace(/([a-z])([A-Z])/g, '$1_$2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+    .replace(/[-./\s]+/g, '_')
+    .toUpperCase()
+}
+
+const JSON_SIGNATURE_RE = /^\s*["[{]|^\s*-?\d{1,16}(?:\.\d{1,17})?(?:e[+-]?\d+)?\s*$/i
+
+function parseEnvValue(value: unknown): unknown {
+  if (typeof value !== 'string') {
+    return value
+  }
+  if (value[0] === '"' && value.at(-1) === '"' && !value.includes('\\')) {
+    return value.slice(1, -1)
+  }
+  switch (value.trim().toLowerCase()) {
+    case 'true': return true
+    case 'false': return false
+    case 'undefined': return undefined
+    case 'null': return null
+    case 'nan': return Number.NaN
+    case 'infinity': return Number.POSITIVE_INFINITY
+    case '-infinity': return Number.NEGATIVE_INFINITY
+  }
+  if (!JSON_SIGNATURE_RE.test(value)) {
+    return value
+  }
+  try {
+    return JSON.parse(value, (key, val) => key === '__proto__' || (key === 'constructor' && val && typeof val === 'object' && 'prototype' in val) ? undefined : val)
+  }
+  catch {
+    return value
+  }
 }
 
 function _isObject(input: unknown) {
@@ -129,4 +167,49 @@ function tryResolveNuxt(rootDir: string) {
     }
   }
   return null
+}
+
+export function getPackageInfo(name: string, dirs: string | string[] = process.cwd()): { rootPath: string, version?: string, packageJson: Record<string, any> } | undefined {
+  const bases = (Array.isArray(dirs) ? dirs : [dirs]).map(dir => dir.endsWith('/') ? dir : `${dir}/`)
+  const entry = resolveModulePath(`${name}/package.json`, { from: bases, try: true })
+    ?? resolveModulePath(name, { from: bases, try: true })
+  if (!entry) {
+    return
+  }
+  let dir = dirname(entry)
+  while (true) {
+    const packageJsonPath = join(dir, 'package.json')
+    if (existsSync(packageJsonPath)) {
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'))
+      return { rootPath: dir, version: packageJson.version, packageJson }
+    }
+    const parent = dirname(dir)
+    if (parent === dir) {
+      return
+    }
+    dir = parent
+  }
+}
+
+export function resolveH3Package(rootDir: string, appDir: string, modulesDir: string[]): { rootPath: string, version: 1 | 2, packageJson: Record<string, any> } | undefined {
+  const nuxtServerIntegration = getPackageInfo('@nuxt/nitro-server', appDir)
+
+  let nitroPath: string | undefined
+  for (const nitroCandidate of [
+    ...nuxtServerIntegration?.packageJson.dependencies?.nitro
+      ? ['nitro', 'nitro-nightly']
+      : ['nitropack', 'nitropack-nightly'],
+  ]) {
+    nitroPath = resolveModulePath(nitroCandidate, { from: nuxtServerIntegration?.rootPath || appDir, try: true })
+    if (nitroPath) {
+      break
+    }
+  }
+
+  const h3Info = getPackageInfo('h3', rootDir)
+    || getPackageInfo('h3', nitroPath ? dirname(nitroPath) : modulesDir)
+  if (!h3Info) {
+    return
+  }
+  return { ...h3Info, version: h3Info.version?.startsWith('2.') ? 2 : 1 }
 }

@@ -5,7 +5,8 @@ import { cancel, confirm, intro, isCancel, multiselect, outro, select } from '@c
 import { colors } from 'consola/utils'
 import { logger } from '@nuxt/kit'
 import { join, relative } from 'pathe'
-import { addDependency, detectPackageManager } from 'nypm'
+import { detect, resolveCommand } from 'package-manager-detector'
+import { x } from 'tinyexec'
 import { isCI, hasTTY } from 'std-env'
 
 export interface WizardAnswers {
@@ -357,8 +358,6 @@ export async function runInstallWizard(nuxt: Nuxt): Promise<void> {
 
 async function performSetup(nuxt: Nuxt, answers: WizardAnswers): Promise<void> {
   const rootDir = nuxt.options.rootDir
-  const packageManager = await detectPackageManager(rootDir)
-
   logger.info('Installing dependencies...')
 
   // Install dependencies based on choices
@@ -367,11 +366,7 @@ async function performSetup(nuxt: Nuxt, answers: WizardAnswers): Promise<void> {
   // Install all dependencies
   if (dependencies.length > 0) {
     try {
-      await addDependency(dependencies, {
-        cwd: rootDir,
-        dev: true,
-        packageManager,
-      })
+      await addDevDependencies(dependencies, rootDir)
     }
     catch (error: unknown) {
       logger.error('Failed to install dependencies:', error)
@@ -401,6 +396,19 @@ async function performSetup(nuxt: Nuxt, answers: WizardAnswers): Promise<void> {
 
   // Update .gitignore
   await updateGitignore(nuxt, answers)
+}
+
+async function addDevDependencies(packages: string[], cwd: string): Promise<void> {
+  const agent = (await detect({ cwd }).catch(() => null))?.agent || 'npm'
+  const args = ['-D', ...packages]
+  const { command, args: resolvedArgs } = resolveCommand(agent, 'add', args, { ignoreWorkspaceRootCheck: true }) || { command: 'npm', args: ['i', ...args] }
+  if (command === 'pnpm') {
+    resolvedArgs.push('--config.confirm-modules-purge=false', '--config.strict-dep-builds=false')
+  }
+  const result = await x(command, resolvedArgs, { nodeOptions: { cwd, stdio: ['inherit', 'inherit', 'pipe'] } })
+  if (result.exitCode !== 0) {
+    throw new Error(`\`${command} ${resolvedArgs.join(' ')}\` exited with code ${result.exitCode}${result.stderr ? `\n${result.stderr.trim()}` : ''}`)
+  }
 }
 
 async function createVitestConfig(nuxt: Nuxt, answers: WizardAnswers): Promise<void> {

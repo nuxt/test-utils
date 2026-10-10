@@ -1,0 +1,2 @@
+# pnpm patches must stay LF; pnpm 12's patch parser rejects CRLF, which autocrlf would introduce on Windows checkouts
+patches/*.patch text eol=lf

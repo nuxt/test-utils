@@ -1,17 +1,17 @@
 import process from 'node:process'
 import type { Nuxt, NuxtConfig, ViteConfig as NuxtViteConfig } from '@nuxt/schema'
+import { version as vitestVersion } from 'vitest/node'
 import type { UserWorkspaceConfig, InlineConfig as VitestConfig } from 'vitest/node'
 import type { TestProjectInlineConfiguration } from 'vitest/config'
-import { setupDotenv } from 'c12'
-import type { DotenvOptions } from 'c12'
+import { setupDotenv } from './dotenv.ts'
+import type { DotenvOptions } from './dotenv.ts'
 import type { defineConfig, Plugin, UserConfigFnPromise, UserConfig as ViteUserConfig } from 'vite'
 import type { DateString } from 'compatx'
 import { createDefu, defu } from 'defu'
 import { createResolver, findPath } from '@nuxt/kit'
 import { resolveModulePath } from 'exsolve'
-import { getPackageInfoSync } from 'local-pkg'
 
-import { applyEnv, deepCopy, loadKit } from './utils.ts'
+import { applyEnv, deepCopy, loadKit, resolveH3Package } from './utils.ts'
 import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options.ts'
 
 interface GetVitestConfigOptions {
@@ -149,29 +149,9 @@ export async function getVitestConfigFromNuxt(
 
   options.viteConfig.plugins = (options.viteConfig.plugins || []).filter(p => !p || !('name' in p) || !excludedPlugins.includes(p.name))
 
-  // resolve nitro/h3 version (to support nitro v3)
-  const nuxtServerIntegration = getPackageInfoSync('@nuxt/nitro-server', {
-    paths: [options.nuxt.options.appDir],
-  })
-
-  let nitroPath: string | undefined
-  for (const nitroCandidate of [
-    ...nuxtServerIntegration?.packageJson.dependencies?.nitro
-      ? ['nitro', 'nitro-nightly']
-      : ['nitropack', 'nitropack-nightly'],
-  ]) {
-    nitroPath = resolveModulePath(nitroCandidate, { from: nuxtServerIntegration?.rootPath || options.nuxt.options.appDir, try: true })
-    if (nitroPath) {
-      break
-    }
-  }
-
-  const projectH3Path = resolveModulePath('h3/package.json', { from: rootDir, try: true })
-  const projectH3Info = projectH3Path ? getPackageInfoSync('h3', { paths: [projectH3Path] }) : undefined
-
-  const h3Info = projectH3Info || getPackageInfoSync('h3', {
-    paths: nitroPath ? [nitroPath] : options.nuxt.options.modulesDir,
-  })
+  const h3Info = resolveH3Package(rootDir, options.nuxt.options.appDir, options.nuxt.options.modulesDir)
+  const h3Version = h3Info?.version ?? 1
+  const h3Entry = h3Info && resolveModulePath(h3Version === 2 ? 'h3/generic' : 'h3', { from: `${h3Info.rootPath}/`, try: true })
 
   const resolver = createResolver(import.meta.url)
   const resolvedConfig = defu(
@@ -185,6 +165,7 @@ export async function getVitestConfigFromNuxt(
         alias: {
           '@vue/devtools-kit': resolver.resolve('./runtime/mocks/vue-devtools'),
           '@vue/devtools-core': resolver.resolve('./runtime/mocks/vue-devtools'),
+          ...h3Entry && { '#nuxt-test-utils/h3': h3Entry },
         },
       },
       optimizeDeps: {
@@ -283,7 +264,7 @@ export async function getVitestConfigFromNuxt(
         environmentOptions: {
           nuxt: {
             rootId: options.nuxt.options.app.rootAttrs?.id || undefined,
-            h3Version: h3Info?.version?.startsWith('2.') ? 2 : 1,
+            h3Version,
             mock: {
               intersectionObserver: true,
               indexedDb: false,
@@ -314,10 +295,19 @@ export async function getVitestConfigFromNuxt(
   return resolvedConfig
 }
 
+const vitestMajor = Number(vitestVersion.split('.')[0])
+
+// vitest 5 inline projects extend the root config by default, which would register
+// the plugins from the resolved nuxt config a second time. the typecast exists
+// because vitest 4 defines it as `string | true`, it just ignores `false`.
+const optOutOfExtends = false as unknown as undefined
+
 export async function defineVitestProject(config: TestProjectInlineConfiguration): Promise<TestProjectInlineConfiguration> {
   const resolvedConfig = await resolveConfig<TestProjectInlineConfiguration>(
     defu({ test: { environment: 'nuxt' } }, config),
   )
+
+  resolvedConfig.extends ??= optOutOfExtends
 
   return resolvedConfig
 }
@@ -351,6 +341,7 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
 
       const nuxtProject = merge({
         ...resolvedConfig,
+        extends: optOutOfExtends,
         test: {
           ...resolvedConfig.test,
           name: 'nuxt',
@@ -361,11 +352,12 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
 
       nuxtProject.test.include = [
         '**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-        '{test,tests}/nuxt/**.*',
+        '{test,tests}/nuxt/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       ]
 
       const defaultProject = merge({
         ...resolvedConfig,
+        extends: optOutOfExtends,
         test: {
           ...resolvedConfig.test,
           name: defaultEnvironment,
@@ -376,8 +368,7 @@ export function defineVitestConfig(config: ViteUserConfig & { test?: VitestConfi
             '**/cypress/**',
             '**/.{idea,git,cache,output,temp}/**',
             '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
-            './**/*.nuxt.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-            './{test,tests}/nuxt/**.*',
+            ...nuxtProject.test.include,
           ],
         },
       }, resolvedConfig)
@@ -435,6 +426,21 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
   resolvedConfig.plugins!.push(NuxtVitestEnvironmentOptionsPlugin(resolvedConfig.test.environmentOptions))
 
   if (resolvedConfig.test.browser?.enabled) {
+    // browser mode in vitest 5 reuses the project's Vite server: dependency
+    // discovery must stay on so vitest's CJS internals are prebundled, and deps
+    // imported through nuxt virtual modules are listed upfront because they
+    // can't be found by vite automatically which reloads the page
+    if (vitestMajor >= 5) {
+      delete resolvedConfig.optimizeDeps?.noDiscovery
+      resolvedConfig.optimizeDeps ??= {}
+      resolvedConfig.optimizeDeps.include ??= []
+      resolvedConfig.optimizeDeps.include.push('@testing-library/vue', '#nuxt-test-utils/h3')
+
+      // aliased to mocks, excluded from pre-bundling to avoid runtime discovery
+      resolvedConfig.optimizeDeps.exclude ??= []
+      resolvedConfig.optimizeDeps.exclude.push('@vue/devtools-kit', '@vue/devtools-core')
+    }
+
     resolvedConfig.plugins!.push({
       name: 'nuxt:test-utils:browser-client-environment',
       configEnvironment(name) {

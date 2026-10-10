@@ -1,7 +1,8 @@
 import type { GenericApp } from '../../vitest-environment.ts'
 
 export async function createFetchForH3V2() {
-  const { H3 } = await import('h3-next/generic')
+  // @ts-expect-error resolved to the project's h3 by the vitest config
+  const { H3 } = await (import('#nuxt-test-utils/h3') as Promise<{ H3: new () => GenericApp & { fetch: (request: Request) => Promise<Response> } }>)
 
   const h3App = new H3()
   const registry = new Set<string>()
@@ -36,7 +37,7 @@ export async function createFetchForH3V2() {
   }) as typeof fetch
 
   return {
-    h3App: h3App as GenericApp,
+    h3App,
     registry,
     fetch: h3Fetch,
   }

@@ -19,6 +19,6 @@ test('it should include nuxt spec files', { timeout: 30000 }, async ({ onTestFin
   const nuxtSpecFiles = testFiles.filter(file => file.project.name === 'nuxt')
   const regularSpecFiles = testFiles.filter(file => file.project.name === 'node')
 
-  expect(nuxtSpecFiles.length).toEqual(30)
+  expect(nuxtSpecFiles.length).toEqual(34)
   expect(regularSpecFiles.length).toEqual(3)
 })

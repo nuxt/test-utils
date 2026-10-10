@@ -1,7 +1,11 @@
 import type { H3Event as H3V1Event } from 'h3'
-import type { H3Event as H3V2Event } from 'h3-next'
 import type { $Fetch } from 'nitropack'
 import type { EnvironmentOptions } from 'vitest/node'
+
+interface H3V2Event {
+  url: URL
+  method: string
+}
 
 export type NuxtBuiltinEnvironment = 'happy-dom' | 'jsdom'
 interface GenericAppUse {
@@ -15,6 +19,8 @@ export interface NuxtWindow extends Window {
   __app?: GenericApp
   __registry: Set<string>
   __NUXT_VITEST_ENVIRONMENT__?: boolean
+  __NUXT_VITEST_ENVIRONMENT_PROMISE__?: Promise<void>
+  __NUXT_VITEST_ENVIRONMENT_BROWSER_ENTRY__?: boolean
   __NUXT__: Record<string, unknown>
   $fetch: $Fetch
   fetch: ((input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>)

@@ -20,6 +20,8 @@ describe('resolve config', () => {
         'test/test1.spec.ts',
       ],
       nuxt: [
+        'test/nuxt/nest/test1.test.ts',
+        'test/nuxt/test.spec.ts',
         'test/test1.nuxt.spec.ts',
       ],
     } as const
@@ -43,6 +45,8 @@ describe('resolve config', () => {
         'test/test1.spec.ts',
       ],
       nuxt: [
+        'test/nuxt/nest/test1.test.ts',
+        'test/nuxt/test.spec.ts',
         'test/test1.nuxt.spec.ts',
       ],
     } as const
@@ -106,6 +110,9 @@ describe('resolve config', () => {
 
     const expected = {
       'nuxt:client': [
+        'test/nuxt/nest/test1.nuxt.spec.ts',
+        'test/nuxt/nest/test1.test.ts',
+        'test/nuxt/test.spec.ts',
         'test/test1.nuxt.spec.ts',
       ],
       'node:ssr': [

@@ -18,8 +18,10 @@ function createCustomReporter(onVitestInit: (ctx: Vitest) => unknown): Reporter 
     const protocol = ctx.vite.config.server.https ? 'https:' : 'http:'
     const host = ctx.config.api.host || 'localhost'
     const port = ctx.config.api.port
+    const token = ctx.config.api.token
     const uiBase = ctx.config.uiBase
-    return `${protocol}//${host}:${port}${uiBase}`
+    const uiUrl = `${protocol}//${host}:${port}${uiBase}`
+    return token ? `${uiUrl}?token=${token}` : uiUrl
   }
 
   function toUpdatedResult(): SendMessage['updated'] {

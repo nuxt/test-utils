@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
-import { render } from 'vitest-browser-vue'
 import App from '~/app.vue'
 
 // Example usage: queryCollection(pages).path('/').first()
@@ -19,12 +18,5 @@ describe('App', () => {
       "<div>Index page</div>
       <div>title: My page</div>"
     `)
-  })
-
-  // TODO: render does not currently support <Suspense>
-  it.skip('works with vitest-browser-vue', () => {
-    const { getByText } = render(App)
-    expect(getByText('Index page')).toBeInTheDocument()
-    expect(getByText('title: My page')).toBeInTheDocument()
   })
 })

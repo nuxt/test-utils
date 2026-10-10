@@ -7,7 +7,7 @@ import { isCI } from 'std-env'
 import { setupImportMocking } from './module/mock.ts'
 import { NuxtRootStubPlugin } from './module/plugins/entry.ts'
 import { runInstallWizard } from './module/install-wizard.ts'
-import { loadKit } from './utils.ts'
+import { loadKit, resolveH3Package } from './utils.ts'
 import { setupDevTools } from './devtools.ts'
 import { vitestWrapper } from './vitest-wrapper/host.ts'
 
@@ -55,7 +55,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
       })
     }
 
-    const { addVitePlugin } = await loadKit(nuxt.options.rootDir)
+    const { addTypeTemplate, addVitePlugin } = await loadKit(nuxt.options.rootDir)
 
     const resolver = createResolver(import.meta.url)
     if (nuxt.options.test || nuxt.options.dev) {
@@ -69,6 +69,26 @@ export default defineNuxtModule<NuxtVitestOptions>({
     if (!nuxt.options.test && !nuxt.options.dev) {
       nuxt.options.vite.define ||= {}
       nuxt.options.vite.define['import.meta.vitest'] = 'undefined'
+    }
+
+    const h3 = resolveH3Package(nuxt.options.rootDir, nuxt.options.appDir, nuxt.options.modulesDir)
+    if (h3) {
+      addTypeTemplate({
+        filename: 'types/test-utils-h3.d.ts',
+        getContents: ({ nuxt }) => {
+          const h3Path = relative(join(nuxt.options.buildDir, 'types'), h3.rootPath)
+          return [
+            `import type { EventHandler, HTTPMethod } from ${JSON.stringify(h3Path.startsWith('.') ? h3Path : `./${h3Path}`)}`,
+            `declare module '@nuxt/test-utils/runtime' {`,
+            `  interface RegisterEndpointH3Types {`,
+            `    EventHandler: EventHandler`,
+            `    HTTPMethod: HTTPMethod`,
+            `  }`,
+            `}`,
+            `export {}`,
+          ].join('\n')
+        },
+      }, { nuxt: true, node: true, shared: true })
     }
 
     nuxt.hook('prepare:types', (ctx) => {
