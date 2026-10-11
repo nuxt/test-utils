@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 
 import { listen } from 'listhen'
-import { createApp, eventHandler, toNodeListener, readBody, getHeaders, getQuery, setCookie, readFormData, readMultipartFormData } from 'h3'
+import { createApp, eventHandler, toNodeListener, readBody, getHeaders, getQuery, setCookie, readFormData } from 'h3'
 
 import FetchComponent from '~/components/FetchComponent.vue'
 
@@ -208,11 +208,25 @@ describe('server mocks and data fetching', () => {
     expect(await fetch('/with-form-data', { method: 'post', body: createBody() }).then(res => res.json())).toEqual(expected)
   })
 
+  it('can mock fetch requests with Blob', async () => {
+    registerEndpoint('/with-blob-data', {
+      method: 'POST',
+      handler: await import('#server/api/forms/blob.post').then(r => r.default),
+    })
+
+    const createBody = () => {
+      return new File([Buffer.from('this is file', 'utf8')], 'hello1.txt', { type: 'text/plain' })
+    }
+    const expected = { body: 'this is file', headers: { 'content-type': 'text/plain' } }
+
+    expect(await $fetch('/with-blob-data', { method: 'post', body: createBody() })).toEqual(expected)
+    expect(await fetch('/with-blob-data', { method: 'post', body: createBody() }).then(res => res.json())).toEqual(expected)
+  })
+
   it('can mock fetch requests with FormData with files', async () => {
     registerEndpoint('/with-form-data-with-file', {
       method: 'POST',
-      handler: event => readMultipartFormData(event).then(
-        parts => parts?.map(part => ({ ...part, data: part.data.toString('utf8') })) ?? []),
+      handler: await import('#server/api/forms/mutlipart.post').then(r => r.default),
     })
 
     const createBody = () => {
