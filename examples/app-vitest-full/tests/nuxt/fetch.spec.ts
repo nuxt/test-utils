@@ -215,12 +215,27 @@ describe('server mocks and data fetching', () => {
     })
 
     const createBody = () => {
+      return new Blob([Buffer.from('this is blob', 'utf8')], { type: 'text/plain' })
+    }
+    const expected = { body: 'this is blob', contentType: 'text/plain' }
+
+    expect(await $fetch('/with-blob-data', { method: 'post', body: createBody() })).toEqual(expected)
+    expect(await fetch('/with-blob-data', { method: 'post', body: createBody() }).then(res => res.json())).toEqual(expected)
+  })
+
+  it('can mock fetch requests with File', async () => {
+    registerEndpoint('/with-file-data', {
+      method: 'POST',
+      handler: await import('#server/api/forms/blob.post').then(r => r.default),
+    })
+
+    const createBody = () => {
       return new File([Buffer.from('this is file', 'utf8')], 'hello1.txt', { type: 'text/plain' })
     }
     const expected = { body: 'this is file', contentType: 'text/plain' }
 
-    expect(await $fetch('/with-blob-data', { method: 'post', body: createBody() })).toEqual(expected)
-    expect(await fetch('/with-blob-data', { method: 'post', body: createBody() }).then(res => res.json())).toEqual(expected)
+    expect(await $fetch('/with-file-data', { method: 'post', body: createBody() })).toEqual(expected)
+    expect(await fetch('/with-file-data', { method: 'post', body: createBody() }).then(res => res.json())).toEqual(expected)
   })
 
   it('can mock fetch requests with FormData with files', async () => {
