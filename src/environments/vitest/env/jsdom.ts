@@ -59,27 +59,29 @@ export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
     return new NodeBlob(bits, { type: val.type })
   }
 
+  const toNodePayload = (init?: RequestInit) => {
+    if (init?.body) {
+      if (init.body instanceof window.FormData) {
+        const form = new NodeFormData()
+        init.body.forEach((val, key) => {
+          form.append(key, val instanceof window.Blob ? toNodeBinData(val) : val)
+        })
+        return { ...init, body: form }
+      }
+      else if (init.body instanceof window.Blob) {
+        return { ...init, body: toNodeBinData(init.body) }
+      }
+    }
+    return init
+  }
+
   window.Request = class Request extends globalThis.Request {
     constructor(input: RequestInfo, init?: RequestInit) {
-      if (init?.body) {
-        init = { ...init }
-        if (init.body instanceof window.FormData) {
-          const form = new NodeFormData()
-          init.body.forEach((val, key) => {
-            form.append(key, val instanceof window.Blob ? toNodeBinData(val) : val)
-          })
-          init.body = form
-        }
-        else if (init.body instanceof window.Blob) {
-          init.body = toNodeBinData(init.body)
-        }
-      }
-
       if (typeof input === 'string') {
-        super(new URL(input, window.location.origin), init)
+        super(new URL(input, window.location.origin), toNodePayload(init))
       }
       else {
-        super(input, init)
+        super(input, toNodePayload(init))
       }
     }
   }
