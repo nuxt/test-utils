@@ -49,8 +49,8 @@ export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
 
   const getImplement = await loadGetImplement()
 
-  const toNodeBinData = (val: Blob | File) => {
-    const impl = getImplement<{ _bytes?: ArrayBuffer, _buffer: ArrayBuffer }>(val)
+  const toNodeBlobLike = (val: Blob | File) => {
+    const impl = getImplement<{ _bytes?: ArrayBuffer, _buffer?: ArrayBuffer }>(val)
     const bits = [impl?._bytes ?? impl?._buffer ?? val]
     if (val instanceof window.File) {
       const { name: filename, type, lastModified } = val
@@ -64,12 +64,12 @@ export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
       if (init.body instanceof window.FormData) {
         const form = new NodeFormData()
         init.body.forEach((val, key) => {
-          form.append(key, val instanceof window.Blob ? toNodeBinData(val) : val)
+          form.append(key, val instanceof window.Blob ? toNodeBlobLike(val) : val)
         })
         return { ...init, body: form }
       }
       else if (init.body instanceof window.Blob) {
-        return { ...init, body: toNodeBinData(init.body) }
+        return { ...init, body: toNodeBlobLike(init.body) }
       }
     }
     return init
