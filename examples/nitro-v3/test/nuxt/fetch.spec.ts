@@ -1,12 +1,7 @@
 import { registerEndpoint } from '@nuxt/test-utils/runtime'
 import { it, expect, describe, vi } from 'vitest'
 
-import { readBody, getQuery } from 'h3'
-import type { H3Event } from 'h3'
-
-function getHeaders(event: H3Event) {
-  return Object.fromEntries(event.req.headers.entries())
-}
+import { readBody, getQuery, getRequestHeaders } from 'nuxt/server'
 
 describe('registerEndpoint tests', () => {
   it('works with h3 v2 syntax', async () => {
@@ -25,7 +20,7 @@ describe('registerEndpoint tests', () => {
       title: 'mocked',
     }))
     expect(
-      await $fetch<unknown>('/with-query', { query: { test: true } }),
+      await $fetch('/with-query', { query: { test: true } }),
     ).toMatchObject({
       title: 'mocked',
     })
@@ -33,16 +28,16 @@ describe('registerEndpoint tests', () => {
 
   it('can override and remove request mocks', async () => {
     const unsubFirst = registerEndpoint('/overrides', () => ({ title: 'first' }))
-    expect(await $fetch<unknown>('/overrides')).toStrictEqual({ title: 'first' })
+    expect(await $fetch('/overrides')).toStrictEqual({ title: 'first' })
 
     const unsubSecond = registerEndpoint('/overrides', () => ({ title: 'second' }))
-    expect(await $fetch<unknown>('/overrides')).toStrictEqual({ title: 'second' })
+    expect(await $fetch('/overrides')).toStrictEqual({ title: 'second' })
 
     unsubSecond()
-    expect(await $fetch<unknown>('/overrides')).toStrictEqual({ title: 'first' })
+    expect(await $fetch('/overrides')).toStrictEqual({ title: 'first' })
 
     unsubFirst()
-    await expect($fetch<unknown>('/overrides')).rejects.toMatchObject({ status: 404 })
+    await expect($fetch('/overrides')).rejects.toMatchObject({ status: 404 })
   })
 
   it('can mock fetch requests with explicit methods', async () => {
@@ -54,10 +49,10 @@ describe('registerEndpoint tests', () => {
       method: 'GET',
       handler: () => ({ method: 'GET' }),
     })
-    expect(await $fetch<unknown>('/method', { method: 'POST' })).toMatchObject({
+    expect(await $fetch('/method', { method: 'POST' })).toMatchObject({
       method: 'POST',
     })
-    expect(await $fetch<unknown>('/method')).toMatchObject({ method: 'GET' })
+    expect(await $fetch('/method')).toMatchObject({ method: 'GET' })
   })
 
   it('can mock native fetch requests', async () => {
@@ -92,12 +87,12 @@ describe('registerEndpoint tests', () => {
       handler: async (event) => {
         return {
           body: await readBody(event),
-          headers: getHeaders(event),
+          headers: getRequestHeaders(event),
         }
       },
     })
 
-    expect(await $fetch<unknown>('/with-data', {
+    expect(await $fetch('/with-data', {
       method: 'POST',
       body: { data: 'data' },
       headers: { 'x-test': 'test' },
@@ -126,21 +121,21 @@ describe('registerEndpoint tests', () => {
       },
     })
 
-    expect(await $fetch<unknown>('/with-data', { query: { q: 1 } })).toMatchObject({ query: { q: '1' } })
+    expect(await $fetch('/with-data', { query: { q: 1 } })).toMatchObject({ query: { q: '1' } })
     expect(await fetch('/with-data?q=1').then(res => res.json())).toMatchObject({ query: { q: '1' } })
   })
 
   it('can mock fetch requests with url including query param', async () => {
     registerEndpoint('/with-url-including-query-param/1?q=1', () => 'ok')
 
-    expect(await $fetch<unknown>('/with-url-including-query-param/1?q=1')).toBe('ok')
+    expect(await $fetch('/with-url-including-query-param/1?q=1')).toBe('ok')
     expect(await fetch('/with-url-including-query-param/1?q=1').then(res => res.text())).toBe('ok')
   })
 
   it('fails when query params do not match', async () => {
     registerEndpoint('/with-url-including-query-param/2?q=2', () => 'ok')
 
-    await expect($fetch<unknown>('/with-url-including-query-param/2?q=3')).rejects.toMatchObject({ status: 404 })
+    await expect($fetch('/with-url-including-query-param/2?q=3')).rejects.toMatchObject({ status: 404 })
     expect(await fetch('/with-url-including-query-param/2?q=3').then(r => r.status)).toBe(404)
   })
 
@@ -160,10 +155,10 @@ describe('registerEndpoint tests', () => {
 
     const request = new Request('/with-request?q=1', { headers: { 'content-type': 'application/json' } })
 
-    expect(await $fetch<unknown>(request)).toMatchObject({ title: 'with-request', data: { q: '1' } })
+    expect(await $fetch(request)).toMatchObject({ title: 'with-request', data: { q: '1' } })
     expect(await fetch(request).then(res => res.json())).toMatchObject({ title: 'with-request', data: { q: '1' } })
 
-    expect(await $fetch<unknown>(request, { method: 'POST', body: [1] })).toMatchObject({ title: 'with-request', data: [1] })
+    expect(await $fetch(request, { method: 'POST', body: [1] })).toMatchObject({ title: 'with-request', data: [1] })
     expect(await fetch(request, { method: 'POST', body: '[1]' }).then(res => res.json())).toMatchObject({ title: 'with-request', data: [1] })
   })
 
@@ -182,11 +177,11 @@ describe('registerEndpoint tests', () => {
   it('can mock fetch requests with fetch.create', async () => {
     registerEndpoint('/fetch-create/1', event => ({
       title: 'title from mocked api1',
-      headers: getHeaders(event),
+      headers: getRequestHeaders(event),
     }))
     registerEndpoint('/fetch-create/2', event => ({
       title: 'title from mocked api2',
-      headers: getHeaders(event),
+      headers: getRequestHeaders(event),
     }))
     registerEndpoint('/fetch-create/error', () =>
       new Response(undefined, { status: 500, statusText: 'Mock Server Error' }),
@@ -209,18 +204,18 @@ describe('registerEndpoint tests', () => {
       },
     })
 
-    expect(await fetch<unknown>('/1')).toMatchObject({
+    expect(await fetch('/1')).toMatchObject({
       title: 'title from mocked api1',
       headers: { authorization: 'Bearer <access_token>' },
     })
 
-    expect(await fetch<unknown>('/2')).toMatchObject({
+    expect(await fetch('/2')).toMatchObject({
       title: 'title from mocked api2',
       headers: { authorization: 'Bearer <access_token>' },
     })
 
-    await expect(fetch<unknown>('/error')).rejects.toMatchObject({ status: 500, statusText: 'Mock Server Error' })
-    await expect(fetch<unknown>('/error', { baseURL: '"INVALID"' })).rejects.toThrow()
+    await expect(fetch('/error')).rejects.toMatchObject({ status: 500, statusText: 'Mock Server Error' })
+    await expect(fetch('/error', { baseURL: '"INVALID"' })).rejects.toThrow()
 
     expect(onRequest).toHaveBeenCalledTimes(4)
     expect(onResponse).toHaveBeenCalledTimes(3)
@@ -235,30 +230,30 @@ describe('registerEndpoint tests', () => {
     registerEndpoint('/with-once-options?q=2', { handler: () => '4', once: true })
     registerEndpoint('/with-once-options?q=2', { handler: () => '5', once: true })
 
-    expect(await $fetch<unknown>('/with-once-options?q=1')).toBe('1')
-    expect(await $fetch<unknown>('/with-once-options?q=1')).toBe('2')
-    await expect($fetch<unknown>('/with-once-options?q=1')).rejects.toMatchObject({ status: 404 })
-    expect(await $fetch<unknown>('/with-once-options?q=2')).toBe('5')
-    expect(await $fetch<unknown>('/with-once-options?q=2')).toBe('4')
-    expect(await $fetch<unknown>('/with-once-options?q=2')).toBe('3')
-    await expect($fetch<unknown>('/with-once-options?q=2')).rejects.toMatchObject({ status: 404 })
+    expect(await $fetch('/with-once-options?q=1')).toBe('1')
+    expect(await $fetch('/with-once-options?q=1')).toBe('2')
+    await expect($fetch('/with-once-options?q=1')).rejects.toMatchObject({ status: 404 })
+    expect(await $fetch('/with-once-options?q=2')).toBe('5')
+    expect(await $fetch('/with-once-options?q=2')).toBe('4')
+    expect(await $fetch('/with-once-options?q=2')).toBe('3')
+    await expect($fetch('/with-once-options?q=2')).rejects.toMatchObject({ status: 404 })
   })
 
   it('endpoint priority 1', async () => {
     registerEndpoint('/endpoint/priority/1?q=1', { handler: () => '1' })
     registerEndpoint('/endpoint/priority/1', { handler: () => '2' })
 
-    expect(await $fetch<unknown>('/endpoint/priority/1')).toBe('2')
-    expect(await $fetch<unknown>('/endpoint/priority/1?q=1')).toBe('1')
-    expect(await $fetch<unknown>('/endpoint/priority/1?q=1')).toBe('1')
+    expect(await $fetch('/endpoint/priority/1')).toBe('2')
+    expect(await $fetch('/endpoint/priority/1?q=1')).toBe('1')
+    expect(await $fetch('/endpoint/priority/1?q=1')).toBe('1')
   })
 
   it('endpoint priority 2', async () => {
     registerEndpoint('/endpoint/priority/2', { handler: () => '1' })
     registerEndpoint('/endpoint/priority/2?q=1', { handler: () => '2' })
 
-    expect(await $fetch<unknown>('/endpoint/priority/2')).toBe('1')
-    expect(await $fetch<unknown>('/endpoint/priority/2?q=1')).toBe('1')
-    expect(await $fetch<unknown>('/endpoint/priority/2?q=1')).toBe('1')
+    expect(await $fetch('/endpoint/priority/2')).toBe('1')
+    expect(await $fetch('/endpoint/priority/2?q=1')).toBe('1')
+    expect(await $fetch('/endpoint/priority/2?q=1')).toBe('1')
   })
 })

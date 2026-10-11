@@ -1,6 +1,6 @@
 import { expectTypeOf, it } from 'vitest'
 import { registerEndpoint } from '@nuxt/test-utils/runtime'
-import type { H3Event } from 'h3'
+import type { H3Event } from 'nitro/h3'
 
 it('types handlers with the project h3 version', () => {
   registerEndpoint('/test', (event) => {
