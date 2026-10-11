@@ -206,8 +206,9 @@ export function resolveH3Package(rootDir: string, appDir: string, modulesDir: st
     }
   }
 
-  const h3Info = getPackageInfo('h3', rootDir)
-    || getPackageInfo('h3', nitroPath ? dirname(nitroPath) : modulesDir)
+  const h3Info = getPackageInfo('h3', nitroPath ? dirname(nitroPath) : modulesDir)
+    || getPackageInfo('h3', rootDir)
+
   if (!h3Info) {
     return
   }

@@ -1,4 +1,4 @@
-import { defineEventHandler, readBody } from 'nitro/h3'
+import { defineEventHandler, readBody } from 'nuxt/server'
 
 export default defineEventHandler(async (event) => {
   return await readBody(event)
