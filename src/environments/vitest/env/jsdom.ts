@@ -100,7 +100,9 @@ async function loadGetImplement() {
     for (const path of ['lib/generated/idl', 'lib/jsdom/living/generated']) {
       try {
         const { implForWrapper } = await import(/* @vite-ignore */ ['jsdom', path, 'utils.js'].join('/')).then(r => r.default)
-        return implForWrapper
+        if (typeof implForWrapper === 'function') {
+          return implForWrapper
+        }
       }
       catch {
         // ignore
