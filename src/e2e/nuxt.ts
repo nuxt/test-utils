@@ -41,11 +41,11 @@ export async function loadFixture() {
 
   ctx.options.rootDir = resolveRootDir()
 
+  const randomId = Math.random().toString(36).slice(2, 8)
+  const buildDir = ctx.options.buildDir || resolve(ctx.options.rootDir, '.nuxt', 'test', randomId)
+  ctx.options.nuxtConfig = defu(ctx.options.nuxtConfig, { buildDir })
   if (!ctx.options.dev) {
-    const randomId = Math.random().toString(36).slice(2, 8)
-    const buildDir = ctx.options.buildDir || resolve(ctx.options.rootDir, '.nuxt', 'test', randomId)
     ctx.options.nuxtConfig = defu(ctx.options.nuxtConfig, {
-      buildDir,
       nitro: {
         output: {
           dir: resolve(buildDir, 'output'),
@@ -56,6 +56,8 @@ export async function loadFixture() {
 
   // TODO: share Nuxt instance with running Nuxt if possible
   if (ctx.options.build) {
+    // avoid creating / deleting build dirs that already exist - avoids misconfiguration deletes
+    const buildDirExists = existsSync(resolve(ctx.options.rootDir, ctx.options.nuxtConfig.buildDir!))
     const { loadNuxt, logger } = await loadKit(ctx.options.rootDir)
     ctx.nuxt = await loadNuxt({
       cwd: ctx.options.rootDir,
@@ -67,8 +69,7 @@ export async function loadFixture() {
     })
 
     const buildDir = ctx.nuxt.options.buildDir
-    // avoid creating / deleting build dirs that already exist - avoids misconfiguration deletes
-    if (!existsSync(buildDir)) {
+    if (!buildDirExists) {
       await fsp.mkdir(buildDir, { recursive: true })
       ctx.teardown = ctx.teardown || []
       ctx.teardown.push(() => fsp.rm(buildDir, { recursive: true, force: true }))
