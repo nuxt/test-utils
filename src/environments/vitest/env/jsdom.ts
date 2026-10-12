@@ -51,6 +51,10 @@ export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
 
   const toNodeBlobLike = (val: Blob | File) => {
     const impl = getImplement<{ _bytes?: ArrayBuffer, _buffer?: ArrayBuffer }>(val)
+    if (!impl) {
+      console.warn('Blob/File data in fetch requests may yield incorrect results.'
+        + 'Please update jsdom or open an issue on @nuxt/test-utils.')
+    }
     const bits = [impl?._bytes ?? impl?._buffer ?? val]
     if (val instanceof window.File) {
       const { name: filename, type, lastModified } = val
