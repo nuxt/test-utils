@@ -159,6 +159,59 @@ export async function loadKit(rootDir: string): Promise<typeof import('@nuxt/kit
   }
 }
 
+export function resolveNuxtCli(rootDir: string): string {
+  const cliPath = resolveModulePath('@nuxt/cli', { from: tryResolveNuxt(rootDir) || rootDir, try: true })
+  if (!cliPath) {
+    throw new Error('`@nuxt/test-utils` requires `@nuxt/cli` to start a dev server. Make sure `nuxt` is installed in your project.')
+  }
+  return cliPath
+}
+
+const OMITTED = Symbol('omitted')
+
+/**
+ * Copy plain objects, arrays and primitives, leaving out any value that cannot be represented as JSON
+ * (functions, class instances, regular expressions, circular references, ...).
+ * Returns the copy along with the paths of the values that were left out. `undefined` values are dropped without being reported.
+ */
+export function toSerializable(input: unknown): { value: unknown, omitted: string[] } {
+  const omitted: string[] = []
+  const value = serializableCopy(input, '', omitted, new Set())
+  return { value: value === OMITTED ? undefined : value, omitted }
+}
+
+function serializableCopy(input: unknown, path: string, omitted: string[], ancestors: Set<object>): unknown {
+  if (input === undefined) {
+    return OMITTED
+  }
+  if (input === null || typeof input === 'string' || typeof input === 'boolean' || (typeof input === 'number' && Number.isFinite(input))) {
+    return input
+  }
+  const isContainer = Array.isArray(input) || (typeof input === 'object' && [Object.prototype, null].includes(Object.getPrototypeOf(input)))
+  if (!isContainer || ancestors.has(input)) {
+    omitted.push(path)
+    return OMITTED
+  }
+  ancestors.add(input)
+  let copy: unknown[] | Record<string, unknown>
+  if (Array.isArray(input)) {
+    copy = input
+      .map((item, index) => serializableCopy(item, `${path}[${index}]`, omitted, ancestors))
+      .filter(item => item !== OMITTED)
+  }
+  else {
+    copy = {}
+    for (const key in input as Record<string, unknown>) {
+      const value = serializableCopy((input as Record<string, unknown>)[key], path ? `${path}.${key}` : key, omitted, ancestors)
+      if (value !== OMITTED) {
+        copy[key] = value
+      }
+    }
+  }
+  ancestors.delete(input)
+  return copy
+}
+
 function tryResolveNuxt(rootDir: string) {
   for (const pkg of ['nuxt-nightly', 'nuxt', 'nuxt3', 'nuxt-edge']) {
     const path = resolveModulePath(pkg, { from: rootDir, try: true })

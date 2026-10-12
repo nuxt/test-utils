@@ -1,3 +1,4 @@
+import { distDir } from '#dirs'
 import { x, xSync } from 'tinyexec'
 import { getRandomPort, waitForPort } from 'get-port-please'
 import { isWindows } from 'std-env'
@@ -6,6 +7,7 @@ import { fetch as _fetch, createFetch } from 'ofetch'
 import { resolve } from 'pathe'
 import { joinURL } from 'ufo'
 import { useTestContext } from './context.ts'
+import { resolveNuxtCli, toSerializable } from '../utils.ts'
 import type { TestContext } from './types.ts'
 
 const globalFetch = globalThis.fetch || _fetch
@@ -41,10 +43,11 @@ export async function startServer(options: StartServerOptions = {}) {
   const logLevel = String(options.logLevel ?? ctx.options.logLevel)
   const startedAt = Date.now()
   if (ctx.options.dev) {
-    ctx.serverProcess = x('nuxi', ['_dev'], {
+    const rootDir = ctx.nuxt!.options.rootDir
+    ctx.serverProcess = x('node', [resolve(distDir, 'e2e/dev-server.mjs'), resolveNuxtCli(rootDir)], {
       throwOnError: true,
       nodeOptions: {
-        cwd: ctx.nuxt!.options.rootDir,
+        cwd: rootDir,
         stdio,
         env: {
           ...process.env,
@@ -55,6 +58,7 @@ export async function startServer(options: StartServerOptions = {}) {
           CONSOLA_LEVEL: logLevel,
           ...ctx.options.env,
           ...options.env,
+          __NUXT_TEST_DEV_OVERRIDES__: serializeDevOverrides(ctx.options.nuxtConfig),
         },
       },
     })
@@ -103,6 +107,14 @@ export async function startServer(options: StartServerOptions = {}) {
   }
 
   await waitForServer({ host, port, startedAt })
+}
+
+function serializeDevOverrides(nuxtConfig: TestContext['options']['nuxtConfig']) {
+  const { value, omitted } = toSerializable(nuxtConfig)
+  if (omitted.length) {
+    console.warn(`[@nuxt/test-utils] These \`nuxtConfig\` values cannot be passed to the dev server and will be ignored: ${omitted.map(path => `\`${path}\``).join(', ')}`)
+  }
+  return JSON.stringify(value ?? {})
 }
 
 interface WaitForServerOptions {
@@ -233,9 +245,8 @@ async function waitForServer({ host, port, startedAt }: WaitForServerOptions) {
 }
 
 /**
- * On Windows there are no process groups, and tinyexec routes commands that
- * resolve to a `.cmd` shim (such as `nuxi`) through `cmd.exe /d /s /c`.
- * `taskkill /T /F` walks the tree and terminates the descendants too.
+ * On Windows there are no process groups, so `taskkill /T /F` is used to
+ * terminate the server process together with its descendants.
  */
 function killProcessTree(pid: number) {
   try {
