@@ -20,6 +20,7 @@ export default defineConfig([
     exports: false,
     entry: [
       'src/e2e.ts',
+      'src/e2e/dev-server.ts',
       'src/playwright.ts',
       'src/experimental.ts',
       'src/config.ts',
