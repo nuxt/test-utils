@@ -22,6 +22,7 @@ export default defineVitestConfig({
       instances: [{ browser: 'chromium' }],
     },
     ui: false,
+    fsModuleCache: true,
     onConsoleLog(log) {
       if (log.includes('<Suspense> is an experimental feature')) {
         return false

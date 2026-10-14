@@ -24,8 +24,8 @@ export const NuxtRootStubPlugin = (options: NuxtRootStubPluginOptions): Plugin =
       filter: {
         id: idFilter,
       },
-      async handler(id, importer) {
-        return importer?.endsWith('index.html') ? id : entryPath
+      async handler() {
+        return entryPath
       },
     },
     load: {
