@@ -23,6 +23,7 @@ export default defineVitestConfig({
     },
     ui: false,
     fsModuleCache: true,
+    globalSetup: './global.setup.ts',
     onConsoleLog(log) {
       if (log.includes('<Suspense> is an experimental feature')) {
         return false
@@ -34,9 +35,7 @@ export default defineVitestConfig({
     enforce: 'pre',
     transform(code, id) {
       if (id !== setupNuxtPath) return
-      const failOnSetupBefore = process.env.ERROR_TEST_PATTERN === 'before'
-      const failOnSetupAfter = process.env.ERROR_TEST_PATTERN === 'after'
-      return code
+      return 'import { inject } from "vitest";\n' + code
         .replace(/export async function setupNuxt/, 'async function _setupNuxt')
         .concat(`
 export async function setupNuxt(...args) {
@@ -47,9 +46,9 @@ export async function setupNuxt(...args) {
   console.log(\`### setupNuxt called ### \${window.__setup_calls__}:\${workerId}\`)
   
   if (window.__setup_calls__ === 1) {
-    if (${failOnSetupBefore}) {
+    if (inject('testPattern') === 'before') {
       throw new Error('#### setupNuxt failed before ###')
-    } else if (${failOnSetupAfter}) {
+    } else if (inject('testPattern') === 'after') {
       await _setupNuxt(...args)
       throw new Error('#### setupNuxt failed after ###')
     }

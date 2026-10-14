@@ -24,7 +24,7 @@ export const NuxtRootStubPlugin = (options: NuxtRootStubPluginOptions): Plugin =
       filter: {
         id: idFilter,
       },
-      async handler() {
+      handler() {
         return entryPath
       },
     },
