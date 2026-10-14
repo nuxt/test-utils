@@ -50,16 +50,17 @@ export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
   const getImplement = await loadGetImplement()
 
   const toNodeBlobLike = (val: Blob | File) => {
-    const impl = getImplement<{ _bytes?: ArrayBuffer, _buffer?: ArrayBuffer }>(val)
-    if (!impl) {
-      console.warn('Cannot read the bytes of Blob/File. Please update jsdom or report it to @nuxt/test-utils.')
+    // `_buffer` usage can be removed when dropping support for jsdom v27.x
+    const impl = getImplement<{ _bytes?: Uint8Array<ArrayBuffer>, _buffer?: Uint8Array<ArrayBuffer> }>(val)
+    const bytes = impl?._bytes ?? impl?._buffer
+    if (!bytes) {
+      throw createJsdomCompatError('Cannot read the bytes of Blob/File')
     }
-    const bits = [impl?._bytes ?? impl?._buffer ?? val]
     if (val instanceof window.File) {
       const { name: filename, type, lastModified } = val
-      return new NodeFile(bits, filename, { type, lastModified })
+      return new NodeFile([bytes], filename, { type, lastModified })
     }
-    return new NodeBlob(bits, { type: val.type })
+    return new NodeBlob([bytes], { type: val.type })
   }
 
   const toNodePayload = (init?: RequestInit) => {
@@ -100,7 +101,10 @@ export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
 let _getImplement: <I extends object>(o: unknown) => I | undefined
 async function loadGetImplement() {
   async function load(): Promise<typeof _getImplement> {
-    for (const path of ['lib/generated/idl', 'lib/jsdom/living/generated']) {
+    for (const path of [
+      'lib/generated/idl', // v28.1.0+
+      'lib/jsdom/living/generated', // v28.0.x and earlier
+    ]) {
       try {
         const { implForWrapper } = await import(/* @vite-ignore */ ['jsdom', path, 'utils.js'].join('/')).then(r => r.default)
         if (typeof implForWrapper === 'function') {
@@ -111,8 +115,13 @@ async function loadGetImplement() {
         // ignore
       }
     }
-    console.warn('[@nuxt/test-utils] jsdom\'s `implForWrapper` not found in nuxt environment.')
-    return () => {}
+    return () => {
+      throw createJsdomCompatError('Cannot load jsdom\'s `implForWrapper` in nuxt environment')
+    }
   }
   return _getImplement ||= await load()
+}
+
+function createJsdomCompatError(message: string) {
+  return new Error(`${message}. Please report this to @nuxt/test-utils with your jsdom version.`)
 }
