@@ -24,8 +24,9 @@ export const NuxtRootStubPlugin = (options: NuxtRootStubPluginOptions): Plugin =
       filter: {
         id: idFilter,
       },
-      handler() {
-        return entryPath
+      handler(id, importer) {
+        const isBareStub = id === STUB_ID || id === STUB_ID + extension
+        return isBareStub && importer?.endsWith('index.html') ? id : entryPath
       },
     },
     load: {
