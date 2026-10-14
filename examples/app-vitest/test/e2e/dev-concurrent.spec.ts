@@ -1,15 +1,12 @@
 import { fileURLToPath } from 'node:url'
-import { createTest, setTestContext } from '@nuxt/test-utils/e2e'
+import { createTest } from '@nuxt/test-utils/e2e'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 const rootDir = fileURLToPath(new URL('../../', import.meta.url))
 const servers = [createTest({ rootDir, dev: true }), createTest({ rootDir, dev: true })]
 
 for (const server of servers) {
-  beforeAll(async () => {
-    setTestContext(server.ctx)
-    await server.beforeAll()
-  }, server.ctx.options.setupTimeout)
+  beforeAll(server.beforeAll, server.ctx.options.setupTimeout)
   afterAll(server.afterAll, server.ctx.options.teardownTimeout)
 }
 

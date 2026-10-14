@@ -70,6 +70,8 @@ export function createTest(options: Partial<TestOptions>): TestHooks {
   }
 
   const beforeAll = async () => {
+    setTestContext(ctx)
+
     if (ctx.options.fixture) {
       await loadFixture()
     }
