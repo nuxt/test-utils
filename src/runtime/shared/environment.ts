@@ -36,22 +36,6 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: NuxtEnvir
   })
   createElementAndAppend(win, appConfig?.teleportTag || 'div', appConfig?.teleportAttrs || { id: 'teleports' })
 
-  if (!win.fetch || !('Request' in win)) {
-    // @ts-expect-error missing from window types
-    win.URLSearchParams = globalThis.URLSearchParams
-    // @ts-expect-error missing from window types
-    win.Request ??= class Request extends globalThis.Request {
-      constructor(input: RequestInfo, init?: RequestInit) {
-        if (typeof input === 'string') {
-          super(new URL(input, win.location.origin), init)
-        }
-        else {
-          super(input, init)
-        }
-      }
-    }
-  }
-
   const res = environmentOptions.nuxt.h3Version === 2
     ? await createFetchForH3V2()
     : await createFetchForH3V1()

@@ -1,7 +1,7 @@
 import { registerEndpoint } from '@nuxt/test-utils/runtime'
 import { it, expect, describe, vi } from 'vitest'
 
-import { readBody, getQuery, getRequestHeaders } from 'nuxt/server'
+import { readBody, getQuery, getRequestHeaders, getRequestHeader } from 'nuxt/server'
 
 describe('registerEndpoint tests', () => {
   it('works with h3 v2 syntax', async () => {
@@ -160,6 +160,92 @@ describe('registerEndpoint tests', () => {
 
     expect(await $fetch(request, { method: 'POST', body: [1] })).toMatchObject({ title: 'with-request', data: [1] })
     expect(await fetch(request, { method: 'POST', body: '[1]' }).then(res => res.json())).toMatchObject({ title: 'with-request', data: [1] })
+  })
+
+  it('can mock fetch requests with FormData', async () => {
+    registerEndpoint('/with-form-data', {
+      method: 'POST',
+      handler: event => event.req.formData().then(form => [...form.entries()]),
+    })
+
+    const createBody = () => {
+      const form = new FormData()
+      form.append('Name', 'Nuxt')
+      form.append('Message', 'Hello')
+      return form
+    }
+    const expected = [['Name', 'Nuxt'], ['Message', 'Hello']]
+
+    expect(await $fetch('/with-form-data', { method: 'post', body: createBody() })).toEqual(expected)
+    expect(await fetch('/with-form-data', { method: 'post', body: createBody() }).then(res => res.json())).toEqual(expected)
+  })
+
+  it('can mock fetch requests with Blob', async () => {
+    registerEndpoint('/with-blob-data', {
+      method: 'POST',
+      handler: async (event) => {
+        const body = await event.req.text()
+        return { body, contentType: getRequestHeader(event, 'content-type') }
+      },
+    })
+
+    const createBody = () => {
+      return new Blob([Buffer.from('this is blob', 'utf8')], { type: 'text/plain' })
+    }
+    const expected = { body: 'this is blob', contentType: 'text/plain' }
+
+    expect(await $fetch('/with-blob-data', { method: 'post', body: createBody() })).toEqual(expected)
+    expect(await fetch('/with-blob-data', { method: 'post', body: createBody() }).then(res => res.json())).toEqual(expected)
+  })
+
+  it('can mock fetch requests with File', async () => {
+    registerEndpoint('/with-file-data', {
+      method: 'POST',
+      handler: async (event) => {
+        const body = await event.req.text()
+        return { body, contentType: getRequestHeader(event, 'content-type') }
+      },
+    })
+
+    const createBody = () => {
+      return new File([Buffer.from('this is file', 'utf8')], 'hello1.txt', { type: 'text/plain' })
+    }
+    const expected = { body: 'this is file', contentType: 'text/plain' }
+
+    expect(await $fetch('/with-file-data', { method: 'post', body: createBody() })).toEqual(expected)
+    expect(await fetch('/with-file-data', { method: 'post', body: createBody() }).then(res => res.json())).toEqual(expected)
+  })
+
+  it('can mock fetch requests with FormData with files', async () => {
+    registerEndpoint('/with-form-data-with-file', {
+      method: 'POST',
+      handler: async (event) => {
+        const result = [] as Record<string, unknown>[]
+        for (const [name, val] of await event.req.formData()) {
+          result.push(val instanceof Blob
+            ? { name, type: val.type, filename: val.name, data: await val.text() }
+            : { name, data: val })
+        }
+        return result
+      },
+    })
+
+    const createBody = () => {
+      const form = new FormData()
+      form.append('meta', 'this is meta data')
+      form.append('file', new File([Buffer.from('this is file 1', 'utf8')], 'hello1.txt', { type: 'text/plain' }))
+      form.append('file', new File([Buffer.from('this is file 2', 'utf8')], 'hello2.txt', { type: 'text/plain' }))
+      return form
+    }
+
+    const expected = [
+      { name: 'meta', data: 'this is meta data' },
+      { name: 'file', type: 'text/plain', filename: 'hello1.txt', data: 'this is file 1' },
+      { name: 'file', type: 'text/plain', filename: 'hello2.txt', data: 'this is file 2' },
+    ]
+
+    expect(await $fetch('/with-form-data-with-file', { method: 'post', body: createBody() })).toMatchObject(expected)
+    expect(await fetch('/with-form-data-with-file', { method: 'post', body: createBody() }).then(r => r.json())).toMatchObject(expected)
   })
 
   it('can mock fetch requests with URL', async () => {

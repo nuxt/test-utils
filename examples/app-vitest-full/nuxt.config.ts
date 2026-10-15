@@ -26,7 +26,7 @@ export default defineNuxtConfig({
     },
   },
   testUtils: {
-    startOnBoot: true,
+    startOnBoot: process.env.START_ON_BOOT === '1',
     logToConsole: true,
     vitestConfig: {
       setupFiles: ['./tests/setup/mocks'],

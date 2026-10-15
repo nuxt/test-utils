@@ -7,5 +7,5 @@ export default async function setupCucumber(hooks: TestHooks) {
   Before(hooks.beforeEach)
 
   After(hooks.afterEach)
-  AfterAll(hooks.afterAll)
+  AfterAll({ timeout: hooks.ctx.options.teardownTimeout }, hooks.afterAll)
 }
