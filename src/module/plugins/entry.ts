@@ -7,6 +7,7 @@ const PLUGIN_NAME = 'nuxt:vitest:nuxt-root-stub'
 interface NuxtRootStubPluginOptions {
   entry: string
   rootStubPath: string
+  isBrowserEnabled: boolean
 }
 
 const STUB_ID = 'nuxt-vitest-app-entry'
@@ -25,15 +26,17 @@ export const NuxtRootStubPlugin = (options: NuxtRootStubPluginOptions): Plugin =
         id: idFilter,
       },
       handler(id, importer) {
-        const isBareStub = id === STUB_ID || id === STUB_ID + extension
-        return isBareStub && importer?.endsWith('index.html') ? id : entryPath
+        if (options.isBrowserEnabled) {
+          return importer?.endsWith('index.html') ? id : entryPath
+        }
+        return entryPath
       },
     },
     load: {
       filter: {
         id: idFilter,
       },
-      async handler() {
+      handler() {
         const entryContents = readFileSync(options.entry, 'utf-8')
         return entryContents.replace('#build/root-component.mjs', options.rootStubPath)
       },

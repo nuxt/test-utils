@@ -58,9 +58,6 @@ async function startNuxtAndGetViteConfig(rootDir = process.cwd(), options: LoadN
         ssr: false,
         test: true,
         modules: ['@nuxt/test-utils/module'],
-        testUtils: {
-          _fromVitestConfig: true,
-        },
       },
       options.overrides,
       // vitest always creates a dev server from this config, but the nitro vite environment
@@ -144,6 +141,14 @@ export async function getVitestConfigFromNuxt(
       overrides: {
         test: true,
         ..._overrides,
+        ...{
+          testUtils: {
+            ...(_overrides as { testUtils?: object })?.testUtils,
+            _fromVitestConfig: {
+              isBrowserEnabled: testConfig.browser?.enabled,
+            },
+          },
+        } as NuxtConfig,
       },
     })
   }
