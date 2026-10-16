@@ -133,8 +133,9 @@ const excludedPlugins = [
 export async function getVitestConfigFromNuxt(
   options?: GetVitestConfigOptions,
   loadNuxtOptions: LoadNuxtOptions = {},
-  testConfig: VitestConfig = {},
+  userConfig: ViteUserConfig & { test?: VitestConfig } | UserWorkspaceConfig = {},
 ): Promise<ViteUserConfig & { test: VitestConfig }> {
+  const { test: testConfig = {} } = userConfig
   const { rootDir = process.cwd(), ..._overrides } = loadNuxtOptions.overrides || {}
 
   if (!options) {
@@ -173,7 +174,20 @@ export async function getVitestConfigFromNuxt(
         },
       },
       optimizeDeps: {
-        noDiscovery: true,
+        ...vitestMajor >= 5 && testConfig.browser?.enabled
+          ? {
+              // Browser mode in vitest 5 reuses the project's Vite server: dependency
+              // discovery must stay on so vitest's CJS internals are prebundled, and deps
+              // imported through nuxt virtual modules are listed upfront because they
+              // can't be found by vite automatically which reloads the page.
+              // We leave `noDiscovery` unchanged to respect vitest defaults and user config.
+              include: ['@testing-library/vue', '#nuxt-test-utils/h3'],
+              // aliased to mocks, excluded from pre-bundling to avoid runtime discovery
+              exclude: ['@vue/devtools-kit', '@vue/devtools-core'],
+            }
+          : {
+              noDiscovery: true,
+            },
       },
       test: {
         environmentOptions: {
@@ -437,27 +451,12 @@ async function resolveConfig<T extends ViteUserConfig & { test?: VitestConfig } 
       dotenv: config.test?.environmentOptions?.nuxt?.dotenv,
       nitroEnvironment: config.test?.environmentOptions?.nuxt?.nitroEnvironment,
       overrides: deepCopy(overrides),
-    }, config.test) satisfies ViteUserConfig & { test: NonNullable<T['test']> },
+    }, config) satisfies ViteUserConfig & { test: NonNullable<T['test']> },
   ) as T & { test: NonNullable<T['test']> }
 
   resolvedConfig.plugins!.push(NuxtVitestEnvironmentOptionsPlugin(resolvedConfig.test.environmentOptions))
 
   if (resolvedConfig.test.browser?.enabled) {
-    // browser mode in vitest 5 reuses the project's Vite server: dependency
-    // discovery must stay on so vitest's CJS internals are prebundled, and deps
-    // imported through nuxt virtual modules are listed upfront because they
-    // can't be found by vite automatically which reloads the page
-    if (vitestMajor >= 5) {
-      delete resolvedConfig.optimizeDeps?.noDiscovery
-      resolvedConfig.optimizeDeps ??= {}
-      resolvedConfig.optimizeDeps.include ??= []
-      resolvedConfig.optimizeDeps.include.push('@testing-library/vue', '#nuxt-test-utils/h3')
-
-      // aliased to mocks, excluded from pre-bundling to avoid runtime discovery
-      resolvedConfig.optimizeDeps.exclude ??= []
-      resolvedConfig.optimizeDeps.exclude.push('@vue/devtools-kit', '@vue/devtools-core')
-    }
-
     if (resolvedConfig.test.environment === 'nuxt') {
       resolvedConfig.test.setupFiles = Array.isArray(resolvedConfig.test.setupFiles)
         ? resolvedConfig.test.setupFiles

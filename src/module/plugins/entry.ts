@@ -24,15 +24,15 @@ export const NuxtRootStubPlugin = (options: NuxtRootStubPluginOptions): Plugin =
       filter: {
         id: idFilter,
       },
-      async handler(id, importer) {
-        return importer?.endsWith('index.html') ? id : entryPath
+      handler() {
+        return entryPath
       },
     },
     load: {
       filter: {
         id: idFilter,
       },
-      async handler() {
+      handler() {
         const entryContents = readFileSync(options.entry, 'utf-8')
         return entryContents.replace('#build/root-component.mjs', options.rootStubPath)
       },
