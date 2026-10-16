@@ -18,9 +18,7 @@ export interface NuxtVitestOptions {
   logToConsole?: boolean
   vitestConfig?: VitestConfig
   /** @internal */
-  _fromVitestConfig?: {
-    isBrowserEnabled?: boolean
-  }
+  _fromVitestConfig?: boolean
 }
 
 export default defineNuxtModule<NuxtVitestOptions>({
@@ -64,7 +62,6 @@ export default defineNuxtModule<NuxtVitestOptions>({
       addVitePlugin(NuxtRootStubPlugin({
         entry: await resolvePath('#app/entry', { alias: nuxt.options.alias }),
         rootStubPath: await resolvePath(resolver.resolve('./runtime/nuxt-root')),
-        isBrowserEnabled: options._fromVitestConfig.isBrowserEnabled ?? false,
       }))
     }
 

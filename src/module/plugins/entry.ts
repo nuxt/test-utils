@@ -7,7 +7,6 @@ const PLUGIN_NAME = 'nuxt:vitest:nuxt-root-stub'
 interface NuxtRootStubPluginOptions {
   entry: string
   rootStubPath: string
-  isBrowserEnabled: boolean
 }
 
 const STUB_ID = 'nuxt-vitest-app-entry'
@@ -25,10 +24,7 @@ export const NuxtRootStubPlugin = (options: NuxtRootStubPluginOptions): Plugin =
       filter: {
         id: idFilter,
       },
-      handler(id, importer) {
-        if (options.isBrowserEnabled) {
-          return importer?.endsWith('index.html') ? id : entryPath
-        }
+      handler() {
         return entryPath
       },
     },
