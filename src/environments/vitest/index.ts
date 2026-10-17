@@ -1,4 +1,5 @@
 import type { Environment } from 'vitest/runtime'
+import { fileURLToPath } from 'node:url'
 import { resolveModulePath } from 'exsolve'
 import { indexedDB } from 'fake-indexeddb'
 import { joinURL } from 'ufo'
@@ -15,7 +16,7 @@ const environmentMap = {
   jsdom,
 }
 
-const vitestMajor = Number(getPackageInfo('vitest')?.version?.split('.')[0])
+const vitestMajor = Number(getPackageInfo('vitest', fileURLToPath(new URL('.', import.meta.url)))?.version?.split('.')[0])
 
 export default <Environment>{
   name: 'nuxt',
@@ -78,7 +79,7 @@ export default <Environment>{
 
 // This can be removed when dropping support for vitest 4.0.x (We can static import from 'vitest/runtime')
 async function importVitestEnvironments() {
-  const entry = vitestMajor >= 5 || resolveModulePath('vitest/runtime', { try: true }) ? 'runtime' : 'environments'
+  const entry = vitestMajor >= 5 || resolveModulePath('vitest/runtime', { from: import.meta.url, try: true }) ? 'runtime' : 'environments'
   return await import(/* @vite-ignore */ ['vitest', entry].join('/')) as typeof import('vitest/runtime')
 }
 
