@@ -103,7 +103,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
                 vitestSource ??= node.source.value
                 const viImport = node.specifiers.find(
                   i =>
-                    isImportSpecifier(i) && i.imported.type === 'Identifier' && i.imported.name === 'vi',
+                    isImportSpecifier(i) && i.imported.type === 'Identifier' && i.imported.name === 'vi' && i.local.name === 'vi',
                 )
                 if (viImport) {
                   insertionPoint = node.end

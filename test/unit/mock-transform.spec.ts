@@ -180,6 +180,18 @@ describe('mocking', () => {
       expect(code).not.toContain('"vitest"')
     })
 
+    it.each(['vitest', 'vite-plus/test'])('should add `vi` import if `vi` from `%s` is aliased', async (source) => {
+      pluginContext.imports = [{
+        name: 'useSomeExport',
+        from: 'bob',
+      }]
+      const code = await getResult(`
+        import { vi as testVi } from '${source}'
+        mockNuxtImport('useSomeExport', () => 'bob')
+      `)
+      expect(code.startsWith(`import {vi} from ${JSON.stringify(source)};\n`)).toBe(true)
+    })
+
     it('should transform code with unmock imports', async () => {
       pluginContext.imports = [{
         name: 'useParent1',
