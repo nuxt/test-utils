@@ -1,33 +1,30 @@
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { fileURLToPath } from 'node:url'
+import { x } from 'tinyexec'
+import { afterAll, describe, expect, it } from 'vitest'
 
-vi.mock('../../src/runtime/shared/environment.ts', () => ({
-  setupWindow: async () => () => {},
-}))
+const TEST_TIMEOUT = process.env.CI ? 60_000 : 30_000
+
+const fixtureDir = fileURLToPath(new URL('../fixtures/vitest-environment', import.meta.url))
 
 describe('nuxt vitest environment', () => {
   const dirs: string[] = []
 
-  afterEach(async () => {
-    vi.restoreAllMocks()
+  afterAll(async () => {
     await Promise.all(dirs.map(dir => rm(dir, { recursive: true, force: true })))
   })
 
-  it('should set up and tear down when vitest cannot be resolved from cwd', async () => {
+  it('should run when vitest cannot be resolved from cwd', async () => {
     const cwd = await mkdtemp(join(tmpdir(), 'nuxt-test-utils-env-'))
     dirs.push(cwd)
-    vi.spyOn(process, 'cwd').mockReturnValue(cwd)
 
-    const { default: environment } = await import('../../src/environments/vitest/index.ts')
+    const result = await x('vitest', ['run', '--root', fixtureDir, '--no-color'], {
+      nodeOptions: { cwd },
+    })
 
-    const originalFetch = () => {}
-    const global: Record<string, unknown> = { fetch: originalFetch }
-    const { teardown } = await environment.setup(global, {})
-    expect(global.fetch).not.toBe(originalFetch)
-
-    await teardown(global)
-    expect(global.fetch).toBe(originalFetch)
-  })
+    expect.assert(result.exitCode === 0, result.stderr)
+    expect(result.stdout).toContain('1 passed')
+  }, TEST_TIMEOUT)
 })
