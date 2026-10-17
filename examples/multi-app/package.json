@@ -1,0 +1,25 @@
+{
+  "name": "example-multi-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "nuxt": "^4.5.1"
+  },
+  "devDependencies": {
+    "@nuxt/test-utils": "latest",
+    "@vitest/browser-playwright": "5.0.2",
+    "@vue/test-utils": "2.5.1",
+    "happy-dom": "20.14.5",
+    "nuxt": "4.5.2",
+    "typescript": "6.0.3",
+    "vitest": "5.0.2"
+  }
+}
