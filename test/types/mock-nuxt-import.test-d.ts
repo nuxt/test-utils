@@ -1,4 +1,5 @@
-import { describe, it, expectTypeOf } from 'vitest'
+import { describe, it, expectTypeOf, vi } from 'vitest'
+import type { Mock } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 describe('mockNuxtImport', () => {
@@ -80,6 +81,16 @@ describe('mockNuxtImport', () => {
       mockNuxtImport(useRoute, _ => '')
       // @ts-expect-error return type is not correct
       mockNuxtImport(useRoute, _ => () => ({}))
+    })
+  })
+
+  describe('return value', () => {
+    it('returns the mock created by the factory', () => {
+      const mock = vi.fn(() => 'mocked')
+      expectTypeOf(mockNuxtImport('useRoute', () => mock)).toEqualTypeOf(mock)
+      expectTypeOf(mockNuxtImport<typeof useRoute>('useRoute', original => original)).toEqualTypeOf<typeof useRoute>()
+      expectTypeOf(mockNuxtImport(useRoute, original => vi.fn(original))).toEqualTypeOf<Mock<typeof useRoute>>()
+      expectTypeOf(mockNuxtImport(useRoute, original => Promise.resolve(vi.fn(original)))).toEqualTypeOf<Mock<typeof useRoute>>()
     })
   })
 })
