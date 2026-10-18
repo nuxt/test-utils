@@ -20,6 +20,8 @@ const HELPER_MOCK_HOIST = '__NUXT_VITEST_MOCKS'
 const HELPER_MOCK_HOIST_ORIGINAL = '__NUXT_VITEST_MOCKS_ORIGINAL'
 const HELPER_MOCK_HOIST_PREVIOUS = '__NUXT_VITEST_MOCKS_PREVIOUS'
 
+const VITEST_SOURCES = new Set(['vitest', 'vite-plus/test'])
+
 const HELPERS_NAME = [
   HELPER_MOCK_IMPORT,
   HELPER_UNMOCK_IMPORT,
@@ -58,6 +60,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
 
         let insertionPoint = 0
         let hasViImport = false
+        let vitestSource: string | undefined
 
         const s = new MagicString(code)
         const mocksImport: MockImportInfo[] = []
@@ -96,10 +99,11 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
 
             // find existing vi import
             if (isImportDeclaration(node)) {
-              if (node.source.value === 'vitest' && !hasViImport) {
+              if (VITEST_SOURCES.has(node.source.value) && !hasViImport) {
+                vitestSource ??= node.source.value
                 const viImport = node.specifiers.find(
                   i =>
-                    isImportSpecifier(i) && i.imported.type === 'Identifier' && i.imported.name === 'vi',
+                    isImportSpecifier(i) && i.imported.type === 'Identifier' && i.imported.name === 'vi' && i.local.name === 'vi',
                 )
                 if (viImport) {
                   insertionPoint = node.end
@@ -280,7 +284,7 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
           ``,
         ].join('\n'))
 
-        if (!hasViImport) s.prepend(`import {vi} from "vitest";\n`)
+        if (!hasViImport) s.prepend(`import {vi} from ${JSON.stringify(vitestSource ?? 'vitest')};\n`)
 
         s.appendLeft(insertionPoint, '\n' + mockLines.join('\n') + '\n')
 

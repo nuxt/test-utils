@@ -154,6 +154,44 @@ describe('mocking', () => {
       })
     })
 
+    it('should not add `vi` import if it is imported from `vite-plus/test`', async () => {
+      pluginContext.imports = [{
+        name: 'useSomeExport',
+        from: 'bob',
+      }]
+      const code = await getResult(`
+        import { expect, vi, it } from 'vite-plus/test'
+        mockNuxtImport('useSomeExport', () => 'bob')
+      `)
+      expect(code).not.toContain('import {vi} from')
+      expect(code).toMatch(/^\s*import \{ expect, vi, it \} from 'vite-plus\/test'\nvi\.hoisted\(/)
+    })
+
+    it('should add `vi` import from the vitest specifier already used in the file', async () => {
+      pluginContext.imports = [{
+        name: 'useSomeExport',
+        from: 'bob',
+      }]
+      const code = await getResult(`
+        import { expect, it } from 'vite-plus/test'
+        mockNuxtImport('useSomeExport', () => 'bob')
+      `)
+      expect(code).toMatch(/^import \{vi\} from "vite-plus\/test";\n/)
+      expect(code).not.toContain('"vitest"')
+    })
+
+    it.each(['vitest', 'vite-plus/test'])('should add `vi` import if `vi` from `%s` is aliased', async (source) => {
+      pluginContext.imports = [{
+        name: 'useSomeExport',
+        from: 'bob',
+      }]
+      const code = await getResult(`
+        import { vi as testVi } from '${source}'
+        mockNuxtImport('useSomeExport', () => 'bob')
+      `)
+      expect(code.startsWith(`import {vi} from ${JSON.stringify(source)};\n`)).toBe(true)
+    })
+
     it('should transform code with unmock imports', async () => {
       pluginContext.imports = [{
         name: 'useParent1',
