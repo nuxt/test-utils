@@ -107,6 +107,11 @@ export function registerEndpoint(url: string, options: EventHandler | { handler:
   }
 }
 
+type MockNuxtImportFactory<T> = T extends string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ? (original: any) => any
+  : (original: T) => T | Promise<T>
+
 /**
  * `mockNuxtImport` allows you to mock Nuxt's auto import functionality.
  * @param _target - name of an import to mock or mocked target.
@@ -142,15 +147,20 @@ export function registerEndpoint(url: string, options: EventHandler | { handler:
  *  (...args) => ({ ...vi.mocked(useRoute).getMockImplementation()!(...args), path: '/mocked' }),
  * )
  * ```
- * @see https://nuxt.com/docs/getting-started/testing#mocknuxtimport
+  * @example
+ * ```ts
+ * // Using the returned mock
+ * const useStorageMock = mockNuxtImport('useStorage', () => vi.fn())
+ *
+ * // Override in test
+ * useStorageMock.mockReturnValue({ value: 'mocked storage' })
+ * ```
+* @see https://nuxt.com/docs/getting-started/testing#mocknuxtimport
  */
-export function mockNuxtImport<T = unknown>(
+export function mockNuxtImport<T = unknown, F extends MockNuxtImportFactory<T> = MockNuxtImportFactory<T>>(
   _target: string | T,
-  _factory: T extends string
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ? (original: any) => any
-    : (original: T) => T | Promise<T>,
-): void {
+  _factory: F,
+): Awaited<ReturnType<F>> {
   throw new Error(
     'mockNuxtImport() is a macro and it did not get transpiled. This may be an internal bug of @nuxt/test-utils.',
   )
