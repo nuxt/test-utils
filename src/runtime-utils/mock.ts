@@ -147,7 +147,7 @@ type MockNuxtImportFactory<T> = T extends string
  *  (...args) => ({ ...vi.mocked(useRoute).getMockImplementation()!(...args), path: '/mocked' }),
  * )
  * ```
-* @example
+ * @example
  * ```ts
  * // Using the returned mock
  * const useStorageMock = mockNuxtImport('useStorage', () => vi.fn())
