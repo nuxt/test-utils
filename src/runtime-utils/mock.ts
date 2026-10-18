@@ -107,10 +107,8 @@ export function registerEndpoint(url: string, options: EventHandler | { handler:
   }
 }
 
-type MockNuxtImportFactory<T> = T extends string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ? (original: any) => any
-  : (original: T) => T | Promise<T>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type MockNuxtImportTarget<T> = T extends string ? any : T
 
 /**
  * `mockNuxtImport` allows you to mock Nuxt's auto import functionality.
@@ -154,13 +152,16 @@ type MockNuxtImportFactory<T> = T extends string
  *
  * // Override in test
  * useStorageMock.mockReturnValue({ value: 'mocked storage' })
+ *
+ * // With a type parameter, pass the mock type as well to keep it in the return type
+ * const useRouteMock = mockNuxtImport<typeof useRoute, Mock<typeof useRoute>>('useRoute', () => vi.fn())
  * ```
  * @see https://nuxt.com/docs/getting-started/testing#mocknuxtimport
  */
-export function mockNuxtImport<T = unknown, F extends MockNuxtImportFactory<T> = MockNuxtImportFactory<T>>(
+export function mockNuxtImport<T = unknown, R extends MockNuxtImportTarget<T> = MockNuxtImportTarget<T>>(
   _target: string | T,
-  _factory: F,
-): Awaited<ReturnType<F>> {
+  _factory: (original: MockNuxtImportTarget<T>) => R | Promise<R>,
+): R {
   throw new Error(
     'mockNuxtImport() is a macro and it did not get transpiled. This may be an internal bug of @nuxt/test-utils.',
   )
