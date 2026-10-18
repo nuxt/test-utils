@@ -147,7 +147,7 @@ type MockNuxtImportFactory<T> = T extends string
  *  (...args) => ({ ...vi.mocked(useRoute).getMockImplementation()!(...args), path: '/mocked' }),
  * )
  * ```
-  * @example
+* @example
  * ```ts
  * // Using the returned mock
  * const useStorageMock = mockNuxtImport('useStorage', () => vi.fn())
@@ -155,7 +155,7 @@ type MockNuxtImportFactory<T> = T extends string
  * // Override in test
  * useStorageMock.mockReturnValue({ value: 'mocked storage' })
  * ```
-* @see https://nuxt.com/docs/getting-started/testing#mocknuxtimport
+ * @see https://nuxt.com/docs/getting-started/testing#mocknuxtimport
  */
 export function mockNuxtImport<T = unknown, F extends MockNuxtImportFactory<T> = MockNuxtImportFactory<T>>(
   _target: string | T,
