@@ -92,5 +92,20 @@ describe('mockNuxtImport', () => {
       expectTypeOf(mockNuxtImport(useRoute, original => vi.fn(original))).toEqualTypeOf<Mock<typeof useRoute>>()
       expectTypeOf(mockNuxtImport(useRoute, original => Promise.resolve(vi.fn(original)))).toEqualTypeOf<Mock<typeof useRoute>>()
     })
+
+    it('returns the mock with type parameters', () => {
+      // TypeScript cannot partially infer type arguments, so with only `T` given the return type is `T`
+      expectTypeOf(mockNuxtImport<typeof useRoute>('useRoute', () => vi.fn<typeof useRoute>())).toEqualTypeOf<typeof useRoute>()
+
+      const useRouteMock = mockNuxtImport<typeof useRoute, Mock<typeof useRoute>>('useRoute', () => vi.fn())
+      expectTypeOf(useRouteMock).toEqualTypeOf<Mock<typeof useRoute>>()
+      expectTypeOf(useRouteMock.mockReturnValue).toBeFunction()
+
+      expectTypeOf(mockNuxtImport<typeof useRoute, Mock<typeof useRoute>>('useRoute', original => vi.fn(original))).toEqualTypeOf<Mock<typeof useRoute>>()
+      expectTypeOf(mockNuxtImport<typeof useRoute, Mock<typeof useRoute>>('useRoute', original => Promise.resolve(vi.fn(original)))).toEqualTypeOf<Mock<typeof useRoute>>()
+
+      // @ts-expect-error return type is not correct
+      mockNuxtImport<typeof useRoute, Mock<typeof useRoute>>('useRoute', () => () => '')
+    })
   })
 })
