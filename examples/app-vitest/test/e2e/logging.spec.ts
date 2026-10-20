@@ -11,11 +11,15 @@ function setupTest() {
         'build:before'() {
           const logger = useLogger('tag')
           logger.log('## build:before log() ##')
+          logger.log.raw('## build:before log.row() ##')
           logger.info('## build:before info() ##')
+          logger.debug('## build:before debug() ##')
         },
         'build:done'() {
           nuxtLogger.log('## build:done log() ##')
+          nuxtLogger.log.raw('## build:done log.raw() ##')
           nuxtLogger.info('## build:done info() ##')
+          nuxtLogger.debug('## build:done debug() ##')
         },
       },
     },
@@ -35,11 +39,26 @@ describe('logging', { concurrent: false }, () => {
 
     it('can logging check', () => {
       // Since Vitest's clearMocks is true by default, check via getSnapshot()
-      const { log, info } = logger.getSnapshot()
+      const { log, info, debug } = logger.getSnapshot()
+
       expect(log).toHaveBeenCalledWith('## build:before log() ##')
+      expect(log.raw).toHaveBeenCalledWith('## build:before log.row() ##')
       expect(info).toHaveBeenCalledWith('## build:before info() ##')
+      expect(debug).toHaveBeenCalledWith('## build:before debug() ##')
+
       expect(log).toHaveBeenCalledWith('## build:done log() ##')
+      expect(log.raw).toHaveBeenCalledWith('## build:done log.raw() ##')
       expect(info).toHaveBeenCalledWith('## build:done info() ##')
+      expect(debug).toHaveBeenCalledWith('## build:done debug() ##')
+    })
+
+    it('can logging check withTag', () => {
+      const { log, debug } = logger.getWithTag('tag').getSnapshot()
+      expect(log).toHaveBeenCalledWith('## build:before log() ##')
+      expect(log).not.toHaveBeenCalledWith('## build:done log() ##')
+
+      expect(debug).toHaveBeenCalledWith('## build:before debug() ##')
+      expect(debug).not.toHaveBeenCalledWith('## build:done debug() ##')
     })
   })
 

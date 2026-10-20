@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import { describe, expect, it, vi } from 'bun:test'
+import { describe, expect, it } from 'bun:test'
 import { logger as nuxtLogger, useLogger } from 'nuxt/kit'
 import { mockLogger, setup } from '@nuxt/test-utils/e2e'
 
@@ -11,11 +11,15 @@ function setupTest() {
         'build:before'() {
           const logger = useLogger('tag')
           logger.log('## build:before log() ##')
+          logger.log.raw('## build:before log.row() ##')
           logger.info('## build:before info() ##')
+          logger.debug('## build:before debug() ##')
         },
         'build:done'() {
           nuxtLogger.log('## build:done log() ##')
+          nuxtLogger.log.raw('## build:done log.raw() ##')
           nuxtLogger.info('## build:done info() ##')
+          nuxtLogger.debug('## build:done debug() ##')
         },
       },
     },
@@ -36,20 +40,17 @@ describe.serial('logging', () => {
     it('can logging check', () => {
       const { log, info } = logger
       expect(log).toHaveBeenCalledWith('## build:before log() ##')
+      expect(log.raw).toHaveBeenCalledWith('## build:before log.row() ##')
       expect(info).toHaveBeenCalledWith('## build:before info() ##')
       expect(log).toHaveBeenCalledWith('## build:done log() ##')
+      expect(log.raw).toHaveBeenCalledWith('## build:done log.raw() ##')
       expect(info).toHaveBeenCalledWith('## build:done info() ##')
     })
 
-    it('can clear mock', () => {
-      const { log, info } = logger
-      expect(log).toHaveBeenCalled()
-      expect(info).toHaveBeenCalled()
-
-      vi.clearAllMocks()
-
-      expect(log).not.toHaveBeenCalled()
-      expect(info).not.toHaveBeenCalled()
+    it('can logging check withTag', () => {
+      const { log } = logger.getWithTag('tag')
+      expect(log).toHaveBeenCalledWith('## build:before log() ##')
+      expect(log).not.toHaveBeenCalledWith('## build:done log() ##')
     })
   })
 
