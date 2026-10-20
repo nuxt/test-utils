@@ -67,7 +67,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "pnpm test:types && pnpm test:unit && pnpm test:examples",
-    "test:examples": "pnpm --filter '!@nuxt/test-utils' --filter '!example-app-cucumber' --filter '!example-app-jest' --filter '!example-app-bun' -r test && pnpm --filter example-app-cucumber -r test",
+    "test:examples": "pnpm --filter '!@nuxt/test-utils' --filter '!example-app-cucumber' --filter '!example-app-jest' -r test && pnpm --filter example-app-cucumber -r test",
     "test:knip": "knip",
     "test:engines": "pnpm installed-check --no-workspaces --ignore-dev --ignore @cucumber/cucumber --ignore nuxt --ignore vitest",
     "test:types": "vue-tsc --noEmit && vitest --dir ./test/types --typecheck.only --run",

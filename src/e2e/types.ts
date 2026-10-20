@@ -101,7 +101,7 @@ export interface TestContext {
    * server process after teardown.
    */
   disposed?: boolean
-  mockFn?: (...args: unknown[]) => unknown
+  mockFn?: <P extends unknown[], R>(fn?: (...args: P) => R) => (...args: P) => R
   /**
    * Lines emitted to the server subprocess's stdout/stderr, in order.
    * Only populated when `options.captureServerLogs` is `true`.

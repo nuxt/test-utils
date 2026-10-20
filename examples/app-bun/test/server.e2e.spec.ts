@@ -8,7 +8,7 @@ await setup({
 
 describe('app', () => {
   it('runs a test', async () => {
-    const html = await $fetch('/')
+    const html = await $fetch<string>('/')
     expect(html.slice(0, 15)).toMatchInlineSnapshot(`"<!DOCTYPE html>"`)
   })
 })
