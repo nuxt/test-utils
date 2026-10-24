@@ -32,14 +32,14 @@ function ensureTestIdAttribute(element: HTMLElement) {
   }
 }
 
-export interface RenderResult<Props> extends LocatorSelectors {
+export interface RenderResult<Props, T = unknown> extends LocatorSelectors {
   container: HTMLElement
   baseElement: HTMLElement
   locator: Locator
   /**
    * The return value of the component setup, mocked when the `spy` option is enabled.
    */
-  setupState: SetupState
+  setupState: SetupState<T>
   debug(
     el?: HTMLElement | HTMLElement[] | Locator | Locator[],
     maxLength?: number, options?:
@@ -81,7 +81,7 @@ export interface RenderResult<Props> extends LocatorSelectors {
 export async function render<T>(
   component: T,
   options: WrapperOptions<T> = {},
-): Promise<RenderResult<ComponentProps<T>>> {
+): Promise<RenderResult<ComponentProps<T>, T>> {
   const {
     container,
     baseElement,
@@ -93,7 +93,7 @@ export async function render<T>(
 
   const { debug, getElementLocatorSelectors } = utils
 
-  const renderResult: RenderResult<ComponentProps<T>> = {
+  const renderResult: RenderResult<ComponentProps<T>, T> = {
     container,
     baseElement,
     locator: page.elementLocator(container),
