@@ -32,8 +32,15 @@ const Component = defineComponent({
   emits: ['update:modelValue'],
   expose: ['method'],
   setup: () => {
+    const message = ref('message')
+    const number = ref(0)
+    const object = ref({ a: 1, b: new Date(), c: true as boolean | undefined })
     return {
-      method: () => '',
+      message,
+      number,
+      object,
+      method: () => message.value,
+      method2: (v: number) => number.value + v,
     }
   },
 })
@@ -44,12 +51,38 @@ type SuspendedAdditionalOptions = {
   scoped?: boolean
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnySetupState = Record<string, any>
+
 type SuspendedAdditionalResult = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setupState: Record<string, any>
+  setupState: {
+    message: Ref<string>
+    number: Ref<number>
+    object: Ref<{ a: number, b: Date, c: boolean | undefined }>
+    method: () => string
+    method2: (v: number) => number
+  } & AnySetupState
 }
 
 type ComponentType = typeof Component
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const AsyncSetupComponent = defineComponent({
+  async setup() {
+    const message = ref('message')
+    await Promise.resolve()
+    return {
+      message,
+      method: () => message.value,
+    }
+  },
+})
+
+type AsyncSetupComponentType = typeof AsyncSetupComponent
+type AsyncSetupState = {
+  message: Ref<string>
+  method: () => string
+} & AnySetupState
 
 describe('mountSuspended', () => {
   describe('options', () => {
@@ -87,6 +120,11 @@ describe('mountSuspended', () => {
       type VueWrapper = ReturnType<typeof mount<ComponentType>>
       expectTypeOf<Pick<Result, keyof VueWrapper>>()
         .toEqualTypeOf<Pick<VueWrapper, keyof VueWrapper>>()
+    })
+
+    it('has async setup setupState', () => {
+      type AsyncResult = Awaited<ReturnType<typeof mountSuspended<AsyncSetupComponentType>>>
+      expectTypeOf<AsyncResult['setupState']>().toEqualTypeOf<AsyncSetupState>()
     })
   })
 })
@@ -128,6 +166,11 @@ describe('renderSuspended', () => {
       type RenderResult = ReturnType<typeof _render<ComponentType>>
       expectTypeOf<Pick<Result, keyof RenderResult>>()
         .toEqualTypeOf<Pick<RenderResult, keyof RenderResult>>()
+    })
+
+    it('has async setup setupState', () => {
+      type AsyncResult = Awaited<ReturnType<typeof renderSuspended<AsyncSetupComponentType>>>
+      expectTypeOf<AsyncResult['setupState']>().toEqualTypeOf<AsyncSetupState>()
     })
   })
 })
@@ -178,6 +221,11 @@ describe('browser.render', () => {
     it('has LocatorSelectors property', () => {
       expectTypeOf<Pick<Result, keyof LocatorSelectors>>()
         .toEqualTypeOf<Pick<LocatorSelectors, keyof LocatorSelectors>>()
+    })
+
+    it('has async setup setupState', () => {
+      type AsyncResult = Awaited<ReturnType<typeof render<AsyncSetupComponentType>>>
+      expectTypeOf<AsyncResult['setupState']>().toEqualTypeOf<AsyncSetupState>()
     })
   })
 
