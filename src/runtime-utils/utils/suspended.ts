@@ -14,15 +14,23 @@ import { RouterLink } from '../components/RouterLink.ts'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnySetupState = Record<string, any>
 
-type DefinedSetupFunction<C> = C extends { setup?: (...args: infer _) => infer R }
-  ? Exclude<Awaited<R>, void | RenderFunction>
-  : never
+type GetDefinedSetupState<
+  Component,
+  SetupReturn = Component extends { setup?: (...args: infer _) => infer R } ? Awaited<R> : never,
+  IsOptionalReturn = [Extract<SetupReturn, undefined>] extends [never] ? false : true,
+  DefinedSetupState = Exclude<SetupReturn, void | RenderFunction>,
+> = IsOptionalReturn extends true
+  ? Partial<DefinedSetupState>
+  : DefinedSetupState
 
-type DefinedSetupState<C, R = DefinedSetupFunction<C>> = [R] extends [never]
+type GetSetupState<
+  Component,
+  DefinedSetupState = GetDefinedSetupState<Component>,
+> = [DefinedSetupState] extends [never]
   ? AnySetupState
-  : R
+  : DefinedSetupState
 
-export type SetupState<C = unknown> = DefinedSetupState<C> & AnySetupState
+export type SetupState<C = unknown> = GetSetupState<C> & AnySetupState
 
 type BaseOptions<C> = Pick<ComponentMountingOptions<C>, 'global'>
 

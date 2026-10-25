@@ -66,24 +66,6 @@ type SuspendedAdditionalResult = {
 
 type ComponentType = typeof Component
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const AsyncSetupComponent = defineComponent({
-  async setup() {
-    const message = ref('message')
-    await Promise.resolve()
-    return {
-      message,
-      method: () => message.value,
-    }
-  },
-})
-
-type AsyncSetupComponentType = typeof AsyncSetupComponent
-type AsyncSetupState = {
-  message: Ref<string>
-  method: () => string
-} & AnySetupState
-
 describe('mountSuspended', () => {
   describe('options', () => {
     type Options = NonNullable<Parameters<typeof mountSuspended<ComponentType>>[1]>
@@ -120,11 +102,6 @@ describe('mountSuspended', () => {
       type VueWrapper = ReturnType<typeof mount<ComponentType>>
       expectTypeOf<Pick<Result, keyof VueWrapper>>()
         .toEqualTypeOf<Pick<VueWrapper, keyof VueWrapper>>()
-    })
-
-    it('has async setup setupState', () => {
-      type AsyncResult = Awaited<ReturnType<typeof mountSuspended<AsyncSetupComponentType>>>
-      expectTypeOf<AsyncResult['setupState']>().toEqualTypeOf<AsyncSetupState>()
     })
   })
 })
@@ -166,11 +143,6 @@ describe('renderSuspended', () => {
       type RenderResult = ReturnType<typeof _render<ComponentType>>
       expectTypeOf<Pick<Result, keyof RenderResult>>()
         .toEqualTypeOf<Pick<RenderResult, keyof RenderResult>>()
-    })
-
-    it('has async setup setupState', () => {
-      type AsyncResult = Awaited<ReturnType<typeof renderSuspended<AsyncSetupComponentType>>>
-      expectTypeOf<AsyncResult['setupState']>().toEqualTypeOf<AsyncSetupState>()
     })
   })
 })
@@ -222,16 +194,107 @@ describe('browser.render', () => {
       expectTypeOf<Pick<Result, keyof LocatorSelectors>>()
         .toEqualTypeOf<Pick<LocatorSelectors, keyof LocatorSelectors>>()
     })
-
-    it('has async setup setupState', () => {
-      type AsyncResult = Awaited<ReturnType<typeof render<AsyncSetupComponentType>>>
-      expectTypeOf<AsyncResult['setupState']>().toEqualTypeOf<AsyncSetupState>()
-    })
   })
 
   describe('browser.page', () => {
     it('export render to page', () => {
       expectTypeOf<typeof page.render>().toEqualTypeOf<typeof render>()
     })
+  })
+})
+
+describe('wrapper.setupState', () => {
+  type WrapperSetupStates<C> = {
+    mountSuspended: Awaited<ReturnType<typeof mountSuspended<C>>>['setupState']
+    renderSuspended: Awaited<ReturnType<typeof renderSuspended<C>>>['setupState']
+    render: Awaited<ReturnType<typeof render<C>>>['setupState']
+  }
+
+  type ExpectedSetupStates<T = AnySetupState> = {
+    mountSuspended: T & AnySetupState
+    renderSuspended: T & AnySetupState
+    render: T & AnySetupState
+  }
+
+  it('setup state', () => {
+    const setup = () => ({
+      message: ref(''),
+      method: () => '' as string,
+    })
+
+    type Expected = ExpectedSetupStates<ReturnType<typeof setup>>
+
+    const _c1 = defineComponent({ setup })
+    expectTypeOf<WrapperSetupStates<typeof _c1>>().toEqualTypeOf<Expected>()
+
+    const _c2 = defineComponent({ setup: async () => setup() })
+    expectTypeOf<WrapperSetupStates<typeof _c2>>().toEqualTypeOf<Expected>()
+  })
+
+  it('void setup', () => {
+    const _c1 = defineComponent({ setup() {} })
+    expectTypeOf<WrapperSetupStates<typeof _c1>>().toEqualTypeOf<ExpectedSetupStates>()
+
+    const _c2 = defineComponent({ async setup() {} })
+    expectTypeOf<WrapperSetupStates<typeof _c2>>().toEqualTypeOf<ExpectedSetupStates>()
+  })
+
+  it('conditional setup state', async () => {
+    const setup = (props: unknown) => {
+      const method = () => '' as string
+      return props
+        ? {
+            tag: '1' as const,
+            message: ref(''),
+            method,
+            cMethod: () => new Date(),
+          }
+        : {
+            tag: '2' as const,
+            method,
+            cMethod: () => 1 as number,
+          }
+    }
+
+    type Expected = ExpectedSetupStates<ReturnType<typeof setup>>
+
+    const _c1 = defineComponent({ setup })
+    expectTypeOf<WrapperSetupStates<typeof _c1>>().toEqualTypeOf<Expected>()
+
+    const _c2 = defineComponent({ setup: async props => setup(props) })
+    expectTypeOf<WrapperSetupStates<typeof _c2>>().toEqualTypeOf<Expected>()
+  })
+
+  it('conditional undefined in setup state', async () => {
+    const setup = (props: unknown) => {
+      if (!props) return
+      return {
+        message: ref(''),
+        method: () => '' as string,
+      }
+    }
+
+    type Expected = ExpectedSetupStates<{
+      message?: Ref<string>
+      method?: () => string
+    }>
+
+    const _c1 = defineComponent({ setup })
+    expectTypeOf<WrapperSetupStates<typeof _c1>>().toEqualTypeOf<Expected>()
+
+    const _c2 = defineComponent({ setup: async props => setup(props) })
+    expectTypeOf<WrapperSetupStates<typeof _c2>>().toEqualTypeOf<Expected>()
+  })
+
+  it('render function component', () => {
+    const fn = () => {
+      const message = ref('hello')
+      return () => h('div', message.value)
+    }
+
+    expectTypeOf<WrapperSetupStates<typeof fn>>().toEqualTypeOf<ExpectedSetupStates>()
+
+    const _c = defineComponent(fn)
+    expectTypeOf<WrapperSetupStates<typeof _c>>().toEqualTypeOf<ExpectedSetupStates>()
   })
 })
