@@ -317,8 +317,10 @@ describe('wrapper.setupState', () => {
 
     const _c2 = defineComponent({ setup })
     expectTypeOf<WrapperSetupStates<typeof _c2>>().toEqualTypeOf<Expected>()
+  })
 
-    const _c3 = defineComponent({ render: setup })
-    expectTypeOf<WrapperSetupStates<typeof _c3>>().toEqualTypeOf<Expected>()
+  it('when component has no setup, falls back to any setupState', () => {
+    const _c = defineComponent({ render: () => h('div') })
+    expectTypeOf<WrapperSetupStates<typeof _c>>().toEqualTypeOf<ExpectedSetupStates>()
   })
 })
