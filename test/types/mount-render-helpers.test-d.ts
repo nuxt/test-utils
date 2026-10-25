@@ -216,7 +216,7 @@ describe('wrapper.setupState', () => {
     render: T & AnySetupState
   }
 
-  it('setup state', () => {
+  it('when setup returns state, infers setupState from it', () => {
     const setup = () => ({
       message: ref(''),
       method: () => '' as string,
@@ -231,16 +231,32 @@ describe('wrapper.setupState', () => {
     expectTypeOf<WrapperSetupStates<typeof _c2>>().toEqualTypeOf<Expected>()
   })
 
-  it('void setup', () => {
-    const _c1 = defineComponent({ setup() {} })
-    expectTypeOf<WrapperSetupStates<typeof _c1>>().toEqualTypeOf<ExpectedSetupStates>()
+  it('when setup returns void, falls back to any setupState', () => {
+    const setup = (): void => {}
 
-    const _c2 = defineComponent({ async setup() {} })
-    expectTypeOf<WrapperSetupStates<typeof _c2>>().toEqualTypeOf<ExpectedSetupStates>()
+    type Expected = ExpectedSetupStates
+
+    const _c1 = defineComponent({ setup })
+    expectTypeOf<WrapperSetupStates<typeof _c1>>().toEqualTypeOf<Expected>()
+
+    const _c2 = defineComponent({ setup: async () => setup() })
+    expectTypeOf<WrapperSetupStates<typeof _c2>>().toEqualTypeOf<Expected>()
   })
 
-  it('conditional setup state', async () => {
-    const setup = (props: unknown) => {
+  it('when setup returns undefined, falls back to any setupState', () => {
+    const setup = (): undefined => {}
+
+    type Expected = ExpectedSetupStates
+
+    const _c1 = defineComponent({ setup })
+    expectTypeOf<WrapperSetupStates<typeof _c1>>().toEqualTypeOf<Expected>()
+
+    const _c2 = defineComponent({ setup: async () => setup() })
+    expectTypeOf<WrapperSetupStates<typeof _c2>>().toEqualTypeOf<Expected>()
+  })
+
+  it('when setup returns a union of states, keeps the union in setupState', async () => {
+    const setup = (props: object) => {
       const method = () => '' as string
       return props
         ? {
@@ -265,7 +281,7 @@ describe('wrapper.setupState', () => {
     expectTypeOf<WrapperSetupStates<typeof _c2>>().toEqualTypeOf<Expected>()
   })
 
-  it('conditional undefined in setup state', async () => {
+  it('when setup may return undefined, makes setupState partial', async () => {
     const setup = (props: unknown) => {
       if (!props) return
       return {
@@ -286,15 +302,23 @@ describe('wrapper.setupState', () => {
     expectTypeOf<WrapperSetupStates<typeof _c2>>().toEqualTypeOf<Expected>()
   })
 
-  it('render function component', () => {
-    const fn = () => {
+  it('when setup returns a render function, falls back to any setupState', () => {
+    const setup = () => {
       const message = ref('hello')
       return () => h('div', message.value)
     }
 
-    expectTypeOf<WrapperSetupStates<typeof fn>>().toEqualTypeOf<ExpectedSetupStates>()
+    type Expected = ExpectedSetupStates
 
-    const _c = defineComponent(fn)
-    expectTypeOf<WrapperSetupStates<typeof _c>>().toEqualTypeOf<ExpectedSetupStates>()
+    expectTypeOf<WrapperSetupStates<typeof setup>>().toEqualTypeOf<Expected>()
+
+    const _c1 = defineComponent(setup)
+    expectTypeOf<WrapperSetupStates<typeof _c1>>().toEqualTypeOf<Expected>()
+
+    const _c2 = defineComponent({ setup })
+    expectTypeOf<WrapperSetupStates<typeof _c2>>().toEqualTypeOf<Expected>()
+
+    const _c3 = defineComponent({ render: setup })
+    expectTypeOf<WrapperSetupStates<typeof _c3>>().toEqualTypeOf<Expected>()
   })
 })
