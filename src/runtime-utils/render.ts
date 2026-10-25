@@ -5,7 +5,7 @@ import type { render } from '@testing-library/vue'
 
 type WrapperFn<C> = typeof render<C>
 type WrapperOptions<C> = WrapperSuspendedOptions<WrapperFn<C>>
-type WrapperResult<C> = WrapperSuspendedResult<WrapperFn<C>>
+type WrapperResult<C> = WrapperSuspendedResult<WrapperFn<C>, C>
 
 /**
  * `renderSuspended` allows you to mount any vue component within the Nuxt environment, allowing async setup and access to injections from your Nuxt plugins.

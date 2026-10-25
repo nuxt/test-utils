@@ -649,7 +649,7 @@ describe('mountSuspended() compatible to mount()', () => {
 
   it('getCurrentComponent().proxy for compatibity for nuxt/test-utils v3.20.0', async () => {
     const wrapper = await mountSuspended(CompostionApi)
-    const proxy = wrapper.getCurrentComponent().proxy as typeof wrapper.setupState
+    const proxy = wrapper.getCurrentComponent().proxy as unknown as typeof wrapper.setupState
 
     expect(proxy.disabled.value).toBe(false)
     expect(proxy.getValue()).toBe('')

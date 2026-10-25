@@ -4,7 +4,7 @@ import type { WrapperSuspendedOptions, WrapperSuspendedResult } from './utils/su
 
 type WrapperFn<C> = typeof wrapperFn<C>
 type WrapperOptions<C> = WrapperSuspendedOptions<WrapperFn<C>>
-type WrapperResult<C> = WrapperSuspendedResult<WrapperFn<C>>
+type WrapperResult<C> = WrapperSuspendedResult<WrapperFn<C>, C>
 
 /**
  * `mountSuspended` allows you to mount any vue component within the Nuxt environment, allowing async setup and access to injections from your Nuxt plugins. For example:

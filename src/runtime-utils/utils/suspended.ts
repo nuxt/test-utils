@@ -1,6 +1,6 @@
 import { vi } from 'vitest'
 import { Suspense, effectScope, h, nextTick, reactive, getCurrentInstance, onErrorCaptured } from 'vue'
-import type { App, ComponentInternalInstance, DefineComponent, SetupContext, VNode } from 'vue'
+import type { App, ComponentInternalInstance, DefineComponent, RenderFunction, SetupContext, VNode } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
 import type { ComponentMountingOptions } from '@vue/test-utils'
 
@@ -9,9 +9,28 @@ import NuxtRoot from '#build/root-component.mjs'
 
 import { RouterLink } from '../components/RouterLink.ts'
 
-// TODO: improve return types
+// TODO: improve return types for sfc component's non-exposed states
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type SetupState = Record<string, any>
+type AnySetupState = Record<string, any>
+
+type GetDefinedSetupState<
+  Component,
+  SetupReturn = Component extends { setup?: (...args: infer _) => infer R } ? Awaited<R> : never,
+  IsOptionalReturn = [Extract<SetupReturn, undefined>] extends [never] ? false : true,
+  DefinedSetupState = Exclude<SetupReturn, void | RenderFunction>,
+> = IsOptionalReturn extends true
+  ? Partial<DefinedSetupState>
+  : DefinedSetupState
+
+type GetSetupState<
+  Component,
+  DefinedSetupState = GetDefinedSetupState<Component>,
+> = [DefinedSetupState] extends [never]
+  ? AnySetupState
+  : DefinedSetupState
+
+export type SetupState<C = unknown> = GetSetupState<C> & AnySetupState
 
 type BaseOptions<C> = Pick<ComponentMountingOptions<C>, 'global'>
 
@@ -59,11 +78,11 @@ export type WrapperSuspendedAdditionalOptions = {
 
 export type WrapperSuspendedOptions<Fn> = WrapperFnOption<Fn> & WrapperSuspendedAdditionalOptions
 
-export type WrapperSuspendedResult<Fn> = WrapperFnResult<Fn> & {
+export type WrapperSuspendedResult<Fn, C> = WrapperFnResult<Fn> & {
   /**
    * The return value of the component setup.
    */
-  setupState: SetupState
+  setupState: SetupState<C>
 }
 
 export function cleanupAll() {
@@ -115,7 +134,7 @@ export function wrapperSuspended<
     stubRouterLink?: boolean
   },
 ): Promise<{
-  wrapper: WrapperSuspendedResult<Fn>
+  wrapper: WrapperSuspendedResult<Fn, C>
   setProps: (props: object) => void
   /**
    * Stop only the effect scopes created by this call, leaving those of other mounted components
@@ -150,7 +169,7 @@ export function wrapperSuspended<
 
   let wrappedInstance: ComponentInternalInstance | null = null
   let setupContext: SetupContext
-  let setupState: SetupState = {}
+  let setupState = {}
 
   const setProps = reactive<Record<string, unknown>>({})
 
@@ -256,7 +275,7 @@ export function wrapperSuspended<
                 if (isMountSettled) return
                 isMountSettled = true
 
-                wrapper.setupState = setupState
+                wrapper.setupState = setupState as SetupState<C>
 
                 resolve({
                   wrapper,
@@ -293,7 +312,7 @@ export function wrapperSuspended<
           },
         }),
       },
-    ) as WrapperSuspendedResult<Fn>
+    ) as WrapperSuspendedResult<Fn, C>
   })
 }
 
