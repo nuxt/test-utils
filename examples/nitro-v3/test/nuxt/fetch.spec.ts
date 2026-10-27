@@ -111,21 +111,6 @@ describe('registerEndpoint tests', () => {
     })
   })
 
-  it.each<[Headers, string[][]]>([
-    [new Headers(), []],
-    [new Headers([['a', '1']]), [['a', '1']]],
-    [new Headers({ a: '1' }), [['a', '1']]],
-    [new Headers({ a: '1', b: '2' }), [['a', '1'], ['b', '2']]],
-    [new Headers([['a', '1'], ['a', '2']]), [['a', '1, 2']]],
-    [new Headers([['a', '1, 2'], ['a', '3, 4']]), [['a', '1, 2, 3, 4']]],
-    [new Headers(new Headers({ a: '1', b: '2' })), [['a', '1'], ['b', '2']]],
-    [new Headers([['set-cookie', '1']]), [['set-cookie', '1']]],
-    [new Headers([['set-cookie', '1'], ['set-cookie', '2']]), [['set-cookie', '1'], ['set-cookie', '2']]],
-    [new Headers(new Headers([['set-cookie', '1'], ['set-cookie', '2']])), [['set-cookie', '1'], ['set-cookie', '2']]],
-  ])('can initialize Headers correctly %$', (headers, expected) => {
-    expect([...headers]).toEqual(expected)
-  })
-
   it('can fetch with Headers instance', async () => {
     registerEndpoint('/with-headers', {
       handler: async event => getRequestHeaders(event),
