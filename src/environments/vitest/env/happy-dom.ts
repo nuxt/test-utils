@@ -6,11 +6,13 @@ export default <EnvironmentNuxt> async function (_, { happyDom = {} }) {
 
   const win = window as NuxtWindow
 
-  const { Headers: HappyDomHeaders } = win
+  const { Headers: NaviveHeaders } = globalThis
 
-  win.Headers = class Headers extends HappyDomHeaders {
+  // We do not populate happy-dom's Headers, but we use it for $fetch as well.
+  win.Headers = class Headers extends win.Headers {
     constructor(init?: HeadersInit) {
-      if (init && Symbol.iterator in init && !(init instanceof HappyDomHeaders)) {
+      // happy-dom's Headers copies object with Object.keys(), which loses native Headers.
+      if (init && init instanceof NaviveHeaders) {
         super([...init])
       }
       else {
