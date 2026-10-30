@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { enableAutoUnmount } from '@vue/test-utils'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 
-import App from '~~/app.vue'
+import App from '~/app.vue'
 import { Counter } from '#components'
 
 describe('mountSuspended', () => {

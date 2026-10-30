@@ -6,7 +6,7 @@ import { render } from '@nuxt/test-utils/browser'
 import { defineComponent, h } from '#imports'
 import { Counter } from '#components'
 
-import App from '~~/app.vue'
+import App from '~/app.vue'
 
 describe('render', () => {
   it('can render', async () => {
