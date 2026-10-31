@@ -176,6 +176,13 @@ describe('server mocks and data fetching', () => {
       handler: async event => getHeaders(event),
     })
 
+    registerEndpoint('/with-headers-and-body', {
+      handler: async event => ({
+        headers: getHeaders(event),
+        body: await readBody(event),
+      }),
+    })
+
     expect(await $fetch('/with-headers', {
       headers: new Headers([['x-test', 'test']]),
     })).toMatchObject({ 'x-test': 'test' })
@@ -184,11 +191,14 @@ describe('server mocks and data fetching', () => {
       headers: new Headers([['x-test', 'test']]),
     }).then(r => r.json())).toMatchObject({ 'x-test': 'test' })
 
-    expect(await $fetch('/with-headers', {
+    expect(await $fetch('/with-headers-and-body', {
       method: 'post',
       headers: new Headers([['x-test', 'test']]),
       body: { a: 1 },
-    })).toMatchObject({ 'x-test': 'test', 'content-type': 'application/json' })
+    })).toMatchObject({
+      body: { a: 1 },
+      headers: { 'x-test': 'test', 'content-type': 'application/json' },
+    })
 
     expect(await $fetch.create({
       headers: new Headers({ 'x-test1': 'test1' }),
