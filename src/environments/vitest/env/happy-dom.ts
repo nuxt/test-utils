@@ -4,7 +4,9 @@ export default <EnvironmentNuxt> async function (_, { happyDom = {} }) {
   const { Window, GlobalWindow, PropertySymbol } = await import('happy-dom')
   const window = new (GlobalWindow || Window)(happyDom) as InstanceType<typeof GlobalWindow> & NuxtWindow
 
-  (window as NuxtWindow).Headers = class Headers extends globalThis.Headers {
+  const { Headers: NativeHeaders } = globalThis
+
+  class Headers extends NativeHeaders {
     // Make native Headers behave like happy-dom's Headers
     public get [PropertySymbol.entries]() {
       const entries: { [k: string]: { name: string, value: string[] } } = Object.create(null)
@@ -13,9 +15,21 @@ export default <EnvironmentNuxt> async function (_, { happyDom = {} }) {
         entries[name] ||= { name, value: [] }
         entries[name].value.push(val)
       }
-      return entries
+      return new Proxy(entries, {
+        deleteProperty: (_, property) => {
+          Reflect.deleteProperty(entries, property)
+          this.delete(String(property))
+          return true
+        },
+      })
+    }
+
+    static override [Symbol.hasInstance](value: unknown): boolean {
+      return value instanceof NativeHeaders
     }
   }
+
+  (window as NuxtWindow).Headers = Headers
 
   return {
     window,

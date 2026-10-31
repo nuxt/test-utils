@@ -150,8 +150,25 @@ describe('server mocks and data fetching', () => {
     [new Headers([['set-cookie', '1']]), [['set-cookie', '1']]],
     [new Headers([['set-cookie', '1'], ['set-cookie', '2']]), [['set-cookie', '1'], ['set-cookie', '2']]],
     [new Headers(new Headers([['set-cookie', '1'], ['set-cookie', '2']])), [['set-cookie', '1'], ['set-cookie', '2']]],
-  ])('Headers correctly %$', (headers, expected) => {
+  ])('can initialize Headers correctly %$', (headers, expected) => {
     expect([...headers]).toEqual(expected)
+  })
+
+  it('can check instanceof Headers', async () => {
+    registerEndpoint('/test-instanceof', () => '')
+
+    expect(new Request('').headers instanceof Headers).toBe(true)
+    expect(new Response().headers instanceof Headers).toBe(true)
+    expect({} instanceof Headers).toBe(false)
+
+    let headers!: Headers
+    await $fetch('/test-instanceof', {
+      onRequest({ options }) {
+        headers = options.headers
+      },
+    })
+
+    expect(headers instanceof Headers).toBe(true)
   })
 
   it('can fetch with Headers instance', async () => {
@@ -185,18 +202,14 @@ describe('server mocks and data fetching', () => {
       headers: { 'x-test2': 'test2' },
     })).toMatchObject({ 'x-test1': 'test1', 'x-test2': 'test2' })
 
-    let headers!: Headers
     expect(await $fetch.create({
       onRequest({ options }) {
-        headers = options.headers
         options.headers.append('x-test1', 'test1')
         options.headers.append('x-test2', 'default')
       },
     })('/with-headers', {
       headers: { 'x-test2': 'test2' },
     })).toMatchObject({ 'x-test1': 'test1', 'x-test2': 'test2, default' })
-
-    expect(headers instanceof Headers).toBe(true)
   })
 
   it('can mock fetch requests with query', async () => {
