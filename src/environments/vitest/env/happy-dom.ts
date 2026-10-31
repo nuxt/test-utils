@@ -1,23 +1,19 @@
 import type { EnvironmentNuxt, NuxtWindow } from '../types.ts'
 
 export default <EnvironmentNuxt> async function (_, { happyDom = {} }) {
-  const { Window, GlobalWindow } = await import('happy-dom')
+  const { Window, GlobalWindow, PropertySymbol } = await import('happy-dom')
   const window = new (GlobalWindow || Window)(happyDom) as InstanceType<typeof GlobalWindow> & NuxtWindow
 
-  const win = window as NuxtWindow
-
-  const { Headers: NaviveHeaders } = globalThis
-
-  // We do not populate happy-dom's Headers, but we use it for $fetch as well.
-  win.Headers = class Headers extends win.Headers {
-    constructor(init?: HeadersInit) {
-      // happy-dom's Headers copies object with Object.keys(), which loses native Headers.
-      if (init && init instanceof NaviveHeaders) {
-        super([...init])
+  (window as NuxtWindow).Headers = class Headers extends globalThis.Headers {
+    // Make native Headers behave like happy-dom's Headers
+    public get [PropertySymbol.entries]() {
+      const entries: { [k: string]: { name: string, value: string[] } } = Object.create(null)
+      for (const [key, val] of this) {
+        const name = key.toLowerCase()
+        entries[name] ||= { name, value: [] }
+        entries[name].value.push(val)
       }
-      else {
-        super(init)
-      }
+      return entries
     }
   }
 
