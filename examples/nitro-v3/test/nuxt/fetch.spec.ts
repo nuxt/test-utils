@@ -111,6 +111,72 @@ describe('registerEndpoint tests', () => {
     })
   })
 
+  it('can fetch with Headers instance', async () => {
+    registerEndpoint('/with-headers', {
+      handler: async event => getRequestHeaders(event),
+    })
+
+    registerEndpoint('/with-headers-and-body', {
+      handler: async event => ({
+        headers: getRequestHeaders(event),
+        body: await readBody(event),
+      }),
+    })
+
+    expect(await $fetch('/with-headers', {
+      headers: new Headers([['x-test', 'test']]),
+    })).toMatchObject({ 'x-test': 'test' })
+
+    expect(await fetch('/with-headers', {
+      headers: new Headers([['x-test', 'test']]),
+    }).then(r => r.json())).toMatchObject({ 'x-test': 'test' })
+
+    expect(await $fetch('/with-headers-and-body', {
+      method: 'post',
+      headers: new Headers([['x-test', 'test']]),
+      body: { a: 1 },
+    })).toMatchObject({
+      body: { a: 1 },
+      headers: { 'x-test': 'test', 'content-type': 'application/json' },
+    })
+
+    expect(await fetch('/with-headers-and-body', {
+      method: 'post',
+      headers: new Headers([['x-test', 'test'], ['content-type', 'application/json']]),
+      body: JSON.stringify({ a: 1 }),
+    }).then(r => r.json())).toMatchObject({
+      body: { a: 1 },
+      headers: { 'x-test': 'test', 'content-type': 'application/json' },
+    })
+
+    expect(await $fetch.create({
+      headers: new Headers({ 'x-test1': 'test1' }),
+    })('/with-headers', {
+      headers: new Headers({ 'x-test2': 'test2' }),
+    })).toMatchObject({ 'x-test1': 'test1', 'x-test2': 'test2' })
+
+    expect(await $fetch.create({
+      headers: { 'x-test1': 'test1' },
+    })('/with-headers', {
+      headers: new Headers({ 'x-test2': 'test2' }),
+    })).toMatchObject({ 'x-test1': 'test1', 'x-test2': 'test2' })
+
+    expect(await $fetch.create({
+      headers: new Headers({ 'x-test1': 'test1' }),
+    })('/with-headers', {
+      headers: { 'x-test2': 'test2' },
+    })).toMatchObject({ 'x-test1': 'test1', 'x-test2': 'test2' })
+
+    expect(await $fetch.create({
+      onRequest({ options }) {
+        options.headers.append('x-test1', 'test1')
+        options.headers.append('x-test2', 'default')
+      },
+    })('/with-headers', {
+      headers: { 'x-test2': 'test2' },
+    })).toMatchObject({ 'x-test1': 'test1', 'x-test2': 'test2, default' })
+  })
+
   it('can mock fetch requests with query', async () => {
     registerEndpoint('/with-data', {
       method: 'GET',
