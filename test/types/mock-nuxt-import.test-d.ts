@@ -1,4 +1,5 @@
-import { describe, it, expectTypeOf } from 'vitest'
+import { describe, it, expectTypeOf, vi } from 'vitest'
+import type { Mock } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 describe('mockNuxtImport', () => {
@@ -80,6 +81,31 @@ describe('mockNuxtImport', () => {
       mockNuxtImport(useRoute, _ => '')
       // @ts-expect-error return type is not correct
       mockNuxtImport(useRoute, _ => () => ({}))
+    })
+  })
+
+  describe('return value', () => {
+    it('returns the mock created by the factory', () => {
+      const mock = vi.fn(() => 'mocked')
+      expectTypeOf(mockNuxtImport('useRoute', () => mock)).toEqualTypeOf(mock)
+      expectTypeOf(mockNuxtImport<typeof useRoute>('useRoute', original => original)).toEqualTypeOf<typeof useRoute>()
+      expectTypeOf(mockNuxtImport(useRoute, original => vi.fn(original))).toEqualTypeOf<Mock<typeof useRoute>>()
+      expectTypeOf(mockNuxtImport(useRoute, original => Promise.resolve(vi.fn(original)))).toEqualTypeOf<Mock<typeof useRoute>>()
+    })
+
+    it('returns the mock with type parameters', () => {
+      // TypeScript cannot partially infer type arguments, so with only `T` given the return type is `T`
+      expectTypeOf(mockNuxtImport<typeof useRoute>('useRoute', () => vi.fn<typeof useRoute>())).toEqualTypeOf<typeof useRoute>()
+
+      const useRouteMock = mockNuxtImport<typeof useRoute, Mock<typeof useRoute>>('useRoute', () => vi.fn())
+      expectTypeOf(useRouteMock).toEqualTypeOf<Mock<typeof useRoute>>()
+      expectTypeOf(useRouteMock.mockReturnValue).toBeFunction()
+
+      expectTypeOf(mockNuxtImport<typeof useRoute, Mock<typeof useRoute>>('useRoute', original => vi.fn(original))).toEqualTypeOf<Mock<typeof useRoute>>()
+      expectTypeOf(mockNuxtImport<typeof useRoute, Mock<typeof useRoute>>('useRoute', original => Promise.resolve(vi.fn(original)))).toEqualTypeOf<Mock<typeof useRoute>>()
+
+      // @ts-expect-error return type is not correct
+      mockNuxtImport<typeof useRoute, Mock<typeof useRoute>>('useRoute', () => () => '')
     })
   })
 })

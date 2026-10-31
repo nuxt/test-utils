@@ -95,6 +95,20 @@ describe('mocking', () => {
       `)).toMatchInlineSnapshot(expected)
     })
 
+    it('should replace the call with the mock when its return value is used', async () => {
+      pluginContext.imports = [{
+        name: 'useSomeExport',
+        from: 'bob',
+      }]
+      const code = await getResult(`
+        import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+        const useSomeExportMock = mockNuxtImport('useSomeExport', () => vi.fn())
+      `)
+      expect(code).toContain('const useSomeExportMock = globalThis.__NUXT_VITEST_MOCKS["bob"]["useSomeExport"]')
+      expect(code).toContain('globalThis.__NUXT_VITEST_MOCKS["bob"]["useSomeExport"] = await (() => vi.fn())(')
+      expect(code).not.toContain('mockNuxtImport(')
+    })
+
     it('should not add `vi` import if it already exists', async () => {
       pluginContext.imports = [{
         name: 'useSomeExport',
