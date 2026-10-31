@@ -200,6 +200,15 @@ describe('server mocks and data fetching', () => {
       headers: { 'x-test': 'test', 'content-type': 'application/json' },
     })
 
+    expect(await fetch('/with-headers-and-body', {
+      method: 'post',
+      headers: new Headers([['x-test', 'test'], ['content-type', 'application/json']]),
+      body: JSON.stringify({ a: 1 }),
+    }).then(r => r.json())).toMatchObject({
+      body: { a: 1 },
+      headers: { 'x-test': 'test', 'content-type': 'application/json' },
+    })
+
     expect(await $fetch.create({
       headers: new Headers({ 'x-test1': 'test1' }),
     })('/with-headers', {
