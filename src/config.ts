@@ -158,13 +158,18 @@ export async function getVitestConfigFromNuxt(
   const h3Version = h3Info?.version ?? 1
   const h3Entry = h3Info && resolveModulePath(h3Version === 2 ? 'h3/generic' : 'h3', { from: `${h3Info.rootPath}/`, try: true })
 
+  const define = {
+    'process.env.NODE_ENV': '"test"',
+    '__NUXT_VITEST_RESOLVED__': 'true',
+  }
+
   const resolver = createResolver(import.meta.url)
   const resolvedConfig = defu(
     // overrides
     {
-      define: {
-        'process.env.NODE_ENV': '"test"',
-        '__NUXT_VITEST_RESOLVED__': 'true',
+      define,
+      ...options.viteConfig.environments?.client && {
+        environments: { client: { define } },
       },
       resolve: {
         alias: {
