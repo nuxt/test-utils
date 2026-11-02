@@ -174,20 +174,13 @@ export async function getVitestConfigFromNuxt(
         },
       },
       optimizeDeps: {
-        ...vitestMajor >= 5 && testConfig.browser?.enabled
-          ? {
-              // Browser mode in vitest 5 reuses the project's Vite server: dependency
-              // discovery must stay on so vitest's CJS internals are prebundled, and deps
-              // imported through nuxt virtual modules are listed upfront because they
-              // can't be found by vite automatically which reloads the page.
-              // We leave `noDiscovery` unchanged to respect vitest defaults and user config.
-              include: ['@testing-library/vue', '#nuxt-test-utils/h3'],
-              // aliased to mocks, excluded from pre-bundling to avoid runtime discovery
-              exclude: ['@vue/devtools-kit', '@vue/devtools-core'],
-            }
-          : {
-              noDiscovery: true,
-            },
+        // in browser mode, deps discovered mid-run change the optimizer hash and duplicate loaded modules
+        noDiscovery: true,
+        ...vitestMajor >= 5 && testConfig.browser?.enabled && {
+          include: ['@testing-library/vue', '#nuxt-test-utils/h3'],
+          // aliased to mocks
+          exclude: ['@vue/devtools-kit', '@vue/devtools-core'],
+        },
       },
       test: {
         environmentOptions: {
