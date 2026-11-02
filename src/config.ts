@@ -174,13 +174,15 @@ export async function getVitestConfigFromNuxt(
         },
       },
       optimizeDeps: {
-        // in browser mode, deps discovered mid-run change the optimizer hash and duplicate loaded modules
-        noDiscovery: true,
-        ...vitestMajor >= 5 && testConfig.browser?.enabled && {
-          include: ['@testing-library/vue', '#nuxt-test-utils/h3'],
-          // aliased to mocks
-          exclude: ['@vue/devtools-kit', '@vue/devtools-core'],
-        },
+        ...vitestMajor >= 5 && testConfig.browser?.enabled
+          ? {
+              include: ['@testing-library/vue', '#nuxt-test-utils/h3'],
+              // aliased to mocks
+              exclude: ['@vue/devtools-kit', '@vue/devtools-core'],
+            }
+          : {
+              noDiscovery: true,
+            },
       },
       test: {
         environmentOptions: {
@@ -284,6 +286,10 @@ export async function getVitestConfigFromNuxt(
     options.viteConfig,
     // (overrideable) defaults
     {
+      ...vitestMajor >= 5 && testConfig.browser?.enabled && {
+        // deps discovered mid-run change the optimizer hash and duplicate loaded modules
+        optimizeDeps: { noDiscovery: true },
+      },
       test: {
         environmentOptions: {
           nuxt: {

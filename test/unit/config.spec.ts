@@ -54,4 +54,30 @@ describe('getVitestConfigFromNuxt', () => {
       public: { debug: { hydration: true } },
     })
   })
+
+  it('should disable dependency discovery in browser mode unless set in the nuxt config', async () => {
+    const nuxt = {
+      options: {
+        appDir: process.cwd(),
+        modulesDir: [process.cwd()],
+        runtimeConfig: {},
+        routeRules: {},
+        app: {},
+        build: { transpile: [] },
+      },
+    } as unknown as Nuxt
+    const userConfig = { test: { browser: { enabled: true } } }
+
+    const config = await getVitestConfigFromNuxt({
+      nuxt,
+      viteConfig: { plugins: [] } as unknown as ViteConfig,
+    }, {}, userConfig)
+    expect(config.optimizeDeps!.noDiscovery).toBe(true)
+
+    const configWithDiscovery = await getVitestConfigFromNuxt({
+      nuxt,
+      viteConfig: { plugins: [], optimizeDeps: { noDiscovery: false } } as unknown as ViteConfig,
+    }, {}, userConfig)
+    expect(configWithDiscovery.optimizeDeps!.noDiscovery).toBe(false)
+  })
 })
