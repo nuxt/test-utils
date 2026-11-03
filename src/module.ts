@@ -6,6 +6,7 @@ import { isCI } from 'std-env'
 
 import { setupImportMocking } from './module/mock.ts'
 import { NuxtRootStubPlugin } from './module/plugins/entry.ts'
+import { removeAttrsNodeTransform } from './module/plugins/remove-attrs.ts'
 import { runInstallWizard } from './module/install-wizard.ts'
 import { loadKit, resolveH3Package } from './utils.ts'
 import { setupDevTools } from './devtools.ts'
@@ -17,6 +18,30 @@ export interface NuxtVitestOptions {
   startOnBoot?: boolean
   logToConsole?: boolean
   vitestConfig?: VitestConfig
+  /**
+   * Remove testId attribute (case-insensitive) from Vue `<template>` at compile time.
+   * - `true`: remove `data-testid`
+   * - `string`: pass an attribute name to remove.
+   * - `false`: disable this feature.
+   *
+   * @example
+   * ```ts
+   * // nuxt.config.ts
+   * export default defineNuxtConfig({
+   *   modules: ['@nuxt/test-utils/module'],
+   *   $production: {
+   *     testUtils: {
+   *       // Remove `data-testid` in production builds
+   *       removeTestIdAttribute: true,
+   *       // Or specify custom attribute
+   *       // removeTestIdAttribute: 'data-cy',
+   *     },
+   *   },
+   * })
+   * ```
+   * @default false
+   */
+  removeTestIdAttribute?: boolean | string
   /** @internal */
   _fromVitestConfig?: boolean
 }
@@ -30,6 +55,7 @@ export default defineNuxtModule<NuxtVitestOptions>({
   defaults: {
     startOnBoot: false,
     logToConsole: false,
+    removeTestIdAttribute: false,
   },
   async onInstall(nuxt) {
     await runInstallWizard(nuxt)
@@ -109,6 +135,25 @@ export default defineNuxtModule<NuxtVitestOptions>({
         }
       }
     })
+
+    // Remove testId attribute
+    if (options.removeTestIdAttribute) {
+      const testIdAttr = options.removeTestIdAttribute === true ? 'data-testid' : options.removeTestIdAttribute
+      const transform = removeAttrsNodeTransform([testIdAttr])
+      logger.info(`Remove testIdAttribute '${testIdAttr}' enabled.`)
+      nuxt.hook('build:before', () => {
+        const template = (nuxt.options.vite.vue ||= {}).template ||= {}
+        template.compilerOptions = {
+          ...template.compilerOptions,
+          nodeTransforms: [...template.compilerOptions?.nodeTransforms || [], transform],
+        }
+        const loader = nuxt.options.webpack.loaders.vue
+        loader.compilerOptions = {
+          ...loader.compilerOptions,
+          nodeTransforms: [...loader.compilerOptions?.nodeTransforms || [], transform],
+        }
+      })
+    }
 
     if (!nuxt.options.dev) return
 

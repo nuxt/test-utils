@@ -1,0 +1,31 @@
+{
+  "name": "example-remove-testid",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "test": "pnpm run build:feature && pnpm run --sequential '/test:.*/'",
+    "test:vitest": "vitest run",
+    "test:playwright": "playwright test",
+    "build:feature": "pnpm run '/build:feature:.*/'",
+    "build:feature:enabled": "FEATURE=enabled nuxt build",
+    "build:feature:disabled": "FEATURE=disabled nuxt build --envName staging",
+    "build:feature:custom": "FEATURE=custom nuxt build --envName custom"
+  },
+  "dependencies": {
+    "nuxt": "4.6.3"
+  },
+  "devDependencies": {
+    "@nuxt/test-utils": "latest",
+    "@playwright/test": "1.64.1",
+    "@vue/test-utils": "2.5.1",
+    "happy-dom": "21.0.4",
+    "tinyglobby": "0.2.17",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
+  }
+}
