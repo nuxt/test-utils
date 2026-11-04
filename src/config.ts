@@ -158,13 +158,18 @@ export async function getVitestConfigFromNuxt(
   const h3Version = h3Info?.version ?? 1
   const h3Entry = h3Info && resolveModulePath(h3Version === 2 ? 'h3/generic' : 'h3', { from: `${h3Info.rootPath}/`, try: true })
 
+  const define = {
+    'process.env.NODE_ENV': '"test"',
+    '__NUXT_VITEST_RESOLVED__': 'true',
+  }
+
   const resolver = createResolver(import.meta.url)
   const resolvedConfig = defu(
     // overrides
     {
-      define: {
-        'process.env.NODE_ENV': '"test"',
-        '__NUXT_VITEST_RESOLVED__': 'true',
+      define,
+      ...options.viteConfig.environments?.client && {
+        environments: { client: { define } },
       },
       resolve: {
         alias: {
@@ -176,13 +181,8 @@ export async function getVitestConfigFromNuxt(
       optimizeDeps: {
         ...vitestMajor >= 5 && testConfig.browser?.enabled
           ? {
-              // Browser mode in vitest 5 reuses the project's Vite server: dependency
-              // discovery must stay on so vitest's CJS internals are prebundled, and deps
-              // imported through nuxt virtual modules are listed upfront because they
-              // can't be found by vite automatically which reloads the page.
-              // We leave `noDiscovery` unchanged to respect vitest defaults and user config.
               include: ['@testing-library/vue', '#nuxt-test-utils/h3'],
-              // aliased to mocks, excluded from pre-bundling to avoid runtime discovery
+              // aliased to mocks
               exclude: ['@vue/devtools-kit', '@vue/devtools-core'],
             }
           : {
@@ -291,6 +291,10 @@ export async function getVitestConfigFromNuxt(
     options.viteConfig,
     // (overrideable) defaults
     {
+      ...vitestMajor >= 5 && testConfig.browser?.enabled && {
+        // deps discovered mid-run change the optimizer hash and duplicate loaded modules
+        optimizeDeps: { noDiscovery: true },
+      },
       test: {
         environmentOptions: {
           nuxt: {
