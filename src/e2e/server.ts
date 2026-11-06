@@ -27,86 +27,106 @@ export interface StartServerOptions {
   logLevel?: number
 }
 
+const MAX_START_ATTEMPTS = 5
+
 export async function startServer(options: StartServerOptions = {}) {
   const ctx = useTestContext()
   await stopServer()
   if (ctx.disposed) {
     throw new Error('Test context has been torn down; refusing to start a server.')
   }
-  ctx.serverLogs = []
+
   const host = '127.0.0.1'
-  const port = ctx.options.port || (await getRandomPort(host))
-  ctx.url = `http://${host}:${port}/`
-  serverLogsCollected.delete(ctx)
   const capture = ctx.options.captureServerLogs !== false
   const stdio = capture ? 'pipe' : 'inherit'
   const logLevel = String(options.logLevel ?? ctx.options.logLevel)
-  const startedAt = Date.now()
-  if (ctx.options.dev) {
-    const rootDir = ctx.nuxt!.options.rootDir
-    ctx.serverProcess = x('node', [resolve(distDir, 'e2e/dev-server.mjs'), resolveNuxtCli(rootDir)], {
-      throwOnError: true,
-      nodeOptions: {
-        cwd: rootDir,
-        stdio,
-        env: {
-          ...process.env,
-          _PORT: String(port), // Used by internal _dev command
-          PORT: String(port),
-          HOST: host,
-          NODE_ENV: 'development',
-          CONSOLA_LEVEL: logLevel,
-          ...ctx.options.env,
-          ...options.env,
-          __NUXT_TEST_DEV_OVERRIDES__: serializeDevOverrides(ctx.options.nuxtConfig),
-        },
-      },
-    })
-  }
-  else {
-    // The `nitro` property is augmented onto NuxtOptions/NuxtConfig by
-    // `@nuxt/nitro-server`, which isn't a direct dependency.
-    type WithNitroOutput = { nitro?: { output?: { dir?: string } } }
-    const outputDir = ctx.nuxt
-      ? (ctx.nuxt.options as WithNitroOutput).nitro!.output!.dir!
-      : (ctx.options.nuxtConfig as WithNitroOutput).nitro!.output!.dir!
-    ctx.serverProcess = x(
-      'node',
-      [resolve(outputDir, 'server/index.mjs')],
-      {
+  let lastError: unknown
+
+  // The picked port can be taken by another process before the child binds, so
+  // retry a few times when the child reports the port was already in use.
+  for (let attempt = 0; attempt < MAX_START_ATTEMPTS; attempt++) {
+    const port = ctx.options.port || (await getRandomPort(host))
+    ctx.serverLogs = []
+    ctx.url = `http://${host}:${port}/`
+    serverLogsCollected.delete(ctx)
+    const startedAt = Date.now()
+    if (ctx.options.dev) {
+      const rootDir = ctx.nuxt!.options.rootDir
+      ctx.serverProcess = x('node', [resolve(distDir, 'e2e/dev-server.mjs'), resolveNuxtCli(rootDir)], {
         throwOnError: true,
         nodeOptions: {
+          cwd: rootDir,
           stdio,
           env: {
             ...process.env,
+            _PORT: String(port), // Used by internal _dev command
             PORT: String(port),
             HOST: host,
-            NODE_ENV: 'test',
+            NODE_ENV: 'development',
             CONSOLA_LEVEL: logLevel,
             ...ctx.options.env,
             ...options.env,
+            __NUXT_TEST_DEV_OVERRIDES__: serializeDevOverrides(ctx.options.nuxtConfig),
           },
         },
-      },
-    )
-  }
+      })
+    }
+    else {
+      // The `nitro` property is augmented onto NuxtOptions/NuxtConfig by
+      // `@nuxt/nitro-server`, which isn't a direct dependency.
+      type WithNitroOutput = { nitro?: { output?: { dir?: string } } }
+      const outputDir = ctx.nuxt
+        ? (ctx.nuxt.options as WithNitroOutput).nitro!.output!.dir!
+        : (ctx.options.nuxtConfig as WithNitroOutput).nitro!.output!.dir!
+      ctx.serverProcess = x(
+        'node',
+        [resolve(outputDir, 'server/index.mjs')],
+        {
+          throwOnError: true,
+          nodeOptions: {
+            stdio,
+            env: {
+              ...process.env,
+              PORT: String(port),
+              HOST: host,
+              NODE_ENV: 'test',
+              CONSOLA_LEVEL: logLevel,
+              ...ctx.options.env,
+              ...options.env,
+            },
+          },
+        },
+      )
+    }
 
-  if (capture) {
-    serverLogsCollected.set(ctx, (async () => {
-      for await (const line of ctx.serverProcess!) {
-        ctx.serverLogs.push(line)
+    if (capture) {
+      serverLogsCollected.set(ctx, (async () => {
+        for await (const line of ctx.serverProcess!) {
+          ctx.serverLogs.push(line)
+        }
+      })().catch(() => {}))
+    }
+
+    // The context can be disposed while a caller was still building, in which
+    // case the process we just spawned would be orphaned.
+    if (ctx.disposed) {
+      await stopServer()
+      throw new Error('Test context has been torn down; server was stopped again.')
+    }
+
+    try {
+      await waitForServer({ host, port, startedAt })
+      return
+    }
+    catch (error) {
+      lastError = error
+      if (ctx.options.port || !isPortInUseError(error, ctx)) {
+        throw error
       }
-    })().catch(() => {}))
+    }
   }
 
-  // The context can be disposed while a caller was still building, in which
-  // case the process we just spawned would be orphaned.
-  if (ctx.disposed) {
-    await stopServer()
-    throw new Error('Test context has been torn down; server was stopped again.')
-  }
-
-  await waitForServer({ host, port, startedAt })
+  throw lastError
 }
 
 function serializeDevOverrides(nuxtConfig: TestContext['options']['nuxtConfig']) {
@@ -174,6 +194,13 @@ function earlyExitError(ctx: TestContext, elapsed: number) {
     return new Error(`${message}\n(no output captured: \`captureServerLogs\` is disabled)`)
   }
   return new Error(`${message}\n(the server process produced no output)`)
+}
+
+function isPortInUseError(error: unknown, ctx: TestContext): boolean {
+  if (!(error instanceof Error)) {
+    return false
+  }
+  return /EADDRINUSE|address already in use|is already in use/i.test(`${error.message}\n${ctx.serverLogs.join('\n')}`)
 }
 
 async function waitForServer({ host, port, startedAt }: WaitForServerOptions) {
