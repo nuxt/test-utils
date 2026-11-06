@@ -133,7 +133,17 @@ export const createMockPlugin = (ctx: MockPluginContext) => createUnplugin(() =>
                 return this.error(`Cannot find import "${name}" to mock`)
               }
 
-              removeCallExpression(node.arguments[0]!, node.arguments[1]!)
+              if (isExpressionStatement(parent)) {
+                removeCallExpression(node.arguments[0]!, node.arguments[1]!)
+              }
+              else {
+                // the return value is used, so replace the call with a reference to the mock
+                s.overwrite(
+                  node.start,
+                  node.end,
+                  `globalThis.${HELPER_MOCK_HOIST}[${JSON.stringify(importItem.from)}][${JSON.stringify(importItem.name)}]`,
+                )
+              }
 
               mocksImport.push({
                 name,
