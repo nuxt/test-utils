@@ -44,6 +44,7 @@ export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
   window.scrollTo = () => {}
 
   window.URLSearchParams = globalThis.URLSearchParams
+  window.Headers = globalThis.Headers
 
   const { Blob: NodeBlob, File: NodeFile, FormData: NodeFormData } = globalThis
 
