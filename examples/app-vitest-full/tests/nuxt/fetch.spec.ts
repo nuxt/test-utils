@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 
@@ -154,12 +154,15 @@ describe('server mocks and data fetching', () => {
     expect([...headers]).toEqual(expected)
   })
 
-  it('can check instanceof Headers', async () => {
+  it('can check instanceof Fetch API globals', async () => {
     registerEndpoint('/test-instanceof', () => '')
 
     expect(new Request('').headers instanceof Headers).toBe(true)
     expect(new Response().headers instanceof Headers).toBe(true)
     expect({} instanceof Headers).toBe(false)
+
+    expect(new Request('') instanceof Request).toBe(true)
+    expect({} instanceof Request).toBe(false)
 
     let headers!: Headers
     await $fetch('/test-instanceof', {
@@ -286,6 +289,80 @@ describe('server mocks and data fetching', () => {
 
     expect(await $fetch(request, { method: 'POST', body: [1] })).toMatchObject({ title: 'with-request', data: [1] })
     expect(await fetch(request, { method: 'POST', body: '[1]' }).then(res => res.json())).toMatchObject({ title: 'with-request', data: [1] })
+
+    expect(await fetch(new Request('/with-request', {
+      method: 'POST',
+      body: '[1]',
+      headers: { 'content-type': 'application/json' },
+    })).then(res => res.json())).toMatchObject({ title: 'with-request', data: [1] })
+  })
+
+  describe('unregistered endpoints with Request', () => {
+    let server: Awaited<ReturnType<typeof listen>>
+    let url: string
+
+    beforeAll(async () => {
+      const app = createApp().use(
+        '/unregistered',
+        eventHandler(async event => ({
+          method: event.method,
+          header: getHeaders(event)['x-custom'],
+          body: event.method === 'POST' ? await readBody(event) : null,
+        })),
+      )
+      server = await listen(toNodeListener(app))
+      const urls = await server.getURLs()
+      url = new URL('/unregistered', urls[0]!.url).href
+    })
+
+    afterAll(async () => {
+      await server.close()
+    })
+
+    it('can pass GET Request to native fetch', async () => {
+      const res = await fetch(new Request(url, {
+        headers: { 'x-custom': 'get-val' },
+      }))
+      expect(await res.json()).toEqual({
+        method: 'GET',
+        header: 'get-val',
+        body: null,
+      })
+    })
+
+    it('can pass POST Request with body to native fetch', async () => {
+      const res = await fetch(new Request(url, {
+        method: 'POST',
+        headers: { 'x-custom': 'post-val', 'content-type': 'application/json' },
+        body: JSON.stringify({ hello: 'world' }),
+      }))
+      expect(await res.json()).toEqual({
+        method: 'POST',
+        header: 'post-val',
+        body: { hello: 'world' },
+      })
+    })
+
+    it('can abort Request passed to native fetch', async () => {
+      const controller = new AbortController()
+      controller.abort()
+      await expect(fetch(new Request(url, { signal: controller.signal }))).rejects.toThrow(/aborted/i)
+    })
+  })
+
+  it('resolves relative URLs of Request against the current location', () => {
+    const originalUrl = location.href
+    try {
+      history.pushState({}, '', '/a/b')
+
+      expect(new Request('/foo').url).toBe('http://localhost:3000/foo')
+      expect(new Request('foo').url).toBe('http://localhost:3000/a/foo')
+      expect(new Request('./foo?q=1').url).toBe('http://localhost:3000/a/foo?q=1')
+      expect(new Request('http://example.com/foo').url).toBe('http://example.com/foo')
+    }
+    finally {
+      history.pushState({}, '', originalUrl)
+    }
   })
 
   it('can mock fetch requests with FormData', async () => {

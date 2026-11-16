@@ -2,6 +2,7 @@ import type { DOMWindow, SupportedContentTypes, ConstructorOptions } from 'jsdom
 import defu from 'defu'
 import type { EnvironmentOptions } from 'vitest/node'
 import type { EnvironmentNuxt, NuxtWindow } from '../types.ts'
+import { createCompatRequest } from './shared.ts'
 
 export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
   const { CookieJar, JSDOM, ResourceLoader, VirtualConsole } = await import('jsdom') as typeof import('jsdom') & {
@@ -46,50 +47,20 @@ export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
   window.URLSearchParams = globalThis.URLSearchParams
   window.Headers = globalThis.Headers
 
-  const { Blob: NodeBlob, File: NodeFile, FormData: NodeFormData } = globalThis
-
   const getImplement = await loadGetImplement()
 
-  const toNodeBlobLike = (val: Blob | File) => {
-    // `_buffer` usage can be removed when dropping support for jsdom v27.x
-    const impl = getImplement<{ _bytes?: Uint8Array<ArrayBuffer>, _buffer?: Uint8Array<ArrayBuffer> }>(val)
-    const bytes = impl?._bytes ?? impl?._buffer
-    if (!bytes) {
-      throw createJsdomCompatError('Cannot read the bytes of Blob/File')
-    }
-    if (val instanceof window.File) {
-      const { name: filename, type, lastModified } = val
-      return new NodeFile([bytes], filename, { type, lastModified })
-    }
-    return new NodeBlob([bytes], { type: val.type })
-  }
-
-  const toNodePayload = (init?: RequestInit) => {
-    if (init?.body) {
-      if (init.body instanceof window.FormData) {
-        const form = new NodeFormData()
-        init.body.forEach((val, key) => {
-          form.append(key, val instanceof window.Blob ? toNodeBlobLike(val) : val)
-        })
-        return { ...init, body: form }
+  window.Request = createCompatRequest({
+    window: window as unknown as typeof globalThis,
+    toRequestBlobBytes: (blob) => {
+      // `_buffer` usage can be removed when dropping support for jsdom v27.x
+      const impl = getImplement<{ _bytes?: Uint8Array<ArrayBuffer>, _buffer?: Uint8Array<ArrayBuffer> }>(blob)
+      const bytes = impl?._bytes ?? impl?._buffer
+      if (!bytes) {
+        throw createJsdomCompatError('Cannot read the bytes of Blob/File')
       }
-      else if (init.body instanceof window.Blob) {
-        return { ...init, body: toNodeBlobLike(init.body) }
-      }
-    }
-    return init
-  }
-
-  window.Request = class Request extends globalThis.Request {
-    constructor(input: RequestInfo, init?: RequestInit) {
-      if (typeof input === 'string') {
-        super(new URL(input, window.location.origin), toNodePayload(init))
-      }
-      else {
-        super(input, toNodePayload(init))
-      }
-    }
-  }
+      return bytes
+    },
+  })
 
   return {
     window,

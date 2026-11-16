@@ -20,11 +20,14 @@ export async function createFetchForH3V1() {
       url = input.toString()
     }
     else {
+      const body = init?.body ?? input.body
       url = input.url
       init = {
         method: init?.method ?? input.method,
         body: init?.body ?? input.body,
         headers: init?.headers ?? input.headers,
+        signal: init?.signal !== undefined ? init.signal : input.signal,
+        ...(body ? { duplex: 'half' } : {}),
       }
     }
 
