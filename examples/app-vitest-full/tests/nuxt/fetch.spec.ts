@@ -531,4 +531,21 @@ describe('server mocks and data fetching', () => {
     expect(await $fetch('/endpoint/priority/2?q=1')).toBe('1')
     expect(await $fetch('/endpoint/priority/2?q=1')).toBe('1')
   })
+
+  it('delegates $fetch calls to the current window.fetch reference', async () => {
+    const spy = vi.spyOn(window, 'fetch').mockResolvedValueOnce(
+      new Response(JSON.stringify({ mocked: true }), {
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+
+    try {
+      expect(window).toBe(globalThis)
+      expect(await $fetch('/spied-fetch')).toEqual({ mocked: true })
+      expect(spy).toHaveBeenCalledTimes(1)
+    }
+    finally {
+      spy.mockRestore()
+    }
+  })
 })
