@@ -48,10 +48,17 @@ export default <EnvironmentNuxt> async function (global, { happyDom = {} }) {
     }
 
     override async formData(): Promise<FormData> {
+      const body = this.body ? await this.blob() : null
+      const contentType = this.headers.get('content-type')
+      if (body && contentType) {
+        // Older happy-dom reads Blob.type instead of the content-type header.
+        // Override Blob.type to keep the original boundary casing.
+        Object.defineProperty(body, 'type', { value: contentType })
+      }
       const formData = await new HappyDomRequest(this.url, {
         method: this.method,
         headers: new Headers(this.headers) as Headers & string[][],
-        body: this.body ? await this.blob() as never : null,
+        body: body as never,
       }).formData()
       return formData as unknown as FormData
     }
