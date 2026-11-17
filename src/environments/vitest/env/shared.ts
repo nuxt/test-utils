@@ -1,12 +1,10 @@
 export function createCompatRequest(
   {
     window,
-    toRequestBlobBytes,
-    toRequestedFormData,
+    toBlobBytes,
   }: {
     window: typeof globalThis
-    toRequestBlobBytes: (blob: Blob | File) => Uint8Array<ArrayBuffer>
-    toRequestedFormData?: (request: Request) => Promise<FormData>
+    toBlobBytes: (blob: Blob | File) => Uint8Array<ArrayBuffer>
   },
 ) {
   const {
@@ -17,7 +15,7 @@ export function createCompatRequest(
   } = globalThis
 
   const toNodeBlobLike = (blob: Blob | File) => {
-    const bytes = toRequestBlobBytes(blob)
+    const bytes = toBlobBytes(blob)
     if (blob instanceof window.File) {
       const { name: filename, type, lastModified } = blob
       return new NodeFile([bytes], filename, { type, lastModified })
@@ -51,11 +49,9 @@ export function createCompatRequest(
       }
     }
 
-    override async formData() {
-      if (toRequestedFormData) {
-        return toRequestedFormData(this)
-      }
-      return super.formData()
+    override clone() {
+      const Constructor = this.constructor as typeof Request
+      return new Constructor(super.clone())
     }
 
     static override [Symbol.hasInstance](value: unknown): boolean {

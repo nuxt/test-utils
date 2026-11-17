@@ -51,7 +51,7 @@ export default <EnvironmentNuxt> async function (global, { jsdom = {} }) {
 
   window.Request = createCompatRequest({
     window: window as unknown as typeof globalThis,
-    toRequestBlobBytes: (blob) => {
+    toBlobBytes: (blob) => {
       // `_buffer` usage can be removed when dropping support for jsdom v27.x
       const impl = getImplement<{ _bytes?: Uint8Array<ArrayBuffer>, _buffer?: Uint8Array<ArrayBuffer> }>(blob)
       const bytes = impl?._bytes ?? impl?._buffer

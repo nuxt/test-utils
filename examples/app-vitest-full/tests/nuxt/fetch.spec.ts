@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 
 import { listen } from 'listhen'
-import { createApp, eventHandler, toNodeListener, readBody, getHeaders, getQuery, setCookie, readFormData } from 'h3'
+import { createApp, eventHandler, toNodeListener, readBody, getHeaders, getQuery, setCookie, readFormData, setResponseHeader } from 'h3'
 
 import FetchComponent from '~/components/FetchComponent.vue'
 
@@ -13,7 +13,7 @@ describe('server mocks and data fetching', () => {
       '/todos/1',
       eventHandler(() => ({ id: 1 })),
     )
-    const server = await listen(toNodeListener(app))
+    const server = await listen(toNodeListener(app), { port: 0 })
     const urls = await server.getURLs()
     const { url } = urls[0]!
     expect(await $fetch('/todos/1', { baseURL: url })).toMatchObject({
@@ -310,7 +310,7 @@ describe('server mocks and data fetching', () => {
           body: event.method === 'POST' ? await readBody(event) : null,
         })),
       )
-      server = await listen(toNodeListener(app))
+      server = await listen(toNodeListener(app), { port: 0 })
       const urls = await server.getURLs()
       url = new URL('/unregistered', urls[0]!.url).href
     })
@@ -320,10 +320,9 @@ describe('server mocks and data fetching', () => {
     })
 
     it('can pass GET Request to native fetch', async () => {
-      const res = await fetch(new Request(url, {
+      expect(await fetch(new Request(url, {
         headers: { 'x-custom': 'get-val' },
-      }))
-      expect(await res.json()).toEqual({
+      })).then(res => res.json())).toEqual({
         method: 'GET',
         header: 'get-val',
         body: null,
@@ -331,12 +330,11 @@ describe('server mocks and data fetching', () => {
     })
 
     it('can pass POST Request with body to native fetch', async () => {
-      const res = await fetch(new Request(url, {
+      expect(await fetch(new Request(url, {
         method: 'POST',
         headers: { 'x-custom': 'post-val', 'content-type': 'application/json' },
         body: JSON.stringify({ hello: 'world' }),
-      }))
-      expect(await res.json()).toEqual({
+      })).then(res => res.json())).toEqual({
         method: 'POST',
         header: 'post-val',
         body: { hello: 'world' },
@@ -532,20 +530,110 @@ describe('server mocks and data fetching', () => {
     expect(await $fetch('/endpoint/priority/2?q=1')).toBe('1')
   })
 
-  it('delegates $fetch calls to the current window.fetch reference', async () => {
+  it('delegates $fetch calls to the current window.fetch reference', async ({ onTestFinished }) => {
     const spy = vi.spyOn(window, 'fetch').mockResolvedValueOnce(
       new Response(JSON.stringify({ mocked: true }), {
         headers: { 'content-type': 'application/json' },
       }),
     )
+    onTestFinished(() => spy.mockRestore())
 
-    try {
-      expect(window).toBe(globalThis)
-      expect(await $fetch('/spied-fetch')).toEqual({ mocked: true })
-      expect(spy).toHaveBeenCalledTimes(1)
-    }
-    finally {
-      spy.mockRestore()
-    }
+    expect(window).toBe(globalThis)
+    expect(await $fetch('/spied-fetch')).toEqual({ mocked: true })
+    expect(spy).toHaveBeenCalledTimes(1)
+  })
+
+  it('returns a window Blob from Request.blob()', async () => {
+    const request = new Request('/blob-request', {
+      method: 'POST',
+      body: 'hello',
+      headers: { 'content-type': 'text/plain' },
+    })
+
+    const blob = await request.blob()
+    expect(blob).toBeInstanceOf(Blob)
+    expect(blob.type).toBe('text/plain')
+    expect(await blob.text()).toBe('hello')
+
+    const formData = new FormData()
+    formData.append('file', blob, 'a.txt')
+    expect(formData.get('file')).toBeInstanceOf(File)
+  })
+
+  it('reads a window Blob when cloning a Request', async () => {
+    const request = new Request('/clone-blob-request', {
+      method: 'POST',
+      body: 'hello',
+      headers: { 'content-type': 'text/plain' },
+    })
+
+    const cloned = request.clone()
+    expect(request.bodyUsed).toBe(false)
+
+    // Cloned request can read its body as Blob
+    const clonedBlob = await cloned.blob()
+    expect(clonedBlob).toBeInstanceOf(Blob)
+    expect(clonedBlob.type).toBe('text/plain')
+    expect(await clonedBlob.text()).toBe('hello')
+
+    // Original request remains usable after reading the clone
+    expect(await request.text()).toBe('hello')
+  })
+
+  // Node's Request.formData() fails when FormData contains a File and globalThis.File is a non-Node File.
+  // happy-dom can delegate to its own Request.formData(), but jsdom does not implement Request.
+  it.skipIf(process.env.VITEST_DOM_ENV === 'jsdom')('preserves formData override when cloning a Request', async () => {
+    const body = new FormData()
+    body.append('file', new File(['hello'], 'hello.txt', { type: 'text/plain' }))
+
+    const request = new Request('/clone-form-request', {
+      method: 'POST',
+      body,
+    })
+
+    const cloned = request.clone()
+    expect(request.bodyUsed).toBe(false)
+
+    // Cloned request can read its body as FormData
+    const clonedForm = await cloned.formData()
+    const clonedFile = clonedForm.get('file') as File
+    expect(clonedFile).toBeInstanceOf(File)
+    expect(clonedFile.name).toBe('hello.txt')
+    expect(clonedFile.type).toBe('text/plain')
+    expect(await clonedFile.text()).toBe('hello')
+
+    // Original request remains usable after reading the clone
+    const originalForm = await request.formData()
+    const originalFile = originalForm.get('file') as File
+    expect(originalFile).toBeInstanceOf(File)
+    expect(originalFile.name).toBe('hello.txt')
+    expect(originalFile.type).toBe('text/plain')
+    expect(await originalFile.text()).toBe('hello')
+  })
+
+  it('keeps XMLHttpRequest compatible', async ({ onTestFinished }) => {
+    const app = createApp().use(
+      '/xhr',
+      eventHandler(async (event) => {
+        setResponseHeader(event, 'access-control-allow-origin', '*')
+        if (event.method === 'OPTIONS') {
+          return ''
+        }
+        return await readBody(event)
+      }),
+    )
+
+    const server = await listen(toNodeListener(app), { port: 0 })
+    onTestFinished(() => server.close())
+
+    const urls = await server.getURLs()
+
+    expect(await new Promise<string>((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open('POST', new URL('/xhr', urls[0]!.url).toString())
+      xhr.onload = () => resolve(xhr.responseText)
+      xhr.onerror = reject
+      xhr.send('hello')
+    })).toBe('hello')
   })
 })

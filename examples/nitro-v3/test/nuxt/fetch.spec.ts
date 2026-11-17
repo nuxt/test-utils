@@ -1,5 +1,5 @@
 import { createServer } from 'node:http'
-import { json as jsonConsumer } from 'node:stream/consumers'
+import streamConsumers from 'node:stream/consumers'
 import { registerEndpoint } from '@nuxt/test-utils/runtime'
 import { afterAll, beforeAll, it, expect, describe, vi } from 'vitest'
 
@@ -266,7 +266,7 @@ describe('registerEndpoint tests', () => {
         res.end(JSON.stringify({
           method: req.method,
           header: req.headers['x-custom'],
-          body: req.method === 'POST' ? await jsonConsumer(req) : null,
+          body: req.method === 'POST' ? await streamConsumers.json(req) : null,
         }))
       })
       await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve))
@@ -280,10 +280,9 @@ describe('registerEndpoint tests', () => {
     })
 
     it('can pass GET Request to native fetch', async () => {
-      const res = await fetch(new Request(url, {
+      expect(await fetch(new Request(url, {
         headers: { 'x-custom': 'get-val' },
-      }))
-      expect(await res.json()).toEqual({
+      })).then(res => res.json())).toEqual({
         method: 'GET',
         header: 'get-val',
         body: null,
@@ -291,12 +290,11 @@ describe('registerEndpoint tests', () => {
     })
 
     it('can pass POST Request with body to native fetch', async () => {
-      const res = await fetch(new Request(url, {
+      expect(await fetch(new Request(url, {
         method: 'POST',
         headers: { 'x-custom': 'post-val', 'content-type': 'application/json' },
         body: JSON.stringify({ hello: 'world' }),
-      }))
-      expect(await res.json()).toEqual({
+      })).then(res => res.json())).toEqual({
         method: 'POST',
         header: 'post-val',
         body: { hello: 'world' },
@@ -506,20 +504,106 @@ describe('registerEndpoint tests', () => {
     expect(await $fetch('/endpoint/priority/2?q=1')).toBe('1')
   })
 
-  it('delegates $fetch calls to the current window.fetch reference', async () => {
+  it('delegates $fetch calls to the current window.fetch reference', async ({ onTestFinished }) => {
     const spy = vi.spyOn(window, 'fetch').mockResolvedValueOnce(
       new Response(JSON.stringify({ mocked: true }), {
         headers: { 'content-type': 'application/json' },
       }),
     )
+    onTestFinished(() => spy.mockRestore())
 
-    try {
-      expect(window).toBe(globalThis)
-      expect(await $fetch('/spied-fetch')).toEqual({ mocked: true })
-      expect(spy).toHaveBeenCalledTimes(1)
-    }
-    finally {
-      spy.mockRestore()
-    }
+    expect(window).toBe(globalThis)
+    expect(await $fetch('/spied-fetch')).toEqual({ mocked: true })
+    expect(spy).toHaveBeenCalledTimes(1)
+  })
+
+  it('returns a window Blob from Request.blob()', async () => {
+    const request = new Request('/blob-request', {
+      method: 'POST',
+      body: 'hello',
+      headers: { 'content-type': 'text/plain' },
+    })
+
+    const blob = await request.blob()
+    expect(blob).toBeInstanceOf(Blob)
+    expect(blob.type).toBe('text/plain')
+    expect(await blob.text()).toBe('hello')
+
+    const formData = new FormData()
+    formData.append('file', blob, 'a.txt')
+    expect(formData.get('file')).toBeInstanceOf(File)
+  })
+
+  it('reads a window Blob when cloning a Request', async () => {
+    const request = new Request('/clone-blob-request', {
+      method: 'POST',
+      body: 'hello',
+      headers: { 'content-type': 'text/plain' },
+    })
+
+    const cloned = request.clone()
+    expect(request.bodyUsed).toBe(false)
+
+    // Cloned request can read its body as Blob
+    const clonedBlob = await cloned.blob()
+    expect(clonedBlob).toBeInstanceOf(Blob)
+    expect(clonedBlob.type).toBe('text/plain')
+    expect(await clonedBlob.text()).toBe('hello')
+
+    // Original request remains usable after reading the clone
+    expect(await request.text()).toBe('hello')
+  })
+
+  it('preserves formData override when cloning a Request', async () => {
+    const body = new FormData()
+    body.append('file', new File(['hello'], 'hello.txt', { type: 'text/plain' }))
+
+    const request = new Request('/clone-form-request', {
+      method: 'POST',
+      body,
+    })
+
+    const cloned = request.clone()
+    expect(request.bodyUsed).toBe(false)
+
+    // Cloned request can read its body as FormData
+    const clonedForm = await cloned.formData()
+    const clonedFile = clonedForm.get('file') as File
+    expect(clonedFile).toBeInstanceOf(File)
+    expect(clonedFile.name).toBe('hello.txt')
+    expect(clonedFile.type).toBe('text/plain')
+    expect(await clonedFile.text()).toBe('hello')
+
+    // Original request remains usable after reading the clone
+    const originalForm = await request.formData()
+    const originalFile = originalForm.get('file') as File
+    expect(originalFile).toBeInstanceOf(File)
+    expect(originalFile.name).toBe('hello.txt')
+    expect(originalFile.type).toBe('text/plain')
+    expect(await originalFile.text()).toBe('hello')
+  })
+
+  it('keeps XMLHttpRequest compatible', async ({ onTestFinished }) => {
+    const origin = await new Promise<string>((resolve) => {
+      const server = createServer(async (req, res) => {
+        res.setHeader('access-control-allow-origin', '*')
+        res.end(await streamConsumers.text(req))
+      }).listen(0, '127.0.0.1', () => {
+        onTestFinished(() => {
+          server.closeAllConnections()
+          return new Promise<void>(resolve => server.close(() => resolve()))
+        })
+        const { port } = server.address() as { port: number }
+        resolve(`http://127.0.0.1:${port}`)
+      })
+    })
+
+    expect(await new Promise<string>((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open('POST', new URL('/xhr', origin).href)
+      xhr.onload = () => resolve(xhr.responseText)
+      xhr.onerror = reject
+      xhr.send('hello')
+    })).toBe('hello')
   })
 })
