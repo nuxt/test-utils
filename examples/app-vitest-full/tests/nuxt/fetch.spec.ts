@@ -7,6 +7,8 @@ import { createApp, eventHandler, toNodeListener, readBody, getHeaders, getQuery
 
 import FetchComponent from '~/components/FetchComponent.vue'
 
+const isJsdom = process.env.VITEST_DOM_ENV === 'jsdom'
+
 describe('server mocks and data fetching', () => {
   it('can use $fetch', async () => {
     const app = createApp().use(
@@ -543,7 +545,7 @@ describe('server mocks and data fetching', () => {
     expect(spy).toHaveBeenCalledTimes(1)
   })
 
-  it.skipIf(process.env.VITEST_DOM_ENV === 'jsdom')('returns a window Blob from Request.blob()', async () => {
+  it('returns a window Blob from Request.blob()', async () => {
     const request = new Request('/blob-request', {
       method: 'POST',
       body: 'hello',
@@ -551,16 +553,19 @@ describe('server mocks and data fetching', () => {
     })
 
     const blob = await request.blob()
-    expect(blob).toBeInstanceOf(Blob)
     expect(blob.type).toBe('text/plain')
     expect(await blob.text()).toBe('hello')
 
-    const formData = new FormData()
-    formData.append('file', blob, 'a.txt')
-    expect(formData.get('file')).toBeInstanceOf(File)
+    if (!isJsdom) {
+      expect(blob).toBeInstanceOf(Blob)
+
+      const formData = new FormData()
+      formData.append('file', blob, 'a.txt')
+      expect(formData.get('file')).toBeInstanceOf(File)
+    }
   })
 
-  it.skipIf(process.env.VITEST_DOM_ENV === 'jsdom')('reads a window Blob when cloning a Request', async () => {
+  it('reads a window Blob when cloning a Request', async () => {
     const request = new Request('/clone-blob-request', {
       method: 'POST',
       body: 'hello',
@@ -572,9 +577,12 @@ describe('server mocks and data fetching', () => {
 
     // Cloned request can read its body as Blob
     const clonedBlob = await cloned.blob()
-    expect(clonedBlob).toBeInstanceOf(Blob)
     expect(clonedBlob.type).toBe('text/plain')
     expect(await clonedBlob.text()).toBe('hello')
+
+    if (!isJsdom) {
+      expect(clonedBlob).toBeInstanceOf(Blob)
+    }
 
     // Original request remains usable after reading the clone
     expect(await request.text()).toBe('hello')
@@ -582,7 +590,7 @@ describe('server mocks and data fetching', () => {
 
   // Node's Request.formData() fails when FormData contains a File and globalThis.File is a non-Node File.
   // happy-dom can delegate to its own Request.formData(), but jsdom does not implement Request.
-  it.skipIf(process.env.VITEST_DOM_ENV === 'jsdom')('preserves formData override when cloning a Request', async () => {
+  it.skipIf(isJsdom)('preserves formData override when cloning a Request', async () => {
     const body = new FormData()
     body.append('file', new File(['hello'], 'hello.txt', { type: 'text/plain' }))
 
