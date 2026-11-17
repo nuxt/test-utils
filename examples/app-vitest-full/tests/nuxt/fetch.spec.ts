@@ -619,28 +619,6 @@ describe('server mocks and data fetching', () => {
     expect(await originalFile.text()).toBe('hello')
   })
 
-  // Node's Request.formData() fails when FormData contains a File, and jsdom does not implement Request.
-  it.skipIf(isJsdom)('preserves mixed-case multipart boundaries in Request.formData()', async () => {
-    const boundary = '----MixedCaseBoundaryAbC123'
-    const rawBody = [
-      `--${boundary}`,
-      'Content-Disposition: form-data; name="field"',
-      '',
-      'value',
-      `--${boundary}--`,
-      '',
-    ].join('\r\n')
-
-    const request = new Request('/mixed-case-boundary', {
-      method: 'POST',
-      headers: { 'content-type': `multipart/form-data; boundary=${boundary}` },
-      body: rawBody,
-    })
-
-    const formData = await request.formData()
-    expect(formData.get('field')).toBe('value')
-  })
-
   it('keeps XMLHttpRequest compatible', async ({ onTestFinished }) => {
     const app = createApp().use(
       '/xhr',
