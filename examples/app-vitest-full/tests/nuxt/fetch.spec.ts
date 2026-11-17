@@ -543,7 +543,7 @@ describe('server mocks and data fetching', () => {
     expect(spy).toHaveBeenCalledTimes(1)
   })
 
-  it('returns a window Blob from Request.blob()', async () => {
+  it.skipIf(process.env.VITEST_DOM_ENV === 'jsdom')('returns a window Blob from Request.blob()', async () => {
     const request = new Request('/blob-request', {
       method: 'POST',
       body: 'hello',
@@ -560,7 +560,7 @@ describe('server mocks and data fetching', () => {
     expect(formData.get('file')).toBeInstanceOf(File)
   })
 
-  it('reads a window Blob when cloning a Request', async () => {
+  it.skipIf(process.env.VITEST_DOM_ENV === 'jsdom')('reads a window Blob when cloning a Request', async () => {
     const request = new Request('/clone-blob-request', {
       method: 'POST',
       body: 'hello',
