@@ -1,3 +1,6 @@
+import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { Nuxt, NuxtConfig, ViteConfig } from '@nuxt/schema'
 import type { Plugin } from 'vite'
@@ -30,6 +33,33 @@ describe('deepCopy', () => {
     expect(copy.self).toBe(copy)
   })
 })
+
+async function getCacheKey(layerConfig: NuxtConfig, overrides?: NuxtConfig, rootDir = process.cwd()) {
+  const nuxt = {
+    options: {
+      appDir: rootDir,
+      modulesDir: [rootDir],
+      rootDir,
+      _layers: [{ cwd: rootDir, config: layerConfig }],
+      runtimeConfig: {},
+      routeRules: {},
+      app: {},
+      build: { transpile: [] },
+    },
+  } as unknown as Nuxt
+  const config = await getVitestConfigFromNuxt({
+    nuxt,
+    viteConfig: { plugins: [] } as unknown as ViteConfig,
+  }, { overrides })
+  const plugin = (config.plugins as Plugin[]).find(p => p.name === 'nuxt:test-utils:cache-key')!
+  let generator: (() => string) | undefined
+  ;(plugin.configureVitest as (context: unknown) => void)({
+    experimental_defineCacheKeyGenerator: (fn: () => string) => {
+      generator = fn
+    },
+  })
+  return generator!()
+}
 
 describe('getVitestConfigFromNuxt', () => {
   it('should resolve a runtimeConfig containing a proxy', async () => {
@@ -87,33 +117,6 @@ describe('getVitestConfigFromNuxt', () => {
   })
 
   it('should derive the module cache key from the nuxt config without runtimeConfig or appConfig', async () => {
-    async function getCacheKey(layerConfig: NuxtConfig, overrides?: NuxtConfig) {
-      const nuxt = {
-        options: {
-          appDir: process.cwd(),
-          modulesDir: [process.cwd()],
-          rootDir: process.cwd(),
-          _layers: [{ cwd: process.cwd(), config: layerConfig }],
-          runtimeConfig: {},
-          routeRules: {},
-          app: {},
-          build: { transpile: [] },
-        },
-      } as unknown as Nuxt
-      const config = await getVitestConfigFromNuxt({
-        nuxt,
-        viteConfig: { plugins: [] } as unknown as ViteConfig,
-      }, { overrides })
-      const plugin = (config.plugins as Plugin[]).find(p => p.name === 'nuxt:test-utils:cache-key')!
-      let generator: (() => string) | undefined
-      ;(plugin.configureVitest as (context: unknown) => void)({
-        experimental_defineCacheKeyGenerator: (fn: () => string) => {
-          generator = fn
-        },
-      })
-      return generator!()
-    }
-
     const key = await getCacheKey({ ssr: false })
     expect(await getCacheKey({ ssr: false })).toBe(key)
     expect(await getCacheKey({ ssr: false, runtimeConfig: { secret: 'changed' } })).toBe(key)
@@ -131,5 +134,21 @@ describe('getVitestConfigFromNuxt', () => {
     expect(await getCacheKey({ vite: { define: { re: /a/ } } })).not.toBe(await getCacheKey({ vite: { define: { re: /b/ } } }))
     expect(await getCacheKey({ vite: { define: { map: new Map([['a', 1]]) } } })).not.toBe(await getCacheKey({ vite: { define: { map: new Map([['a', 2]]) } } }))
     expect(await getCacheKey({ vite: { define: { set: new Set([1]) } } })).not.toBe(await getCacheKey({ vite: { define: { set: new Set([2]) } } }))
+  })
+
+  it('should not follow symlink cycles in local module directories', async () => {
+    const rootDir = await mkdtemp(join(tmpdir(), 'nuxt-test-utils-cache-key-'))
+    try {
+      await mkdir(join(rootDir, 'modules'))
+      await writeFile(join(rootDir, 'modules/foo.ts'), 'export default {}')
+      await symlink(join(rootDir, 'modules'), join(rootDir, 'modules/loop'), 'junction')
+
+      const key = await getCacheKey({}, {}, rootDir)
+      await writeFile(join(rootDir, 'modules/foo.ts'), 'export default { changed: true }')
+      expect(await getCacheKey({}, {}, rootDir)).not.toBe(key)
+    }
+    finally {
+      await rm(rootDir, { recursive: true, force: true })
+    }
   })
 })

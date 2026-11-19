@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import type { Nuxt, NuxtConfig } from '@nuxt/schema'
 import { resolveAlias } from '@nuxt/kit'
 import { resolveModulePath } from 'exsolve'
@@ -73,17 +73,23 @@ function resolveLocalModule(nuxt: Nuxt, name: unknown) {
   return existsSync(path) ? path : resolveModulePath(path, { try: true, extensions: ['.mjs', '.js', '.cjs', '.mts', '.ts', '.cts', '.tsx', '.jsx'] })
 }
 
-function collectFiles(path: string, files: Set<string>) {
+function collectFiles(path: string, files: Set<string>, ancestors = new Set<string>()) {
   const stat = statSync(path, { throwIfNoEntry: false })
   if (stat?.isFile()) {
     files.add(path)
   }
   else if (stat?.isDirectory()) {
+    const realPath = realpathSync(path)
+    if (ancestors.has(realPath)) {
+      return
+    }
+    ancestors.add(realPath)
     for (const entry of readdirSync(path)) {
       if (entry !== 'node_modules') {
-        collectFiles(join(path, entry), files)
+        collectFiles(join(path, entry), files, ancestors)
       }
     }
+    ancestors.delete(realPath)
   }
 }
 
