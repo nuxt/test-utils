@@ -70,7 +70,7 @@ function resolveLocalModule(nuxt: Nuxt, name: unknown) {
   if (!isAbsolute(path) || path.includes('node_modules')) {
     return
   }
-  return existsSync(path) ? path : resolveModulePath(path, { try: true, extensions: ['.ts', '.mts', '.js', '.mjs', '.cts', '.cjs'] })
+  return existsSync(path) ? path : resolveModulePath(path, { try: true, extensions: ['.mjs', '.js', '.cjs', '.mts', '.ts', '.cts', '.tsx', '.jsx'] })
 }
 
 function collectFiles(path: string, files: Set<string>) {
