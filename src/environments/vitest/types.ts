@@ -33,5 +33,6 @@ export interface EnvironmentNuxtOptions {
 }
 export type EnvironmentNuxt = (global: typeof globalThis, options: EnvironmentNuxtOptions) => Promise<{
   window: NuxtWindow
+  onPopulated?: () => void
   teardown (): void
 }>

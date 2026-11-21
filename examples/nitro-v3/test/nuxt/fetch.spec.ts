@@ -1,5 +1,7 @@
+import { createServer } from 'node:http'
+import streamConsumers from 'node:stream/consumers'
 import { registerEndpoint } from '@nuxt/test-utils/runtime'
-import { it, expect, describe, vi } from 'vitest'
+import { afterAll, beforeAll, it, expect, describe, vi } from 'vitest'
 
 import { readBody, getQuery, getRequestHeaders, getRequestHeader } from 'nuxt/server'
 
@@ -109,6 +111,26 @@ describe('registerEndpoint tests', () => {
       body: { data: 'data' },
       headers: { 'x-test': 'test' },
     })
+  })
+
+  it('can check instanceof Fetch API globals', async () => {
+    registerEndpoint('/test-instanceof', () => '')
+
+    expect(new Request('').headers instanceof Headers).toBe(true)
+    expect(new Response().headers instanceof Headers).toBe(true)
+    expect({} instanceof Headers).toBe(false)
+
+    expect(new Request('') instanceof Request).toBe(true)
+    expect({} instanceof Request).toBe(false)
+
+    let headers!: Headers
+    await $fetch('/test-instanceof', {
+      onRequest({ options }) {
+        headers = options.headers
+      },
+    })
+
+    expect(headers instanceof Headers).toBe(true)
   })
 
   it('can fetch with Headers instance', async () => {
@@ -226,6 +248,79 @@ describe('registerEndpoint tests', () => {
 
     expect(await $fetch(request, { method: 'POST', body: [1] })).toMatchObject({ title: 'with-request', data: [1] })
     expect(await fetch(request, { method: 'POST', body: '[1]' }).then(res => res.json())).toMatchObject({ title: 'with-request', data: [1] })
+
+    expect(await fetch(new Request('/with-request', {
+      method: 'POST',
+      body: '[1]',
+      headers: { 'content-type': 'application/json' },
+    })).then(res => res.json())).toMatchObject({ title: 'with-request', data: [1] })
+  })
+
+  describe('unregistered endpoints with Request', () => {
+    let server: ReturnType<typeof createServer>
+    let url: string
+
+    beforeAll(async () => {
+      server = createServer(async (req, res) => {
+        res.setHeader('content-type', 'application/json')
+        res.end(JSON.stringify({
+          method: req.method,
+          header: req.headers['x-custom'],
+          body: req.method === 'POST' ? await streamConsumers.json(req) : null,
+        }))
+      })
+      await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve))
+      const { port } = server.address() as { port: number }
+      url = `http://127.0.0.1:${port}/unregistered`
+    })
+
+    afterAll(async () => {
+      server.closeAllConnections()
+      await new Promise<void>(resolve => server.close(() => resolve()))
+    })
+
+    it('can pass GET Request to native fetch', async () => {
+      expect(await fetch(new Request(url, {
+        headers: { 'x-custom': 'get-val' },
+      })).then(res => res.json())).toEqual({
+        method: 'GET',
+        header: 'get-val',
+        body: null,
+      })
+    })
+
+    it('can pass POST Request with body to native fetch', async () => {
+      expect(await fetch(new Request(url, {
+        method: 'POST',
+        headers: { 'x-custom': 'post-val', 'content-type': 'application/json' },
+        body: JSON.stringify({ hello: 'world' }),
+      })).then(res => res.json())).toEqual({
+        method: 'POST',
+        header: 'post-val',
+        body: { hello: 'world' },
+      })
+    })
+
+    it('can abort Request passed to native fetch', async () => {
+      const controller = new AbortController()
+      controller.abort()
+      await expect(fetch(new Request(url, { signal: controller.signal }))).rejects.toThrow(/aborted/i)
+    })
+  })
+
+  it('resolves relative URLs of Request against the current location', () => {
+    const originalUrl = location.href
+    try {
+      history.pushState({}, '', '/a/b')
+
+      expect(new Request('/foo').url).toBe('http://localhost:3000/foo')
+      expect(new Request('foo').url).toBe('http://localhost:3000/a/foo')
+      expect(new Request('./foo?q=1').url).toBe('http://localhost:3000/a/foo?q=1')
+      expect(new Request('http://example.com/foo').url).toBe('http://example.com/foo')
+    }
+    finally {
+      history.pushState({}, '', originalUrl)
+    }
   })
 
   it('can mock fetch requests with FormData', async () => {
@@ -407,5 +502,18 @@ describe('registerEndpoint tests', () => {
     expect(await $fetch('/endpoint/priority/2')).toBe('1')
     expect(await $fetch('/endpoint/priority/2?q=1')).toBe('1')
     expect(await $fetch('/endpoint/priority/2?q=1')).toBe('1')
+  })
+
+  it('delegates $fetch calls to the current window.fetch reference', async ({ onTestFinished }) => {
+    const spy = vi.spyOn(window, 'fetch').mockResolvedValueOnce(
+      new Response(JSON.stringify({ mocked: true }), {
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+    onTestFinished(() => spy.mockRestore())
+
+    expect(window).toBe(globalThis)
+    expect(await $fetch('/spied-fetch')).toEqual({ mocked: true })
+    expect(spy).toHaveBeenCalledTimes(1)
   })
 })
