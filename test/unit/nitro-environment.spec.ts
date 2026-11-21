@@ -28,6 +28,7 @@ function createNuxt() {
       appDir: process.cwd(),
       modulesDir: [process.cwd()],
       rootDir: process.cwd(),
+      _layers: [],
       runtimeConfig: { app: {} },
       routeRules: {},
       nitro: {},

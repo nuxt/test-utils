@@ -13,6 +13,7 @@ import { resolveModulePath } from 'exsolve'
 
 import { applyEnv, deepCopy, loadKit, resolveH3Package } from './utils.ts'
 import { NuxtVitestEnvironmentOptionsPlugin } from './module/plugins/options.ts'
+import { NuxtVitestCacheKeyPlugin } from './module/plugins/cache-key.ts'
 
 interface GetVitestConfigOptions {
   nuxt: Nuxt
@@ -253,6 +254,7 @@ export async function getVitestConfigFromNuxt(
           },
         },
         ...options.nitro ? [nitroTeardownPlugin(options.nitro)] : [],
+        NuxtVitestCacheKeyPlugin(options.nuxt, _overrides),
         {
           name: 'nuxt:test-utils:browser-conditions',
           enforce: 'pre',
