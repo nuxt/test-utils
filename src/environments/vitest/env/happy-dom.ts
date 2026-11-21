@@ -48,13 +48,20 @@ export default <EnvironmentNuxt> async function (global, { happyDom = {} }) {
     }
 
     override async formData(): Promise<FormData> {
+      const method = this.method
       const body = this.body ? await this.blob() : null
-      const formData = await new HappyDomRequest(this.url, {
-        method: this.method,
-        headers: new Headers(this.headers) as Headers & string[][],
-        body: body as never,
-      }).formData()
-      return formData as unknown as FormData
+      const headers = new Headers(this.headers)
+      // Workaround for happy-dom's case-sensitive formData() content-type check
+      const contentType = headers.get('content-type')?.replace(/^[^;]*/, media => media.toLowerCase())
+      if (contentType) {
+        headers.set('content-type', contentType)
+        if (body) {
+          // Workaround for older happy-dom only reading blob's type, so override it with header's value
+          // This can be removed when dropping support for happy-dom 20.x
+          Object.defineProperty(body, 'type', { value: contentType })
+        }
+      }
+      return new HappyDomRequest(this.url, { method, headers, body }).formData()
     }
   }
 

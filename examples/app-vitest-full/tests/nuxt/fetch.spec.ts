@@ -588,6 +588,38 @@ describe('server mocks and data fetching', () => {
     expect(await request.text()).toBe('hello')
   })
 
+  describe('Request.formData()', () => {
+    it.each([
+      ['lower-case', 'application/x-www-form-urlencoded'],
+      ['upper-case', 'APPLICATION/X-WWW-FORM-URLENCODED'],
+      ['mixed-case', 'Application/X-Www-Form-Urlencoded'],
+    ])('can process %s content-type', async (_, contentType) => {
+      const formData = await new Request('/form-data-request', {
+        method: 'POST',
+        headers: { 'content-type': contentType },
+        body: 'field=value',
+      }).formData()
+      expect(formData.get('field')).toBe('value')
+    })
+
+    it('can process mixed-case boundary', async () => {
+      const boundary = '----MixedCaseBoundary123'
+      const formData = await new Request('/form-data-request', {
+        method: 'POST',
+        headers: { 'content-type': `Multipart/Form-Data; boundary=${boundary}` },
+        body: [
+          `--${boundary}`,
+          'Content-Disposition: form-data; name="field"',
+          '',
+          'value',
+          `--${boundary}--`,
+          '',
+        ].join('\r\n'),
+      }).formData()
+      expect(formData.get('field')).toBe('value')
+    })
+  })
+
   // Node's Request.formData() fails when FormData contains a File and globalThis.File is a non-Node File.
   // happy-dom can delegate to its own Request.formData(), but jsdom does not implement Request.
   it.skipIf(isJsdom)('preserves formData override when cloning a Request', async () => {
