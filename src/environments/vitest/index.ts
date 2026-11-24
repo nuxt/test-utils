@@ -31,7 +31,7 @@ export default <Environment>{
 
     const environmentName = environmentOptions.nuxt?.domEnvironment as NuxtBuiltinEnvironment
     const environment = environmentMap[environmentName] || environmentMap['happy-dom']
-    const { window: win, teardown } = await environment(global, defu(environmentOptions, {
+    const { window: win, onPopulated, teardown } = await environment(global, defu(environmentOptions, {
       happyDom: { url },
       jsdom: { url },
     }))
@@ -51,6 +51,8 @@ export default <Environment>{
       bindFunctions: true,
       additionalKeys: ['fetch', 'Request', 'Headers'],
     })
+
+    onPopulated?.()
 
     return {
       // called after all tests with this env have been run

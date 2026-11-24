@@ -43,7 +43,7 @@ export async function setupWindow(win: NuxtWindow, environmentOptions: NuxtEnvir
   win.fetch = res.fetch
 
   // @ts-expect-error fetch types differ slightly
-  win.$fetch = createFetch({ fetch: win.fetch, Headers: win.Headers })
+  win.$fetch = createFetch({ fetch: (...args) => globalThis.fetch(...args), Headers: win.Headers })
 
   win.__registry = res.registry
   win.__app = res.h3App

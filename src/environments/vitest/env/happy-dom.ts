@@ -1,12 +1,19 @@
 import type { EnvironmentNuxt, NuxtWindow } from '../types.ts'
+import { createCompatRequest } from './shared.ts'
 
-export default <EnvironmentNuxt> async function (_, { happyDom = {} }) {
+export default <EnvironmentNuxt> async function (global, { happyDom = {} }) {
   const { Window, GlobalWindow, PropertySymbol } = await import('happy-dom')
   const window = new (GlobalWindow || Window)(happyDom) as InstanceType<typeof GlobalWindow> & NuxtWindow
+  const win = window as unknown as typeof globalThis
 
   const { Headers: NativeHeaders } = globalThis
+  const { Request: HappyDomRequest, Blob: HappyDomBlob } = win
 
-  class Headers extends NativeHeaders {
+  win.Headers = class Headers extends NativeHeaders {
+    constructor(init?: HeadersInit) {
+      super(init ?? undefined)
+    }
+
     // Make native Headers behave like happy-dom's Headers
     public get [PropertySymbol.entries]() {
       const entries: { [k: string]: { name: string, value: string[] } } = Object.create(null)
@@ -29,10 +36,43 @@ export default <EnvironmentNuxt> async function (_, { happyDom = {} }) {
     }
   }
 
-  (window as NuxtWindow).Headers = Headers
+  const CompatRequest = class Request extends createCompatRequest({
+    window: win,
+    toBlobBytes: blob => Reflect.get(blob, PropertySymbol.buffer),
+  }) {
+    override async blob(): Promise<Blob> {
+      const blob = await super.blob()
+      return new HappyDomBlob([await blob.arrayBuffer()], {
+        type: blob.type,
+      })
+    }
+
+    override async formData(): Promise<FormData> {
+      const method = this.method
+      const body = this.body ? await this.blob() : null
+      const headers = new Headers(this.headers)
+      // Workaround for happy-dom's case-sensitive formData() content-type check
+      const contentType = headers.get('content-type')?.replace(/^[^;]*/, media => media.toLowerCase())
+      if (contentType) {
+        headers.set('content-type', contentType)
+        if (body) {
+          // Workaround for older happy-dom only reading blob's type, so override it with header's value
+          // This can be removed when dropping support for happy-dom 20.x
+          Object.defineProperty(body, 'type', { value: contentType })
+        }
+      }
+      return new HappyDomRequest(this.url, { method, headers, body }).formData()
+    }
+  }
 
   return {
     window,
+    onPopulated() {
+      // Overriding global.Request also overrides window.Request in vitest,
+      // so after setting global.Request, restore HappyDom's Request for internal consumers
+      Reflect.set(global, 'Request', CompatRequest)
+      Reflect.set(window, 'Request', HappyDomRequest)
+    },
     teardown() {
       window.happyDOM.abort()
     },
