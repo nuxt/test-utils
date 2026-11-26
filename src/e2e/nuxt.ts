@@ -44,6 +44,7 @@ export async function loadFixture() {
   const randomId = Math.random().toString(36).slice(2, 8)
   const buildDir = ctx.options.buildDir || resolve(ctx.options.rootDir, '.nuxt', 'test', randomId)
   ctx.options.nuxtConfig = defu(ctx.options.nuxtConfig, { buildDir })
+  ctx.options.nuxtConfig.typesDir ??= ctx.options.nuxtConfig.buildDir
   if (!ctx.options.dev) {
     ctx.options.nuxtConfig = defu(ctx.options.nuxtConfig, {
       nitro: {
